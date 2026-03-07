@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useSession, signIn } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { useWizard } from "@/hooks/use-wizard";
 import { PHASES } from "@/data/phases";
@@ -58,9 +59,11 @@ export default function Home() {
     applyTemplate,
   } = useWizard();
 
+  const { data: session } = useSession();
   const [infoPanel, setInfoPanel] = useState<InfoEntry | null>(null);
   const [activeTab, setActiveTab] = useState("summary");
   const [saveToast, setSaveToast] = useState("");
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Live validation for current phase
   const liveIssues = useMemo(
@@ -188,6 +191,10 @@ export default function Home() {
             <div className="relative">
               <button
                 onClick={async () => {
+                  if (!session) {
+                    setShowLoginModal(true);
+                    return;
+                  }
                   await saveToHistory(allPhaseState, [...completedPhases]);
                   setSaveToast("저장되었습니다");
                   setTimeout(() => setSaveToast(""), 2000);
@@ -202,6 +209,28 @@ export default function Home() {
                 </div>
               )}
             </div>
+
+            {/* 로그인 요청 모달 */}
+            {showLoginModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                <div className="w-full max-w-xs rounded-xl bg-white p-6 text-center shadow-xl">
+                  <p className="mb-1 text-sm font-bold text-gray-900">로그인이 필요합니다</p>
+                  <p className="mb-5 text-xs text-gray-500">저장 기능은 로그인 후 이용할 수 있습니다</p>
+                  <button
+                    onClick={() => { setShowLoginModal(false); signIn("google"); }}
+                    className="mb-2 w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
+                  >
+                    Google로 로그인
+                  </button>
+                  <button
+                    onClick={() => setShowLoginModal(false)}
+                    className="w-full rounded-lg px-4 py-2 text-sm text-gray-400 transition-colors hover:text-gray-600"
+                  >
+                    닫기
+                  </button>
+                </div>
+              </div>
+            )}
             {/* 탭 전환 */}
             <div className="flex flex-wrap gap-1 rounded-[10px] bg-gray-100 p-1">
               {resultTabs.map((tab) => (

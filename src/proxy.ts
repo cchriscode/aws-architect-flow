@@ -4,12 +4,13 @@ import { NextResponse } from "next/server";
 export default auth((req) => {
   const { pathname } = req.nextUrl;
 
-  // Allow auth routes and login page
-  if (pathname.startsWith("/api/auth") || pathname === "/login") {
+  // Public routes — accessible without login
+  const publicPaths = ["/", "/login", "/privacy"];
+  if (pathname.startsWith("/api/auth") || publicPaths.includes(pathname)) {
     return NextResponse.next();
   }
 
-  // Redirect unauthenticated users to login
+  // Redirect unauthenticated users to login for protected routes (history, api/history)
   if (!req.auth) {
     const loginUrl = new URL("/login", req.url);
     return NextResponse.redirect(loginUrl);

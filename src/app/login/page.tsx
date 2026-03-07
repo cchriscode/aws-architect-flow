@@ -1,8 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
+  const router = useRouter();
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
       <div className="w-full max-w-sm rounded-xl border-[1.5px] border-gray-200 bg-white px-8 py-10 text-center shadow-sm">
@@ -41,8 +43,17 @@ export default function LoginPage() {
           Google{"\uB85C"} {"\uB85C\uADF8\uC778"}
         </button>
 
-        <p className="mt-6 text-[11px] text-gray-300">
-          {"\uB85C\uADF8\uC778"} {"\uD6C4"} {"\uC124\uACC4"} {"\uB3C4\uAD6C\uB97C"} {"\uC774\uC6A9\uD560"} {"\uC218"} {"\uC788\uC2B5\uB2C8\uB2E4"}
+        <div className="mt-4">
+          <button
+            onClick={() => router.push("/")}
+            className="w-full rounded-lg px-4 py-2.5 text-sm font-medium text-gray-400 transition-colors hover:text-gray-600 hover:bg-gray-50"
+          >
+            비회원으로 이용하기
+          </button>
+        </div>
+
+        <p className="mt-4 text-[11px] text-gray-300">
+          비회원은 설계 저장 기능을 이용할 수 없습니다
         </p>
       </div>
     </div>
