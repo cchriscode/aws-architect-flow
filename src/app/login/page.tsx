@@ -52,7 +52,14 @@ export default function LoginPage() {
           </button>
         </div>
 
-        <p className="mt-4 text-[11px] text-gray-300">
+        <p className="mt-5 text-[11px] leading-relaxed text-gray-400">
+          로그인 시{" "}
+          <a href="/privacy" target="_blank" className="underline hover:text-gray-600">
+            개인정보처리방침
+          </a>
+          에 동의한 것으로 간주됩니다.
+        </p>
+        <p className="mt-1 text-[11px] text-gray-300">
           비회원은 설계 저장 기능을 이용할 수 없습니다
         </p>
       </div>
