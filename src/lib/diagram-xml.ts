@@ -852,14 +852,16 @@ function generateEdges(classified: ClassifiedServices, idMap: IdMap, posMap: Pos
   interface EdgeDef { src: string; tgt: string; color: string; label?: string; dashed: boolean }
   const defs: EdgeDef[] = [];
 
-  // Main flow chain: Users → Route53 → CloudFront → API GW → IGW → ALB → App
+  // Main flow chain (AWS reference):
+  // With API GW:    Users → Route53 → CloudFront → API GW → ALB → App  (VPC Link, no IGW)
+  // Without API GW: Users → Route53 → CloudFront → IGW → ALB → App     (public internet)
   const igw = idMap["__igw__"];
   const flowChain: { id: string; key: string }[] = [];
   if (usersId)    flowChain.push({ id: usersId, key: "users" });
   if (route53)    flowChain.push({ id: route53, key: "route53" });
   if (cloudfront) flowChain.push({ id: cloudfront, key: "cloudfront" });
   if (apiGw)      flowChain.push({ id: apiGw, key: "apigw" });
-  if (igw && alb) flowChain.push({ id: igw, key: "igw" });
+  if (igw && alb && !apiGw) flowChain.push({ id: igw, key: "igw" });
   if (alb)        flowChain.push({ id: alb, key: "alb" });
   if (appSvcs[0]) flowChain.push({ id: appSvcs[0], key: "app" });
 
