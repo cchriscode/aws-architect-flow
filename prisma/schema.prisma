@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  name          String?
+  email         String?        @unique
+  emailVerified DateTime?      @map("email_verified")
+  image         String?
+  accounts      Account[]
+  history       HistoryEntry[] @relation("UserHistory")
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(uuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model HistoryEntry {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  name            String
+  savedAt         DateTime @default(now()) @map("saved_at")
+  state           Json
+  completedPhases Json     @map("completed_phases")
+  headline        String
+  monthlyCost     Float    @map("monthly_cost")
+  wafrScore       Float    @map("wafr_score")
+  archPattern     String   @map("arch_pattern")
+  workloadTypes   Json     @map("workload_types")
+  user            User     @relation("UserHistory", fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("history_entries")
+}
