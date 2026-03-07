@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { useSession, signIn, signOut } from "next-auth/react";
 
 export function UserMenu() {
   const { data: session } = useSession();
@@ -18,7 +18,19 @@ export function UserMenu() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  if (!session?.user) return null;
+  if (!session?.user) {
+    return (
+      <>
+        <div className="mx-2.5 h-5 w-px bg-gray-200" />
+        <button
+          onClick={() => signIn("google")}
+          className="rounded-lg border-[1.5px] border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-600 transition-colors hover:bg-indigo-100"
+        >
+          로그인
+        </button>
+      </>
+    );
+  }
 
   const { name, image } = session.user;
 
