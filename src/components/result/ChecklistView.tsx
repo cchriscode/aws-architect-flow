@@ -1,16 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { WizardState } from "@/lib/types";
 import { generateChecklist } from "@/lib/checklist";
+import { useDict, useLang } from "@/lib/i18n/context";
 
 interface ChecklistViewProps {
   state: WizardState;
 }
 
 export function ChecklistView({ state }: ChecklistViewProps) {
+  const t = useDict();
+  const { lang } = useLang();
   const STORAGE_KEY = "aws_arch_checklist_v1";
   const [checked, setChecked] = useState<Record<string, boolean>>(() => {
     try {
@@ -24,7 +27,7 @@ export function ChecklistView({ state }: ChecklistViewProps) {
     "all"
   );
 
-  const { phases, totalItems, criticalItems } = generateChecklist(state);
+  const { phases, totalItems, criticalItems } = generateChecklist(state, lang);
 
   const toggle = (id: string) => {
     const next = { ...checked, [id]: !checked[id] };
@@ -67,11 +70,11 @@ export function ChecklistView({ state }: ChecklistViewProps) {
 
   return (
     <div className="grid grid-cols-[220px_1fr] gap-5">
-      {/* 왼쪽 사이드바 */}
+      {/* Left sidebar */}
       <div>
-        {/* 전체 진행률 */}
+        {/* Overall progress */}
         <div className="mb-3 rounded-xl border border-gray-200 bg-white p-4">
-          <div className="mb-1.5 text-xs text-gray-500">전체 진행률</div>
+          <div className="mb-1.5 text-xs text-gray-500">{t.checklistView.overallProgress}</div>
           <div className="mb-1 text-[28px] font-extrabold text-gray-900">
             {pct}
             <span className="text-sm font-medium text-gray-400">%</span>
@@ -91,17 +94,16 @@ export function ChecklistView({ state }: ChecklistViewProps) {
             />
           </div>
           <div className="text-[11px] text-gray-400">
-            {doneCount} / {totalItems} 완료 {"\u00B7"} {"\u2757"}
-            {criticalItems} 필수 항목
+            {doneCount} / {totalItems} {t.checklistView.completed} {"\u00B7"} {t.checklistView.criticalItems(criticalItems)}
           </div>
         </div>
 
-        {/* 필터 */}
+        {/* Filter */}
         <div className="mb-3 rounded-xl border border-gray-200 bg-white p-2.5">
           {[
-            { id: "all" as const, label: "전체 보기" },
-            { id: "critical" as const, label: "\u2757 필수만" },
-            { id: "todo" as const, label: "\u2610 미완료만" },
+            { id: "all" as const, label: t.checklistView.viewAll },
+            { id: "critical" as const, label: t.checklistView.criticalOnly },
+            { id: "todo" as const, label: t.checklistView.todoOnly },
           ].map((f) => (
             <button
               key={f.id}
@@ -118,7 +120,7 @@ export function ChecklistView({ state }: ChecklistViewProps) {
           ))}
         </div>
 
-        {/* Phase 목록 */}
+        {/* Phase list */}
         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
           {phases.map((phase) => {
             const phaseDone = phase.items.filter(
@@ -176,7 +178,7 @@ export function ChecklistView({ state }: ChecklistViewProps) {
         </div>
       </div>
 
-      {/* 오른쪽 체크리스트 */}
+      {/* Right checklist */}
       <div>
         {phases
           .filter((p) => p.phase === expandedPhase)
@@ -195,7 +197,7 @@ export function ChecklistView({ state }: ChecklistViewProps) {
                         {phase.phase}: {phase.label}
                       </div>
                       <div className="mt-0.5 text-xs text-gray-500">
-                        {phaseDone}/{phase.items.length} 완료
+                        {phaseDone}/{phase.items.length} {t.checklistView.completed}
                         {phase.items.filter((i: any) => i.critical).length >
                           0 && (
                           <span className="ml-2 font-semibold text-red-600">
@@ -204,7 +206,7 @@ export function ChecklistView({ state }: ChecklistViewProps) {
                               phase.items.filter((i: any) => i.critical)
                                 .length
                             }{" "}
-                            필수
+                            {t.checklistView.critical}
                           </span>
                         )}
                       </div>
@@ -213,7 +215,7 @@ export function ChecklistView({ state }: ChecklistViewProps) {
                       onClick={() => resetPhase(phase.phase)}
                       className="rounded-md border border-gray-200 bg-transparent px-2.5 py-1 text-[11px] text-gray-400"
                     >
-                      초기화
+                      {t.checklistView.reset}
                     </button>
                   </div>
                   <div className="h-2 rounded-md bg-gray-100">
@@ -237,8 +239,8 @@ export function ChecklistView({ state }: ChecklistViewProps) {
                 {filtered.length === 0 ? (
                   <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-[13px] text-gray-400">
                     {filterMode === "critical"
-                      ? "이 Phase에는 필수 항목이 없습니다."
-                      : "모든 항목이 완료되었습니다! \u2705"}
+                      ? t.checklistView.noCritical
+                      : t.checklistView.allDone}
                   </div>
                 ) : (
                   filtered.map((item: any) => (
@@ -279,7 +281,7 @@ export function ChecklistView({ state }: ChecklistViewProps) {
                           <div className="flex items-center gap-2">
                             {item.critical && !checked[item.id] && (
                               <span className="shrink-0 rounded border border-red-300 bg-red-50 px-1.5 py-px text-[10px] font-bold text-red-600">
-                                필수
+                                {t.checklistView.critical}
                               </span>
                             )}
                             <span
@@ -304,7 +306,7 @@ export function ChecklistView({ state }: ChecklistViewProps) {
                   ))
                 )}
 
-                {/* Phase 완료 시 다음 이동 */}
+                {/* Phase complete → next */}
                 {phaseDone === phase.items.length &&
                   phase.items.length > 0 &&
                   (() => {
@@ -318,7 +320,7 @@ export function ChecklistView({ state }: ChecklistViewProps) {
                           onClick={() => setExpandedPhase(next.phase)}
                           className="rounded-lg bg-indigo-600 px-6 py-2.5 text-[13px] font-semibold text-white"
                         >
-                          {next.icon} {next.phase}으로 이동 {"\u2192"}
+                          {next.icon} {t.checklistView.moveToPhase(next.phase)}
                         </button>
                       </div>
                     ) : (
@@ -327,10 +329,10 @@ export function ChecklistView({ state }: ChecklistViewProps) {
                           {"\uD83C\uDF89"}
                         </div>
                         <div className="text-base font-bold text-emerald-600">
-                          모든 구현 단계 완료!
+                          {t.checklistView.allPhasesComplete}
                         </div>
                         <div className="mt-1 text-[13px] text-gray-500">
-                          서비스 론칭 준비가 완료되었습니다.
+                          {t.checklistView.allPhasesDoneDesc}
                         </div>
                       </div>
                     );

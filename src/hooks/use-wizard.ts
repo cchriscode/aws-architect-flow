@@ -5,6 +5,7 @@ import type { WizardState } from "@/lib/types";
 import { PHASES, type PhaseDefinition } from "@/data/phases";
 import { buildPhaseQuestions } from "@/lib/questions";
 import { generateArchitecture } from "@/lib/architecture";
+import { useLang } from "@/lib/i18n/context";
 
 const SAVE_KEY = "aws_arch_designer_v1";
 
@@ -19,6 +20,7 @@ function loadSaved() {
 }
 
 export function useWizard() {
+  const { lang } = useLang();
   const [currentPhase, setCurrentPhase] = useState<string>("workload");
   const [state, setState] = useState<WizardState>({});
   const [completedPhases, setCompletedPhases] = useState<Set<string>>(
@@ -44,7 +46,7 @@ export function useWizard() {
   const phaseIdx = PHASES.findIndex((p) => p.id === currentPhase);
   const phase = PHASES[phaseIdx];
   const phaseState = state[phase.id] || {};
-  const questions = buildPhaseQuestions(phase.id, state, phaseState);
+  const questions = buildPhaseQuestions(phase.id, state, phaseState, lang);
 
   const allPhaseState = { ...state, [phase.id]: phaseState };
 
@@ -110,7 +112,7 @@ export function useWizard() {
       }
       setCurrentPhase(PHASES[nextIdx].id);
     } else {
-      const result = generateArchitecture(updatedState);
+      const result = generateArchitecture(updatedState, lang);
       setArch(result);
       setShowResult(true);
     }
@@ -147,13 +149,13 @@ export function useWizard() {
     setState(data.state);
     setCompletedPhases(new Set(data.completedPhases));
     setShowResult(true);
-    setArch(generateArchitecture(data.state));
+    setArch(generateArchitecture(data.state, lang));
   }
 
   function applyTemplate(templateState: WizardState) {
     setState(templateState);
     setCompletedPhases(new Set(PHASES.map((p) => p.id)));
-    const result = generateArchitecture(templateState);
+    const result = generateArchitecture(templateState, lang);
     setArch(result);
     setShowResult(true);
   }
@@ -184,7 +186,7 @@ export function useWizard() {
         setState(parsed.state);
         setCompletedPhases(new Set(parsed.completedPhases || []));
         setShowResult(true);
-        setArch(generateArchitecture(parsed.state));
+        setArch(generateArchitecture(parsed.state, lang));
         window.history.replaceState({}, "", window.location.pathname);
       }
     } catch {}

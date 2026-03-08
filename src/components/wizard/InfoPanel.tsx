@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { InfoEntry } from "@/lib/types";
+import { useDict } from "@/lib/i18n/context";
 
 interface InfoPanelProps {
   info: InfoEntry | null;
@@ -16,23 +17,24 @@ interface InfoPanelProps {
 }
 
 export function InfoPanel({ info, onClose }: InfoPanelProps) {
+  const t = useDict();
+
   return (
     <Dialog open={!!info} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-[560px] gap-0 p-0">
         <DialogHeader className="border-b border-gray-100 px-6 pt-5 pb-4">
           <div className="mb-1 text-[11px] font-bold tracking-wider text-indigo-600">
-            {"\u2139\uFE0F"} 선택지 상세 정보
+            {"ℹ️"} {t.questionCard.moreInfo}
           </div>
           <DialogTitle className="text-[17px] font-extrabold text-gray-900">
             {info?.title}
           </DialogTitle>
           <DialogDescription className="sr-only">
-            선택지에 대한 상세 정보입니다.
+            {t.questionCard.moreInfo}
           </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="max-h-[60vh]">
-          {/* 요약 */}
           {info?.summary && (
             <div className="border-b border-gray-100 bg-gray-50 px-6 py-3.5">
               <div className="text-[13px] leading-[1.7] text-gray-700">
@@ -41,11 +43,10 @@ export function InfoPanel({ info, onClose }: InfoPanelProps) {
             </div>
           )}
 
-          {/* 관련 AWS 서비스 */}
           {info?.services && info.services.length > 0 && (
             <div className="border-b border-gray-100 px-6 py-4">
               <div className="mb-3 text-[11px] font-bold tracking-wider text-gray-500">
-                {"\uD83D\uDD27"} 관련 AWS 서비스
+                {t.infoPanel.related}
               </div>
               {info.services.map((svc, i) => (
                 <div
@@ -66,11 +67,10 @@ export function InfoPanel({ info, onClose }: InfoPanelProps) {
             </div>
           )}
 
-          {/* 데이터 흐름 */}
           {info?.flow && (
             <div className="border-b border-gray-100 px-6 py-3.5">
               <div className="mb-2 text-[11px] font-bold tracking-wider text-gray-500">
-                {"\uD83D\uDCCA"} 데이터 흐름
+                {"📊"} {t.diagramView.tabData}
               </div>
               <div className="whitespace-pre-wrap rounded-lg border border-emerald-200 bg-green-50 px-3.5 py-2.5 font-mono text-xs leading-[1.8] text-gray-900">
                 {info.flow}
@@ -78,11 +78,10 @@ export function InfoPanel({ info, onClose }: InfoPanelProps) {
             </div>
           )}
 
-          {/* 핵심 팁 */}
           {info?.tip && (
             <div className="px-6 py-3.5">
               <div className="mb-1.5 text-[11px] font-bold tracking-wider text-gray-500">
-                {"\uD83D\uDCA1"} 핵심 포인트
+                {t.infoPanel.why}
               </div>
               <div className="rounded-lg border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-xs leading-[1.7] text-gray-700">
                 {info.tip}

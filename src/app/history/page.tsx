@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useDict, useLang } from "@/lib/i18n/context";
 import {
   getHistory,
   deleteFromHistory,
@@ -18,16 +19,20 @@ const PATTERN_LABELS: Record<string, string> = {
   hybrid: "Hybrid",
 };
 
-function relativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "방금 전";
-  if (mins < 60) return `${mins}분 전`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}시간 전`;
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days}일 전`;
-  return new Date(iso).toLocaleDateString("ko-KR");
+function useRelativeTime() {
+  const t = useDict();
+  const { lang } = useLang();
+  return (iso: string) => {
+    const diff = Date.now() - new Date(iso).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return t.history.justNow;
+    if (mins < 60) return t.history.minutesAgo(mins);
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return t.history.hoursAgo(hours);
+    const days = Math.floor(hours / 24);
+    if (days < 30) return t.history.daysAgo(days);
+    return new Date(iso).toLocaleDateString(lang === "ko" ? "ko-KR" : "en-US");
+  };
 }
 
 function loadUrl(entry: HistoryEntry): string {
@@ -40,6 +45,8 @@ function loadUrl(entry: HistoryEntry): string {
 }
 
 export default function HistoryPage() {
+  const t = useDict();
+  const relativeTime = useRelativeTime();
   const [entries, setEntries] = useState<HistoryEntry[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
@@ -60,7 +67,7 @@ export default function HistoryPage() {
   }
 
   async function handleClearAll() {
-    if (!confirm("저장된 모든 설계를 삭제하시겠습니까?")) return;
+    if (!confirm(t.history.deleteAllConfirm)) return;
     await clearHistory();
     await refresh();
   }
@@ -89,37 +96,37 @@ export default function HistoryPage() {
             ArchFlow
           </span>
           <span className="text-xs text-gray-400">
-            저장 목록
+            {t.history.title}
           </span>
         </div>
         <Link
           href="/"
           className="rounded-lg border-[1.5px] border-gray-200 bg-white px-3.5 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
         >
-          {"\u2190"} 홈으로
+          {t.history.backHome}
         </Link>
       </div>
 
       <div className="mx-auto max-w-[900px] px-7 py-6">
         {loading ? (
           <div className="flex items-center justify-center py-16 text-sm text-gray-400">
-            불러오는 중...
+            {t.history.loading}
           </div>
         ) : entries.length === 0 ? (
           /* Empty state */
           <div className="flex flex-col items-center gap-3 rounded-xl border-[1.5px] border-dashed border-gray-300 bg-white px-8 py-16 text-center">
             <div className="text-4xl opacity-40">{"📋"}</div>
             <div className="text-sm font-semibold text-gray-600">
-              저장된 설계가 없습니다
+              {t.history.emptyTitle}
             </div>
             <div className="text-xs text-gray-400">
-              결과 화면에서 "저장" 버튼을 눌러 아키텍처를 저장하세요
+              {t.history.emptyDesc}
             </div>
             <Link
               href="/"
               className="mt-2 rounded-lg bg-indigo-600 px-5 py-2 text-xs font-semibold text-white transition-colors hover:bg-indigo-700"
             >
-              설계 시작하기
+              {t.history.startDesign}
             </Link>
           </div>
         ) : (
@@ -150,7 +157,7 @@ export default function HistoryPage() {
                         <button
                           onClick={() => startRename(entry)}
                           className="truncate text-left text-sm font-bold text-gray-900 hover:text-indigo-600"
-                          title="클릭하여 이름 수정"
+                          title={t.history.editNameTooltip}
                         >
                           {entry.name}
                         </button>
@@ -161,10 +168,10 @@ export default function HistoryPage() {
                       {/* Badges */}
                       <div className="mt-2 flex flex-wrap gap-1.5">
                         <span className="rounded-md bg-indigo-50 px-2 py-0.5 text-[11px] font-semibold text-indigo-600">
-                          ${entry.summary.monthlyCost.toLocaleString()}/월
+                          ${entry.summary.monthlyCost.toLocaleString()}{t.history.perMonth}
                         </span>
                         <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-600">
-                          WAFR {entry.summary.wafrScore}점
+                          {t.history.wafrScore(entry.summary.wafrScore)}
                         </span>
                         <span className="rounded-md bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
                           {PATTERN_LABELS[entry.summary.archPattern] ||
@@ -179,13 +186,13 @@ export default function HistoryPage() {
                         href={loadUrl(entry)}
                         className="rounded-lg border-[1.5px] border-indigo-200 bg-indigo-50 px-3.5 py-1.5 text-xs font-semibold text-indigo-600 transition-colors hover:bg-indigo-100"
                       >
-                        불러오기
+                        {t.history.loadBtn}
                       </Link>
                       <button
                         onClick={() => handleDelete(entry.id)}
                         className="rounded-lg border-[1.5px] border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-500 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-500"
                       >
-                        삭제
+                        {t.history.deleteBtn}
                       </button>
                     </div>
                   </div>
@@ -199,7 +206,7 @@ export default function HistoryPage() {
                 onClick={handleClearAll}
                 className="rounded-lg border-[1.5px] border-red-200 bg-white px-4 py-2 text-xs font-medium text-red-500 transition-colors hover:bg-red-50"
               >
-                전체 삭제
+                {t.history.deleteAll}
               </button>
             </div>
           </>

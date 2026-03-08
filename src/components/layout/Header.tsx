@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import type { WizardState } from "@/lib/types";
-import { generateArchitecture } from "@/lib/architecture";
 import { getHistoryCount } from "@/lib/history";
 import { UserMenu } from "@/components/layout/UserMenu";
+import { useDict, useLang } from "@/lib/i18n/context";
 
 interface HeaderProps {
   showResult: boolean;
@@ -25,6 +25,8 @@ export function Header({
   onReset,
   onImport,
 }: HeaderProps) {
+  const t = useDict();
+  const { lang, setLang } = useLang();
   const [shareMsg, setShareMsg] = useState("");
   const [historyCount, setHistoryCount] = useState(0);
 
@@ -42,11 +44,11 @@ export function Header({
       const url =
         window.location.origin + window.location.pathname + "?d=" + b64;
       navigator.clipboard.writeText(url).then(() => {
-        setShareMsg("\u2705 \uB9C1\uD06C \uBCF5\uC0AC\uB428!");
+        setShareMsg(t.header.linkCopied);
         setTimeout(() => setShareMsg(""), 2500);
       });
     } catch {
-      setShareMsg("\u274C \uBCF5\uC0AC \uC2E4\uD328");
+      setShareMsg(t.header.copyFailed);
     }
   }
 
@@ -82,7 +84,7 @@ export function Header({
           });
         }
       } catch {
-        alert("\uC62C\uBC14\uB978 JSON \uD30C\uC77C\uC774 \uC544\uB2D9\uB2C8\uB2E4.");
+        alert(t.header.invalidJSON);
       }
     };
     reader.readAsText(file);
@@ -97,13 +99,13 @@ export function Header({
           ArchFlow
         </span>
         <span className="text-xs text-gray-400">
-          AWS {"\uC544\uD0A4\uD14D\uCC98"} {"\uC124\uACC4"} {"\uAC00\uC774\uB4DC"}
+          {t.header.subtitle}
         </span>
         <Link
           href="/history"
           className="ml-2 flex items-center gap-1 rounded-lg border-[1.5px] border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
         >
-          {"\uD83D\uDCCB"} {"\uC800\uC7A5"} {"\uBAA9\uB85D"}
+          {t.header.historyLink}
           {historyCount > 0 && (
             <span className="rounded-full bg-indigo-600 px-1.5 py-px text-[10px] font-bold text-white">
               {historyCount}
@@ -112,16 +114,39 @@ export function Header({
         </Link>
       </div>
       <div className="flex items-center gap-2">
+        {/* Language toggle */}
+        <div className="flex overflow-hidden rounded-md border border-gray-200">
+          <button
+            onClick={() => setLang("ko")}
+            className={`px-2 py-1 text-[11px] font-bold transition-colors ${
+              lang === "ko"
+                ? "bg-indigo-600 text-white"
+                : "bg-white text-gray-500 hover:bg-gray-50"
+            }`}
+          >
+            KO
+          </button>
+          <button
+            onClick={() => setLang("en")}
+            className={`px-2 py-1 text-[11px] font-bold transition-colors ${
+              lang === "en"
+                ? "bg-indigo-600 text-white"
+                : "bg-white text-gray-500 hover:bg-gray-50"
+            }`}
+          >
+            EN
+          </button>
+        </div>
         {showResult && (
           <div className="flex items-center gap-1.5">
             <button
               onClick={exportJSON}
               className="rounded-lg border-[1.5px] border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700"
             >
-              {"\u2B07\uFE0F"} JSON
+              {t.header.downloadJSON}
             </button>
             <label className="cursor-pointer rounded-lg border-[1.5px] border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700">
-              {"\u2B06\uFE0F"} {"\uBD88\uB7EC\uC624\uAE30"}
+              {t.header.importFile}
               <input
                 type="file"
                 accept=".json"
@@ -134,7 +159,7 @@ export function Header({
                 onClick={shareURL}
                 className="rounded-lg border-[1.5px] border-indigo-200 bg-indigo-50 px-3.5 py-1.5 text-xs font-semibold text-indigo-600"
               >
-                {"\uD83D\uDD17"} {"\uACF5\uC720"}
+                {t.header.share}
               </button>
               {shareMsg && (
                 <div className="absolute right-0 top-full z-[100] mt-1 whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1 text-[11px] text-white">
@@ -149,7 +174,7 @@ export function Header({
             onClick={onReset}
             className="rounded-lg border-[1.5px] border-gray-200 bg-white px-3.5 py-1.5 text-xs text-gray-500"
           >
-            {"\u21BA"} {"\uCC98\uC74C\uBD80\uD130"}
+            {t.header.resetAll}
           </button>
         )}
         <UserMenu />

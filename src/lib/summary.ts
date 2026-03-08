@@ -22,28 +22,301 @@ export interface ArchSummary {
   warnings: string[];
 }
 
-const WORKLOAD_LABELS: Record<string, string> = {
-  web_api: "\uC6F9/API",
-  ecommerce: "\uC774\uCEE4\uBA38\uC2A4",
-  ticketing: "\uD2F0\uCF13\uD305/\uC608\uC57D",
-  realtime: "\uC2E4\uC2DC\uAC04",
-  data: "\uB370\uC774\uD130 \uD30C\uC774\uD504\uB77C\uC778",
-  saas: "SaaS",
-  iot: "IoT",
-  internal: "\uC0AC\uB0B4 \uB3C4\uAD6C",
+type Lang = "ko" | "en";
+
+/* ------------------------------------------------------------------ */
+/*  i18n dictionaries                                                  */
+/* ------------------------------------------------------------------ */
+
+const WORKLOAD_LABELS: Record<Lang, Record<string, string>> = {
+  ko: {
+    web_api: "웹/API",
+    ecommerce: "이커머스",
+    ticketing: "티켓팅/예약",
+    realtime: "실시간",
+    data: "데이터 파이프라인",
+    saas: "SaaS",
+    iot: "IoT",
+    internal: "사내 도구",
+  },
+  en: {
+    web_api: "Web/API",
+    ecommerce: "E-Commerce",
+    ticketing: "Ticketing/Reservation",
+    realtime: "Real-time",
+    data: "Data Pipeline",
+    saas: "SaaS",
+    iot: "IoT",
+    internal: "Internal Tools",
+  },
 };
 
-const COMPUTE_LABELS: Record<string, string> = {
-  serverless: "\uC11C\uBC84\uB9AC\uC2A4(\uC11C\uBC84 \uAD00\uB9AC \uBD88\uD544\uC694)",
-  container: "\uCEE8\uD14C\uC774\uB108(\uC571 \uD328\uD0A4\uC9D5 \uC2E4\uD589)",
-  vm: "\uAC00\uC0C1 \uC11C\uBC84(EC2)",
-  hybrid: "\uD558\uC774\uBE0C\uB9AC\uB4DC(\uD63C\uD569)",
+const COMPUTE_LABELS: Record<Lang, Record<string, string>> = {
+  ko: {
+    serverless: "서버리스(서버 관리 불필요)",
+    container: "컨테이너(앱 패키징 실행)",
+    vm: "가상 서버(EC2)",
+    hybrid: "하이브리드(혼합)",
+  },
+  en: {
+    serverless: "Serverless (no server management)",
+    container: "Container (packaged app execution)",
+    vm: "Virtual Server (EC2)",
+    hybrid: "Hybrid (mixed)",
+  },
 };
 
-const ORCH_LABELS: Record<string, string> = {
-  ecs: "ECS Fargate(\uAD00\uB9AC\uD615 \uCEE8\uD14C\uC774\uB108)",
-  eks: "EKS(\uCFE0\uBC84\uB124\uD2F0\uC2A4)",
+const ORCH_LABELS: Record<Lang, Record<string, string>> = {
+  ko: {
+    ecs: "ECS Fargate(관리형 컨테이너)",
+    eks: "EKS(쿠버네티스)",
+  },
+  en: {
+    ecs: "ECS Fargate (managed containers)",
+    eks: "EKS (Kubernetes)",
+  },
 };
+
+const HEADLINE_TEMPLATE: Record<Lang, (compute: string, type: string) => string> = {
+  ko: (compute, type) => `${compute} 기반 ${type} 서비스`,
+  en: (compute, type) => `${type} service powered by ${compute}`,
+};
+
+const STAGE_MAP: Record<Lang, Record<string, string>> = {
+  ko: {
+    mvp: "빠른 검증을 위한 최소 비용 구성",
+    growth: "사용자 확보와 안정성을 동시에 잡는 구성",
+    scale: "대규모 트래픽을 안정적으로 처리하는 구성",
+    mature: "비용 최적화와 고가용성을 모두 달성하는 구성",
+  },
+  en: {
+    mvp: "Minimum-cost configuration for rapid validation",
+    growth: "Configuration balancing growth and stability",
+    scale: "Configuration for reliably handling large-scale traffic",
+    mature: "Configuration achieving both cost optimization and high availability",
+  },
+};
+
+const COMPLEXITY_FACTORS: Record<Lang, Record<string, string | ((n: string) => string)>> = {
+  ko: {
+    kubernetes: "쿠버네티스 사용",
+    service_mesh: "서비스 간 통신 관리",
+    multi_region_active: "다중 리전 동시 운영",
+    dr_region: "재해 복구용 보조 리전",
+    regulatory: "규정 준수 필수",
+    financial_audit: "재무 감사 준수",
+    workload_composite: (n: string) => `${n}개 워크로드 복합`,
+    dau_xlarge: "일일 사용자 100만+",
+    dau_large: "일일 사용자 10만+",
+    gitops: "자동 배포 관리",
+  },
+  en: {
+    kubernetes: "Uses Kubernetes",
+    service_mesh: "Service mesh communication management",
+    multi_region_active: "Multi-region active-active operation",
+    dr_region: "Disaster recovery secondary region",
+    regulatory: "Regulatory compliance required",
+    financial_audit: "Financial audit compliance",
+    workload_composite: (n: string) => `${n} workloads combined`,
+    dau_xlarge: "1M+ daily active users",
+    dau_large: "100K+ daily active users",
+    gitops: "Automated deployment management",
+  },
+};
+
+const COMPLEXITY_LEVELS: Record<Lang, Record<string, string>> = {
+  ko: { easy: "쉬움", medium: "보통", hard: "복잡", very_hard: "매우 복잡" },
+  en: { easy: "Easy", medium: "Medium", hard: "Complex", very_hard: "Very Complex" },
+};
+
+const TEAM_REQS: Record<Lang, {
+  roles: Record<string, string[]>;
+  skills: Record<string, string[]>;
+}> = {
+  ko: {
+    roles: {
+      low: ["풀스택 개발자"],
+      mid: ["백엔드 개발자", "인프라/배포 겸직"],
+      high: ["백엔드 개발자", "인프라 엔지니어", "프론트엔드 개발자"],
+      very_high: ["백엔드", "시스템 안정성(SRE)", "보안", "프론트엔드", "DB 관리자"],
+    },
+    skills: {
+      low: ["AWS 기본 사용법", "인프라 자동화 입문"],
+      mid: ["컨테이너/DB 운영", "자동 배포 구축", "인프라 코드화"],
+      high: ["쿠버네티스 관리", "인프라 자동화", "시스템 모니터링", "보안 관리"],
+      very_high: ["쿠버네티스 운영", "서비스 메시", "자동 배포/복구", "다중 리전 운영", "규정 준수 관리"],
+    },
+  },
+  en: {
+    roles: {
+      low: ["Full-stack Developer"],
+      mid: ["Backend Developer", "Infrastructure/Deployment"],
+      high: ["Backend Developer", "Infrastructure Engineer", "Frontend Developer"],
+      very_high: ["Backend", "SRE", "Security", "Frontend", "DBA"],
+    },
+    skills: {
+      low: ["AWS fundamentals", "Infrastructure automation basics"],
+      mid: ["Container/DB operations", "CI/CD pipeline setup", "Infrastructure as Code"],
+      high: ["Kubernetes management", "Infrastructure automation", "System monitoring", "Security management"],
+      very_high: ["Kubernetes operations", "Service mesh", "Automated deployment/recovery", "Multi-region operations", "Compliance management"],
+    },
+  },
+};
+
+const SVC_LABELS: Record<Lang, Record<string, string>> = {
+  ko: {
+    "Amazon Aurora": "데이터베이스 (Aurora)",
+    "Amazon RDS": "데이터베이스 (RDS)",
+    "Amazon DynamoDB": "고속 DB (DynamoDB)",
+    "DynamoDB": "고속 DB (DynamoDB)",
+    "ElastiCache Redis": "캐시 서버 (Redis)",
+    "Amazon S3": "파일 저장소 (S3)",
+    "Lambda": "서버리스 함수 (Lambda)",
+    "ECS Fargate": "컨테이너 실행 (Fargate)",
+    "Amazon ECS": "컨테이너 관리 (ECS)",
+    "Amazon EKS": "쿠버네티스 (EKS)",
+    "CloudFront": "콘텐츠 빠른 전송 (CDN)",
+    "Route 53": "DNS/도메인 관리",
+    "ALB": "트래픽 분산기 (ALB)",
+    "API Gateway": "API 연결 관리",
+    "Amazon SQS": "메시지 대기열 (SQS)",
+    "Amazon SNS": "알림 발송 (SNS)",
+    "EventBridge": "이벤트 라우팅",
+    "Amazon Kinesis": "실시간 스트림 (Kinesis)",
+    "Amazon ECR": "컨테이너 이미지 저장소",
+    "AWS WAF": "웹 보안 방화벽 (WAF)",
+    "Amazon Cognito": "로그인/인증 (Cognito)",
+    "AWS KMS": "암호화 키 관리",
+    "CloudWatch": "시스템 모니터링",
+    "CloudTrail": "작업 기록 추적",
+    "Step Functions": "워크플로우 자동화",
+    "OpenSearch": "검색 엔진 (OpenSearch)",
+    "Terraform": "인프라 코드화 (Terraform)",
+    "GitHub Actions": "자동 배포 (GitHub Actions)",
+    "VPC": "가상 네트워크 (VPC)",
+    "NAT Gateway": "외부 접속 관문 (NAT)",
+    "GuardDuty": "보안 위협 감지",
+    "AWS Config": "설정 변경 추적",
+    "Secrets Manager": "비밀번호 관리",
+  },
+  en: {
+    "Amazon Aurora": "Database (Aurora)",
+    "Amazon RDS": "Database (RDS)",
+    "Amazon DynamoDB": "High-speed DB (DynamoDB)",
+    "DynamoDB": "High-speed DB (DynamoDB)",
+    "ElastiCache Redis": "Cache Server (Redis)",
+    "Amazon S3": "File Storage (S3)",
+    "Lambda": "Serverless Functions (Lambda)",
+    "ECS Fargate": "Container Runtime (Fargate)",
+    "Amazon ECS": "Container Management (ECS)",
+    "Amazon EKS": "Kubernetes (EKS)",
+    "CloudFront": "Content Delivery (CDN)",
+    "Route 53": "DNS/Domain Management",
+    "ALB": "Load Balancer (ALB)",
+    "API Gateway": "API Gateway",
+    "Amazon SQS": "Message Queue (SQS)",
+    "Amazon SNS": "Notification Service (SNS)",
+    "EventBridge": "Event Routing",
+    "Amazon Kinesis": "Real-time Streaming (Kinesis)",
+    "Amazon ECR": "Container Image Registry",
+    "AWS WAF": "Web Application Firewall (WAF)",
+    "Amazon Cognito": "Authentication (Cognito)",
+    "AWS KMS": "Encryption Key Management",
+    "CloudWatch": "System Monitoring",
+    "CloudTrail": "Activity Audit Trail",
+    "Step Functions": "Workflow Automation",
+    "OpenSearch": "Search Engine (OpenSearch)",
+    "Terraform": "Infrastructure as Code (Terraform)",
+    "GitHub Actions": "CI/CD (GitHub Actions)",
+    "VPC": "Virtual Network (VPC)",
+    "NAT Gateway": "NAT Gateway",
+    "GuardDuty": "Threat Detection",
+    "AWS Config": "Configuration Change Tracking",
+    "Secrets Manager": "Secrets Management",
+  },
+};
+
+const NEXT_STEPS: Record<Lang, {
+  iac_none: string;
+  iac_template: (name: string) => string;
+  container: string;
+  serverless: string;
+  cicd: string;
+  monitoring: string;
+  security: string;
+}> = {
+  ko: {
+    iac_none: "인프라 자동화 도구 도입하기 — 서버/네트워크를 코드로 관리하면 실수가 줄고 반복 작업이 없어집니다",
+    iac_template: (name) => `${name}으로 기본 네트워크 구성 코드 작성하기 — 서버들이 통신할 기본 환경을 만듭니다`,
+    container: "컨테이너 실행 환경 만들고 첫 서비스 배포하기 — 앱을 패키징해서 클라우드에 올립니다",
+    serverless: "서버리스 함수와 API 연결 설정하기 — 요청이 올 때만 실행되어 비용이 절약됩니다",
+    cicd: "자동 배포 파이프라인 구축하기 — 코드 변경 시 개발→테스트→운영 환경으로 자동 배포됩니다",
+    monitoring: "시스템 모니터링 및 알람 설정하기 — 장애 발생 시 즉시 알림을 받을 수 있습니다",
+    security: "보안 체크리스트 검토하기 — 계정별 최소 권한만 부여하고 보안 설정을 확인합니다",
+  },
+  en: {
+    iac_none: "Adopt Infrastructure as Code tooling — managing servers/networks as code reduces errors and eliminates repetitive work",
+    iac_template: (name) => `Write base network configuration with ${name} — sets up the foundational environment for service communication`,
+    container: "Set up container runtime and deploy first service — package your app and deploy it to the cloud",
+    serverless: "Configure serverless functions and API integration — runs only on request, saving costs",
+    cicd: "Build a CI/CD pipeline — code changes are automatically deployed through dev, test, and production",
+    monitoring: "Set up system monitoring and alerting — receive immediate notifications when incidents occur",
+    security: "Review the security checklist — apply least-privilege access per account and verify security settings",
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/*  Rollout path i18n                                                  */
+/* ------------------------------------------------------------------ */
+
+type RolloutPhase = { phase: string; duration: string; tasks: string[] };
+
+const ROLLOUT_PATHS: Record<Lang, {
+  mvp: (pattern: string) => RolloutPhase[];
+  growth: () => RolloutPhase[];
+  default: () => RolloutPhase[];
+}> = {
+  ko: {
+    mvp: (pattern) => [
+      { phase: "1단계: 기반 구축", duration: "2–4주", tasks: ["네트워크 환경 생성 (서버들이 통신할 기본 환경)", "데이터베이스 생성", "자동 배포 환경 설정"] },
+      { phase: "2단계: MVP 배포", duration: "1–2주", tasks: [pattern === "serverless" ? "서버리스 함수 배포" : "첫 서비스 배포", "도메인 연결 및 보안 접속(HTTPS) 적용", "시스템 상태 모니터링 기본 설정"] },
+      { phase: "3단계: 안정화", duration: "2–4주", tasks: ["접속자 증가 시 자동 확장 테스트", "장애 발생 시 복구 훈련", "비용 최적화 검토"] },
+    ],
+    growth: () => [
+      { phase: "1단계: 인프라 기반", duration: "3–4주", tasks: ["인프라를 코드로 관리하기 (수동 설정 제거)", "다중 가용 영역 구성 (장애 시 자동 전환)", "환경 분리 (개발/테스트/운영)"] },
+      { phase: "2단계: 서비스 배포", duration: "2–3주", tasks: ["앱 배포 및 실행 환경 구축", "자주 쓰는 데이터 캐시 추가 (속도 향상)", "전 세계 빠른 응답을 위한 CDN 설정"] },
+      { phase: "3단계: 운영 고도화", duration: "2–4주", tasks: ["비용 분석 및 장기 할인 요금제 검토", "보안 자동 감사 설정", "부하 테스트 및 자동 확장 조정"] },
+    ],
+    default: () => [
+      { phase: "1단계: 설계 및 기반", duration: "4–6주", tasks: ["팀/환경별 별도 AWS 계정 구성", "네트워크 설계 (서버 간 통신 환경)", "인프라 코드 모듈화 (재사용 가능한 블록)"] },
+      { phase: "2단계: 핵심 서비스", duration: "3–4주", tasks: ["컨테이너 실행 플랫폼 구축", "DB 고가용성 구성 (장애 시 자동 전환)", "서비스 간 메시징 인프라 구축"] },
+      { phase: "3단계: 운영 플랫폼", duration: "2–4주", tasks: ["시스템 모니터링/로그 수집 플랫폼", "자동 배포 파이프라인 구축", "보안 강화 (권한 관리, 암호화)"] },
+      { phase: "4단계: 최적화", duration: "2–4주", tasks: ["비용 최적화 (장기 할인/여유 서버 활용)", "성능 최적화 (병목 해소)", "재해 복구 훈련 (장애 대비 시나리오)"] },
+    ],
+  },
+  en: {
+    mvp: (pattern) => [
+      { phase: "Phase 1: Foundation", duration: "2–4 weeks", tasks: ["Create network environment (base infrastructure for service communication)", "Set up database", "Configure CI/CD environment"] },
+      { phase: "Phase 2: MVP Deployment", duration: "1–2 weeks", tasks: [pattern === "serverless" ? "Deploy serverless functions" : "Deploy first service", "Connect domain and enable HTTPS", "Set up basic system health monitoring"] },
+      { phase: "Phase 3: Stabilization", duration: "2–4 weeks", tasks: ["Test auto-scaling under increased traffic", "Run disaster recovery drills", "Review cost optimization"] },
+    ],
+    growth: () => [
+      { phase: "Phase 1: Infrastructure Foundation", duration: "3–4 weeks", tasks: ["Manage infrastructure as code (eliminate manual configuration)", "Configure multi-AZ setup (automatic failover on outage)", "Separate environments (dev/staging/production)"] },
+      { phase: "Phase 2: Service Deployment", duration: "2–3 weeks", tasks: ["Build app deployment and runtime environment", "Add caching for frequently accessed data (performance boost)", "Configure CDN for global low-latency responses"] },
+      { phase: "Phase 3: Operations Maturity", duration: "2–4 weeks", tasks: ["Analyze costs and evaluate reserved/savings plans", "Set up automated security auditing", "Run load tests and tune auto-scaling"] },
+    ],
+    default: () => [
+      { phase: "Phase 1: Design & Foundation", duration: "4–6 weeks", tasks: ["Set up separate AWS accounts per team/environment", "Design network architecture (inter-service communication)", "Modularize infrastructure code (reusable building blocks)"] },
+      { phase: "Phase 2: Core Services", duration: "3–4 weeks", tasks: ["Build container orchestration platform", "Configure database high availability (automatic failover)", "Build inter-service messaging infrastructure"] },
+      { phase: "Phase 3: Operations Platform", duration: "2–4 weeks", tasks: ["Set up monitoring and log aggregation platform", "Build CI/CD pipeline", "Harden security (access control, encryption)"] },
+      { phase: "Phase 4: Optimization", duration: "2–4 weeks", tasks: ["Cost optimization (reserved instances, spot capacity)", "Performance optimization (eliminate bottlenecks)", "Disaster recovery drills (failure scenario exercises)"] },
+    ],
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/*  generateSummary                                                    */
+/* ------------------------------------------------------------------ */
 
 export function generateSummary(
   state: WizardState,
@@ -52,110 +325,73 @@ export function generateSummary(
     cost?: { totalMid: number };
     wafr?: { overall: number };
     issues?: { severity: "error" | "warn"; title: string; message: string }[];
-  }
+  },
+  lang: Lang = "ko"
 ): ArchSummary {
-  const arch = precomputed?.arch || generateArchitecture(state);
-  const cost = precomputed?.cost || estimateMonthlyCost(state);
-  const wafr = precomputed?.wafr || wellArchitectedScore(state);
-  const issues = precomputed?.issues || validateState(state);
+  const arch = precomputed?.arch || generateArchitecture(state, lang);
+  const cost = precomputed?.cost || estimateMonthlyCost(state, lang);
+  const wafr = precomputed?.wafr || wellArchitectedScore(state, lang);
+  const issues = precomputed?.issues || validateState(state, lang);
 
   // headline
   const types: string[] = state.workload?.type || [];
-  const typeLabel = types.map((t) => WORKLOAD_LABELS[t] || t).join(" + ");
+  const typeLabel = types.map((t) => WORKLOAD_LABELS[lang][t] || t).join(" + ");
   const pattern = state.compute?.arch_pattern || "container";
   const orch = state.compute?.orchestration;
-  const computeLabel = orch ? ORCH_LABELS[orch] || orch : COMPUTE_LABELS[pattern] || pattern;
-  const headline = `${computeLabel} \uAE30\uBC18 ${typeLabel} \uC11C\uBE44\uC2A4`;
+  const computeLabel = orch ? ORCH_LABELS[lang][orch] || orch : COMPUTE_LABELS[lang][pattern] || pattern;
+  const headline = HEADLINE_TEMPLATE[lang](computeLabel, typeLabel);
 
   // oneLiner
   const stage = state.workload?.growth_stage || "mvp";
-  const stageMap: Record<string, string> = {
-    mvp: "\uBE60\uB978 \uAC80\uC99D\uC744 \uC704\uD55C \uCD5C\uC18C \uBE44\uC6A9 \uAD6C\uC131",
-    growth: "\uC0AC\uC6A9\uC790 \uD655\uBCF4\uC640 \uC548\uC815\uC131\uC744 \uB3D9\uC2DC\uC5D0 \uC7A1\uB294 \uAD6C\uC131",
-    scale: "\uB300\uADDC\uBAA8 \uD2B8\uB798\uD53D\uC744 \uC548\uC815\uC801\uC73C\uB85C \uCC98\uB9AC\uD558\uB294 \uAD6C\uC131",
-    mature: "\uBE44\uC6A9 \uCD5C\uC801\uD654\uC640 \uACE0\uAC00\uC6A9\uC131\uC744 \uBAA8\uB450 \uB2EC\uC131\uD558\uB294 \uAD6C\uC131",
-  };
-  const oneLiner = stageMap[stage] || stageMap.mvp;
+  const oneLiner = STAGE_MAP[lang][stage] || STAGE_MAP[lang].mvp;
 
   // complexity
   let score = 1;
   const factors: string[] = [];
-  if (orch === "eks") { score += 3; factors.push("\uCFE0\uBC84\uB124\uD2F0\uC2A4 \uC0AC\uC6A9"); }
-  if (state.platform?.service_mesh === "istio") { score += 2; factors.push("\uC11C\uBE44\uC2A4 \uAC04 \uD1B5\uC2E0 \uAD00\uB9AC"); }
-  if (state.slo?.region === "active") { score += 2; factors.push("\uB2E4\uC911 \uB9AC\uC804 \uB3D9\uC2DC \uC6B4\uC601"); }
-  else if (state.slo?.region === "dr") { score += 1; factors.push("\uC7AC\uD574 \uBCF5\uAD6C\uC6A9 \uBCF4\uC870 \uB9AC\uC804"); }
+  const cf = COMPLEXITY_FACTORS[lang];
+  if (orch === "eks") { score += 3; factors.push(cf.kubernetes as string); }
+  if (state.platform?.service_mesh === "istio") { score += 2; factors.push(cf.service_mesh as string); }
+  if (state.slo?.region === "active") { score += 2; factors.push(cf.multi_region_active as string); }
+  else if (state.slo?.region === "dr") { score += 1; factors.push(cf.dr_region as string); }
   const cert: string[] = state.compliance?.cert || [];
-  if (cert.includes("pci") || cert.includes("hipaa")) { score += 2; factors.push("\uADDC\uC815 \uC900\uC218 \uD544\uC218"); }
-  if (cert.includes("sox")) { score += 1; factors.push("\uC7AC\uBB34 \uAC10\uC0AC \uC900\uC218"); }
-  if (types.length > 2) { score += 1; factors.push(`${types.length}\uAC1C \uC6CC\uD06C\uB85C\uB4DC \uBCF5\uD569`); }
+  if (cert.includes("pci") || cert.includes("hipaa")) { score += 2; factors.push(cf.regulatory as string); }
+  if (cert.includes("sox")) { score += 1; factors.push(cf.financial_audit as string); }
+  if (types.length > 2) { score += 1; factors.push((cf.workload_composite as (n: string) => string)(String(types.length))); }
   const dau = state.scale?.dau;
-  if (dau === "xlarge") { score += 2; factors.push("\uC77C\uC77C \uC0AC\uC6A9\uC790 100\uB9CC+"); }
-  else if (dau === "large") { score += 1; factors.push("\uC77C\uC77C \uC0AC\uC6A9\uC790 10\uB9CC+"); }
-  if (state.platform?.gitops === "argocd" || state.platform?.gitops === "flux") { score += 1; factors.push("\uC790\uB3D9 \uBC30\uD3EC \uAD00\uB9AC"); }
+  if (dau === "xlarge") { score += 2; factors.push(cf.dau_xlarge as string); }
+  else if (dau === "large") { score += 1; factors.push(cf.dau_large as string); }
+  if (state.platform?.gitops === "argocd" || state.platform?.gitops === "flux") { score += 1; factors.push(cf.gitops as string); }
   score = Math.min(score, 10);
 
-  const level = score <= 3 ? "\uC27D\uC6C0" : score <= 5 ? "\uBCF4\uD1B5" : score <= 7 ? "\uBCF5\uC7A1" : "\uB9E4\uC6B0 \uBCF5\uC7A1";
+  const cl = COMPLEXITY_LEVELS[lang];
+  const level = score <= 3 ? cl.easy : score <= 5 ? cl.medium : score <= 7 ? cl.hard : cl.very_hard;
 
   // teamReqs
   let minDevs: number;
   const roles: string[] = [];
   const skills: string[] = [];
+  const tr = TEAM_REQS[lang];
 
   if (score <= 3) {
     minDevs = 1;
-    roles.push("\uD480\uC2A4\uD0DD \uAC1C\uBC1C\uC790");
-    skills.push("AWS \uAE30\uBCF8 \uC0AC\uC6A9\uBC95", "\uC778\uD504\uB77C \uC790\uB3D9\uD654 \uC785\uBB38");
+    roles.push(...tr.roles.low);
+    skills.push(...tr.skills.low);
   } else if (score <= 5) {
     minDevs = 3;
-    roles.push("\uBC31\uC5D4\uB4DC \uAC1C\uBC1C\uC790", "\uC778\uD504\uB77C/\uBC30\uD3EC \uACB8\uC9C1");
-    skills.push("\uCEE8\uD14C\uC774\uB108/DB \uC6B4\uC601", "\uC790\uB3D9 \uBC30\uD3EC \uAD6C\uCD95", "\uC778\uD504\uB77C \uCF54\uB4DC\uD654");
+    roles.push(...tr.roles.mid);
+    skills.push(...tr.skills.mid);
   } else if (score <= 7) {
     minDevs = 5;
-    roles.push("\uBC31\uC5D4\uB4DC \uAC1C\uBC1C\uC790", "\uC778\uD504\uB77C \uC5D4\uC9C0\uB2C8\uC5B4", "\uD504\uB860\uD2B8\uC5D4\uB4DC \uAC1C\uBC1C\uC790");
-    skills.push("\uCFE0\uBC84\uB124\uD2F0\uC2A4 \uAD00\uB9AC", "\uC778\uD504\uB77C \uC790\uB3D9\uD654", "\uC2DC\uC2A4\uD15C \uBAA8\uB2C8\uD130\uB9C1", "\uBCF4\uC548 \uAD00\uB9AC");
+    roles.push(...tr.roles.high);
+    skills.push(...tr.skills.high);
   } else {
     minDevs = 8;
-    roles.push("\uBC31\uC5D4\uB4DC", "\uC2DC\uC2A4\uD15C \uC548\uC815\uC131(SRE)", "\uBCF4\uC548", "\uD504\uB860\uD2B8\uC5D4\uB4DC", "DB \uAD00\uB9AC\uC790");
-    skills.push("\uCFE0\uBC84\uB124\uD2F0\uC2A4 \uC6B4\uC601", "\uC11C\uBE44\uC2A4 \uBA54\uC2DC", "\uC790\uB3D9 \uBC30\uD3EC/\uBCF5\uAD6C", "\uB2E4\uC911 \uB9AC\uC804 \uC6B4\uC601", "\uADDC\uC815 \uC900\uC218 \uAD00\uB9AC");
+    roles.push(...tr.roles.very_high);
+    skills.push(...tr.skills.very_high);
   }
 
   // keyServices - prioritize important layers (compute, data, edge) over infra (org, network)
-  // Beginner-friendly Korean descriptions for common AWS service names
-  const SVC_KR: Record<string, string> = {
-    "Amazon Aurora": "\uB370\uC774\uD130\uBCA0\uC774\uC2A4 (Aurora)",
-    "Amazon RDS": "\uB370\uC774\uD130\uBCA0\uC774\uC2A4 (RDS)",
-    "Amazon DynamoDB": "\uACE0\uC18D DB (DynamoDB)",
-    "DynamoDB": "\uACE0\uC18D DB (DynamoDB)",
-    "ElastiCache Redis": "\uCE90\uC2DC \uC11C\uBC84 (Redis)",
-    "Amazon S3": "\uD30C\uC77C \uC800\uC7A5\uC18C (S3)",
-    "Lambda": "\uC11C\uBC84\uB9AC\uC2A4 \uD568\uC218 (Lambda)",
-    "ECS Fargate": "\uCEE8\uD14C\uC774\uB108 \uC2E4\uD589 (Fargate)",
-    "Amazon ECS": "\uCEE8\uD14C\uC774\uB108 \uAD00\uB9AC (ECS)",
-    "Amazon EKS": "\uCFE0\uBC84\uB124\uD2F0\uC2A4 (EKS)",
-    "CloudFront": "\uCF58\uD150\uCE20 \uBE60\uB978 \uC804\uC1A1 (CDN)",
-    "Route 53": "DNS/\uB3C4\uBA54\uC778 \uAD00\uB9AC",
-    "ALB": "\uD2B8\uB798\uD53D \uBD84\uC0B0\uAE30 (ALB)",
-    "API Gateway": "API \uC5F0\uACB0 \uAD00\uB9AC",
-    "Amazon SQS": "\uBA54\uC2DC\uC9C0 \uB300\uAE30\uC5F4 (SQS)",
-    "Amazon SNS": "\uC54C\uB9BC \uBC1C\uC1A1 (SNS)",
-    "EventBridge": "\uC774\uBCA4\uD2B8 \uB77C\uC6B0\uD305",
-    "Amazon Kinesis": "\uC2E4\uC2DC\uAC04 \uC2A4\uD2B8\uB9BC (Kinesis)",
-    "Amazon ECR": "\uCEE8\uD14C\uC774\uB108 \uC774\uBBF8\uC9C0 \uC800\uC7A5\uC18C",
-    "AWS WAF": "\uC6F9 \uBCF4\uC548 \uBC29\uD654\uBCBD (WAF)",
-    "Amazon Cognito": "\uB85C\uADF8\uC778/\uC778\uC99D (Cognito)",
-    "AWS KMS": "\uC554\uD638\uD654 \uD0A4 \uAD00\uB9AC",
-    "CloudWatch": "\uC2DC\uC2A4\uD15C \uBAA8\uB2C8\uD130\uB9C1",
-    "CloudTrail": "\uC791\uC5C5 \uAE30\uB85D \uCD94\uC801",
-    "Step Functions": "\uC6CC\uD06C\uD50C\uB85C\uC6B0 \uC790\uB3D9\uD654",
-    "OpenSearch": "\uAC80\uC0C9 \uC5D4\uC9C4 (OpenSearch)",
-    "Terraform": "\uC778\uD504\uB77C \uCF54\uB4DC\uD654 (Terraform)",
-    "GitHub Actions": "\uC790\uB3D9 \uBC30\uD3EC (GitHub Actions)",
-    "VPC": "\uAC00\uC0C1 \uB124\uD2B8\uC6CC\uD06C (VPC)",
-    "NAT Gateway": "\uC678\uBD80 \uC811\uC18D \uAD00\uBB38 (NAT)",
-    "GuardDuty": "\uBCF4\uC548 \uC704\uD611 \uAC10\uC9C0",
-    "AWS Config": "\uC124\uC815 \uBCC0\uACBD \uCD94\uC801",
-    "Secrets Manager": "\uBE44\uBC00\uBC88\uD638 \uAD00\uB9AC",
-  };
+  const svcLabels = SVC_LABELS[lang];
   const keyServices: { name: string; role: string; icon: string }[] = [];
   const priorityOrder = ["compute", "data", "edge", "messaging", "platform", "appstack", "cicd", "security", "dr", "batch", "observability", "network", "org", "cost"];
   const sortedLayers = [...arch.layers].sort((a, b) => {
@@ -167,7 +403,7 @@ export function generateSummary(
     for (const svc of layer.services) {
       if (keyServices.length >= 8) break;
       keyServices.push({
-        name: SVC_KR[svc.name] || svc.name,
+        name: svcLabels[svc.name] || svc.name,
         role: svc.detail || svc.reason || "",
         icon: layer.icon,
       });
@@ -175,29 +411,30 @@ export function generateSummary(
   }
 
   // rolloutPath
-  const rolloutPath = buildRolloutPath(state);
+  const rolloutPath = buildRolloutPath(state, lang);
 
   // stats
   const errors = issues.filter((i) => i.severity === "error").length;
   const warnings = issues.filter((i) => i.severity === "warn").length;
 
-  // nextSteps — beginner-friendly Korean
+  // nextSteps
+  const ns = NEXT_STEPS[lang];
   const nextSteps: string[] = [];
   if (!state.cicd?.iac || state.cicd.iac === "none")
-    nextSteps.push("\uC778\uD504\uB77C \uC790\uB3D9\uD654 \uB3C4\uAD6C \uB3C4\uC785\uD558\uAE30 \u2014 \uC11C\uBC84/\uB124\uD2B8\uC6CC\uD06C\uB97C \uCF54\uB4DC\uB85C \uAD00\uB9AC\uD558\uBA74 \uC2E4\uC218\uAC00 \uC904\uACE0 \uBC18\uBCF5 \uC791\uC5C5\uC774 \uC5C6\uC5B4\uC9D1\uB2C8\uB2E4");
+    nextSteps.push(ns.iac_none);
   else {
     const iacName = state.cicd.iac === "terraform" ? "Terraform" : state.cicd.iac === "cdk" ? "CDK" : "CloudFormation";
-    nextSteps.push(`${iacName}\uC73C\uB85C \uAE30\uBCF8 \uB124\uD2B8\uC6CC\uD06C \uAD6C\uC131 \uCF54\uB4DC \uC791\uC131\uD558\uAE30 \u2014 \uC11C\uBC84\uB4E4\uC774 \uD1B5\uC2E0\uD560 \uAE30\uBCF8 \uD658\uACBD\uC744 \uB9CC\uB4ED\uB2C8\uB2E4`);
+    nextSteps.push(ns.iac_template(iacName));
   }
 
   if (pattern === "container")
-    nextSteps.push(`\uCEE8\uD14C\uC774\uB108 \uC2E4\uD589 \uD658\uACBD \uB9CC\uB4E4\uACE0 \uCCA8 \uC11C\uBE44\uC2A4 \uBC30\uD3EC\uD558\uAE30 \u2014 \uC571\uC744 \uD328\uD0A4\uC9D5\uD574\uC11C \uD074\uB77C\uC6B0\uB4DC\uC5D0 \uC62C\uB9BD\uB2C8\uB2E4`);
+    nextSteps.push(ns.container);
   else if (pattern === "serverless")
-    nextSteps.push("\uC11C\uBC84\uB9AC\uC2A4 \uD568\uC218\uC640 API \uC5F0\uACB0 \uC124\uC815\uD558\uAE30 \u2014 \uC694\uCCAD\uC774 \uC62C \uB54C\uB9CC \uC2E4\uD589\uB418\uC5B4 \uBE44\uC6A9\uC774 \uC808\uC57D\uB429\uB2C8\uB2E4");
+    nextSteps.push(ns.serverless);
 
-  nextSteps.push("\uC790\uB3D9 \uBC30\uD3EC \uD30C\uC774\uD504\uB77C\uC778 \uAD6C\uCD95\uD558\uAE30 \u2014 \uCF54\uB4DC \uBCC0\uACBD \uC2DC \uAC1C\uBC1C\u2192\uD14C\uC2A4\uD2B8\u2192\uC6B4\uC601 \uD658\uACBD\uC73C\uB85C \uC790\uB3D9 \uBC30\uD3EC\uB429\uB2C8\uB2E4");
-  nextSteps.push("\uC2DC\uC2A4\uD15C \uBAA8\uB2C8\uD130\uB9C1 \uBC0F \uC54C\uB78C \uC124\uC815\uD558\uAE30 \u2014 \uC7A5\uC560 \uBC1C\uC0DD \uC2DC \uC989\uC2DC \uC54C\uB9BC\uC744 \uBC1B\uC744 \uC218 \uC788\uC2B5\uB2C8\uB2E4");
-  nextSteps.push("\uBCF4\uC548 \uCCB4\uD06C\uB9AC\uC2A4\uD2B8 \uAC80\uD1A0\uD558\uAE30 \u2014 \uACC4\uC815\uBCC4 \uCD5C\uC18C \uAD8C\uD55C\uB9CC \uBD80\uC5EC\uD558\uACE0 \uBCF4\uC548 \uC124\uC815\uC744 \uD655\uC778\uD569\uB2C8\uB2E4");
+  nextSteps.push(ns.cicd);
+  nextSteps.push(ns.monitoring);
+  nextSteps.push(ns.security);
 
   // warnings
   const critWarnings = issues
@@ -224,31 +461,14 @@ export function generateSummary(
 }
 
 function buildRolloutPath(
-  state: WizardState
+  state: WizardState,
+  lang: Lang
 ): { phase: string; duration: string; tasks: string[] }[] {
   const stage = state.workload?.growth_stage || "mvp";
   const pattern = state.compute?.arch_pattern || "container";
+  const paths = ROLLOUT_PATHS[lang];
 
-  if (stage === "mvp") {
-    return [
-      { phase: "1\uB2E8\uACC4: \uAE30\uBC18 \uAD6C\uCD95", duration: "2\u20134\uC8FC", tasks: ["\uB124\uD2B8\uC6CC\uD06C \uD658\uACBD \uC0DD\uC131 (\uC11C\uBC84\uB4E4\uC774 \uD1B5\uC2E0\uD560 \uAE30\uBCF8 \uD658\uACBD)", "\uB370\uC774\uD130\uBCA0\uC774\uC2A4 \uC0DD\uC131", "\uC790\uB3D9 \uBC30\uD3EC \uD658\uACBD \uC124\uC815"] },
-      { phase: "2\uB2E8\uACC4: MVP \uBC30\uD3EC", duration: "1\u20132\uC8FC", tasks: [pattern === "serverless" ? "\uC11C\uBC84\uB9AC\uC2A4 \uD568\uC218 \uBC30\uD3EC" : "\uCCA8 \uC11C\uBE44\uC2A4 \uBC30\uD3EC", "\uB3C4\uBA54\uC778 \uC5F0\uACB0 \uBC0F \uBCF4\uC548 \uC811\uC18D(HTTPS) \uC801\uC6A9", "\uC2DC\uC2A4\uD15C \uC0C1\uD0DC \uBAA8\uB2C8\uD130\uB9C1 \uAE30\uBCF8 \uC124\uC815"] },
-      { phase: "3\uB2E8\uACC4: \uC548\uC815\uD654", duration: "2\u20134\uC8FC", tasks: ["\uC811\uC18D\uC790 \uC99D\uAC00 \uC2DC \uC790\uB3D9 \uD655\uC7A5 \uD14C\uC2A4\uD2B8", "\uC7A5\uC560 \uBC1C\uC0DD \uC2DC \uBCF5\uAD6C \uD6C8\uB828", "\uBE44\uC6A9 \uCD5C\uC801\uD654 \uAC80\uD1A0"] },
-    ];
-  }
-
-  if (stage === "growth") {
-    return [
-      { phase: "1\uB2E8\uACC4: \uC778\uD504\uB77C \uAE30\uBC18", duration: "3\u20134\uC8FC", tasks: ["\uC778\uD504\uB77C\uB97C \uCF54\uB4DC\uB85C \uAD00\uB9AC\uD558\uAE30 (\uC218\uB3D9 \uC124\uC815 \uC81C\uAC70)", "\uB2E4\uC911 \uAC00\uC6A9 \uC601\uC5ED \uAD6C\uC131 (\uC7A5\uC560 \uC2DC \uC790\uB3D9 \uC804\uD658)", "\uD658\uACBD \uBD84\uB9AC (\uAC1C\uBC1C/\uD14C\uC2A4\uD2B8/\uC6B4\uC601)"] },
-      { phase: "2\uB2E8\uACC4: \uC11C\uBE44\uC2A4 \uBC30\uD3EC", duration: "2\u20133\uC8FC", tasks: ["\uC571 \uBC30\uD3EC \uBC0F \uC2E4\uD589 \uD658\uACBD \uAD6C\uCD95", "\uC790\uC8FC \uC4F0\uB294 \uB370\uC774\uD130 \uCE90\uC2DC \uCD94\uAC00 (\uC18D\uB3C4 \uD5A5\uC0C1)", "\uC804 \uC138\uACC4 \uBE60\uB978 \uC751\uB2F5\uC744 \uC704\uD55C CDN \uC124\uC815"] },
-      { phase: "3\uB2E8\uACC4: \uC6B4\uC601 \uACE0\uB3C4\uD654", duration: "2\u20134\uC8FC", tasks: ["\uBE44\uC6A9 \uBD84\uC11D \uBC0F \uC7A5\uAE30 \uD560\uC778 \uC694\uAE08\uC81C \uAC80\uD1A0", "\uBCF4\uC548 \uC790\uB3D9 \uAC10\uC0AC \uC124\uC815", "\uBD80\uD558 \uD14C\uC2A4\uD2B8 \uBC0F \uC790\uB3D9 \uD655\uC7A5 \uC870\uC815"] },
-    ];
-  }
-
-  return [
-    { phase: "1\uB2E8\uACC4: \uC124\uACC4 \uBC0F \uAE30\uBC18", duration: "4\u20136\uC8FC", tasks: ["\uD300/\uD658\uACBD\uBCC4 \uBCC4\uB3C4 AWS \uACC4\uC815 \uAD6C\uC131", "\uB124\uD2B8\uC6CC\uD06C \uC124\uACC4 (\uC11C\uBC84 \uAC04 \uD1B5\uC2E0 \uD658\uACBD)", "\uC778\uD504\uB77C \uCF54\uB4DC \uBAA8\uB4C8\uD654 (\uC7AC\uC0AC\uC6A9 \uAC00\uB2A5\uD55C \uBE14\uB85D)"] },
-    { phase: "2\uB2E8\uACC4: \uD575\uC2EC \uC11C\uBE44\uC2A4", duration: "3\u20134\uC8FC", tasks: ["\uCEE8\uD14C\uC774\uB108 \uC2E4\uD589 \uD50C\uB7AB\uD3FC \uAD6C\uCD95", "DB \uACE0\uAC00\uC6A9\uC131 \uAD6C\uC131 (\uC7A5\uC560 \uC2DC \uC790\uB3D9 \uC804\uD658)", "\uC11C\uBE44\uC2A4 \uAC04 \uBA54\uC2DC\uC9D5 \uC778\uD504\uB77C \uAD6C\uCD95"] },
-    { phase: "3\uB2E8\uACC4: \uC6B4\uC601 \uD50C\uB7AB\uD3FC", duration: "2\u20134\uC8FC", tasks: ["\uC2DC\uC2A4\uD15C \uBAA8\uB2C8\uD130\uB9C1/\uB85C\uADF8 \uC218\uC9D1 \uD50C\uB7AB\uD3FC", "\uC790\uB3D9 \uBC30\uD3EC \uD30C\uC774\uD504\uB77C\uC778 \uAD6C\uCD95", "\uBCF4\uC548 \uAC15\uD654 (\uAD8C\uD55C \uAD00\uB9AC, \uC554\uD638\uD654)"] },
-    { phase: "4\uB2E8\uACC4: \uCD5C\uC801\uD654", duration: "2\u20134\uC8FC", tasks: ["\uBE44\uC6A9 \uCD5C\uC801\uD654 (\uC7A5\uAE30 \uD560\uC778/\uC5EC\uC720 \uC11C\uBC84 \uD65C\uC6A9)", "\uC131\uB2A5 \uCD5C\uC801\uD654 (\uBCD1\uBAA9 \uD574\uC18C)", "\uC7AC\uD574 \uBCF5\uAD6C \uD6C8\uB828 (\uC7A5\uC560 \uB300\uBE44 \uC2DC\uB098\uB9AC\uC624)"] },
-  ];
+  if (stage === "mvp") return paths.mvp(pattern);
+  if (stage === "growth") return paths.growth();
+  return paths.default();
 }

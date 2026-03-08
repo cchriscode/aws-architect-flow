@@ -1,10 +1,118 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { WizardState, ValidationIssue } from "@/lib/types";
 
-export function validateState(state: WizardState): ValidationIssue[] {
+export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   const E = (title: string, message: string, phases: string[]) => issues.push({severity:"error",title,message,phases});
   const W = (title: string, message: string, phases: string[]) => issues.push({severity:"warn",title,message,phases});
+
+  const _ = lang === "ko" ? {
+    availAz:            { t: "99.99% 가용성 + 단일 AZ 불가능", m: "단일 AZ는 AZ 장애 시 전체 중단. 99.99% 달성엔 최소 3 AZ 필수." },
+    highAvailAz:        { t: "고가용성 목표와 단일 AZ 불일치", m: "99.95%+ 가용성은 Multi-AZ 없이 달성 불가." },
+    highAvailDb:        { t: "고가용성 목표와 단일 AZ DB", m: "DB Single-AZ는 수십 분 다운타임 발생. Multi-AZ 필수." },
+    avail99_2az:        { t: "99.99% 가용성 + 2 AZ 구성", m: "2 AZ에서 1개 장애 시 용량 50% 손실. 99.99% 달성에는 3 AZ를 강력 권장합니다." },
+    rpoZeroSingleAz:   { t: "RPO Zero + Single-AZ DB 불가능", m: "데이터 손실 0은 동기 복제 필수. Multi-AZ Read 이상으로 변경." },
+    rto1minSingleRegion:{ t: "1분 RTO + 단일 리전 달성 어려움", m: "리전 전체 장애 시 1분 RTO는 단일 리전으로 달성 불가. DR 리전 검토." },
+    rto1minDr:          { t: "1분 RTO + Pilot Light/DR 불일치", m: "Pilot Light/DR은 인프라 확장에 수십 분~1시간 필요. 1분 RTO는 Active-Active만 가능." },
+    rpoZeroSyncOnly:    { t: "RPO Zero인데 동기 처리만?", m: "비동기 큐 없는 동기 처리는 일부 요청 유실 가능. 트랜잭션 아웃박스 패턴 검토." },
+    critCertEncr:       { t: "PCI/HIPAA/SOX + 기본 암호화 불일치", m: "CMK 암호화 + 키 감사가 심사 필수 항목." },
+    critCertNetIso:     { t: "규정 준수 인증 + 기본 네트워크 격리", m: "PCI/HIPAA는 DB·앱 완전 격리 없이 인증 통과 불가." },
+    critCertSubnet:     { t: "규정 준수 인증 + 2계층 네트워크", m: "PCI DSS는 CDE 격리 필요. 3계층 서브넷 권장." },
+    critCertIac:        { t: "규정 준수 인증 + IaC 없음", m: "PCI/HIPAA/SOX 감사는 인프라 변경 이력 요구. Terraform/CDK 필수." },
+    gdprSingleRegion:   { t: "GDPR + 한국 단일 리전", m: "EU 사용자 데이터를 한국 리전에만 저장하면 GDPR 데이터 거주지 요건 위반 가능." },
+    gdprGlobalSingle:   { t: "GDPR + 글로벌 사용자 + 단일 리전", m: "EU 사용자 데이터를 한국 단일 리전에 저장하면 GDPR 데이터 거주지 요건 위반. 멀티 리전(EU 리전 포함) 전환 필수." },
+    pciDynamo:          { t: "PCI DSS + DynamoDB 기본 암호화", m: "DynamoDB CMK(고객 관리 키) 암호화가 PCI DSS 심사 항목. CMK 설정 권장." },
+    ticketNoRedis:      { t: "선착순 티켓팅에 Redis/DynamoDB 없음", m: "초당 수만 건 동시 선점 요청을 RDB만으로 처리하면 데드락+DB 붕괴 발생." },
+    txSyncOnly:         { t: "결제/이커머스 서비스에 동기 처리만", m: "주문→결제→재고 체인을 동기로 연결하면 하나가 느려지면 전체가 느려짐." },
+    txRolling:          { t: "결제 서비스에 Rolling 배포", m: "이전/신버전 공존 구간에서 결제 오류 위험. Blue/Green 권장." },
+    eksBeginnerTeam:    { t: "EKS + 초급 팀 위험 조합", m: "EKS는 K8s 운영 고급 지식 필요. 초급 팀은 ECS Fargate로 시작 권장." },
+    eksManaged:         { t: "EKS + 완전 관리형 운영 불일치", m: "EKS는 K8s 운영 지식 필수. 완전 관리형이면 ECS Fargate가 더 적합." },
+    istioBeginnerTeam:  { t: "Istio + 초급 팀 위험", m: "Istio는 고급 서비스 메시 지식 필요. 초급 팀은 AWS App Mesh 또는 없이 시작 권장." },
+    istioSolo:          { t: "Istio + 1인 팀 부담", m: "Istio 운영은 전담 플랫폼 엔지니어링 팀이 필요. 1인 팀에게는 큰 운영 부담." },
+    karpenterNonK8s:    { t: "Karpenter는 Kubernetes 전용", m: "Karpenter는 Kubernetes 전용. ECS에서는 ECS Auto Scaling 사용." },
+    serverlessEks:      { t: "서버리스 + EKS 설정 충돌", m: "서버리스 아키텍처에서 EKS는 오버엔지니어링. Lambda + API Gateway 유지 권장." },
+    ultraRpsLambda:     { t: "초고RPS + Lambda 콜드스타트 위험", m: "Lambda Provisioned Concurrency 없이 초고 RPS는 콜드스타트로 p99 급등." },
+    lambdaUltraRpsSync: { t: "Lambda + 초고RPS + 동기 DB 복합 위험", m: "콜드스타트 + 동기 RDS 연결 = p99 지연 폭발. 비동기 처리 또는 DynamoDB 전환 필수." },
+    spotCritical:       { t: "Spot + 결제/실시간 서비스 위험", m: "Spot은 2분 예고 후 강제 종료. 결제·채팅 유실 위험." },
+    commit3yrMvp:       { t: "3년 약정 + MVP 단계 위험", m: "방향 전환 가능성 높은 MVP에 3년 약정은 비용 낭비 위험. 1년 또는 On-Demand 권장." },
+    shieldSmall:        { t: "Shield Advanced + 소규모 서비스 과투자", m: "$3,000/월 고정. 소규모 서비스는 WAF Basic으로 충분." },
+    fargateXlarge:      { t: "Fargate + DAU 100만+ 비용 초과", m: "DAU 100만+ Fargate는 EC2+RI 대비 2배 이상 비용 초과 가능. EC2 노드 + RI/Savings Plans 전환 필수." },
+    fargateLarge:       { t: "Fargate + 대규모 서비스 비용 비효율", m: "DAU 10만+ 에서 Fargate는 EC2 On-Demand 대비 20~30% 비쌈. EC2+RI 검토." },
+    noWafPublic:        { t: "외부 공개 서비스에 WAF 없음", m: "SQL 인젝션·XSS·Bot 공격 무방비. 기본 WAF라도 적용 권장." },
+    ecommNoBotCtrl:     { t: "이커머스/티켓팅에 Bot Control 없음", m: "이벤트 당일 봇이 트래픽의 70~90%. Bot Control 없이 공정한 선착순 불가." },
+    globalNoCdn:        { t: "글로벌 서비스에 CDN 없음", m: "해외 사용자는 서울 리전 직접 연결로 150~300ms 지연. CloudFront 필수." },
+    graphqlAlb:         { t: "GraphQL + ALB HTTP 라우팅 주의", m: "GraphQL은 단일 엔드포인트(/graphql). ALB 경로 기반 라우팅 규칙 별도 설정 필요." },
+    largeCacheNone:     { t: "대규모 서비스에 캐시 없음", m: "DAU 10만+ 에서 DB 직접 조회만 사용하면 DB가 병목. ElastiCache 도입 권장." },
+    s3SensitiveEncr:    { t: "S3 민감 데이터 + 기본 암호화", m: "중요 데이터는 CMK 암호화 + 버킷 정책 + 퍼블릭 차단 모두 필요." },
+    xlargeAccount:      { t: "DAU 100만+ + 단일 계정 위험", m: "서비스 할당량 한도 + 환경 격리 불가. AWS Organizations 멀티 계정 분리 필수." },
+    largeAccount:       { t: "대규모 서비스 + 단일 계정", m: "DAU 10만+ 서비스에서 Prod/Dev 같은 계정은 개발 실수가 Prod에 직접 영향." },
+    highAvailNoIac:     { t: "고가용성 목표 + IaC 없음", m: "99.95%+ 목표에서 수동 콘솔 관리는 재현성·DR 복구에 치명적. IaC 필수." },
+    largeNoIac:         { t: "대규모 서비스에 IaC 없음", m: "수동 콘솔 관리는 재현성·감사·DR 복구에 치명적. Terraform 또는 CDK 필수." },
+    multiRegionEnv:     { t: "멀티 리전 + dev/prod만 환경 부족", m: "멀티 리전 DR 배포 검증을 위한 Stage 환경이 없으면 복구 절차 미검증." },
+    argoNonEks:         { t: "ArgoCD + EKS 아님", m: "ArgoCD는 Kubernetes 전용. ECS 환경은 CodeDeploy 또는 GitHub Actions 사용." },
+    iotSqs:             { t: "초고속 IoT + SQS 비효율", m: "초당 수만 IoT 메시지에 SQS는 처리량·비용 한계. Kinesis Data Streams 검토." },
+    lambdaVpcEndpoint:  { t: "Lambda VPC 배치 + VPC Endpoint 미활용", m: "VPC 내 Lambda는 NAT GW 경유 시 데이터 전송 비용 발생. VPC Endpoint 활용으로 NAT 비용 절감 권장." },
+    lambdaRds:          { t: "Lambda + 표준 RDS 조합", m: "Lambda 동시 실행 시 RDS 커넥션 폭발. RDS Proxy 필수이며, Aurora Serverless v2가 더 적합." },
+    fargateCommit:      { t: "Fargate + 3년 약정 주의", m: "Fargate는 EC2 RI 적용 불가. Compute Savings Plans만 사용 가능(Fargate 최대 ~52% 절감). EC2 RI 72%보다 낮음." },
+    globalDbNonAurora:  { t: "Global Database는 Aurora 전용", m: "RDS 표준은 Global Database 미지원. 크로스 리전 복제가 필요하면 Aurora로 전환 필요." },
+    serverlessBigData:  { t: "서버리스 + 수십 TB 데이터 처리 주의", m: "Lambda 15분 타임아웃 제한으로 대용량 배치 처리 불가. AWS Batch 또는 ECS Task 병행 필요." },
+    msaNoDiscovery:     { t: "대규모 비동기 MSA에 서비스 디스커버리 미설정", m: "ECS Service Connect 또는 Cloud Map으로 서비스 간 통신 관리 권장." },
+    realtimeSyncOnly:   { t: "실시간 서비스에 동기 처리만", m: "채팅·알림 등 실시간 이벤트를 동기로만 처리하면 병목 발생. SNS/EventBridge 비동기 전파 검토." },
+    globalSingleNoCdn:  { t: "글로벌 사용자 + 단일 리전 + CDN 없음", m: "해외 사용자는 서울 직접 연결로 150~300ms 지연. CloudFront 필수이며 멀티 리전 검토 권장." },
+  } : {
+    availAz:            { t: "99.99% availability + single AZ impossible", m: "Single AZ means full outage on AZ failure. At least 3 AZs required for 99.99%." },
+    highAvailAz:        { t: "High availability target conflicts with single AZ", m: "99.95%+ availability cannot be achieved without Multi-AZ." },
+    highAvailDb:        { t: "High availability target conflicts with single-AZ DB", m: "Single-AZ DB causes tens of minutes of downtime. Multi-AZ is required." },
+    avail99_2az:        { t: "99.99% availability + 2 AZ configuration", m: "Losing 1 of 2 AZs means 50% capacity loss. 3 AZs strongly recommended for 99.99%." },
+    rpoZeroSingleAz:   { t: "RPO Zero + single-AZ DB impossible", m: "Zero data loss requires synchronous replication. Switch to Multi-AZ Read Replica or higher." },
+    rto1minSingleRegion:{ t: "1-minute RTO + single region difficult", m: "1-minute RTO is unachievable in a single region during full region failure. Consider a DR region." },
+    rto1minDr:          { t: "1-minute RTO + Pilot Light/DR mismatch", m: "Pilot Light/DR requires tens of minutes to an hour for infra scale-up. 1-minute RTO requires Active-Active only." },
+    rpoZeroSyncOnly:    { t: "RPO Zero but sync-only processing?", m: "Sync processing without async queues may lose some requests. Consider the transactional outbox pattern." },
+    critCertEncr:       { t: "PCI/HIPAA/SOX + default encryption mismatch", m: "CMK encryption + key auditing are mandatory audit items." },
+    critCertNetIso:     { t: "Compliance certification + default network isolation", m: "PCI/HIPAA cannot pass certification without full DB and app isolation." },
+    critCertSubnet:     { t: "Compliance certification + 2-tier network", m: "PCI DSS requires CDE isolation. 3-tier subnet recommended." },
+    critCertIac:        { t: "Compliance certification + no IaC", m: "PCI/HIPAA/SOX audits require infrastructure change history. Terraform/CDK required." },
+    gdprSingleRegion:   { t: "GDPR + non-EU single region", m: "Storing EU user data only in a non-EU single region may violate GDPR data residency requirements." },
+    gdprGlobalSingle:   { t: "GDPR + global users + single region", m: "Storing EU user data in a non-EU single region violates GDPR data residency requirements. Multi-region (including EU region) migration required." },
+    pciDynamo:          { t: "PCI DSS + DynamoDB default encryption", m: "DynamoDB CMK (customer-managed key) encryption is a PCI DSS audit item. CMK configuration recommended." },
+    ticketNoRedis:      { t: "First-come-first-served ticketing without Redis/DynamoDB", m: "Processing tens of thousands of concurrent reservation requests with RDB alone causes deadlocks and database overload." },
+    txSyncOnly:         { t: "Payment/e-commerce service with sync-only processing", m: "Synchronously chaining order-payment-inventory means one slow link slows everything." },
+    txRolling:          { t: "Payment service with rolling deployment", m: "Old/new version coexistence during rolling deploy risks payment errors. Blue/Green recommended." },
+    eksBeginnerTeam:    { t: "EKS + beginner team risky combination", m: "EKS requires advanced K8s operational knowledge. Beginner teams should start with ECS Fargate." },
+    eksManaged:         { t: "EKS + fully managed ops mismatch", m: "EKS requires K8s operational knowledge. For fully managed ops, ECS Fargate is more suitable." },
+    istioBeginnerTeam:  { t: "Istio + beginner team risk", m: "Istio requires advanced service mesh knowledge. Beginner teams should start with AWS App Mesh or none." },
+    istioSolo:          { t: "Istio + solo team burden", m: "Istio operations require a dedicated platform engineering team. Major operational burden for a solo developer." },
+    karpenterNonK8s:    { t: "Karpenter is Kubernetes-only", m: "Karpenter is Kubernetes-only. Use ECS Auto Scaling for ECS." },
+    serverlessEks:      { t: "Serverless + EKS configuration conflict", m: "EKS is over-engineering for a serverless architecture. Recommend keeping Lambda + API Gateway." },
+    ultraRpsLambda:     { t: "Very high request rates + Lambda cold start risk", m: "High RPS without Lambda Provisioned Concurrency causes p99 latency spikes from cold starts." },
+    lambdaUltraRpsSync: { t: "Lambda + high RPS + sync DB compound risk", m: "Cold starts + synchronous RDS connections = severe p99 latency degradation. Switch to async processing or DynamoDB." },
+    spotCritical:       { t: "Spot + payment/realtime service risk", m: "Spot instances terminate with 2-minute warning. Risk of losing payments and chat messages." },
+    commit3yrMvp:       { t: "3-year commitment + MVP stage risk", m: "3-year commitment on a pivot-prone MVP risks wasted spend. 1-year or On-Demand recommended." },
+    shieldSmall:        { t: "Shield Advanced + small service overinvestment", m: "$3,000/month fixed cost. WAF Basic is sufficient for small services." },
+    fargateXlarge:      { t: "Fargate + DAU 1M+ cost overrun", m: "Fargate at DAU 1M+ can cost 2x+ vs EC2+RI. Switch to EC2 nodes + RI/Savings Plans." },
+    fargateLarge:       { t: "Fargate + large-scale service cost inefficiency", m: "At DAU 100K+, Fargate is 20-30% more expensive than EC2 On-Demand. Consider EC2+RI." },
+    noWafPublic:        { t: "Public-facing service without WAF", m: "Unprotected against SQL injection, XSS, and bot attacks. At minimum, enable basic WAF." },
+    ecommNoBotCtrl:     { t: "E-commerce/ticketing without Bot Control", m: "Bots account for 70\u201390% of traffic on event days. Fair first-come-first-served is impossible without Bot Control." },
+    globalNoCdn:        { t: "Global service without CDN", m: "Overseas users face 150-300ms latency connecting directly to the origin region. CloudFront required." },
+    graphqlAlb:         { t: "GraphQL + ALB HTTP routing caveat", m: "GraphQL uses a single endpoint (/graphql). Separate ALB path-based routing rules needed." },
+    largeCacheNone:     { t: "Large-scale service without cache", m: "At DAU 100K+, DB-only queries create a bottleneck. ElastiCache adoption recommended." },
+    s3SensitiveEncr:    { t: "S3 sensitive data + default encryption", m: "Sensitive data requires CMK encryption + bucket policy + public access block together." },
+    xlargeAccount:      { t: "DAU 1M+ + single account risk", m: "Service quota limits + no environment isolation. AWS Organizations multi-account separation required." },
+    largeAccount:       { t: "Large-scale service + single account", m: "At DAU 100K+, sharing Prod/Dev in one account means dev mistakes directly affect Prod." },
+    highAvailNoIac:     { t: "High availability target + no IaC", m: "Manual console management at 99.95%+ targets is fatal for reproducibility and DR recovery. IaC required." },
+    largeNoIac:         { t: "Large-scale service without IaC", m: "Manual console management is fatal for reproducibility, auditing, and DR recovery. Terraform or CDK required." },
+    multiRegionEnv:     { t: "Multi-region + only dev/prod environments insufficient", m: "Without a Stage environment for multi-region DR deployment verification, recovery procedures remain untested." },
+    argoNonEks:         { t: "ArgoCD + not EKS", m: "ArgoCD is Kubernetes-only. For ECS environments, use CodeDeploy or GitHub Actions." },
+    iotSqs:             { t: "High-throughput IoT + SQS inefficiency", m: "SQS has throughput and cost limits for tens of thousands of IoT messages per second. Consider Kinesis Data Streams." },
+    lambdaVpcEndpoint:  { t: "Lambda in VPC + VPC Endpoint underutilized", m: "Lambda in VPC incurs data transfer costs via NAT Gateway. Use VPC Endpoints to reduce NAT costs." },
+    lambdaRds:          { t: "Lambda + standard RDS combination", m: "Concurrent Lambda executions cause RDS connection explosion. RDS Proxy is required; Aurora Serverless v2 is more suitable." },
+    fargateCommit:      { t: "Fargate + 3-year commitment caveat", m: "Fargate cannot use EC2 RI. Only Compute Savings Plans available (Fargate max ~52% savings) vs EC2 RI 72%." },
+    globalDbNonAurora:  { t: "Global Database is Aurora-only", m: "Standard RDS does not support Global Database. Switch to Aurora if cross-region replication is needed." },
+    serverlessBigData:  { t: "Serverless + tens of TB data processing caveat", m: "Lambda 15-minute timeout prevents large batch processing. AWS Batch or ECS Task required alongside." },
+    msaNoDiscovery:     { t: "Large-scale async microservices without service discovery", m: "Use ECS Service Connect or Cloud Map for inter-service communication management." },
+    realtimeSyncOnly:   { t: "Realtime service with sync-only processing", m: "Processing realtime events like chat and notifications synchronously creates bottlenecks. Consider SNS/EventBridge async propagation." },
+    globalSingleNoCdn:  { t: "Global users + single region + no CDN", m: "Overseas users face 150-300ms latency connecting directly to the origin region. CloudFront required and multi-region recommended." },
+  };
 
   const types     = state.workload?.type || [];
   const avail     = state.slo?.availability;
@@ -68,147 +176,147 @@ export function validateState(state: WizardState): ValidationIssue[] {
 
   // -- 가용성 & AZ --
   if (avail === "99.99" && az === "1az")
-    E("99.99% 가용성 + 단일 AZ 불가능","단일 AZ는 AZ 장애 시 전체 중단. 99.99% 달성엔 최소 3 AZ 필수.",["slo","network"]);
+    E(_.availAz.t, _.availAz.m, ["slo","network"]);
   if ((avail === "99.95" || avail === "99.99") && az === "1az")
-    E("고가용성 목표와 단일 AZ 불일치","99.95%+ 가용성은 Multi-AZ 없이 달성 불가.",["slo","network"]);
+    E(_.highAvailAz.t, _.highAvailAz.m, ["slo","network"]);
   if ((avail === "99.95" || avail === "99.99") && dbHa === "single_az")
-    E("고가용성 목표와 단일 AZ DB","DB Single-AZ는 수십 분 다운타임 발생. Multi-AZ 필수.",["slo","data"]);
+    E(_.highAvailDb.t, _.highAvailDb.m, ["slo","data"]);
   if (avail === "99.99" && az === "2az")
-    W("99.99% 가용성 + 2 AZ 구성","2 AZ에서 1개 장애 시 용량 50% 손실. 99.99% 달성에는 3 AZ를 강력 권장합니다.",["slo","network"]);
+    W(_.avail99_2az.t, _.avail99_2az.m, ["slo","network"]);
 
   // -- RPO / RTO --
   if (rpo === "zero" && dbHa === "single_az")
-    E("RPO Zero + Single-AZ DB 불가능","데이터 손실 0은 동기 복제 필수. Multi-AZ Read 이상으로 변경.",["slo","data"]);
+    E(_.rpoZeroSingleAz.t, _.rpoZeroSingleAz.m, ["slo","data"]);
   if (rto === "lt1min" && region === "single")
-    W("1분 RTO + 단일 리전 달성 어려움","리전 전체 장애 시 1분 RTO는 단일 리전으로 달성 불가. DR 리전 검토.",["slo","network"]);
+    W(_.rto1minSingleRegion.t, _.rto1minSingleRegion.m, ["slo","network"]);
   if (rto === "lt1min" && region === "dr")
-    W("1분 RTO + Pilot Light/DR 불일치","Pilot Light/DR은 인프라 확장에 수십 분~1시간 필요. 1분 RTO는 Active-Active만 가능.",["slo","network"]);
+    W(_.rto1minDr.t, _.rto1minDr.m, ["slo","network"]);
   if (rpo === "zero" && syncMode === "sync_only" && isTx)
-    W("RPO Zero인데 동기 처리만?","비동기 큐 없는 동기 처리는 일부 요청 유실 가능. 트랜잭션 아웃박스 패턴 검토.",["slo","integration"]);
+    W(_.rpoZeroSyncOnly.t, _.rpoZeroSyncOnly.m, ["slo","integration"]);
 
   // -- 규정 준수 --
   if (hasCritCert && encr !== "strict")
-    E("PCI/HIPAA/SOX + 기본 암호화 불일치","CMK 암호화 + 키 감사가 심사 필수 항목.",["compliance"]);
+    E(_.critCertEncr.t, _.critCertEncr.m, ["compliance"]);
   if (hasCritCert && !["strict","private"].includes(netIso))
-    E("규정 준수 인증 + 기본 네트워크 격리","PCI/HIPAA는 DB·앱 완전 격리 없이 인증 통과 불가.",["compliance","network"]);
+    E(_.critCertNetIso.t, _.critCertNetIso.m, ["compliance","network"]);
   if (hasCritCert && !["3tier","private"].includes(subnet))
-    W("규정 준수 인증 + 2계층 네트워크","PCI DSS는 CDE 격리 필요. 3계층 서브넷 권장.",["compliance","network"]);
+    W(_.critCertSubnet.t, _.critCertSubnet.m, ["compliance","network"]);
   if (hasCritCert && (!iac || iac === "none"))
-    E("규정 준수 인증 + IaC 없음","PCI/HIPAA/SOX 감사는 인프라 변경 이력 요구. Terraform/CDK 필수.",["compliance","cicd"]);
+    E(_.critCertIac.t, _.critCertIac.m, ["compliance","cicd"]);
   if (isGdpr && region === "single" && !userTypes.includes("global"))
-    W("GDPR + 한국 단일 리전","EU 사용자 데이터를 한국 리전에만 저장하면 GDPR 데이터 거주지 요건 위반 가능.",["compliance","slo"]);
+    W(_.gdprSingleRegion.t, _.gdprSingleRegion.m, ["compliance","slo"]);
   if (isGdpr && region === "single" && userTypes.includes("global"))
-    E("GDPR + 글로벌 사용자 + 단일 리전","EU 사용자 데이터를 한국 단일 리전에 저장하면 GDPR 데이터 거주지 요건 위반. 멀티 리전(EU 리전 포함) 전환 필수.",["compliance","slo"]);
+    E(_.gdprGlobalSingle.t, _.gdprGlobalSingle.m, ["compliance","slo"]);
   if (hasCritCert && dbArr.includes("dynamodb") && encr !== "strict")
-    W("PCI DSS + DynamoDB 기본 암호화","DynamoDB CMK(고객 관리 키) 암호화가 PCI DSS 심사 항목. CMK 설정 권장.",["compliance","data"]);
+    W(_.pciDynamo.t, _.pciDynamo.m, ["compliance","data"]);
 
   // -- 티켓팅 / 결제 --
   if (types.includes("ticketing") && (tickD === "flash" || tickD === "concert") && !dbArr.includes("dynamodb") && !hasRedis)
-    E("선착순 티켓팅에 Redis/DynamoDB 없음","초당 수만 건 동시 선점 요청을 RDB만으로 처리하면 데드락+DB 붕괴 발생.",["workload","data"]);
+    E(_.ticketNoRedis.t, _.ticketNoRedis.m, ["workload","data"]);
   if (isTx && syncMode === "sync_only")
-    W("결제/이커머스 서비스에 동기 처리만","주문→결제→재고 체인을 동기로 연결하면 하나가 느려지면 전체가 느려짐.",["integration"]);
+    W(_.txSyncOnly.t, _.txSyncOnly.m, ["integration"]);
   if (isTx && deploy === "rolling")
-    W("결제 서비스에 Rolling 배포","이전/신버전 공존 구간에서 결제 오류 위험. Blue/Green 권장.",["cicd"]);
+    W(_.txRolling.t, _.txRolling.m, ["cicd"]);
 
   // -- 컴퓨팅 --
   if (isEks && exp === "beginner")
-    E("EKS + 초급 팀 위험 조합","EKS는 K8s 운영 고급 지식 필요. 초급 팀은 ECS Fargate로 시작 권장.",["compute","team"]);
+    E(_.eksBeginnerTeam.t, _.eksBeginnerTeam.m, ["compute","team"]);
   if (isEks && opsModel === "managed")
-    W("EKS + 완전 관리형 운영 불일치","EKS는 K8s 운영 지식 필수. 완전 관리형이면 ECS Fargate가 더 적합.",["compute","team"]);
+    W(_.eksManaged.t, _.eksManaged.m, ["compute","team"]);
   if (isEks && meshType === "istio" && exp === "beginner")
-    W("Istio + 초급 팀 위험","Istio는 고급 서비스 메시 지식 필요. 초급 팀은 AWS App Mesh 또는 없이 시작 권장.",["platform","team"]);
+    W(_.istioBeginnerTeam.t, _.istioBeginnerTeam.m, ["platform","team"]);
   if (isEks && meshType === "istio" && teamSize === "solo")
-    W("Istio + 1인 팀 부담","Istio 운영은 전담 플랫폼 엔지니어링 팀이 필요. 1인 팀에게는 큰 운영 부담.",["platform","team"]);
+    W(_.istioSolo.t, _.istioSolo.m, ["platform","team"]);
   if (nodeP === "karpenter" && orchest && !isEks)
-    E("Karpenter는 Kubernetes 전용","Karpenter는 Kubernetes 전용. ECS에서는 ECS Auto Scaling 사용.",["platform","compute"]);
+    E(_.karpenterNonK8s.t, _.karpenterNonK8s.m, ["platform","compute"]);
   if (isServerless && isEks)
-    W("서버리스 + EKS 설정 충돌","서버리스 아키텍처에서 EKS는 오버엔지니어링. Lambda + API Gateway 유지 권장.",["compute","platform"]);
+    W(_.serverlessEks.t, _.serverlessEks.m, ["compute","platform"]);
   if (rps === "ultra" && isServerless && (!scaling || (Array.isArray(scaling) && scaling.length === 0)))
-    W("초고RPS + Lambda 콜드스타트 위험","Lambda Provisioned Concurrency 없이 초고 RPS는 콜드스타트로 p99 급등.",["compute","slo"]);
+    W(_.ultraRpsLambda.t, _.ultraRpsLambda.m, ["compute","slo"]);
   if (rps === "ultra" && isServerless && hasRdbms && syncMode === "sync_only")
-    E("Lambda + 초고RPS + 동기 DB 복합 위험","콜드스타트 + 동기 RDS 연결 = p99 지연 폭발. 비동기 처리 또는 DynamoDB 전환 필수.",["compute","data","integration"]);
+    E(_.lambdaUltraRpsSync.t, _.lambdaUltraRpsSync.m, ["compute","data","integration"]);
 
   // -- Spot --
   if (spot === "heavy" && (types.includes("ticketing") || types.includes("realtime") || isTx))
-    E("Spot + 결제/실시간 서비스 위험","Spot은 2분 예고 후 강제 종료. 결제·채팅 유실 위험.",["cost","workload"]);
+    E(_.spotCritical.t, _.spotCritical.m, ["cost","workload"]);
 
   // -- 비용 --
   if (commit === "3yr" && stage === "mvp")
-    W("3년 약정 + MVP 단계 위험","방향 전환 가능성 높은 MVP에 3년 약정은 비용 낭비 위험. 1년 또는 On-Demand 권장.",["cost","workload"]);
+    W(_.commit3yrMvp.t, _.commit3yrMvp.m, ["cost","workload"]);
   if (waf === "shield" && (dau === "small" || dau === "medium") && !hasCritCert)
-    W("Shield Advanced + 소규모 서비스 과투자","$3,000/월 고정. 소규모 서비스는 WAF Basic으로 충분.",["edge","cost"]);
+    W(_.shieldSmall.t, _.shieldSmall.m, ["edge","cost"]);
   if (nodeType === "fargate" && dau === "xlarge")
-    E("Fargate + DAU 100만+ 비용 초과","DAU 100만+ Fargate는 EC2+RI 대비 2배 이상 비용 초과 가능. EC2 노드 + RI/Savings Plans 전환 필수.",["compute","cost"]);
+    E(_.fargateXlarge.t, _.fargateXlarge.m, ["compute","cost"]);
   else if (nodeType === "fargate" && isLarge)
-    W("Fargate + 대규모 서비스 비용 비효율","DAU 10만+ 에서 Fargate는 EC2 On-Demand 대비 20~30% 비쌈. EC2+RI 검토.",["compute","cost"]);
+    W(_.fargateLarge.t, _.fargateLarge.m, ["compute","cost"]);
 
   // -- WAF / 엣지 --
   const isInternalOnly = types.includes("internal") || (Array.isArray(userTypes) && userTypes.length === 1 && userTypes[0] === "internal");
   if (!isInternalOnly && (!waf || waf === "no") && types.length > 0)
-    W("외부 공개 서비스에 WAF 없음","SQL 인젝션·XSS·Bot 공격 무방비. 기본 WAF라도 적용 권장.",["edge"]);
+    W(_.noWafPublic.t, _.noWafPublic.m, ["edge"]);
   if ((types.includes("ecommerce") || types.includes("ticketing")) && waf !== "bot" && waf !== "shield")
-    W("이커머스/티켓팅에 Bot Control 없음","이벤트 당일 봇이 트래픽의 70~90%. Bot Control 없이 공정한 선착순 불가.",["edge"]);
+    W(_.ecommNoBotCtrl.t, _.ecommNoBotCtrl.m, ["edge"]);
   if (userTypes.includes("global") && cdn === "no")
-    E("글로벌 서비스에 CDN 없음","해외 사용자는 서울 리전 직접 연결로 150~300ms 지연. CloudFront 필수.",["edge","workload"]);
+    E(_.globalNoCdn.t, _.globalNoCdn.m, ["edge","workload"]);
   if (state.appstack?.protocol === "graphql" && orchest === "ecs")
-    W("GraphQL + ALB HTTP 라우팅 주의","GraphQL은 단일 엔드포인트(/graphql). ALB 경로 기반 라우팅 규칙 별도 설정 필요.",["integration","compute"]);
+    W(_.graphqlAlb.t, _.graphqlAlb.m, ["integration","compute"]);
 
   // -- 데이터 / 캐시 --
   if (isLarge && (!cache || cache === "no") && !dbArr.includes("dynamodb"))
-    W("대규모 서비스에 캐시 없음","DAU 10만+ 에서 DB 직접 조회만 사용하면 DB가 병목. ElastiCache 도입 권장.",["scale","data"]);
+    W(_.largeCacheNone.t, _.largeCacheNone.m, ["scale","data"]);
   if (storArr.includes("s3") && dataS === "critical" && encr !== "strict")
-    W("S3 민감 데이터 + 기본 암호화","중요 데이터는 CMK 암호화 + 버킷 정책 + 퍼블릭 차단 모두 필요.",["data","compliance"]);
+    W(_.s3SensitiveEncr.t, _.s3SensitiveEncr.m, ["data","compliance"]);
 
   // -- 네트워크 --
   if (dau === "xlarge" && account === "single")
-    E("DAU 100만+ + 단일 계정 위험","서비스 할당량 한도 + 환경 격리 불가. AWS Organizations 멀티 계정 분리 필수.",["scale","network"]);
+    E(_.xlargeAccount.t, _.xlargeAccount.m, ["scale","network"]);
   else if (isLarge && account === "single")
-    W("대규모 서비스 + 단일 계정","DAU 10만+ 서비스에서 Prod/Dev 같은 계정은 개발 실수가 Prod에 직접 영향.",["scale","network"]);
+    W(_.largeAccount.t, _.largeAccount.m, ["scale","network"]);
   if ((avail === "99.95" || avail === "99.99") && (!iac || iac === "none"))
-    W("고가용성 목표 + IaC 없음","99.95%+ 목표에서 수동 콘솔 관리는 재현성·DR 복구에 치명적. IaC 필수.",["slo","cicd"]);
+    W(_.highAvailNoIac.t, _.highAvailNoIac.m, ["slo","cicd"]);
 
   // -- CI/CD --
   if (isLarge && (!iac || iac === "none"))
-    E("대규모 서비스에 IaC 없음","수동 콘솔 관리는 재현성·감사·DR 복구에 치명적. Terraform 또는 CDK 필수.",["cicd"]);
+    E(_.largeNoIac.t, _.largeNoIac.m, ["cicd"]);
   if ((avail === "99.95" || avail === "99.99") && region !== "single" && envCnt === "dev_prod")
-    W("멀티 리전 + dev/prod만 환경 부족","멀티 리전 DR 배포 검증을 위한 Stage 환경이 없으면 복구 절차 미검증.",["slo","cicd"]);
+    W(_.multiRegionEnv.t, _.multiRegionEnv.m, ["slo","cicd"]);
   if (gitops === "argocd" && orchest && !isEks)
-    W("ArgoCD + EKS 아님","ArgoCD는 Kubernetes 전용. ECS 환경은 CodeDeploy 또는 GitHub Actions 사용.",["platform","compute"]);
+    W(_.argoNonEks.t, _.argoNonEks.m, ["platform","compute"]);
 
   // -- IoT --
   const queueArr = Array.isArray(queueT) ? queueT : (queueT ? [queueT] : []);
   if (types.includes("iot") && rps === "ultra" && queueArr.includes("sqs"))
-    W("초고속 IoT + SQS 비효율","초당 수만 IoT 메시지에 SQS는 처리량·비용 한계. Kinesis Data Streams 검토.",["integration"]);
+    W(_.iotSqs.t, _.iotSqs.m, ["integration"]);
 
   // -- Lambda + VPC --
   if (isServerless && subnet && subnet !== "private" && natStrat !== "endpoint")
-    W("Lambda VPC 배치 + VPC Endpoint 미활용","VPC 내 Lambda는 NAT GW 경유 시 데이터 전송 비용 발생. VPC Endpoint 활용으로 NAT 비용 절감 권장.",["compute","network"]);
+    W(_.lambdaVpcEndpoint.t, _.lambdaVpcEndpoint.m, ["compute","network"]);
   if (isServerless && hasRdbms && !dbArr.some((d: string) => d.startsWith("aurora")))
-    W("Lambda + 표준 RDS 조합","Lambda 동시 실행 시 RDS 커넥션 폭발. RDS Proxy 필수이며, Aurora Serverless v2가 더 적합.",["compute","data"]);
+    W(_.lambdaRds.t, _.lambdaRds.m, ["compute","data"]);
 
   // -- Fargate + 약정 --
   if (commit === "3yr" && nodeType === "fargate")
-    W("Fargate + 3년 약정 주의","Fargate는 EC2 RI 적용 불가. Compute Savings Plans만 사용 가능(Fargate 최대 ~52% 절감). EC2 RI 72%보다 낮음.",["cost","compute"]);
+    W(_.fargateCommit.t, _.fargateCommit.m, ["cost","compute"]);
 
   // -- Aurora Serverless v2 + Global DB --
   if (dbHa === "global" && hasRdbms && !dbArr.some((d: string) => d.startsWith("aurora")))
-    W("Global Database는 Aurora 전용","RDS 표준은 Global Database 미지원. 크로스 리전 복제가 필요하면 Aurora로 전환 필요.",["data","slo"]);
+    W(_.globalDbNonAurora.t, _.globalDbNonAurora.m, ["data","slo"]);
 
   // -- 서버리스 + 대용량 데이터 --
   if (isServerless && state.scale?.data_volume === "ptb")
-    W("서버리스 + 수십 TB 데이터 처리 주의","Lambda 15분 타임아웃 제한으로 대용량 배치 처리 불가. AWS Batch 또는 ECS Task 병행 필요.",["compute","scale"]);
+    W(_.serverlessBigData.t, _.serverlessBigData.m, ["compute","scale"]);
 
   // -- MSA 구성인데 서비스 디스커버리 없음 --
   if (!isServerless && !isEks && isLarge && syncMode !== "sync_only" && !apiType)
-    W("대규모 비동기 MSA에 서비스 디스커버리 미설정","ECS Service Connect 또는 Cloud Map으로 서비스 간 통신 관리 권장.",["integration","compute"]);
+    W(_.msaNoDiscovery.t, _.msaNoDiscovery.m, ["integration","compute"]);
 
   // -- 실시간 서비스 + 동기 전용 --
   if (types.includes("realtime") && syncMode === "sync_only")
-    W("실시간 서비스에 동기 처리만","채팅·알림 등 실시간 이벤트를 동기로만 처리하면 병목 발생. SNS/EventBridge 비동기 전파 검토.",["integration","workload"]);
+    W(_.realtimeSyncOnly.t, _.realtimeSyncOnly.m, ["integration","workload"]);
 
   // -- 글로벌 서비스 + 단일 리전 + CDN 없음 --
   if ((state.workload?.user_type || []).includes("global") && region === "single" && (!cdn || cdn === "no"))
-    E("글로벌 사용자 + 단일 리전 + CDN 없음","해외 사용자는 서울 직접 연결로 150~300ms 지연. CloudFront 필수이며 멀티 리전 검토 권장.",["edge","slo"]);
+    E(_.globalSingleNoCdn.t, _.globalSingleNoCdn.m, ["edge","slo"]);
 
   return issues;
 }

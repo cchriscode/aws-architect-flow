@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { InfoEntry } from "@/lib/types";
+import { INFO_DB_EN } from "@/lib/info-db-en";
 
-export const INFO_DB: Record<string, InfoEntry> = {
+export type Lang = "ko" | "en";
+
+const INFO_DB_KO: Record<string, InfoEntry> = {
   web_api: {
     title:"웹/API 서비스",
     summary:"가장 일반적인 형태. 사용자 요청 → 서버 처리 → 응답 패턴입니다.",
@@ -484,3 +487,10 @@ export const INFO_DB: Record<string, InfoEntry> = {
   confluent_registry:{title:"Confluent Schema Registry",summary:"Kafka 메시지의 스키마(형식)를 중앙에서 관리합니다. 생산자·소비자 간 스키마 충돌을 방지합니다.",services:[{name:"Confluent Schema Registry",role:"Avro·Protobuf·JSON 스키마 중앙 관리",connects:"→ Kafka Producer가 메시지 보내기 전 검증"},{name:"Schema 버전 관리",role:"하위 호환성 자동 검사",connects:"→ Breaking Change 배포 방지"}],flow:"Producer → Schema Registry 검증 → Kafka 발행 → Consumer → Schema Registry 조회 → 역직렬화",tip:"Kafka를 쓴다면 Schema Registry는 필수입니다. 스키마 없이 운영하면 Consumer 장애가 빈번합니다."},
   glue_registry:{title:"AWS Glue Schema Registry",summary:"AWS가 관리하는 스키마 레지스트리입니다. MSK(Managed Kafka)와 Kinesis를 함께 쓸 때 AWS 네이티브 통합이 강점입니다.",services:[{name:"AWS Glue Schema Registry",role:"Avro·Protobuf·JSON 스키마 AWS 네이티브 관리",connects:"→ MSK·Kinesis와 자동 통합"},{name:"IAM 권한 관리",role:"스키마 접근 제어",connects:"→ AWS IAM으로 통합 관리"}],flow:"Producer → Glue Registry 검증 → MSK/Kinesis 발행",tip:"AWS 환경에 올인하는 팀이라면 Glue Registry가 Confluent보다 운영이 단순합니다."},
 };
+
+export function getInfoDb(lang: Lang = "ko"): Record<string, InfoEntry> {
+  return lang === "en" ? INFO_DB_EN : INFO_DB_KO;
+}
+
+/** Backward-compatible default export (Korean) */
+export const INFO_DB = INFO_DB_KO;

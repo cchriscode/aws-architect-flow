@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import type { Question, InfoEntry, Recommendation } from "@/lib/types";
 import type { GuardrailWarning } from "@/lib/guardrails";
+import { useDict } from "@/lib/i18n/context";
 
 interface QuestionCardProps {
   question: Question;
@@ -23,6 +24,7 @@ export function QuestionCard({
   infoDb = {},
   guardrails = {},
 }: QuestionCardProps) {
+  const t = useDict();
   if (question.skip) return null;
   const isMulti = question.multi;
   const vals = Array.isArray(value) ? value : value ? [value] : [];
@@ -32,7 +34,6 @@ export function QuestionCard({
       onChange(v);
       return;
     }
-    // "none" and "no" are exclusive (deselect all others)
     if (v === "none" || v === "no") {
       onChange([v]);
       return;
@@ -51,12 +52,12 @@ export function QuestionCard({
       </div>
       {question.help && (
         <div className="mb-4 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2 text-xs leading-relaxed text-gray-500">
-          {"\uD83D\uDCAC"} {question.help}
+          {"💬"} {question.help}
         </div>
       )}
       {isMulti && (
         <div className="mb-2.5 text-[11px] font-semibold text-indigo-600">
-          {"\u2726"} 복수 선택 가능
+          {t.questionCard.helpToggle}
         </div>
       )}
       <div className="grid grid-cols-2 gap-2">
@@ -71,15 +72,15 @@ export function QuestionCard({
           const rec = recommendations[opt.v];
           const guard = guardrails[opt.v];
 
-          const badgeColor = rec?.badge?.startsWith("\u2B50")
+          const badgeColor = rec?.badge?.startsWith("⭐")
             ? "text-red-600 bg-red-50 border-red-300"
-            : rec?.badge?.startsWith("\uD83D\uDCB0")
+            : rec?.badge?.startsWith("💰")
               ? "text-emerald-600 bg-green-50 border-emerald-300"
               : "text-violet-600 bg-violet-50 border-violet-300";
 
-          const reasonColor = rec?.badge?.startsWith("\u2B50")
+          const reasonColor = rec?.badge?.startsWith("⭐")
             ? "text-red-600"
-            : rec?.badge?.startsWith("\uD83D\uDCB0")
+            : rec?.badge?.startsWith("💰")
               ? "text-emerald-600"
               : "text-violet-600";
 
@@ -149,7 +150,7 @@ export function QuestionCard({
                       reasonColor
                     )}
                   >
-                    {"\uD83D\uDCA1"} {rec.reason}
+                    {"💡"} {rec.reason}
                   </div>
                 )}
                 {guard && (
@@ -162,7 +163,7 @@ export function QuestionCard({
                     )}
                   >
                     <span className="shrink-0">
-                      {guard.level === "warning" ? "\u26A0\uFE0F" : "\uD83D\uDCA1"}
+                      {guard.level === "warning" ? "⚠️" : "💡"}
                     </span>
                     <span>{guard.message}</span>
                   </div>
@@ -176,7 +177,7 @@ export function QuestionCard({
                     e.stopPropagation();
                     onInfo && infoKey && onInfo(infoDb[infoKey]);
                   }}
-                  title="상세 정보 보기"
+                  title={t.questionCard.moreInfo}
                   className={cn(
                     "absolute right-2.5 top-2.5 z-[2] flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full border-[1.5px] font-serif text-[11px] font-extrabold leading-none transition-all hover:border-indigo-600 hover:bg-indigo-600 hover:text-white",
                     selected

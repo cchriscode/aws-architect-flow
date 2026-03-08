@@ -1,7 +1,215 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { WizardState, CostEstimate, CostCategory } from "@/lib/types";
 
-export function estimateMonthlyCost(state: WizardState): CostEstimate {
+const dict = {
+  ko: {
+    // Category names
+    compute: "컴퓨팅",
+    database: "데이터베이스",
+    network: "네트워크",
+    edge: "엣지",
+    storage: "스토리지",
+    messaging: "메시징",
+    operations: "운영",
+    multiRegion: "멀티리전",
+
+    // Compute items
+    eksCluster: "EKS 클러스터",
+    eksClusterDesc: (azNum: number) => `Control Plane $73/월 + Graviton 노드 ${azNum}AZ`,
+    karpenter: "Karpenter 노드 동적 프로비저닝",
+    karpenterDesc: "Spot 혼합으로 최대 70% 절감",
+    argocd: "ArgoCD (EC2)",
+    argocdDesc: "t3.medium 1대",
+    ecsFargate: "ECS Fargate (ARM64)",
+    ecsFargateDesc: (azNum: number) => `${azNum}AZ, CPU/메모리 기준`,
+    lambda: "Lambda 함수",
+    lambdaDesc: "1M+ 요청/월 기준 (첫 1M 무료)",
+    apiGateway: "API Gateway",
+    apiGatewayDesc: "HTTP API 기준",
+    alb: "ALB (Application Load Balancer)",
+    albDesc: "LCU 기준",
+
+    // Database items
+    auroraServerless: "Aurora Serverless v2",
+    auroraServerlessDesc: (maxAcu: number) => `min 0.5 ~ max ${maxAcu} ACU`,
+    auroraReadReplica: "Aurora Read Replica",
+    auroraReadReplicaDesc: "읽기 분산용 리더 인스턴스",
+    auroraStorage: "Aurora 스토리지 + I/O",
+    auroraStorageDesc: "Aurora I/O-Optimized 기준",
+    rdsInstance: "RDS 인스턴스",
+    dynamodb: "DynamoDB (On-Demand)",
+    dynamodbDesc: "읽기/쓰기 요청 건당 과금",
+    elasticache: "ElastiCache Valkey/Redis",
+    elasticacheDesc: (azNum: number) => `${azNum}AZ Replication Group`,
+    opensearch: "OpenSearch",
+    opensearchDesc: (azNum: number) => `r6g.large × ${azNum}`,
+    rdsProxy: "RDS Proxy",
+    rdsProxyDesc: "Lambda→RDS 커넥션 풀링 (DB 비용의 ~3%)",
+
+    // Network items
+    natGateway: (count: number) => `NAT Gateway (${count}개)`,
+    natGatewayDesc: "$0.059/시간 + 데이터 처리 비용",
+    dataTransfer: "데이터 전송 (outbound)",
+    dataTransferDesc: "인터넷 아웃바운드 첫 1GB 무료",
+    vpn: "Site-to-Site VPN",
+    vpnDesc: "$0.05/시간 × 2 터널 + 데이터 전송 $0.09/GB",
+    directConnect: "Direct Connect (1Gbps)",
+    directConnectDesc: "포트 $0.30/시간(1Gbps) + 아웃바운드 $0.02-0.09/GB",
+    vpcEndpoints: "VPC Interface Endpoints",
+    vpcEndpointsDesc: "Interface Endpoint 4개 ($7/개/월)",
+
+    // Edge items
+    cloudfront: "CloudFront",
+    cloudfrontDesc: "데이터 전송 + 요청 건당",
+    wafAcl: "WAF Web ACL",
+    wafAclDesc: "$5/월 + 규칙/요청 비용",
+    botControl: "Bot Control",
+    botControlDesc: "$10/월 + $1/1M 요청",
+    shieldAdvanced: "Shield Advanced",
+    shieldAdvancedDesc: "고정 $3,000/월 (DRT 포함)",
+
+    // Storage items
+    s3: "S3 (Standard + Intelligent-Tiering)",
+    s3Desc: "저장 + 요청 + 데이터 전송",
+    efs: "EFS",
+    efsDesc: "Standard $0.30/GB/월, One Zone $0.16/GB/월",
+
+    // Messaging items
+    sqs: "SQS",
+    sqsDesc: "첫 1M 무료, 이후 $0.4/1M",
+    kinesis: "Kinesis Data Streams",
+    kinesisDesc: "샤드 시간 + 데이터 처리",
+    eventbridge: "EventBridge",
+    eventbridgeDesc: "이벤트 건당 $1/1M",
+
+    // Operations items
+    cloudwatch: "CloudWatch (로그+메트릭+알람)",
+    cloudwatchDesc: "기본 포함, 상세 모니터링 추가",
+    prometheus: "Amazon Managed Prometheus + Grafana",
+    prometheusDesc: "메트릭 수집 + 대시보드",
+    securityHub: "Security Hub + GuardDuty + Config",
+    securityHubDesc: "규정 준수 / 민감 데이터 모니터링",
+    cloudtrail: "CloudTrail (S3 저장)",
+    cloudtrailDesc: "이벤트 기록 + 쿼리",
+    kms: "KMS CMK (서비스별)",
+    kmsDesc: "키 사용 건당 + 월 $1/키",
+    controlTower: "Control Tower + AWS Config (조직)",
+    controlTowerDesc: "전체 계정 감사",
+
+    // Multi-Region items
+    replicaRegion: "복제 리전 인프라",
+    replicaRegionDesc: "DR 리전 기본 인프라 비용",
+    route53Global: "Route53 헬스체크 + 글로벌 가속",
+    route53GlobalDesc: "헬스체크 + GlobalAccelerator",
+  },
+  en: {
+    // Category names
+    compute: "Compute",
+    database: "Database",
+    network: "Network",
+    edge: "Edge",
+    storage: "Storage",
+    messaging: "Messaging",
+    operations: "Operations",
+    multiRegion: "Multi-Region",
+
+    // Compute items
+    eksCluster: "EKS Cluster",
+    eksClusterDesc: (azNum: number) => `Control Plane $73/mo + Graviton nodes ${azNum}AZ`,
+    karpenter: "Karpenter Dynamic Node Provisioning",
+    karpenterDesc: "Up to 70% savings with Spot mix",
+    argocd: "ArgoCD (EC2)",
+    argocdDesc: "1x t3.medium instance",
+    ecsFargate: "ECS Fargate (ARM64)",
+    ecsFargateDesc: (azNum: number) => `${azNum}AZ, CPU/memory based`,
+    lambda: "Lambda Functions",
+    lambdaDesc: "Based on 1M+ requests/mo (first 1M free)",
+    apiGateway: "API Gateway",
+    apiGatewayDesc: "Based on HTTP API",
+    alb: "ALB (Application Load Balancer)",
+    albDesc: "Based on LCU",
+
+    // Database items
+    auroraServerless: "Aurora Serverless v2",
+    auroraServerlessDesc: (maxAcu: number) => `min 0.5 ~ max ${maxAcu} ACU`,
+    auroraReadReplica: "Aurora Read Replica",
+    auroraReadReplicaDesc: "Reader instance for read distribution",
+    auroraStorage: "Aurora Storage + I/O",
+    auroraStorageDesc: "Based on Aurora I/O-Optimized",
+    rdsInstance: "RDS Instance",
+    dynamodb: "DynamoDB (On-Demand)",
+    dynamodbDesc: "Billed per read/write request",
+    elasticache: "ElastiCache Valkey/Redis",
+    elasticacheDesc: (azNum: number) => `${azNum}AZ Replication Group`,
+    opensearch: "OpenSearch",
+    opensearchDesc: (azNum: number) => `r6g.large × ${azNum}`,
+    rdsProxy: "RDS Proxy",
+    rdsProxyDesc: "Lambda-to-RDS connection pooling (~3% of DB cost)",
+
+    // Network items
+    natGateway: (count: number) => `NAT Gateway (${count})`,
+    natGatewayDesc: "$0.059/hr + data processing charges",
+    dataTransfer: "Data Transfer (outbound)",
+    dataTransferDesc: "Internet outbound, first 1GB free",
+    vpn: "Site-to-Site VPN",
+    vpnDesc: "$0.05/hr x 2 tunnels + data transfer $0.09/GB",
+    directConnect: "Direct Connect (1Gbps)",
+    directConnectDesc: "Port $0.30/hr (1Gbps) + outbound $0.02-0.09/GB",
+    vpcEndpoints: "VPC Interface Endpoints",
+    vpcEndpointsDesc: "4 Interface Endpoints ($7/each/mo)",
+
+    // Edge items
+    cloudfront: "CloudFront",
+    cloudfrontDesc: "Data transfer + per-request charges",
+    wafAcl: "WAF Web ACL",
+    wafAclDesc: "$5/mo + rule/request charges",
+    botControl: "Bot Control",
+    botControlDesc: "$10/mo + $1/1M requests",
+    shieldAdvanced: "Shield Advanced",
+    shieldAdvancedDesc: "Fixed $3,000/mo (includes DDoS Response Team (DRT))",
+
+    // Storage items
+    s3: "S3 (Standard + Intelligent-Tiering)",
+    s3Desc: "Storage + requests + data transfer",
+    efs: "EFS",
+    efsDesc: "Standard $0.30/GB/mo, One Zone $0.16/GB/mo",
+
+    // Messaging items
+    sqs: "SQS",
+    sqsDesc: "First 1M free, then $0.4/1M",
+    kinesis: "Kinesis Data Streams",
+    kinesisDesc: "Shard hours + data processing",
+    eventbridge: "EventBridge",
+    eventbridgeDesc: "$1/1M events",
+
+    // Operations items
+    cloudwatch: "CloudWatch (Logs + Metrics + Alarms)",
+    cloudwatchDesc: "Included by default, detailed monitoring extra",
+    prometheus: "Amazon Managed Prometheus + Grafana",
+    prometheusDesc: "Metrics collection + dashboards",
+    securityHub: "Security Hub + GuardDuty + Config",
+    securityHubDesc: "Compliance / sensitive data monitoring",
+    cloudtrail: "CloudTrail (S3 storage)",
+    cloudtrailDesc: "Event logging + queries",
+    kms: "KMS CMK (per service)",
+    kmsDesc: "Per key usage + $1/key/mo",
+    controlTower: "Control Tower + AWS Config (Organization)",
+    controlTowerDesc: "Full account auditing",
+
+    // Multi-Region items
+    replicaRegion: "Replica Region Infrastructure",
+    replicaRegionDesc: "DR region base infrastructure cost",
+    route53Global: "Route53 Health Checks + Global Accelerator",
+    route53GlobalDesc: "Health checks + GlobalAccelerator",
+  },
+} as const;
+
+type Lang = "ko" | "en";
+type Dict = (typeof dict)[Lang];
+
+export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): CostEstimate {
+  const t = dict[lang];
+
   const orchest  = state.compute?.orchestration;
   const archP    = state.compute?.arch_pattern;
   const nodeType = state.compute?.compute_node;
@@ -46,11 +254,11 @@ export function estimateMonthlyCost(state: WizardState): CostEstimate {
   const hasDynamo   = dbArr.includes("dynamodb");
   const hasRedis    = cache === "redis" || cache === "both";
 
-  // 약정 할인율
+  // Commitment discount rate
   const commitDiscount = commit === "3yr" ? 0.34 : commit === "1yr" ? 0.40 : 1.0;
   const spotDiscount   = spot === "heavy" ? 0.30 : spot === "partial" ? 0.70 : 1.0;
 
-  // 규모별 기본 계수
+  // Scale coefficient by DAU
   const scale = dau === "xlarge" ? 8 : dau === "large" ? 4 : dau === "medium" ? 2 : dau === "small" ? 1 : 0.5;
 
   const categories: CostCategory[] = [];
@@ -64,132 +272,133 @@ export function estimateMonthlyCost(state: WizardState): CostEstimate {
     }
   };
 
-  // -- 컴퓨팅
+  // -- Compute
   if (isEks) {
     const nodeBase = isXL ? 800 : isLarge ? 400 : 180;
     const nodeMin  = Math.round(nodeBase * commitDiscount * (spot !== "no" ? spotDiscount : 1));
     const nodeMax  = Math.round(nodeBase * 1.4 * commitDiscount);
-    I("컴퓨팅", "EKS 클러스터", `Control Plane $73/월 + Graviton 노드 ${azNum}AZ`, 73 + nodeMin, 73 + nodeMax);
+    I(t.compute, t.eksCluster, t.eksClusterDesc(azNum), 73 + nodeMin, 73 + nodeMax);
     if (nodeP === "karpenter") {
-      I("컴퓨팅", "Karpenter 노드 동적 프로비저닝", "Spot 혼합으로 최대 70% 절감", 0, 0);
+      I(t.compute, t.karpenter, t.karpenterDesc, 0, 0);
     }
-    if (gitops === "argocd") I("컴퓨팅", "ArgoCD (EC2)", "t3.medium 1대", 30, 50);
+    if (gitops === "argocd") I(t.compute, t.argocd, t.argocdDesc, 30, 50);
   } else if (isEcs) {
     const fargateBase = isXL ? 600 : isLarge ? 300 : 120;
-    I("컴퓨팅", "ECS Fargate (ARM64)", `${azNum}AZ, CPU/메모리 기준`,
+    I(t.compute, t.ecsFargate, t.ecsFargateDesc(azNum),
       Math.round(fargateBase * commitDiscount * (spot !== "no" ? spotDiscount : 1)),
       Math.round(fargateBase * 1.4));
   } else if (isServerless) {
     const lambdaBase = isXL ? 150 : isLarge ? 60 : 15;
-    I("컴퓨팅", "Lambda 함수", "1M+ 요청/월 기준 (첫 1M 무료)", 0, lambdaBase);
-    I("컴퓨팅", "API Gateway", "HTTP API 기준", isXL ? 50 : isLarge ? 20 : 5, isXL ? 150 : isLarge ? 60 : 20);
+    I(t.compute, t.lambda, t.lambdaDesc, 0, lambdaBase);
+    I(t.compute, t.apiGateway, t.apiGatewayDesc, isXL ? 50 : isLarge ? 20 : 5, isXL ? 150 : isLarge ? 60 : 20);
   }
   if (!isServerless) {
-    I("컴퓨팅", "ALB (Application Load Balancer)", "LCU 기준", isXL ? 80 : isLarge ? 40 : 16, isXL ? 200 : isLarge ? 100 : 40);
+    I(t.compute, t.alb, t.albDesc, isXL ? 80 : isLarge ? 40 : 16, isXL ? 200 : isLarge ? 100 : 40);
   }
 
-  // -- 데이터베이스
+  // -- Database
   if (hasAurora) {
     const auroraBase = isXL ? 800 : isLarge ? 400 : isServerless ? 30 : 120;
-    I("데이터베이스", "Aurora Serverless v2", `min 0.5 ~ max ${isXL?128:isLarge?64:8} ACU`,
+    const maxAcu = isXL ? 128 : isLarge ? 64 : 8;
+    I(t.database, t.auroraServerless, t.auroraServerlessDesc(maxAcu),
       Math.round(auroraBase * 0.6 * commitDiscount), Math.round(auroraBase * commitDiscount));
     if (dbHa === "multi_az_read" || dbHa === "global") {
-      I("데이터베이스", "Aurora Read Replica", "읽기 분산용 리더 인스턴스",
+      I(t.database, t.auroraReadReplica, t.auroraReadReplicaDesc,
         Math.round(auroraBase * 0.3 * commitDiscount), Math.round(auroraBase * 0.5 * commitDiscount));
     }
-    I("데이터베이스", "Aurora 스토리지 + I/O", "Aurora I/O-Optimized 기준", isXL ? 200 : isLarge ? 80 : 20, isXL ? 600 : isLarge ? 200 : 60);
+    I(t.database, t.auroraStorage, t.auroraStorageDesc, isXL ? 200 : isLarge ? 80 : 20, isXL ? 600 : isLarge ? 200 : 60);
   }
   if (hasRds) {
     const rdsBase = isXL ? 700 : isLarge ? 350 : 100;
-    I("데이터베이스", "RDS 인스턴스", `${dbHa === "multi_az" ? "Multi-AZ" : "Single-AZ"}`,
+    I(t.database, t.rdsInstance, `${dbHa === "multi_az" ? "Multi-AZ" : "Single-AZ"}`,
       Math.round(rdsBase * commitDiscount), Math.round(rdsBase * 1.3 * commitDiscount));
   }
   if (hasDynamo) {
-    I("데이터베이스", "DynamoDB (On-Demand)", "읽기/쓰기 요청 건당 과금", isXL ? 200 : isLarge ? 80 : 10, isXL ? 800 : isLarge ? 300 : 40);
+    I(t.database, t.dynamodb, t.dynamodbDesc, isXL ? 200 : isLarge ? 80 : 10, isXL ? 800 : isLarge ? 300 : 40);
   }
   if (hasRedis) {
     const redisBase = isXL ? 400 : isLarge ? 200 : 80;
-    I("데이터베이스", "ElastiCache Valkey/Redis", `${azNum}AZ Replication Group`,
+    I(t.database, t.elasticache, t.elasticacheDesc(azNum),
       Math.round(redisBase * commitDiscount), Math.round(redisBase * 1.2 * commitDiscount));
   }
   if (search === "opensearch") {
-    I("데이터베이스", "OpenSearch", `r6g.large × ${azNum}`, isXL ? 500 : isLarge ? 250 : 100, isXL ? 1000 : isLarge ? 500 : 200);
+    I(t.database, t.opensearch, t.opensearchDesc(azNum), isXL ? 500 : isLarge ? 250 : 100, isXL ? 1000 : isLarge ? 500 : 200);
   }
   if (isServerless && (hasAurora || hasRds)) {
     const rdsProxyBase = hasAurora ? (isXL ? 50 : isLarge ? 25 : 8) : (isXL ? 40 : isLarge ? 20 : 6);
-    I("데이터베이스", "RDS Proxy", "Lambda→RDS 커넥션 풀링 (DB 비용의 ~3%)", rdsProxyBase, Math.round(rdsProxyBase * 1.5));
+    I(t.database, t.rdsProxy, t.rdsProxyDesc, rdsProxyBase, Math.round(rdsProxyBase * 1.5));
   }
 
-  // -- 네트워크
+  // -- Network
   const natCount = natStrat === "per_az" ? azNum : natStrat === "endpoint" ? 0 : 1;
   if (natCount > 0) {
-    I("네트워크", `NAT Gateway (${natCount}개)`, "$0.059/시간 + 데이터 처리 비용",
+    I(t.network, t.natGateway(natCount), t.natGatewayDesc,
       natCount * 43, natCount * 43 + (isXL ? 200 : isLarge ? 100 : 30));
   }
-  I("네트워크", "데이터 전송 (outbound)", "인터넷 아웃바운드 첫 1GB 무료", isXL ? 80 : isLarge ? 30 : 5, isXL ? 300 : isLarge ? 100 : 20);
-  if (hybridArr.includes("vpn")) I("네트워크", "Site-to-Site VPN", "$0.05/시간 × 2 터널 + 데이터 전송 $0.09/GB", 36, 72 + (isXL ? 90 : isLarge ? 45 : 10));
-  if (hybridArr.includes("dx")) I("네트워크", "Direct Connect (1Gbps)", "포트 $0.30/시간(1Gbps) + 아웃바운드 $0.02-0.09/GB", 180, 400);
+  I(t.network, t.dataTransfer, t.dataTransferDesc, isXL ? 80 : isLarge ? 30 : 5, isXL ? 300 : isLarge ? 100 : 20);
+  if (hybridArr.includes("vpn")) I(t.network, t.vpn, t.vpnDesc, 36, 72 + (isXL ? 90 : isLarge ? 45 : 10));
+  if (hybridArr.includes("dx")) I(t.network, t.directConnect, t.directConnectDesc, 180, 400);
   if (encr === "strict" || hasCritCert) {
-    I("네트워크", "VPC Interface Endpoints", "Interface Endpoint 4개 ($7/개/월)", 28, 40);
+    I(t.network, t.vpcEndpoints, t.vpcEndpointsDesc, 28, 40);
   }
 
-  // -- 엣지
+  // -- Edge
   if (cdn !== "no") {
-    I("엣지", "CloudFront", "데이터 전송 + 요청 건당", isXL ? 100 : isLarge ? 40 : 5, isXL ? 500 : isLarge ? 150 : 30);
+    I(t.edge, t.cloudfront, t.cloudfrontDesc, isXL ? 100 : isLarge ? 40 : 5, isXL ? 500 : isLarge ? 150 : 30);
   }
   if (waf === "basic" || waf === "bot") {
-    I("엣지", "WAF Web ACL", "$5/월 + 규칙/요청 비용", 20, isXL ? 150 : isLarge ? 80 : 30);
+    I(t.edge, t.wafAcl, t.wafAclDesc, 20, isXL ? 150 : isLarge ? 80 : 30);
   }
   if (waf === "bot") {
-    I("엣지", "Bot Control", "$10/월 + $1/1M 요청", 10, isXL ? 100 : isLarge ? 50 : 20);
+    I(t.edge, t.botControl, t.botControlDesc, 10, isXL ? 100 : isLarge ? 50 : 20);
   }
   if (waf === "shield") {
-    I("엣지", "Shield Advanced", "고정 $3,000/월 (DRT 포함)", 3000, 3000);
+    I(t.edge, t.shieldAdvanced, t.shieldAdvancedDesc, 3000, 3000);
   }
 
-  // -- 스토리지
+  // -- Storage
   if (storArr.includes("s3")) {
-    I("스토리지", "S3 (Standard + Intelligent-Tiering)", "저장 + 요청 + 데이터 전송", isXL ? 50 : isLarge ? 20 : 5, isXL ? 300 : isLarge ? 80 : 20);
+    I(t.storage, t.s3, t.s3Desc, isXL ? 50 : isLarge ? 20 : 5, isXL ? 300 : isLarge ? 80 : 20);
   }
   if (storArr.includes("efs")) {
-    I("스토리지", "EFS", "Standard $0.30/GB/월, One Zone $0.16/GB/월", isXL ? 150 : isLarge ? 60 : 15, isXL ? 500 : isLarge ? 200 : 50);
+    I(t.storage, t.efs, t.efsDesc, isXL ? 150 : isLarge ? 60 : 15, isXL ? 500 : isLarge ? 200 : 50);
   }
 
-  // -- 메시징
+  // -- Messaging
   if (queueArr.includes("sqs") || (syncMode !== "sync_only")) {
-    I("메시징", "SQS", "첫 1M 무료, 이후 $0.4/1M", 0, isXL ? 50 : isLarge ? 20 : 5);
+    I(t.messaging, t.sqs, t.sqsDesc, 0, isXL ? 50 : isLarge ? 20 : 5);
   }
   if (queueArr.includes("kinesis")) {
-    I("메시징", "Kinesis Data Streams", "샤드 시간 + 데이터 처리", isXL ? 200 : isLarge ? 80 : 20, isXL ? 600 : isLarge ? 250 : 60);
+    I(t.messaging, t.kinesis, t.kinesisDesc, isXL ? 200 : isLarge ? 80 : 20, isXL ? 600 : isLarge ? 250 : 60);
   }
   if (queueArr.includes("eventbridge")) {
-    I("메시징", "EventBridge", "이벤트 건당 $1/1M", 0, isXL ? 30 : 10);
+    I(t.messaging, t.eventbridge, t.eventbridgeDesc, 0, isXL ? 30 : 10);
   }
 
-  // -- 운영 / 보안
-  I("운영", "CloudWatch (로그+메트릭+알람)", "기본 포함, 상세 모니터링 추가", isXL ? 50 : isLarge ? 25 : 10, isXL ? 200 : isLarge ? 80 : 30);
+  // -- Operations / Security
+  I(t.operations, t.cloudwatch, t.cloudwatchDesc, isXL ? 50 : isLarge ? 25 : 10, isXL ? 200 : isLarge ? 80 : 30);
   if (isEks && monitor === "prometheus_grafana") {
-    I("운영", "Amazon Managed Prometheus + Grafana", "메트릭 수집 + 대시보드", isXL ? 100 : 40, isXL ? 300 : 100);
+    I(t.operations, t.prometheus, t.prometheusDesc, isXL ? 100 : 40, isXL ? 300 : 100);
   }
   const hasPersonalData = ["sensitive","critical"].includes(state.workload?.data_sensitivity);
   if (hasCritCert || hasPersonalData) {
-    I("운영", "Security Hub + GuardDuty + Config", "규정 준수 / 민감 데이터 모니터링", 80, 200);
-    I("운영", "CloudTrail (S3 저장)", "이벤트 기록 + 쿼리", 20, 60);
+    I(t.operations, t.securityHub, t.securityHubDesc, 80, 200);
+    I(t.operations, t.cloudtrail, t.cloudtrailDesc, 20, 60);
   }
   if (encr === "strict") {
-    I("운영", "KMS CMK (서비스별)", "키 사용 건당 + 월 $1/키", 10, 30);
+    I(t.operations, t.kms, t.kmsDesc, 10, 30);
   }
   if (account === "org") {
-    I("운영", "Control Tower + AWS Config (조직)", "전체 계정 감사", 30, 80);
+    I(t.operations, t.controlTower, t.controlTowerDesc, 30, 80);
   }
 
-  // -- 멀티리전
+  // -- Multi-Region
   if (region === "active" || region === "dr") {
-    I("멀티리전", "복제 리전 인프라", "DR 리전 기본 인프라 비용", isXL ? 800 : isLarge ? 400 : 150, isXL ? 2000 : isLarge ? 1000 : 400);
-    I("멀티리전", "Route53 헬스체크 + 글로벌 가속", "헬스체크 + GlobalAccelerator", 35, 100);
+    I(t.multiRegion, t.replicaRegion, t.replicaRegionDesc, isXL ? 800 : isLarge ? 400 : 150, isXL ? 2000 : isLarge ? 1000 : 400);
+    I(t.multiRegion, t.route53Global, t.route53GlobalDesc, 35, 100);
   }
 
-  // 총합 계산
+  // Total calculation
   let totalMin = 0;
   let totalMax = 0;
   categories.forEach(cat => {

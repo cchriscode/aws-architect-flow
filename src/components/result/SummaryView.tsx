@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { generateSummary, type ArchSummary } from "@/lib/summary";
 import type { WizardState, Architecture } from "@/lib/types";
+import { useDict, useLang } from "@/lib/i18n/context";
 
 interface SummaryViewProps {
   state: WizardState;
@@ -11,9 +12,11 @@ interface SummaryViewProps {
 }
 
 export function SummaryView({ state, arch }: SummaryViewProps) {
+  const t = useDict();
+  const { lang } = useLang();
   const summary = useMemo(
-    () => generateSummary(state, arch ? { arch } : undefined),
-    [state, arch]
+    () => generateSummary(state, arch ? { arch } : undefined, lang),
+    [state, arch, lang]
   );
 
   return (
@@ -29,28 +32,28 @@ export function SummaryView({ state, arch }: SummaryViewProps) {
       {/* Key Stats 4-grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatBox
-          label="\uC6D4 \uC608\uC0C1 \uBE44\uC6A9"
+          label={t.summaryView.monthlyEstimate}
           value={`$${summary.stats.monthlyCost.toLocaleString()}`}
           color="text-emerald-600"
         />
         <StatBox
-          label="\uAC00\uC6A9\uC131 \uBAA9\uD45C"
+          label={t.summaryView.availabilityTarget}
           value={`${summary.stats.availability}%`}
           color="text-blue-600"
         />
         <StatBox
-          label="설계 우수성 점수"
-          value={`${summary.stats.wafrScore}\uC810`}
+          label={t.summaryView.wafrScore}
+          value={`${summary.stats.wafrScore}${t.summaryView.points}`}
           color="text-violet-600"
         />
         <StatBox
-          label="\uAC80\uC99D \uACB0\uACFC"
+          label={lang === "ko" ? "검증 결과" : "Validation"}
           value={
             summary.stats.errors > 0
-              ? `\u2757${summary.stats.errors} \uC624\uB958`
+              ? `❗${summary.stats.errors} ${lang === "ko" ? "오류" : "errors"}`
               : summary.stats.warnings > 0
-                ? `\u26A0\uFE0F${summary.stats.warnings} \uC8FC\uC758`
-                : "\u2705 \uD1B5\uACFC"
+                ? `⚠️${summary.stats.warnings} ${lang === "ko" ? "주의" : "warnings"}`
+                : `✅ ${lang === "ko" ? "통과" : "Pass"}`
           }
           color={
             summary.stats.errors > 0
@@ -63,12 +66,12 @@ export function SummaryView({ state, arch }: SummaryViewProps) {
       </div>
 
       {/* Complexity Meter */}
-      <ComplexityMeter complexity={summary.complexity} />
+      <ComplexityMeter complexity={summary.complexity} lang={lang} />
 
       {/* Key Services */}
       <div className="rounded-xl border border-gray-200 bg-white p-5">
         <div className="mb-3 text-sm font-bold text-gray-900">
-          {"\uD83D\uDEE0\uFE0F"} \uD575\uC2EC \uC11C\uBE44\uC2A4 \uAD6C\uC131
+          {t.summaryView.keyServices}
         </div>
         <div className="grid grid-cols-2 gap-2">
           {summary.keyServices.map((svc, i) => (
@@ -93,15 +96,15 @@ export function SummaryView({ state, arch }: SummaryViewProps) {
       </div>
 
       {/* Team Requirements */}
-      <TeamSection teamReqs={summary.teamReqs} />
+      <TeamSection teamReqs={summary.teamReqs} lang={lang} />
 
       {/* Rollout Roadmap */}
-      <RolloutSection rollout={summary.rolloutPath} />
+      <RolloutSection rollout={summary.rolloutPath} lang={lang} />
 
       {/* Next Steps */}
       <div className="rounded-xl border border-gray-200 bg-white p-5">
         <div className="mb-3 text-sm font-bold text-gray-900">
-          {"\uD83D\uDCCB"} \uB2E4\uC74C \uD560 \uC77C
+          {"📋"} {lang === "ko" ? "다음 할 일" : "Next Steps"}
         </div>
         <ol className="space-y-1.5">
           {summary.nextSteps.map((step, i) => (
@@ -122,12 +125,12 @@ export function SummaryView({ state, arch }: SummaryViewProps) {
       {summary.warnings.length > 0 && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-5">
           <div className="mb-2 text-sm font-bold text-red-600">
-            {"\u26A0\uFE0F"} \uC8FC\uC758\uC0AC\uD56D
+            {"⚠️"} {lang === "ko" ? "주의사항" : "Warnings"}
           </div>
           <ul className="space-y-1">
             {summary.warnings.map((w, i) => (
               <li key={i} className="text-xs leading-relaxed text-red-700">
-                {"\u2022"} {w}
+                {"•"} {w}
               </li>
             ))}
           </ul>
@@ -158,8 +161,10 @@ function StatBox({
 
 function ComplexityMeter({
   complexity,
+  lang,
 }: {
   complexity: ArchSummary["complexity"];
+  lang: string;
 }) {
   const pct = (complexity.score / 10) * 100;
   const barColor =
@@ -183,7 +188,7 @@ function ComplexityMeter({
     <div className="rounded-xl border border-gray-200 bg-white p-5">
       <div className="mb-2 flex items-center justify-between">
         <span className="text-sm font-bold text-gray-900">
-          {"\uD83D\uDCCA"} \uBCF5\uC7A1\uB3C4
+          {"📊"} {lang === "ko" ? "복잡도" : "Complexity"}
         </span>
         <span
           className={cn(
@@ -218,16 +223,21 @@ function ComplexityMeter({
 
 function TeamSection({
   teamReqs,
+  lang,
 }: {
   teamReqs: ArchSummary["teamReqs"];
+  lang: string;
 }) {
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5">
       <div className="mb-3 text-sm font-bold text-gray-900">
-        {"\uD83D\uDC65"} \uD544\uC694 \uD300 \uAD6C\uC131
+        {"👥"} {lang === "ko" ? "필요 팀 구성" : "Required Team"}
       </div>
       <div className="mb-2 text-xs text-gray-700">
-        \uCD5C\uC18C <span className="font-bold text-indigo-600">{teamReqs.minDevs}\uBA85</span> \uAD8C\uC7A5
+        {lang === "ko"
+          ? <>최소 <span className="font-bold text-indigo-600">{teamReqs.minDevs}명</span> 권장</>
+          : <>Min. <span className="font-bold text-indigo-600">{teamReqs.minDevs}</span> recommended</>
+        }
       </div>
       <div className="mb-2 flex flex-wrap gap-1">
         {teamReqs.roles.map((r, i) => (
@@ -255,13 +265,15 @@ function TeamSection({
 
 function RolloutSection({
   rollout,
+  lang,
 }: {
   rollout: ArchSummary["rolloutPath"];
+  lang: string;
 }) {
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5">
       <div className="mb-3 text-sm font-bold text-gray-900">
-        {"\uD83D\uDCC5"} \uB2E8\uACC4\uBCC4 \uAD6C\uCD95 \uB85C\uB4DC\uB9F5
+        {"📅"} {lang === "ko" ? "단계별 구축 로드맵" : "Rollout Roadmap"}
       </div>
       <div className="space-y-3">
         {rollout.map((step, i) => (
@@ -286,7 +298,7 @@ function RolloutSection({
               <ul className="mt-1 space-y-0.5">
                 {step.tasks.map((task, j) => (
                   <li key={j} className="text-[11px] text-gray-600">
-                    {"\u2022"} {task}
+                    {"•"} {task}
                   </li>
                 ))}
               </ul>

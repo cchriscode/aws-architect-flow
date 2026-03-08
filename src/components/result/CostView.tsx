@@ -4,18 +4,21 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { WizardState } from "@/lib/types";
 import { estimateMonthlyCost } from "@/lib/cost";
+import { useDict, useLang } from "@/lib/i18n/context";
 
 interface CostViewProps {
   state: WizardState;
 }
 
 export function CostView({ state }: CostViewProps) {
+  const t = useDict();
+  const { lang } = useLang();
   const [openCat, setOpenCat] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"current" | "optimized">(
     "current"
   );
 
-  const cost = estimateMonthlyCost(state);
+  const cost = estimateMonthlyCost(state, lang);
 
   const optimizedState = {
     ...state,
@@ -26,7 +29,7 @@ export function CostView({ state }: CostViewProps) {
       priority: "cost_first",
     },
   };
-  const costOpt = estimateMonthlyCost(optimizedState);
+  const costOpt = estimateMonthlyCost(optimizedState, lang);
   const saving = cost.totalMid - costOpt.totalMid;
   const savingPct =
     cost.totalMid > 0 ? Math.round((saving / cost.totalMid) * 100) : 0;
@@ -42,56 +45,43 @@ export function CostView({ state }: CostViewProps) {
     메시징: "#059669",
     운영: "#374151",
     멀티리전: "#dc2626",
+    Compute: "#6366f1",
+    Database: "#2563eb",
+    Network: "#0891b2",
+    Edge: "#7c3aed",
+    Storage: "#d97706",
+    Messaging: "#059669",
+    Operations: "#374151",
+    "Multi-Region": "#dc2626",
   };
 
   const tips: { icon: string; text: string }[] = [];
   if (!state.cost?.commitment || state.cost?.commitment === "none")
-    tips.push({
-      icon: "\uD83D\uDCB8",
-      text: "1년 약정 적용 시 최대 40% 절감 가능",
-    });
+    tips.push({ icon: "\uD83D\uDCB8", text: t.costView.tips.commit });
   if (!state.cost?.spot_usage || state.cost?.spot_usage === "no")
-    tips.push({
-      icon: "\u26A1",
-      text: "Spot 인스턴스 혼합 시 컴퓨팅 비용 30~70% 절감",
-    });
+    tips.push({ icon: "\u26A1", text: t.costView.tips.spot });
   if (
     !state.network?.nat_strategy ||
     state.network.nat_strategy === "per_az"
   )
-    tips.push({
-      icon: "\uD83C\uDF10",
-      text: "NAT Gateway 공유(1개)로 월 $80~150 절감",
-    });
+    tips.push({ icon: "\uD83C\uDF10", text: t.costView.tips.nat });
   if ((state.data?.storage || []).includes("s3"))
-    tips.push({
-      icon: "\uD83D\uDDC4\uFE0F",
-      text: "S3 Intelligent-Tiering으로 장기 저장 비용 40% 절감",
-    });
+    tips.push({ icon: "\uD83D\uDDC4\uFE0F", text: t.costView.tips.s3 });
   if (!state.data?.cache || state.data?.cache === "no")
-    tips.push({
-      icon: "\u26A1",
-      text: "ElastiCache 도입으로 DB 부하 감소 \u2192 DB 스케일 다운 가능",
-    });
+    tips.push({ icon: "\u26A1", text: t.costView.tips.cache });
   if (state.edge?.waf === "shield")
-    tips.push({
-      icon: "\uD83D\uDEE1\uFE0F",
-      text: "Shield Advanced($3,000) 대신 WAF + Bot Control로 대체 검토",
-    });
+    tips.push({ icon: "\uD83D\uDEE1\uFE0F", text: t.costView.tips.shield });
 
   return (
     <div className="grid grid-cols-[1fr_280px] gap-5">
-      {/* 메인 */}
+      {/* Main */}
       <div>
-        {/* 토글 */}
+        {/* Toggle */}
         <div className="mb-3.5 rounded-xl border border-gray-200 bg-white px-5 py-3.5">
           <div className="mb-3 flex gap-2">
             {[
-              { id: "current" as const, label: "현재 설정 비용" },
-              {
-                id: "optimized" as const,
-                label: "\uD83D\uDCA1 최적화 시나리오",
-              },
+              { id: "current" as const, label: t.costView.currentCost },
+              { id: "optimized" as const, label: t.costView.optimizedScenario },
             ].map((m) => (
               <button
                 key={m.id}
@@ -108,45 +98,40 @@ export function CostView({ state }: CostViewProps) {
             ))}
             {saving > 0 && viewMode === "current" && (
               <div className="ml-auto flex items-center gap-1 text-xs font-bold text-emerald-600">
-                {"\uD83D\uDCB0"} 최적화로 월{" "}
-                <span className="text-sm">
-                  ~${saving.toLocaleString()}
-                </span>{" "}
-                ({savingPct}%) 절감 가능
+                {t.costView.savingMsg(saving.toLocaleString(), savingPct)}
               </div>
             )}
           </div>
 
-          {/* 헤더 */}
+          {/* Header */}
           <div className="flex items-baseline gap-2.5">
             <span className="text-4xl font-extrabold text-gray-900">
               ${activeCost.totalMid.toLocaleString()}
             </span>
-            <span className="text-[13px] text-gray-500">/월 (예상)</span>
+            <span className="text-[13px] text-gray-500">{t.costView.perMonthEstimate}</span>
           </div>
           <div className="mt-0.5 text-xs text-gray-400">
-            범위: ${activeCost.totalMin.toLocaleString()} ~ $
+            {t.costView.range} ${activeCost.totalMin.toLocaleString()} ~ $
             {activeCost.totalMax.toLocaleString()}
             {activeCost.hasCommit && (
               <span className="ml-2 rounded bg-emerald-50 px-1.5 py-px text-[11px] font-semibold text-emerald-600">
-                약정 할인 적용
+                {t.costView.commitDiscount}
               </span>
             )}
             {activeCost.hasSpot && (
               <span className="ml-1 rounded bg-sky-50 px-1.5 py-px text-[11px] font-semibold text-sky-600">
-                Spot 혼합 적용
+                {t.costView.spotMixed}
               </span>
             )}
           </div>
           {viewMode === "optimized" && (
             <div className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
-              {"\u2728"} 1년 약정 + Spot 혼합(30%) 적용 시나리오. 현재
-              설정 대비 월 <b>${saving.toLocaleString()}</b> 절감.
+              {t.costView.optimizedDesc(saving.toLocaleString())}
             </div>
           )}
         </div>
 
-        {/* 카테고리별 */}
+        {/* Categories */}
         {activeCost.categories.map((cat) => {
           const pct =
             activeCost.totalMid > 0
@@ -186,7 +171,7 @@ export function CostView({ state }: CostViewProps) {
                       {Math.round(
                         (cat.total.min + cat.total.max) / 2
                       ).toLocaleString()}
-                      /월
+                      {t.costView.perMonth}
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -231,8 +216,8 @@ export function CostView({ state }: CostViewProps) {
                         </div>
                         <div className="text-[10px] text-gray-400">
                           {item.min === 0 && item.max === 0
-                            ? "포함"
-                            : "/월"}
+                            ? t.costView.included
+                            : t.costView.perMonth}
                         </div>
                       </div>
                     </div>
@@ -244,19 +229,14 @@ export function CostView({ state }: CostViewProps) {
         })}
       </div>
 
-      {/* 사이드바 */}
+      {/* Sidebar */}
       <div>
-        {/* 연간 비교 */}
+        {/* Period comparison */}
         <div className="mb-3 rounded-xl border border-gray-200 bg-white p-3.5">
           <div className="mb-2.5 text-xs font-bold text-gray-700">
-            {"\uD83D\uDCC5"} 비용 기간별 비교
+            {t.costView.periodCompare}
           </div>
-          {[
-            { label: "월", mult: 1 },
-            { label: "분기", mult: 3 },
-            { label: "연간", mult: 12 },
-            { label: "3년", mult: 36 },
-          ].map((p) => (
+          {t.costView.periods.map((p) => (
             <div
               key={p.label}
               className="flex justify-between border-b border-gray-50 py-1"
@@ -268,7 +248,7 @@ export function CostView({ state }: CostViewProps) {
                 </div>
                 {saving > 0 && (
                   <div className="text-[10px] text-emerald-600">
-                    최적화 $
+                    {t.costView.optimized} $
                     {(costOpt.totalMid * p.mult).toLocaleString()}
                   </div>
                 )}
@@ -277,11 +257,11 @@ export function CostView({ state }: CostViewProps) {
           ))}
         </div>
 
-        {/* 절감 팁 */}
+        {/* Cost tips */}
         {tips.length > 0 && (
           <div className="rounded-xl border border-gray-200 bg-white p-3.5">
             <div className="mb-2.5 text-xs font-bold text-gray-700">
-              {"\uD83D\uDCA1"} 비용 절감 팁
+              {t.costView.costTips}
             </div>
             {tips.map((tip, i) => (
               <div

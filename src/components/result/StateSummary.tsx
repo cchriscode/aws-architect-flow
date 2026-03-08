@@ -1,7 +1,14 @@
 "use client";
 
-import type { Phase, WizardState } from "@/lib/types";
+import type { WizardState } from "@/lib/types";
 import { buildPhaseQuestions } from "@/lib/questions";
+import { useDict, useLang } from "@/lib/i18n/context";
+
+interface Phase {
+  id: string;
+  label: string;
+  icon: string;
+}
 
 interface StateSummaryProps {
   state: WizardState;
@@ -10,13 +17,16 @@ interface StateSummaryProps {
 }
 
 export function StateSummary({ state, phases, onEdit }: StateSummaryProps) {
+  const t = useDict();
+  const { lang } = useLang();
+
   const labels: Record<
     string,
     { q: string; v: string }[]
   > = {};
 
   phases.forEach((p) => {
-    const qs = buildPhaseQuestions(p.id, state);
+    const qs = buildPhaseQuestions(p.id, state, undefined, lang);
     qs.forEach((q) => {
       const v = state[p.id]?.[q.id];
       if (!v) return;
@@ -32,7 +42,7 @@ export function StateSummary({ state, phases, onEdit }: StateSummaryProps) {
   return (
     <div className="sticky top-4 h-fit rounded-xl border border-gray-200 bg-gray-50 p-4">
       <div className="mb-3 text-[13px] font-bold text-gray-700">
-        {"\uD83D\uDCCB"} 결정 요약
+        {t.stateSummary.title}
       </div>
       {phases.map((p) => {
         const entries = labels[p.id];
@@ -47,7 +57,7 @@ export function StateSummary({ state, phases, onEdit }: StateSummaryProps) {
                 onClick={() => onEdit(p.id)}
                 className="cursor-pointer rounded border border-indigo-200 px-1.5 py-0.5 text-[10px] text-indigo-600"
               >
-                수정
+                {t.stateSummary.editBtn}
               </div>
             </div>
             {entries.map((e) => (
@@ -56,7 +66,7 @@ export function StateSummary({ state, phases, onEdit }: StateSummaryProps) {
                 className="mb-0.5 flex gap-1.5 text-[11px]"
               >
                 <span className="shrink-0 text-gray-400">
-                  {"\u2022"}
+                  {"•"}
                 </span>
                 <span className="text-gray-700">
                   <span className="text-gray-500">{e.q}: </span>

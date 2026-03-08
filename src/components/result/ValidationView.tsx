@@ -2,23 +2,7 @@
 
 import type { WizardState, ValidationIssue } from "@/lib/types";
 import { validateState } from "@/lib/validate";
-
-const PHASE_LIST = [
-  { id: "workload", label: "서비스 유형" },
-  { id: "scale", label: "규모" },
-  { id: "team", label: "팀" },
-  { id: "slo", label: "SLO" },
-  { id: "compliance", label: "규정 준수" },
-  { id: "network", label: "네트워크" },
-  { id: "compute", label: "컴퓨팅" },
-  { id: "data", label: "데이터" },
-  { id: "integration", label: "통합" },
-  { id: "edge", label: "엣지" },
-  { id: "cicd", label: "CI/CD" },
-  { id: "cost", label: "비용" },
-  { id: "platform", label: "플랫폼" },
-  { id: "appstack", label: "앱 스택" },
-];
+import { useDict, useLang } from "@/lib/i18n/context";
 
 interface ValidationViewProps {
   state: WizardState;
@@ -29,10 +13,12 @@ function IssueCard({
   issue,
   phaseLabels,
   onEdit,
+  relatedPhaseLabel,
 }: {
   issue: ValidationIssue;
   phaseLabels: Record<string, string>;
   onEdit?: (phaseId: string) => void;
+  relatedPhaseLabel: string;
 }) {
   const isError = issue.severity === "error";
   return (
@@ -60,7 +46,7 @@ function IssueCard({
           </div>
           {issue.phases && (
             <div className="flex flex-wrap gap-1.5">
-              <span className="text-[11px] text-gray-500">관련 Phase:</span>
+              <span className="text-[11px] text-gray-500">{relatedPhaseLabel}</span>
               {issue.phases.map((p) => (
                 <span
                   key={p}
@@ -83,21 +69,24 @@ function IssueCard({
 }
 
 export function ValidationView({ state, onEdit }: ValidationViewProps) {
-  const issues = validateState(state);
+  const t = useDict();
+  const { lang } = useLang();
+  const issues = validateState(state, lang);
   const errors = issues.filter((i) => i.severity === "error");
   const warns = issues.filter((i) => i.severity === "warn");
+
   const phaseLabels: Record<string, string> = {};
-  PHASE_LIST.forEach((p) => (phaseLabels[p.id] = p.label));
+  t.phases.forEach((p) => (phaseLabels[p.id] = p.label));
 
   if (issues.length === 0) {
     return (
       <div className="rounded-xl border border-gray-200 bg-white p-10 text-center">
         <div className="mb-4 text-5xl">{"\u2705"}</div>
         <div className="mb-2 text-xl font-bold text-emerald-600">
-          모순 없음!
+          {t.validationView.noIssues}
         </div>
         <div className="text-sm text-gray-500">
-          선택하신 모든 구성 요소가 서로 일관성 있게 구성되었습니다.
+          {t.validationView.noIssuesDesc}
         </div>
       </div>
     );
@@ -109,9 +98,9 @@ export function ValidationView({ state, onEdit }: ValidationViewProps) {
         {errors.length > 0 && (
           <div className="mb-5">
             <div className="mb-3 flex items-center gap-2 text-[15px] font-bold text-red-600">
-              <span>{"\u2757"} 반드시 수정 필요</span>
+              <span>{t.validationView.mustFix}</span>
               <span className="rounded-xl bg-red-600 px-2 py-0.5 text-xs text-white">
-                {errors.length}건
+                {t.validationView.count(errors.length)}
               </span>
             </div>
             {errors.map((issue, i) => (
@@ -120,6 +109,7 @@ export function ValidationView({ state, onEdit }: ValidationViewProps) {
                 issue={issue}
                 phaseLabels={phaseLabels}
                 onEdit={onEdit}
+                relatedPhaseLabel={t.validationView.relatedPhase}
               />
             ))}
           </div>
@@ -127,9 +117,9 @@ export function ValidationView({ state, onEdit }: ValidationViewProps) {
         {warns.length > 0 && (
           <div>
             <div className="mb-3 flex items-center gap-2 text-[15px] font-bold text-yellow-800">
-              <span>{"\u26A0\uFE0F"} 검토 권장</span>
+              <span>{t.validationView.reviewRecommended}</span>
               <span className="rounded-xl bg-amber-500 px-2 py-0.5 text-xs text-white">
-                {warns.length}건
+                {t.validationView.count(warns.length)}
               </span>
             </div>
             {warns.map((issue, i) => (
@@ -138,6 +128,7 @@ export function ValidationView({ state, onEdit }: ValidationViewProps) {
                 issue={issue}
                 phaseLabels={phaseLabels}
                 onEdit={onEdit}
+                relatedPhaseLabel={t.validationView.relatedPhase}
               />
             ))}
           </div>
@@ -146,12 +137,12 @@ export function ValidationView({ state, onEdit }: ValidationViewProps) {
       <div>
         <div className="rounded-xl border border-gray-200 bg-white p-4">
           <div className="mb-3 text-[13px] font-bold text-gray-700">
-            검증 결과 요약
+            {t.validationView.summaryTitle}
           </div>
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between rounded-lg bg-red-50 px-3 py-2">
               <span className="text-[13px] font-semibold text-red-600">
-                {"\u2757"} 오류
+                {t.validationView.errors}
               </span>
               <span className="text-lg font-bold text-red-600">
                 {errors.length}
@@ -159,7 +150,7 @@ export function ValidationView({ state, onEdit }: ValidationViewProps) {
             </div>
             <div className="flex items-center justify-between rounded-lg bg-amber-50 px-3 py-2">
               <span className="text-[13px] font-semibold text-yellow-800">
-                {"\u26A0\uFE0F"} 경고
+                {t.validationView.warnings}
               </span>
               <span className="text-lg font-bold text-yellow-800">
                 {warns.length}
@@ -167,11 +158,9 @@ export function ValidationView({ state, onEdit }: ValidationViewProps) {
             </div>
           </div>
           <div className="mt-3.5 text-[11px] leading-relaxed text-gray-400">
-            오류({"\u2757"})는 아키텍처 목표를 달성할 수 없거나 규정 위반이
-            발생하는 조합입니다.
+            {t.validationView.errorDesc}
             <br />
-            경고({"\u26A0\uFE0F"})는 베스트 프랙티스에서 벗어나 위험도가
-            높아지는 경우입니다.
+            {t.validationView.warningDesc}
           </div>
         </div>
       </div>

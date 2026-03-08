@@ -4,19 +4,29 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { WizardState, WafrItem } from "@/lib/types";
 import { wellArchitectedScore } from "@/lib/wafr";
+import { useDict, useLang } from "@/lib/i18n/context";
 
 interface WafrViewProps {
   state: WizardState;
 }
 
-const pillars = [
-  { id: "ops", label: "운영 우수성", icon: "\u2699\uFE0F", color: "#6366f1" },
-  { id: "sec", label: "보안", icon: "\uD83D\uDD12", color: "#dc2626" },
-  { id: "rel", label: "안정성", icon: "\uD83D\uDEE1\uFE0F", color: "#d97706" },
-  { id: "perf", label: "성능 효율성", icon: "\u26A1", color: "#0891b2" },
-  { id: "cost", label: "비용 최적화", icon: "\uD83D\uDCB0", color: "#059669" },
-  { id: "sus", label: "지속가능성", icon: "\uD83C\uDF31", color: "#7c3aed" },
-];
+const pillarIcons: Record<string, string> = {
+  ops: "\u2699\uFE0F",
+  sec: "\uD83D\uDD12",
+  rel: "\uD83D\uDEE1\uFE0F",
+  perf: "\u26A1",
+  cost: "\uD83D\uDCB0",
+  sus: "\uD83C\uDF31",
+};
+
+const pillarColors: Record<string, string> = {
+  ops: "#6366f1",
+  sec: "#dc2626",
+  rel: "#d97706",
+  perf: "#0891b2",
+  cost: "#059669",
+  sus: "#7c3aed",
+};
 
 function scoreColor(s: number) {
   if (s >= 80) return "#059669";
@@ -38,9 +48,12 @@ function itemIcon(item: WafrItem) {
 }
 
 export function WafrView({ state }: WafrViewProps) {
+  const t = useDict();
+  const { lang } = useLang();
   const [activePillar, setActivePillar] = useState("ops");
-  const wa = wellArchitectedScore(state);
+  const wa = wellArchitectedScore(state, lang);
 
+  const pillars = t.wafrView.pillars;
   const active = pillars.find((p) => p.id === activePillar);
   const items = wa.pillars[activePillar]?.items || [];
   const earnedTotal = items.reduce((s, i) => s + i.earnedPts, 0);
@@ -78,9 +91,9 @@ export function WafrView({ state }: WafrViewProps) {
 
   return (
     <div className="grid grid-cols-[1fr_260px] gap-5">
-      {/* 메인 */}
+      {/* Main */}
       <div>
-        {/* 종합 점수 */}
+        {/* Overall score */}
         <div className="mb-3.5 flex items-center justify-between rounded-xl border border-gray-200 bg-white px-5 py-4">
           <div className="flex items-center gap-4">
             <div
@@ -100,10 +113,10 @@ export function WafrView({ state }: WafrViewProps) {
             </div>
             <div>
               <div className="text-base font-bold text-gray-900">
-                Well-Architected 종합 점수
+                {t.wafrView.overallScore}
               </div>
               <div className="mt-0.5 text-xs text-gray-500">
-                AWS Well-Architected Framework 6개 Pillar 기준
+                {t.wafrView.pillarBasis}
               </div>
               <div className="mt-1.5 flex gap-1.5">
                 {[
@@ -130,36 +143,39 @@ export function WafrView({ state }: WafrViewProps) {
             onClick={exportWA}
             className="rounded-lg border-[1.5px] border-gray-200 bg-white px-3.5 py-[7px] text-[11px] font-semibold text-gray-700"
           >
-            {"\uD83D\uDCC4"} JSON 내보내기
+            {t.wafrView.exportJson}
           </button>
         </div>
 
-        {/* Pillar 탭 */}
+        {/* Pillar tabs */}
         <div className="mb-3 flex flex-wrap gap-1.5">
-          {pillars.map((p) => (
-            <button
-              key={p.id}
-              onClick={() => setActivePillar(p.id)}
-              className="rounded-lg border-[1.5px] px-3.5 py-[7px] text-[11px] font-semibold"
-              style={{
-                background: activePillar === p.id ? p.color : "#fff",
-                color: activePillar === p.id ? "#fff" : p.color,
-                borderColor: p.color,
-              }}
-            >
-              {p.icon} {p.label}{" "}
-              <span className="ml-1 opacity-80">
-                {wa.pillars[p.id].score}점
-              </span>
-            </button>
-          ))}
+          {pillars.map((p) => {
+            const color = pillarColors[p.id];
+            return (
+              <button
+                key={p.id}
+                onClick={() => setActivePillar(p.id)}
+                className="rounded-lg border-[1.5px] px-3.5 py-[7px] text-[11px] font-semibold"
+                style={{
+                  background: activePillar === p.id ? color : "#fff",
+                  color: activePillar === p.id ? "#fff" : color,
+                  borderColor: color,
+                }}
+              >
+                {pillarIcons[p.id]} {p.label}{" "}
+                <span className="ml-1 opacity-80">
+                  {wa.pillars[p.id].score}{t.wafrView.pts}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
-        {/* 항목별 점수 */}
+        {/* Item scores */}
         <div className="rounded-xl border border-gray-200 bg-white px-4 py-3.5">
           <div className="mb-3 flex items-center justify-between">
             <div className="text-sm font-bold text-gray-900">
-              {active?.icon} {active?.label} 상세 평가
+              {pillarIcons[activePillar]} {active?.label} {t.wafrView.detailEval}
             </div>
             <div className="flex items-center gap-2">
               <span
@@ -168,7 +184,7 @@ export function WafrView({ state }: WafrViewProps) {
                   color: scoreColor(wa.pillars[activePillar].score),
                 }}
               >
-                {earnedTotal}/{maxTotal}점
+                {earnedTotal}/{maxTotal}{t.wafrView.pts}
               </span>
               <span
                 className="rounded px-1.5 py-px text-[10px] font-bold"
@@ -177,7 +193,7 @@ export function WafrView({ state }: WafrViewProps) {
                   color: scoreColor(wa.pillars[activePillar].score),
                 }}
               >
-                {wa.pillars[activePillar].score}점
+                {wa.pillars[activePillar].score}{t.wafrView.pts}
               </span>
             </div>
           </div>
@@ -186,7 +202,7 @@ export function WafrView({ state }: WafrViewProps) {
               className="h-full rounded-md transition-[width] duration-400"
               style={{
                 width: `${maxTotal > 0 ? Math.round((earnedTotal / maxTotal) * 100) : 0}%`,
-                background: active?.color,
+                background: pillarColors[activePillar],
               }}
             />
           </div>
@@ -202,7 +218,6 @@ export function WafrView({ state }: WafrViewProps) {
                 key={i}
                 className="flex items-start gap-2.5 border-b border-gray-50 py-2.5"
               >
-                {/* 아이콘 */}
                 <div
                   className="mt-px flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-md"
                   style={{ background: color + "18" }}
@@ -214,8 +229,6 @@ export function WafrView({ state }: WafrViewProps) {
                     {icon}
                   </span>
                 </div>
-
-                {/* 질문 + 개선안 */}
                 <div className="flex-1 min-w-0">
                   <span
                     className={cn(
@@ -235,14 +248,12 @@ export function WafrView({ state }: WafrViewProps) {
                           className="ml-1 font-semibold"
                           style={{ color }}
                         >
-                          (+{gain}점 가능)
+                          {t.wafrView.gainPossible(gain)}
                         </span>
                       )}
                     </div>
                   )}
                 </div>
-
-                {/* 점수 바 + 텍스트 */}
                 <div className="flex shrink-0 flex-col items-end gap-0.5">
                   <span
                     className="text-[11px] font-bold tabular-nums"
@@ -264,14 +275,14 @@ export function WafrView({ state }: WafrViewProps) {
             );
           })}
 
-          {/* 개선 권장사항 요약 */}
+          {/* Recommendations summary */}
           {(() => {
             const recsItems = items.filter((item) => item.rec);
             if (recsItems.length === 0) return null;
             return (
               <div className="mt-3.5 rounded-lg border border-amber-200 bg-amber-50 px-3.5 py-2.5">
                 <div className="mb-1.5 text-xs font-bold text-yellow-800">
-                  개선 권장사항 ({recsItems.length}개)
+                  {t.wafrView.recommendations(recsItems.length)}
                 </div>
                 {recsItems.map((item, i) => (
                   <div
@@ -283,7 +294,7 @@ export function WafrView({ state }: WafrViewProps) {
                       {item.rec}
                       {item.maxPts - item.earnedPts > 0 && (
                         <span className="ml-1 font-semibold">
-                          (+{item.maxPts - item.earnedPts}점)
+                          (+{item.maxPts - item.earnedPts}{t.wafrView.pts})
                         </span>
                       )}
                     </span>
@@ -295,23 +306,23 @@ export function WafrView({ state }: WafrViewProps) {
         </div>
       </div>
 
-      {/* 사이드바 */}
+      {/* Sidebar */}
       <div>
         <div className="rounded-xl border border-gray-200 bg-white p-3.5">
           <div className="mb-2.5 text-xs font-bold text-gray-700">
-            Pillar별 점수
+            {t.wafrView.pillarScores}
           </div>
           {pillars.map((p) => (
             <div key={p.id} className="mb-2.5">
               <div className="mb-0.5 flex justify-between">
                 <span className="text-[11px] text-gray-700">
-                  {p.icon} {p.label}
+                  {pillarIcons[p.id]} {p.label}
                 </span>
                 <span
                   className="text-[11px] font-bold"
                   style={{ color: scoreColor(wa.pillars[p.id].score) }}
                 >
-                  {wa.pillars[p.id].score}점
+                  {wa.pillars[p.id].score}{t.wafrView.pts}
                 </span>
               </div>
               <div className="h-1.5 rounded bg-gray-100">
@@ -319,7 +330,7 @@ export function WafrView({ state }: WafrViewProps) {
                   className="h-full rounded"
                   style={{
                     width: `${wa.pillars[p.id].score}%`,
-                    background: p.color,
+                    background: pillarColors[p.id],
                   }}
                 />
               </div>
@@ -329,55 +340,36 @@ export function WafrView({ state }: WafrViewProps) {
 
         <div className="mt-3 rounded-xl border border-gray-200 bg-white p-3.5">
           <div className="mb-2 text-xs font-bold text-gray-700">
-            {"\uD83D\uDCCB"} 점수 기준
+            {t.wafrView.scoreCriteria}
           </div>
-          {[
-            {
-              range: "80~100",
-              grade: "우수",
-              desc: "프로덕션 배포 가능",
-              color: "#059669",
-            },
-            {
-              range: "60~79",
-              grade: "양호",
-              desc: "주요 항목 충족",
-              color: "#d97706",
-            },
-            {
-              range: "40~59",
-              grade: "개선 필요",
-              desc: "핵심 보완 필요",
-              color: "#ca8a04",
-            },
-            {
-              range: "0~39",
-              grade: "위험",
-              desc: "중요 항목 미충족",
-              color: "#dc2626",
-            },
-          ].map((g) => (
-            <div
-              key={g.range}
-              className="flex items-center gap-2 border-b border-gray-50 py-1"
-            >
+          {t.wafrView.grades.map((g) => {
+            const color =
+              g.range.startsWith("80") ? "#059669" :
+              g.range.startsWith("60") ? "#d97706" :
+              g.range.startsWith("40") ? "#ca8a04" : "#dc2626";
+            return (
               <div
-                className="h-2 w-2 shrink-0 rounded-sm"
-                style={{ background: g.color }}
-              />
-              <div className="flex-1">
-                <span
-                  className="text-[11px] font-semibold"
-                  style={{ color: g.color }}
-                >
-                  {g.grade}{" "}
-                </span>
-                <span className="text-[10px] text-gray-400">
-                  {g.range}점
-                </span>
+                key={g.range}
+                className="flex items-center gap-2 border-b border-gray-50 py-1"
+              >
+                <div
+                  className="h-2 w-2 shrink-0 rounded-sm"
+                  style={{ background: color }}
+                />
+                <div className="flex-1">
+                  <span
+                    className="text-[11px] font-semibold"
+                    style={{ color }}
+                  >
+                    {g.grade}{" "}
+                  </span>
+                  <span className="text-[10px] text-gray-400">
+                    {g.range}{t.wafrView.pts}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

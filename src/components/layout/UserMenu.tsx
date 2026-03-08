@@ -2,11 +2,13 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
+import { useDict } from "@/lib/i18n/context";
 
 export function UserMenu() {
   const { data: session } = useSession();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const t = useDict();
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -26,7 +28,7 @@ export function UserMenu() {
           onClick={() => signIn("google")}
           className="rounded-lg border-[1.5px] border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-600 transition-colors hover:bg-indigo-100"
         >
-          로그인
+          {t.userMenu.login}
         </button>
       </>
     );
@@ -54,7 +56,7 @@ export function UserMenu() {
           </div>
         )}
         <span className="max-w-[80px] truncate font-medium">{name}</span>
-        <span className="text-[10px] text-gray-400">{open ? "\u25B4" : "\u25BE"}</span>
+        <span className="text-[10px] text-gray-400">{open ? "▴" : "▾"}</span>
       </button>
 
       {open && (
@@ -63,7 +65,7 @@ export function UserMenu() {
             onClick={() => signOut({ callbackUrl: "/login" })}
             className="w-full px-3.5 py-2 text-left text-xs text-gray-600 transition-colors hover:bg-gray-50"
           >
-            {"\uB85C\uADF8\uC544\uC6C3"}
+            {t.userMenu.logout}
           </button>
         </div>
       )}

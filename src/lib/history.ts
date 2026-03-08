@@ -50,11 +50,12 @@ export async function getHistoryCount(): Promise<number> {
 export async function saveToHistory(
   state: WizardState,
   completedPhases: string[],
-  name?: string
+  name?: string,
+  lang: "ko" | "en" = "ko"
 ): Promise<HistoryEntry> {
-  const cost = estimateMonthlyCost(state);
-  const wafr = wellArchitectedScore(state);
-  const summaryData = generateSummary(state, { cost, wafr });
+  const cost = estimateMonthlyCost(state, lang);
+  const wafr = wellArchitectedScore(state, lang);
+  const summaryData = generateSummary(state, { cost, wafr }, lang);
 
   const summary = {
     headline: summaryData.headline,

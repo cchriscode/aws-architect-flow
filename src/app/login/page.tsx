@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { useDict } from "@/lib/i18n/context";
 
 export default function LoginPage() {
   const router = useRouter();
   const [agreed, setAgreed] = useState(false);
+  const t = useDict();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
@@ -17,10 +19,10 @@ export default function LoginPage() {
           <span className="text-xl font-extrabold text-gray-900">ArchFlow</span>
         </div>
         <p className="mb-8 text-xs text-gray-400">
-          AWS 아키텍처 설계 가이드
+          {t.login.subtitle}
         </p>
 
-        {/* 개인정보 동의 체크박스 */}
+        {/* Privacy consent checkbox */}
         <label className="mb-4 flex items-start gap-2 cursor-pointer text-left">
           <input
             type="checkbox"
@@ -30,9 +32,9 @@ export default function LoginPage() {
           />
           <span className="text-[12px] leading-relaxed text-gray-500">
             <a href="/privacy" target="_blank" className="font-medium text-indigo-600 underline hover:text-indigo-800">
-              개인정보 수집·이용
+              {t.login.privacyLink}
             </a>
-            에 동의합니다 <span className="text-red-400">(필수)</span>
+            {t.login.privacyAgree} <span className="text-red-400">{t.login.required}</span>
           </span>
         </label>
 
@@ -64,7 +66,7 @@ export default function LoginPage() {
               fill={agreed ? "#EA4335" : "#ccc"}
             />
           </svg>
-          Google로 로그인
+          {t.login.googleLogin}
         </button>
 
         <div className="mt-4">
@@ -72,12 +74,12 @@ export default function LoginPage() {
             onClick={() => router.push("/")}
             className="w-full rounded-lg px-4 py-2.5 text-sm font-medium text-gray-400 transition-colors hover:text-gray-600 hover:bg-gray-50"
           >
-            비회원으로 이용하기
+            {t.login.guestAccess}
           </button>
         </div>
 
         <p className="mt-4 text-[11px] text-gray-300">
-          비회원은 설계 저장 기능을 이용할 수 없습니다
+          {t.login.guestNotice}
         </p>
       </div>
     </div>

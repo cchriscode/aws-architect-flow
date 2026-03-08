@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import type { Architecture, ArchService, WizardState } from "@/lib/types";
 import { generateDiagramXml } from "@/lib/diagram-xml";
+import { useDict } from "@/lib/i18n/context";
 
 const SVC_MAP: [string, string, string, string][] = [
   ["route 53","#7C3AED","\uD83D\uDD35","Route 53"],
@@ -26,8 +27,8 @@ const SVC_MAP: [string, string, string, string][] = [
   ["rds proxy","#7C3AED","\uD83D\uDD0C","RDS Proxy"],
   ["cognito","#8B5CF6","\uD83D\uDC64","Cognito"],
   ["iam identity center","#8B5CF6","\uD83D\uDD11","IAM SSO"],
-  ["\uC778\uC99D \uC774\uC911","#8B5CF6","\uD83D\uDD17","\uC774\uC911 \uC778\uC99D"],
-  ["\uC790\uCCB4 \uC778\uC99D","#6B7280","\uD83D\uDD11","\uC790\uCCB4 JWT"],
+  ["\uC778\uC99D \uC774\uC911","#8B5CF6","\uD83D\uDD17","MFA"],
+  ["\uC790\uCCB4 \uC778\uC99D","#6B7280","\uD83D\uDD11","Custom JWT"],
   ["elasticache","#DC2626","\u26A1","ElastiCache Redis"],
   ["dax","#F59E0B","\u26A1","DynamoDB DAX"],
   ["aurora postgresql","#7C3AED","\uD83D\uDDC4\uFE0F","Aurora PG"],
@@ -52,7 +53,7 @@ const SVC_MAP: [string, string, string, string][] = [
   ["amazon redshift","#2563EB","\uD83C\uDFEA","Redshift"],
   ["redshift","#2563EB","\uD83C\uDFEA","Redshift"],
   ["lake formation","#D97706","\uD83C\uDFD4\uFE0F","Lake Formation"],
-  ["\uD14C\uB09C\uD2B8 \uACA9\uB9AC","#8B5CF6","\uD83C\uDFE2","\uD14C\uB09C\uD2B8 \uACA9\uB9AC"],
+  ["\uD14C\uB09C\uD2B8 \uACA9\uB9AC","#8B5CF6","\uD83C\uDFE2","Tenant Isolation"],
   ["eventbridge scheduler","#7C3AED","\uD83D\uDD50","EventBridge Scheduler"],
   ["aws step functions","#7C3AED","\uD83D\uDD00","Step Functions"],
   ["step functions","#7C3AED","\uD83D\uDD00","Step Functions"],
@@ -60,7 +61,7 @@ const SVC_MAP: [string, string, string, string][] = [
   ["ecs scheduled","#10B981","\uD83D\uDCCB","ECS Scheduled Task"],
   ["aws glue schema","#D97706","\uD83D\uDCCB","Glue Schema Registry"],
   ["confluent schema","#D97706","\uD83D\uDCCB","Confluent Schema Registry"],
-  ["api \uBC84\uC804 \uAD00\uB9AC","#6B7280","\uD83C\uDFF7\uFE0F","API \uBC84\uC804\uAD00\uB9AC"],
+  ["api \uBC84\uC804 \uAD00\uB9AC","#6B7280","\uD83C\uDFF7\uFE0F","API Versioning"],
   ["sqs","#D97706","\uD83D\uDCEC","SQS"],
   ["sns","#D97706","\uD83D\uDCE2","SNS"],
   ["eventbridge","#D97706","\uD83D\uDD14","EventBridge"],
@@ -91,9 +92,9 @@ const SVC_MAP: [string, string, string, string][] = [
   ["codepipeline","#0891B2","\uD83D\uDD04","CodePipeline"],
   ["gitlab","#FC6D26","\uD83E\uDD8A","GitLab CI"],
   ["blue/green","#10B981","\uD83D\uDD35","Blue/Green"],
-  ["canary","#F59E0B","\uD83D\uDC24","Canary \uBC30\uD3EC"],
-  ["\uBC30\uD3EC \uC804\uB7B5","#6B7280","\uD83D\uDE80","\uBC30\uD3EC \uC804\uB7B5"],
-  ["rolling","#6B7280","\uD83D\uDD04","Rolling \uBC30\uD3EC"],
+  ["canary","#F59E0B","\uD83D\uDC24","Canary"],
+  ["\uBC30\uD3EC \uC804\uB7B5","#6B7280","\uD83D\uDE80","Deploy Strategy"],
+  ["rolling","#6B7280","\uD83D\uDD04","Rolling"],
   ["external secrets","#DC2626","\uD83D\uDD10","External Secrets"],
   ["secrets store csi","#DC2626","\uD83D\uDD11","Secrets CSI"],
   ["k8s secret","#6B7280","\uD83D\uDD11","K8s Secret"],
@@ -105,7 +106,7 @@ const SVC_MAP: [string, string, string, string][] = [
   ["velero","#059669","\uD83D\uDCBE","Velero"],
   ["keda","#6366f1","\uD83D\uDCC8","KEDA"],
   ["vpa","#F59E0B","\u2195\uFE0F","VPA"],
-  ["\uBA40\uD2F0 \uD074\uB7EC\uC2A4\uD130","#374151","\uD83C\uDFE2","\uBA40\uD2F0 \uD074\uB7EC\uC2A4\uD130"],
+  ["\uBA40\uD2F0 \uD074\uB7EC\uC2A4\uD130","#374151","\uD83C\uDFE2","Multi-Cluster"],
   ["karpenter","#6366f1","\uD83D\uDE80","Karpenter"],
   ["cluster autoscaler","#6366f1","\uD83D\uDCC8","Cluster Autoscaler"],
   ["aws alb ingress","#3B82F6","\u2696\uFE0F","ALB Controller"],
@@ -129,13 +130,13 @@ const SVC_MAP: [string, string, string, string][] = [
   ["python","#3776AB","\uD83D\uDC0D","FastAPI"],
   ["go","#00ADD8","\uD83D\uDC39","Go"],
   ["rust","#CE422B","\uD83E\uDD80","Rust"],
-  ["\uD3F4\uB9AC\uAE00\uB7CF","#6B7280","\uD83C\uDF10","\uD3F4\uB9AC\uAE00\uB7CF"],
+  ["\uD3F4\uB9AC\uAE00\uB7FF","#6B7280","\uD83C\uDF10","Polyglot"],
   ["aws api gateway","#3B82F6","\uD83D\uDEAA","API Gateway"],
-  ["alb \uC9C1\uC811","#3B82F6","\u2696\uFE0F","ALB \uC9C1\uC811"],
+  ["alb \uC9C1\uC811","#3B82F6","\u2696\uFE0F","ALB Direct"],
   ["grpc","#244C5A","\uD83D\uDCE1","gRPC+Protobuf"],
   ["apollo server","#311C87","\uD83D\uDE80","Apollo GraphQL"],
   ["aws appsync","#7C3AED","\uD83D\uDE80","AppSync"],
-  ["rest (\uC678\uBD80)","#10B981","\uD83C\uDF10","REST+gRPC \uD63C\uD569"],
+  ["rest (\uC678\uBD80)","#10B981","\uD83C\uDF10","REST+gRPC"],
   ["k8s \uB0B4\uC7A5 dns","#326CE5","\uD83D\uDD0D","K8s DNS"],
   ["aws cloud map","#D97706","\uD83D\uDDFA\uFE0F","Cloud Map"],
   ["spring cloud eureka","#6DB33F","\uD83D\uDCCB","Eureka"],
@@ -147,8 +148,8 @@ const SVC_MAP: [string, string, string, string][] = [
   ["site-to-site","#6B7280","\uD83D\uDD10","VPN"],
   ["direct connect","#0891B2","\uD83D\uDCF6","Direct Connect"],
   ["aws organizations","#374151","\uD83C\uDFE2","Organizations"],
-  ["\uD658\uACBD\uBCC4 \uACC4\uC815","#374151","\uD83C\uDFE2","\uACC4\uC815 \uBD84\uB9AC"],
-  ["\uB2E8\uC77C \uACC4\uC815","#374151","\uD83C\uDFE2","\uB2E8\uC77C \uACC4\uC815"],
+  ["\uD658\uACBD\uBCC4 \uACC4\uC815","#374151","\uD83C\uDFE2","Account per Env"],
+  ["\uB2E8\uC77C \uACC4\uC815","#374151","\uD83C\uDFE2","Single Account"],
 ];
 
 function getSvcDisplay(name: string) {
@@ -427,6 +428,7 @@ interface DiagramViewProps {
 }
 
 export function DiagramView({ arch, state }: DiagramViewProps) {
+  const td = useDict().diagram;
   const z = buildDiagramZones(arch);
   const subnetTier = state.network?.subnet_tier || "2tier";
   const [viewMode, setViewMode] = useState<"card" | "drawio">("card");
@@ -474,11 +476,10 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
     <div>
       <div className="mb-3.5 flex flex-wrap items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2.5">
         <span className="text-xs font-bold text-gray-700">
-          {"\uD83D\uDCD0"} 아키텍처 다이어그램
+          {td.title}
         </span>
         <span className="text-[11px] text-gray-500">
-          12개 단계에서 선택된 서비스{" "}
-          <strong className="text-indigo-600">{total}개</strong> 전부 표시
+          {td.serviceCount(total)}
         </span>
         <div className="ml-auto flex items-center gap-2">
           <div className="flex rounded-md border border-gray-300 text-[11px] font-bold">
@@ -486,26 +487,26 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
               onClick={() => setViewMode("card")}
               className={`rounded-l-md px-3 py-1.5 transition-colors ${viewMode === "card" ? "bg-indigo-600 text-white" : "bg-white text-gray-600 hover:bg-gray-100"}`}
             >
-              카드 뷰
+              {td.cardView}
             </button>
             <button
               onClick={() => setViewMode("drawio")}
               className={`rounded-r-md px-3 py-1.5 transition-colors ${viewMode === "drawio" ? "bg-indigo-600 text-white" : "bg-white text-gray-600 hover:bg-gray-100"}`}
             >
-              draw.io 뷰
+              {td.drawioView}
             </button>
           </div>
           <button
             onClick={openInDrawio}
             className="rounded-md border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-[11px] font-bold text-emerald-700 transition-colors hover:bg-emerald-100"
           >
-            {"\u270F\uFE0F"} draw.io에서 편집
+            {td.editInDrawio}
           </button>
           <button
             onClick={downloadDrawio}
             className="rounded-md border border-indigo-300 bg-indigo-50 px-3 py-1.5 text-[11px] font-bold text-indigo-700 transition-colors hover:bg-indigo-100"
           >
-            {"\u2B07"} 다운로드
+            {td.download}
           </button>
         </div>
       </div>
@@ -514,41 +515,37 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
         <DrawioPreview xml={diagramXml} />
       ) : (
       <div className="mx-auto max-w-[980px]">
-        {/* 인터넷 */}
+        {/* Internet */}
         <div className="mb-1 text-center">
           <div className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-sky-200 bg-sky-50 px-7 py-2.5">
             <span className="text-2xl">{"\uD83C\uDF10"}</span>
             <span className="text-[13px] font-bold text-sky-700">
-              인터넷 / 클라이언트
+              {td.internet}
             </span>
           </div>
         </div>
-        <FlowArrow label="HTTPS / TLS 1.2+" />
+        <FlowArrow label={td.flowHttps} />
 
-        {/* 엣지 */}
+        {/* Edge */}
         {z.edge.length > 0 && (
           <>
-            <ZBand
-              label={"\uD83D\uDE80 \uC5E3\uC9C0 / CDN \u00B7 \uC0AC\uC6A9\uC790 \uC804\uB2EC \uACC4\uCE35"}
-              color="#0891B2"
-              bg="#ECFEFF"
-            >
+            <ZBand label={td.edgeZone} color="#0891B2" bg="#ECFEFF">
               <SRow svcs={z.edge} />
             </ZBand>
             <FlowArrow />
           </>
         )}
 
-        {/* AWS 리전 */}
+        {/* AWS Region */}
         <div className="mb-1.5 rounded-[14px] border-[1.5px] border-gray-200 bg-[#FAFAFA] p-2 pb-2.5">
           <div className="px-1.5 pb-1.5 text-[10px] font-bold tracking-[1.2px] text-gray-400">
-            {"\u2601\uFE0F"} AWS REGION {"\u00B7"} ap-northeast-2 (서울)
+            {td.regionLabel}
           </div>
 
           {z.account.length > 0 && (
             <div className="mb-2 flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-gray-300 bg-gray-100 px-2.5 py-1.5">
               <span className="mr-1 text-[10px] font-bold text-gray-700">
-                {"\uD83C\uDFE2"} 계정 / 조직 구조
+                {td.accountOrg}
               </span>
               {z.account.map((s, i) => (
                 <SCard key={i} svc={s} />
@@ -564,7 +561,7 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
               {z.networkExtras.length > 0 && (
                 <div className="mb-1 flex flex-wrap items-center gap-2 border-b border-dashed border-gray-200 px-2.5 pb-2 pt-1">
                   <span className="mr-1 self-center text-[9px] font-bold text-gray-400">
-                    네트워크 기반 (NAT / VPN / DX / VPC Endpoint)
+                    {td.networkBasis}
                   </span>
                   {z.networkExtras.map((s, i) => (
                     <SCard key={i} svc={s} />
@@ -572,27 +569,27 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
                 </div>
               )}
               <SubnetBand
-                label={`퍼블릭 서브넷 (Public Subnet) \u00B7 ${az} \u2014 로드밸런서 \u00B7 API 게이트웨이`}
+                label={td.publicSubnet(az)}
                 color="#3B82F6"
                 svcs={z.lb}
               />
               {z.app.length > 0 && (
                 <SubnetBand
-                  label={`프라이빗 서브넷 (Private Subnet) \u00B7 ${az} \u2014 애플리케이션 \u00B7 인증`}
+                  label={td.privateSubnet(az)}
                   color="#10B981"
                   svcs={z.app}
                 />
               )}
               {z.cache.length > 0 && (
                 <SubnetBand
-                  label={`프라이빗 서브넷 (Cache Zone) \u00B7 ${az} \u2014 캐시 계층`}
+                  label={td.cacheZone(az)}
                   color="#EF4444"
                   svcs={z.cache}
                 />
               )}
               {(z.db.length + z.backup.length) > 0 && (
                 <SubnetBand
-                  label={`${subnetTier === "3tier" ? "격리 서브넷 (Isolated Subnet)" : "프라이빗 서브넷 (DB Zone)"} \u00B7 ${az} \u2014 데이터베이스 \u00B7 백업`}
+                  label={td.dbZone(az, subnetTier === "3tier")}
                   color="#7C3AED"
                   svcs={[...z.db, ...z.backup]}
                 />
@@ -601,11 +598,7 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
           )}
 
           {z.storage.length > 0 && (
-            <ZBand
-              label={"\uD83D\uDCE6 \uC2A4\uD1A0\uB9AC\uC9C0 (\uAD00\uB9AC\uD615 \uC11C\uBE44\uC2A4 \u00B7 VPC \uC678\uBD80 \u00B7 S3 / EFS / EBS)"}
-              color="#16A34A"
-              bg="#F0FDF4"
-            >
+            <ZBand label={td.storageZone} color="#16A34A" bg="#F0FDF4">
               <SRow svcs={z.storage} />
             </ZBand>
           )}
@@ -613,12 +606,8 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
 
         {z.messaging.length > 0 && (
           <>
-            <FlowArrow label="비동기 이벤트 / 메시지" />
-            <ZBand
-              label={"\uD83D\uDCE8 \uBA54\uC2DC\uC9D5 / \uC774\uBCA4\uD2B8 \uC2A4\uD2B8\uB9AC\uBC0D \u00B7 \uBE44\uB3D9\uAE30 \uD1B5\uD569"}
-              color="#D97706"
-              bg="#FFFBEB"
-            >
+            <FlowArrow label={td.flowAsync} />
+            <ZBand label={td.messagingZone} color="#D97706" bg="#FFFBEB">
               <SRow svcs={z.messaging} />
             </ZBand>
           </>
@@ -626,12 +615,8 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
 
         {z.batch.length > 0 && (
           <>
-            <FlowArrow label="스케줄 / 트리거" />
-            <ZBand
-              label={"\u2699\uFE0F \uBC30\uCE58 \uCC98\uB9AC / \uC6CC\uD06C\uD50C\uB85C \uC624\uCF00\uC2A4\uD2B8\uB808\uC774\uC158"}
-              color="#7C3AED"
-              bg="#F5F3FF"
-            >
+            <FlowArrow label={td.flowSchedule} />
+            <ZBand label={td.batchZone} color="#7C3AED" bg="#F5F3FF">
               <SRow svcs={z.batch} />
             </ZBand>
           </>
@@ -640,11 +625,7 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
         {hasDat && (
           <>
             <FlowArrow />
-            <ZBand
-              label={"\uD83D\uDCCA \uB370\uC774\uD130 \uD30C\uC774\uD504\uB77C\uC778 / IoT / SaaS \uBD84\uC11D \uACC4\uCE35"}
-              color="#D97706"
-              bg="#FFFBEB"
-            >
+            <ZBand label={td.dataPipeZone} color="#D97706" bg="#FFFBEB">
               <SRow svcs={[...z.iot, ...z.datapipe, ...z.saas]} />
             </ZBand>
           </>
@@ -652,12 +633,8 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
 
         {z.dr.length > 0 && (
           <>
-            <FlowArrow label="리전 간 복제 / 페일오버" />
-            <ZBand
-              label={"\uD83C\uDF0D DR / \uBA40\uD2F0\uB9AC\uC804 \uC804\uB7B5"}
-              color="#7C3AED"
-              bg="#F5F3FF"
-            >
+            <FlowArrow label={td.flowDr} />
+            <ZBand label={td.drZone} color="#7C3AED" bg="#F5F3FF">
               <SRow svcs={z.dr} />
             </ZBand>
           </>
@@ -666,11 +643,7 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
         {z.platform.length > 0 && (
           <>
             <FlowArrow />
-            <ZBand
-              label={"\u2699\uFE0F K8s \uC0DD\uD0DC\uACC4 \uD50C\uB7AB\uD3FC (Karpenter \u00B7 Ingress \u00B7 Istio \u00B7 ArgoCD \u00B7 Prometheus)"}
-              color="#6366f1"
-              bg="#eef2ff"
-            >
+            <ZBand label={td.k8sZone} color="#6366f1" bg="#eef2ff">
               <SRow svcs={z.platform} />
             </ZBand>
           </>
@@ -679,68 +652,42 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
         {z.appstack.length > 0 && (
           <>
             <FlowArrow />
-            <ZBand
-              label={"\uD83D\uDDA5\uFE0F \uC560\uD50C\uB9AC\uCF00\uC774\uC158 \uC2A4\uD0DD (\uC5B8\uC5B4 \u00B7 API Gateway \uAD6C\uD604 \u00B7 \uD504\uB85C\uD1A0\uCF5C \u00B7 \uC11C\uBE44\uC2A4 \uB514\uC2A4\uCEE4\uBC84\uB9AC)"}
-              color="#0891b2"
-              bg="#ecfeff"
-            >
+            <ZBand label={td.appStackZone} color="#0891b2" bg="#ecfeff">
               <SRow svcs={z.appstack} />
             </ZBand>
           </>
         )}
 
-        {/* 보안 + 모니터링 2열 */}
+        {/* Security + Monitoring 2-col */}
         <div className="mt-2 grid grid-cols-2 gap-2">
           {z.security.length > 0 && (
-            <ZBand
-              label={"\uD83D\uDD10 \uBCF4\uC548 \u00B7 \uCEF4\uD50C\uB77C\uC774\uC5B8\uC2A4"}
-              color="#DC2626"
-              bg="#FFF5F5"
-            >
+            <ZBand label={td.securityZone} color="#DC2626" bg="#FFF5F5">
               <SRow svcs={z.security} />
             </ZBand>
           )}
           {z.observability.length > 0 && (
-            <ZBand
-              label={"\uD83D\uDCCA \uBAA8\uB2C8\uD130\uB9C1 \u00B7 \uAD00\uCE21\uC131 \u00B7 \uB85C\uAE45"}
-              color="#374151"
-              bg="#F9FAFB"
-            >
+            <ZBand label={td.monitoringZone} color="#374151" bg="#F9FAFB">
               <SRow svcs={z.observability} />
             </ZBand>
           )}
         </div>
 
-        {/* CI/CD + 비용 2열 */}
+        {/* CI/CD + Cost 2-col */}
         <div className="mt-2 grid grid-cols-2 gap-2">
           {z.cicd.length > 0 && (
-            <ZBand
-              label={"\uD83D\uDD04 CI/CD \u00B7 \uBC30\uD3EC \uD30C\uC774\uD504\uB77C\uC778 \u00B7 IaC"}
-              color="#0891B2"
-              bg="#ECFEFF"
-            >
+            <ZBand label={td.cicdZone} color="#0891B2" bg="#ECFEFF">
               <SRow svcs={z.cicd} />
             </ZBand>
           )}
           {z.cost.length > 0 && (
-            <ZBand
-              label={"\uD83D\uDCB0 \uBE44\uC6A9 \uCD5C\uC801\uD654 \uC804\uB7B5"}
-              color="#059669"
-              bg="#ECFDF5"
-            >
+            <ZBand label={td.costZone} color="#059669" bg="#ECFDF5">
               <SRow svcs={z.cost} />
             </ZBand>
           )}
         </div>
 
         <div className="mt-3.5 rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-[10px] leading-[1.8] text-gray-400">
-          {"\u24D8"} 12개 단계에서 선택하신{" "}
-          <strong className="text-gray-700">{total}개 서비스 전부</strong>가
-          AWS 네트워크 영역별로 배치되어 있습니다. 화살표({"\u2193"})는 주 요청
-          흐름(사용자{"\u2192"}엣지{"\u2192"}앱{"\u2192"}DB)을 나타냅니다.
-          서비스 카드의 색상 상단 테두리는 AWS 서비스 카테고리를 구분하며, 카드
-          위에 마우스를 올리면 상세 설명{"\u00B7"}권고사항{"\u00B7"}비용이
-          표시됩니다.
+          {td.footerDesc(total)}
         </div>
       </div>
       )}

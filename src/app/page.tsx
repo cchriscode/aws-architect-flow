@@ -5,6 +5,7 @@ import { useSession, signIn } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { useWizard } from "@/hooks/use-wizard";
 import { PHASES } from "@/data/phases";
+import { useDict, useLang } from "@/lib/i18n/context";
 
 import { Header } from "@/components/layout/Header";
 import { ProgressBar } from "@/components/wizard/ProgressBar";
@@ -32,7 +33,7 @@ import { generateCodeSnippets } from "@/lib/code-snippets";
 import { getRecommendations } from "@/lib/recommendations";
 import { checkGuardrails } from "@/lib/guardrails";
 import { saveToHistory } from "@/lib/history";
-import { INFO_DB } from "@/lib/info-db";
+import { getInfoDb } from "@/lib/info-db";
 
 import type { InfoEntry } from "@/lib/types";
 import type { GuardrailWarning } from "@/lib/guardrails";
@@ -59,16 +60,24 @@ export default function Home() {
     applyTemplate,
   } = useWizard();
 
+  const t = useDict();
+  const { lang } = useLang();
   const { data: session } = useSession();
   const [infoPanel, setInfoPanel] = useState<InfoEntry | null>(null);
   const [activeTab, setActiveTab] = useState("summary");
   const [saveToast, setSaveToast] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
 
+  const infoDb = useMemo(() => getInfoDb(lang), [lang]);
+
+  // Phase data from dictionary
+  const phasesDict = t.phases;
+  const phaseDict = phasesDict.find((p) => p.id === phase.id);
+
   // Live validation for current phase
   const liveIssues = useMemo(
-    () => validateState(allPhaseState),
-    [allPhaseState]
+    () => validateState(allPhaseState, lang),
+    [allPhaseState, lang]
   );
   const phaseIssues = liveIssues.filter(
     (i) => i.phases && i.phases.includes(phase.id)
@@ -76,8 +85,8 @@ export default function Home() {
 
   // Recommendations for current phase
   const allRecs = useMemo(
-    () => getRecommendations(allPhaseState),
-    [allPhaseState]
+    () => getRecommendations(allPhaseState, lang),
+    [allPhaseState, lang]
   );
 
   const hasAnyRec = questions.some((q) => {
@@ -88,59 +97,59 @@ export default function Home() {
   // Build result tab data
   const resultTabs = useMemo(() => {
     if (!showResult || !arch) return [];
-    const _issues = validateState(allPhaseState);
+    const _issues = validateState(allPhaseState, lang);
     const _errs = _issues.filter((i) => i.severity === "error").length;
     const _warns = _issues.filter((i) => i.severity === "warn").length;
-    const _wa = wellArchitectedScore(allPhaseState);
-    const _cost = estimateMonthlyCost(allPhaseState);
+    const _wa = wellArchitectedScore(allPhaseState, lang);
+    const _cost = estimateMonthlyCost(allPhaseState, lang);
 
-    let checklistLabel = "\u2611\uFE0F 체크리스트";
+    let checklistLabel = t.result.tabs.checklist;
     try {
       const saved = JSON.parse(
         localStorage.getItem("aws_arch_checklist_v1") || "{}"
       );
-      const cl = generateChecklist(allPhaseState);
+      const cl = generateChecklist(allPhaseState, lang);
       const done = cl.phases.reduce(
         (s: number, p: any) => s + p.items.filter((i: any) => saved[i.id]).length,
         0
       );
       const total = cl.totalItems;
       const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-      checklistLabel = `\u2611\uFE0F 체크리스트 ${pct}%`;
+      checklistLabel = t.result.tabs.checklistPct(pct);
     } catch {}
 
-    let codeLabel = "</> 코드";
+    let codeLabel = t.result.tabs.code;
     try {
-      codeLabel = `</> 코드 ${generateCodeSnippets(allPhaseState).length}개`;
+      codeLabel = t.result.tabs.codeCnt(generateCodeSnippets(allPhaseState).length);
     } catch {}
 
     return [
-      { id: "summary", label: "\uD83D\uDCCA \uC694\uC57D" },
-      { id: "cards", label: "\uD83D\uDCCB \uC11C\uBE44\uC2A4 \uC0C1\uC138" },
-      { id: "diagram", label: "\uD83D\uDCD0 \uAD6C\uC131\uB3C4" },
+      { id: "summary", label: t.result.tabs.summary },
+      { id: "cards", label: t.result.tabs.serviceDetail },
+      { id: "diagram", label: t.result.tabs.diagram },
       {
         id: "validate",
         label:
-          "\uD83D\uDD0D 검증" +
+          t.result.tabs.validation +
           (_errs > 0
-            ? ` \u2757${_errs}`
+            ? ` ❗${_errs}`
             : _warns > 0
-              ? ` \u26A0\uFE0F${_warns}`
-              : " \u2705"),
+              ? ` ⚠️${_warns}`
+              : " ✅"),
       },
       { id: "checklist", label: checklistLabel },
-      { id: "sg", label: "\uD83D\uDD10 \uC811\uADFC \uC81C\uC5B4" },
+      { id: "sg", label: t.result.tabs.securityGroups },
       {
         id: "cost",
-        label: `\uD83D\uDCB0 비용 $${_cost.totalMid.toLocaleString()}`,
+        label: t.result.tabs.cost(_cost.totalMid.toLocaleString()),
       },
       {
         id: "wafr",
-        label: `\uD83C\uDFC6 설계 평가 ${_wa.overall}점`,
+        label: t.result.tabs.wafr(_wa.overall),
       },
       { id: "code", label: codeLabel },
     ];
-  }, [showResult, arch, allPhaseState]);
+  }, [showResult, arch, allPhaseState, t, lang]);
 
   if (!hydrated) {
     return (
@@ -149,6 +158,12 @@ export default function Home() {
       </div>
     );
   }
+
+  // Build phase labels for ProgressBar / PhaseHeader from dictionary
+  const phasesWithLabels = PHASES.map((p) => {
+    const d = phasesDict.find((pd) => pd.id === p.id);
+    return d ? { ...p, label: d.label, desc: d.desc, tip: d.tip } : p;
+  });
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -168,7 +183,7 @@ export default function Home() {
 
       {/* Progress */}
       <ProgressBar
-        phases={PHASES}
+        phases={phasesWithLabels}
         currentPhase={showResult ? "__done__" : currentPhase}
         completedPhases={completedPhases}
         onJump={jumpTo}
@@ -177,17 +192,17 @@ export default function Home() {
       {showResult && arch ? (
         /* RESULT VIEW */
         <div className="mx-auto max-w-[1400px] px-7 py-6">
-          {/* 완성 배너 */}
+          {/* Completion banner */}
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border-[1.5px] border-emerald-200 bg-emerald-50 px-5 py-4">
             <div>
               <div className="mb-0.5 text-base font-bold text-emerald-600">
-                {"\u2726"} 아키텍처 설계 완성
+                {t.result.completionTitle}
               </div>
               <div className="text-[13px] text-gray-700">
-                입력하신 요구사항 전체를 기반으로 도출된 AWS 아키텍처입니다.
+                {t.result.completionDesc}
               </div>
             </div>
-            {/* 저장 버튼 */}
+            {/* Save button */}
             <div className="relative">
               <button
                 onClick={async () => {
@@ -195,13 +210,13 @@ export default function Home() {
                     setShowLoginModal(true);
                     return;
                   }
-                  await saveToHistory(allPhaseState, [...completedPhases]);
-                  setSaveToast("저장되었습니다");
+                  await saveToHistory(allPhaseState, [...completedPhases], undefined, lang);
+                  setSaveToast(t.result.saved);
                   setTimeout(() => setSaveToast(""), 2000);
                 }}
                 className="rounded-lg border-[1.5px] border-emerald-300 bg-emerald-50 px-3.5 py-1.5 text-xs font-semibold text-emerald-600 transition-colors hover:bg-emerald-100"
               >
-                {"💾"} 저장
+                {t.result.saveBtn}
               </button>
               {saveToast && (
                 <div className="absolute right-0 top-full z-[100] mt-1 whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1 text-[11px] text-white">
@@ -210,28 +225,28 @@ export default function Home() {
               )}
             </div>
 
-            {/* 로그인 요청 모달 */}
+            {/* Login modal */}
             {showLoginModal && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
                 <div className="w-full max-w-xs rounded-xl bg-white p-6 text-center shadow-xl">
-                  <p className="mb-1 text-sm font-bold text-gray-900">로그인이 필요합니다</p>
-                  <p className="mb-5 text-xs text-gray-500">저장 기능은 로그인 후 이용할 수 있습니다</p>
+                  <p className="mb-1 text-sm font-bold text-gray-900">{t.result.loginRequired}</p>
+                  <p className="mb-5 text-xs text-gray-500">{t.result.loginRequiredDesc}</p>
                   <button
                     onClick={() => { setShowLoginModal(false); signIn("google"); }}
                     className="mb-2 w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
                   >
-                    Google로 로그인
+                    {t.result.googleLogin}
                   </button>
                   <button
                     onClick={() => setShowLoginModal(false)}
                     className="w-full rounded-lg px-4 py-2 text-sm text-gray-400 transition-colors hover:text-gray-600"
                   >
-                    닫기
+                    {t.result.close}
                   </button>
                 </div>
               </div>
             )}
-            {/* 탭 전환 */}
+            {/* Tab toggle */}
             <div className="flex flex-wrap gap-1 rounded-[10px] bg-gray-100 p-1">
               {resultTabs.map((tab) => (
                 <button
@@ -256,7 +271,7 @@ export default function Home() {
               <SummaryView state={allPhaseState} arch={arch} />
               <StateSummary
                 state={allPhaseState}
-                phases={PHASES}
+                phases={phasesWithLabels}
                 onEdit={jumpTo}
               />
             </div>
@@ -265,7 +280,7 @@ export default function Home() {
               <ArchOutput arch={arch} />
               <StateSummary
                 state={allPhaseState}
-                phases={PHASES}
+                phases={phasesWithLabels}
                 onEdit={jumpTo}
               />
             </div>
@@ -274,7 +289,7 @@ export default function Home() {
               <DiagramView arch={arch} state={allPhaseState} />
               <StateSummary
                 state={allPhaseState}
-                phases={PHASES}
+                phases={phasesWithLabels}
                 onEdit={jumpTo}
               />
             </div>
@@ -299,7 +314,7 @@ export default function Home() {
             <div>
               {/* Phase header */}
               <PhaseHeader
-                phase={phase}
+                phase={phaseDict ? { ...phase, label: phaseDict.label, desc: phaseDict.desc, tip: phaseDict.tip } : phase}
                 totalPhases={PHASES.length}
               />
 
@@ -313,7 +328,7 @@ export default function Home() {
                 />
               )}
 
-              {/* 실시간 Phase 검증 배너 */}
+              {/* Live Phase validation banner */}
               {phaseIssues.length > 0 && (
                 <div className="mb-3">
                   {phaseIssues.map((issue, i) => (
@@ -328,8 +343,8 @@ export default function Home() {
                     >
                       <span className="shrink-0 text-base">
                         {issue.severity === "error"
-                          ? "\u2757"
-                          : "\u26A0\uFE0F"}
+                          ? "❗"
+                          : "⚠️"}
                       </span>
                       <div className="flex-1">
                         <div
@@ -351,44 +366,40 @@ export default function Home() {
                 </div>
               )}
 
-              {/* 추천 표시 안내 */}
+              {/* Recommendation guide */}
               {hasAnyRec && (
                 <div className="mb-3 flex flex-wrap items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-3.5 py-2 text-[11px] text-yellow-800">
-                  <span className="font-bold">{"\uCD94\uCC9C \uD45C\uC2DC \uC548\uB0B4"}:</span>
+                  <span className="font-bold">{t.wizard.recGuide}:</span>
                   <span className="flex items-center gap-1">
                     <span className="rounded border border-red-300 bg-red-50 px-1 py-px text-[10px] font-bold text-red-600">
-                      {"\u2B50"} 필수
+                      {t.wizard.recRequired}
                     </span>{" "}
-                    {"\uAC15\uB825 \uAD8C\uC7A5"}
+                    {t.wizard.recStrongly}
                   </span>
                   <span className="flex items-center gap-1">
                     <span className="rounded border border-violet-300 bg-violet-50 px-1 py-px text-[10px] font-bold text-violet-600">
-                      {"\u2728"} 권장
+                      {t.wizard.recRecommended}
                     </span>{" "}
-                    모범 사례
+                    {t.wizard.recBestPractice}
                   </span>
                   <span className="flex items-center gap-1">
                     <span className="rounded border border-emerald-300 bg-green-50 px-1 py-px text-[10px] font-bold text-emerald-600">
-                      {"\uD83D\uDCB0"} 절감
+                      {t.wizard.recCostSave}
                     </span>{" "}
-                    {"\uBE44\uC6A9 \uCD5C\uC801\uD654"}
+                    {t.wizard.recCostOpt}
                   </span>
                   <button
                     onClick={() => {
-                      // Track which questions get filled so we can skip dependent questions
                       const filledIds = new Set<string>();
-                      // Dependent question IDs that should be skipped if parent changes
                       const skipDeps: Record<string, string[]> = {
                         arch_pattern: ["orchestration", "compute_node", "scaling"],
                         sync_async: ["queue_type"],
                       };
                       for (const q of questions) {
                         if (q.skip) continue;
-                        // Skip questions the user already answered
                         const existing = phaseState[q.id];
                         const hasAnswer = Array.isArray(existing) ? existing.length > 0 : existing != null && existing !== "";
                         if (hasAnswer) continue;
-                        // Skip questions that depend on a just-filled parent
                         if ([...filledIds].some((fid) => skipDeps[fid]?.includes(q.id))) continue;
                         if (q.multi) {
                           const recOpts = q.opts
@@ -404,7 +415,7 @@ export default function Home() {
                             .sort((a, b) => {
                               const ba = allRecs[`${phase.id}.${q.id}.${a.v}`]?.badge || "";
                               const bb = allRecs[`${phase.id}.${q.id}.${b.v}`]?.badge || "";
-                              const pri = (s: string) => s.startsWith("\u2B50") ? 0 : s.startsWith("\u2728") ? 1 : 2;
+                              const pri = (s: string) => s.startsWith("⭐") ? 0 : s.startsWith("✨") ? 1 : 2;
                               return pri(ba) - pri(bb);
                             });
                           if (ranked.length > 0) {
@@ -416,7 +427,7 @@ export default function Home() {
                     }}
                     className="ml-auto shrink-0 rounded-md border border-indigo-300 bg-indigo-50 px-2.5 py-1 text-[11px] font-bold text-indigo-600 transition-colors hover:bg-indigo-100"
                   >
-                    {"\u2728"} {"\uCD94\uCC9C \uC790\uB3D9 \uC120\uD0DD"}
+                    {t.wizard.autoSelect}
                   </button>
                 </div>
               )}
@@ -431,7 +442,7 @@ export default function Home() {
                       value={phaseState[q.id]}
                       onChange={(v) => handleAnswer(q.id, v)}
                       onInfo={setInfoPanel}
-                      infoDb={INFO_DB}
+                      infoDb={infoDb}
                       recommendations={Object.fromEntries(
                         Object.entries(allRecs)
                           .filter(([k]) =>
@@ -462,7 +473,7 @@ export default function Home() {
                       onClick={() => prev()}
                       className="rounded-[10px] border-[1.5px] border-gray-200 bg-white px-6 py-3 text-[13px] font-medium text-gray-500"
                     >
-                      {"\u2190"} \uC774\uC804
+                      {t.wizard.prevBtn}
                     </button>
                   )}
                   <button
@@ -476,11 +487,11 @@ export default function Home() {
                     )}
                   >
                     {phaseIdx < PHASES.length - 1
-                      ? `\uB2E4\uC74C \uB2E8\uACC4: ${PHASES[phaseIdx + 1].label} \u2192`
-                      : "\u2726 \uC544\uD0A4\uD14D\uCC98 \uB3C4\uCD9C"}
+                      ? t.wizard.nextStep(phasesWithLabels[phaseIdx + 1]?.label || "")
+                      : t.wizard.generateArch}
                   </button>
                 </div>
-                {/* Return to results button (when editing after completion) */}
+                {/* Return to results button */}
                 {arch && completedPhases.size >= PHASES.filter(p => !p.skipPhase || !p.skipPhase(allPhaseState)).length && (
                   <button
                     onClick={() => {
@@ -492,16 +503,16 @@ export default function Home() {
                     }}
                     className="rounded-[10px] border-[1.5px] border-emerald-300 bg-emerald-50 py-2.5 text-[13px] font-semibold text-emerald-600 transition-colors hover:bg-emerald-100"
                   >
-                    {"\u2726"} \uACB0\uACFC \uD654\uBA74\uC73C\uB85C \uB3CC\uC544\uAC00\uAE30 (\uC544\uD0A4\uD14D\uCC98 \uC7AC\uC0DD\uC131)
+                    {t.wizard.returnToResult}
                   </button>
                 )}
               </div>
             </div>
 
-            {/* Summary sidebar — show all completed phases, not just previous ones */}
+            {/* Summary sidebar */}
             <StateSummary
               state={allPhaseState}
-              phases={PHASES.filter((p) => completedPhases.has(p.id))}
+              phases={phasesWithLabels.filter((p) => completedPhases.has(p.id))}
               onEdit={jumpTo}
             />
           </div>

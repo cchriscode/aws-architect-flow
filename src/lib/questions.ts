@@ -1,16 +1,53 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { WizardState, Question } from "@/lib/types";
+import type { Locale } from "@/lib/i18n/types";
+import { t as i18n } from "@/lib/questions-i18n";
+
+/**
+ * Apply i18n translations to a question.
+ * Looks up q, help, and each opt's l/d from the dictionary.
+ * Falls back to the hardcoded Korean text when no translation is found.
+ */
+function localize(lang: Locale, phase: string, question: Question): Question {
+  if (lang === "ko") return question; // Korean strings are already hardcoded
+  const dict = i18n(lang, phase, question.id);
+  if (!dict) return question;
+  // Check if q was already set to English inline (dynamic questions with ternary).
+  // If the q doesn't match the Korean dictionary base text, it was customized -- keep it.
+  const koDict = i18n("ko", phase, question.id);
+  const qAlreadyTranslated = koDict && question.q !== koDict.q;
+  const helpAlreadyTranslated = koDict && question.help !== koDict.help;
+  return {
+    ...question,
+    q: qAlreadyTranslated ? question.q : (dict.q || question.q),
+    help: helpAlreadyTranslated ? question.help : (dict.help || question.help),
+    opts: question.opts?.map((opt) => {
+      const translated = dict.opts[opt.v];
+      if (!translated) return opt;
+      return { ...opt, l: translated.l || opt.l, d: translated.d ?? opt.d };
+    }),
+  };
+}
+
+/** Apply localization to an array of questions */
+function localizeAll(lang: Locale, phase: string, questions: Question[]): Question[] {
+  if (lang === "ko") return questions;
+  return questions.map((q) => localize(lang, phase, q));
+}
 
 export function buildPhaseQuestions(
   phaseId: string,
   state: WizardState,
-  currentPhaseState: Record<string, any> = {}
+  currentPhaseState: Record<string, any> | undefined = {},
+  lang: Locale = "ko"
 ): Question[] {
+  const ps = currentPhaseState ?? {};
+  const p = phaseId; // alias for T() calls
   switch(phaseId) {
 
     // ──────────────────────────────────────────
     case "workload": {
-      const selectedTypes = currentPhaseState?.type || [];
+      const selectedTypes = ps?.type || [];
       const qs = [
       {
         id:"type",
@@ -142,11 +179,11 @@ export function buildPhaseQuestions(
         ]
       },
     ];
-    return qs;
+    return localizeAll(lang, p, qs);
     }
 
     // ──────────────────────────────────────────
-    case "scale": return [
+    case "scale": return localizeAll(lang, p, [
       {
         id:"dau",
         q:"하루에 실제로 서비스를 사용하는 사람이 몇 명인가요?",
@@ -192,11 +229,11 @@ export function buildPhaseQuestions(
           {v:"ptb", l:"수십 TB 이상",            d:"로그, 미디어, ML 학습 데이터처럼 대용량 데이터를 다루는 서비스입니다."},
         ]
       },
-    ];
+    ]);
 
     // ──────────────────────────────────────────
     case "team": {
-      return [
+      return localizeAll(lang, p, [
       {
         id:"team_size",
         q:"이 서비스를 개발하고 운영하는 팀이 몇 명인가요?",
@@ -241,7 +278,7 @@ export function buildPhaseQuestions(
           {v:"mixed",            l:"혼합 (서비스마다 다른 언어)",                     d:"Python으로 ML API, Go로 고성능 API, Java로 레거시 서비스를 각각 운영합니다. 서비스별 최적화가 가능하지만 팀 역량이 분산됩니다."},
         ]
       },
-    ];
+    ]);
     }
 
     // ──────────────────────────────────────────
@@ -249,10 +286,12 @@ export function buildPhaseQuestions(
       const cert = state.compliance?.cert || [];
       const needsHighAvail = cert.includes("pci") || cert.includes("hipaa") || cert.includes("sox");
       const dataIsCritical = state.workload?.data_sensitivity === "critical";
-      return [
+      return localizeAll(lang, p, [
       {
         id:"availability",
-        q:`서비스가 1년에 얼마나 안 꺼져야 하나요?${needsHighAvail ? " ※ 선택한 규정(PCI/HIPAA/SOX)으로 인해 최소 99.95% 이상이 권장됩니다." : ""}`,
+        q:(lang === "en"
+          ? `How much uptime does the service need per year?${needsHighAvail ? " * Due to selected regulations (PCI/HIPAA/SOX), at least 99.95% is recommended." : ""}`
+          : `서비스가 1년에 얼마나 안 꺼져야 하나요?${needsHighAvail ? " ※ 선택한 규정(PCI/HIPAA/SOX)으로 인해 최소 99.95% 이상이 권장됩니다." : ""}`),
         help:"'99.9%'처럼 숫자가 높을수록 허용 다운타임이 짧고 비용도 높아집니다. 서비스가 1시간 멈추면 비즈니스 피해가 얼마나 되는지를 기준으로 판단하세요.",
         multi:false, opts:[
           ...(!needsHighAvail && !dataIsCritical ? [{v:"99", l:"99% — 연간 약 87시간 다운 허용", d:"사내 도구나 중요도 낮은 서비스. 가끔 꺼져도 큰 문제가 없습니다."}] : []),
@@ -293,11 +332,11 @@ export function buildPhaseQuestions(
           {v:"active",l:"여러 지역에서 동시에 운영",      d:"미국, 유럽, 아시아에서 동시에 서비스. 글로벌 서비스나 최고 수준의 가용성이 필요할 때 사용합니다."},
         ]
       },
-    ];
+    ]);
     }
 
     // ──────────────────────────────────────────
-    case "compliance": return [
+    case "compliance": return localizeAll(lang, p, [
       {
         id:"cert",
         q:"반드시 지켜야 할 법적·계약적 보안 규정이 있나요? (복수 선택 가능)",
@@ -331,14 +370,14 @@ export function buildPhaseQuestions(
           {v:"private",l:"완전 프라이빗 — 사내망(VPN/전용선)으로만 접근",d:"인터넷을 통한 접근 자체가 없습니다. 금융기관이나 높은 보안 요구 환경입니다."},
         ]
       },
-    ];
+    ]);
 
     // ──────────────────────────────────────────
     case "network": {
       const needsStrictNet = state.compliance?.cert?.includes("pci") ||
         state.compliance?.cert?.includes("hipaa") || state.slo?.availability === "99.99";
       const isLarge = ["large","xlarge"].includes(state.scale?.dau);
-      return [
+      return localizeAll(lang, p, [
         {
           id:"account_structure",
           q:"AWS 계정을 어떻게 구성할 건가요?",
@@ -352,7 +391,9 @@ export function buildPhaseQuestions(
         },
         {
           id:"az_count",
-          q:`서버를 몇 개의 '데이터센터 구역(가용영역)'에 나눠 배치할까요?${needsStrictNet ? " ※ 선택한 보안 요건상 최소 2개 이상 필요합니다." : ""}`,
+          q:(lang === "en"
+            ? `How many Availability Zones should servers be distributed across?${needsStrictNet ? " * Your security requirements mandate at least 2 AZs." : ""}`
+            : `서버를 몇 개의 '데이터센터 구역(가용영역)'에 나눠 배치할까요?${needsStrictNet ? " ※ 선택한 보안 요건상 최소 2개 이상 필요합니다." : ""}`),
           help:"AWS는 한 리전에 여러 개의 독립된 데이터센터(가용영역, AZ)를 운영합니다. 한 곳에 문제가 생겨도 다른 곳에서 서비스를 계속할 수 있습니다.",
           multi:false,
           opts:[
@@ -393,7 +434,7 @@ export function buildPhaseQuestions(
             {v:"dx",  l:"전용선으로 연결 (Direct Connect)",    d:"물리적 전용선을 설치합니다. 안정적이고 빠르지만 개통에 수주~수개월이 걸리고 비용이 높습니다."},
           ]
         },
-      ];
+      ]);
     }
 
     // ──────────────────────────────────────────
@@ -401,22 +442,31 @@ export function buildPhaseQuestions(
       const cloudExp = state.team?.cloud_exp || "beginner";
       const isJunior = cloudExp === "beginner";
       const isMid    = cloudExp === "mid";
-      const lang = state.team?.language;
+      const teamLang = state.team?.language;
       const hasDynamo = Array.isArray(state.data?.primary_db) && state.data.primary_db.includes("dynamodb");
       const hasAuroraOrRds = Array.isArray(state.data?.primary_db) && state.data.primary_db.some((d: string) => d.startsWith("aurora") || d.startsWith("rds"));
-      const isSpringBoot = lang === "spring_boot";
+      const isSpringBoot = teamLang === "spring_boot";
 
       // 데이터/언어 기반 컴퓨트 가이드
       const computeHints: string[] = [];
-      if (isSpringBoot) computeHints.push("Spring Boot(JVM)는 콜드스타트가 길어 Lambda보다 컨테이너가 유리합니다.");
-      if (hasDynamo && !hasAuroraOrRds) computeHints.push("DynamoDB 중심 구성은 서버리스(Lambda)와 궁합이 좋습니다.");
-      if (hasAuroraOrRds) computeHints.push("RDS/Aurora는 커넥션 관리가 필요하므로 컨테이너(ECS/EKS)가 안정적입니다.");
-      const baseHelp = "서버를 직접 관리할지, AWS가 관리하게 할지의 선택입니다. 관리 부담이 적을수록 편하지만 세밀한 제어가 어렵습니다.";
+      if (lang === "en") {
+        if (isSpringBoot) computeHints.push("Spring Boot (JVM) has long cold starts, making containers preferable over Lambda.");
+        if (hasDynamo && !hasAuroraOrRds) computeHints.push("A DynamoDB-centric setup pairs well with serverless (Lambda).");
+        if (hasAuroraOrRds) computeHints.push("RDS/Aurora requires connection management, so containers (ECS/EKS) are more stable.");
+      } else {
+        if (isSpringBoot) computeHints.push("Spring Boot(JVM)는 콜드스타트가 길어 Lambda보다 컨테이너가 유리합니다.");
+        if (hasDynamo && !hasAuroraOrRds) computeHints.push("DynamoDB 중심 구성은 서버리스(Lambda)와 궁합이 좋습니다.");
+        if (hasAuroraOrRds) computeHints.push("RDS/Aurora는 커넥션 관리가 필요하므로 컨테이너(ECS/EKS)가 안정적입니다.");
+      }
+      const baseHelp = lang === "en"
+        ? "The choice between managing servers yourself or letting AWS manage them. Less management burden is more convenient but offers less granular control."
+        : "서버를 직접 관리할지, AWS가 관리하게 할지의 선택입니다. 관리 부담이 적을수록 편하지만 세밀한 제어가 어렵습니다.";
+      const hintLabel = lang === "en" ? "Based on your earlier selections:" : "앞서 선택한 구성 기반 참고:";
       const computeHelp = computeHints.length > 0
-        ? `${baseHelp}\n\n💡 앞서 선택한 구성 기반 참고:\n${computeHints.map(h => `• ${h}`).join("\n")}`
+        ? `${baseHelp}\n\n${hintLabel}\n${computeHints.map(h => `• ${h}`).join("\n")}`
         : baseHelp;
 
-      return [
+      return localizeAll(lang, p, [
         {
           id:"arch_pattern",
           q:"코드를 어떤 방식으로 실행할 건가요?",
@@ -440,12 +490,20 @@ export function buildPhaseQuestions(
              l:"ECS — AWS 전용 컨테이너 관리 (단순함, 권장)",
              d:"AWS가 만든 컨테이너 관리 도구입니다. 쿠버네티스보다 훨씬 단순하고 배우기 쉽습니다. 서비스가 10개 미만이면 대부분 이걸로 충분합니다. 운영 부담이 적고 AWS 서비스와 자연스럽게 통합됩니다."},
             {v:"eks",
-             l:`EKS — 쿠버네티스${isJunior ? " ⚠️ 높은 운영 복잡도" : isMid ? " (팀 학습 계획 필요)" : " (표준, 강력)"}`,
-             d:isJunior
-               ? "업계 표준 쿠버네티스입니다. 강력하지만 운영 복잡도가 매우 높습니다. 현재 팀 경험 수준에서는 도입 전 충분한 학습과 로드맵이 필요합니다. 단순함이 필요하다면 ECS를 먼저 고려하세요."
-               : isMid
-               ? "업계 표준 쿠버네티스입니다. 대규모·MSA 환경에 강하지만 초기 셋업과 운영에 시간이 필요합니다. 팀 내 K8s 학습 계획을 함께 세우세요."
-               : "업계 표준 쿠버네티스를 AWS에서 씁니다. Karpenter, Istio, ArgoCD 등 강력한 생태계를 활용할 수 있습니다. 대규모 MSA 서비스에 최적입니다."},
+             l:lang === "en"
+               ? `EKS — Kubernetes${isJunior ? " -- high operational complexity" : isMid ? " (team learning plan needed)" : " (Standard, powerful)"}`
+               : `EKS — 쿠버네티스${isJunior ? " ⚠️ 높은 운영 복잡도" : isMid ? " (팀 학습 계획 필요)" : " (표준, 강력)"}`,
+             d:lang === "en"
+               ? (isJunior
+                 ? "Industry-standard Kubernetes. Powerful but very high operational complexity. At the current team experience level, sufficient learning and a roadmap are needed before adoption. Consider ECS first if simplicity is needed."
+                 : isMid
+                 ? "Industry-standard Kubernetes. Strong for large-scale MSA environments but initial setup and operations take time. Plan K8s learning within the team."
+                 : "Industry-standard Kubernetes on AWS. Leverage the powerful ecosystem including Karpenter, Istio, and ArgoCD. Optimal for large-scale MSA services.")
+               : (isJunior
+                 ? "업계 표준 쿠버네티스입니다. 강력하지만 운영 복잡도가 매우 높습니다. 현재 팀 경험 수준에서는 도입 전 충분한 학습과 로드맵이 필요합니다. 단순함이 필요하다면 ECS를 먼저 고려하세요."
+                 : isMid
+                 ? "업계 표준 쿠버네티스입니다. 대규모·MSA 환경에 강하지만 초기 셋업과 운영에 시간이 필요합니다. 팀 내 K8s 학습 계획을 함께 세우세요."
+                 : "업계 표준 쿠버네티스를 AWS에서 씁니다. Karpenter, Istio, ArgoCD 등 강력한 생태계를 활용할 수 있습니다. 대규모 MSA 서비스에 최적입니다.")},
           ]
         },
         {
@@ -473,14 +531,14 @@ export function buildPhaseQuestions(
             {v:"manual",l:"수동 조절 — 자동 확장 없음",                   d:"트래픽이 거의 변하지 않거나 규모가 매우 작은 내부 도구에 적합합니다."},
           ]
         },
-      ];
+      ]);
     }
 
     // ──────────────────────────────────────────
     case "data": {
       const isCritical = state.workload?.data_sensitivity === "critical";
       const isHighAvail = state.slo?.availability === "99.99" || state.slo?.availability === "99.95";
-      return [
+      return localizeAll(lang, p, [
         {
           id:"primary_db",
           q:"주요 데이터를 어떤 데이터베이스에 저장할 건가요? (복수 선택 가능)",
@@ -542,12 +600,12 @@ export function buildPhaseQuestions(
             {v:"opensearch",l:"OpenSearch — 전문 검색 엔진",          d:"쿠팡의 상품 검색, 구인 사이트의 직무 검색처럼 복잡한 검색이 필요한 서비스에 사용합니다. 로그 분석에도 활용됩니다."},
           ]
         },
-      ];
+      ]);
     }
 
     // ──────────────────────────────────────────
     case "integration": {
-      return [
+      return localizeAll(lang, p, [
         {
           id:"auth",
           q:"사용자 로그인·인증은 어떻게 처리할 건가요? (복수 선택 가능)",
@@ -606,7 +664,7 @@ export function buildPhaseQuestions(
             {v:"ecs_scheduled",   l:"ECS Scheduled Task — 컨테이너 기반 정기 배치",     d:"ECS 컨테이너를 정해진 시간에 실행합니다. 기존 컨테이너 코드를 재사용할 수 있습니다. EventBridge Scheduler로 트리거합니다."},
           ]
         },
-      ];
+      ]);
     }
 
     // ──────────────────────────────────────────
@@ -614,7 +672,7 @@ export function buildPhaseQuestions(
       const ut = state.workload?.user_type || [];
       const isGlobal = Array.isArray(ut) ? ut.includes("global") : ut === "global";
       const isBtoc = Array.isArray(ut) ? ut.includes("b2c") : ut === "b2c";
-      return [
+      return localizeAll(lang, p, [
         {
           id:"cdn",
           q:"콘텐츠를 사용자 가까운 곳에서 빠르게 전달하는 CDN이 필요한가요?",
@@ -653,11 +711,11 @@ export function buildPhaseQuestions(
             ] : []),
           ]
         },
-      ];
+      ]);
     }
 
     // ──────────────────────────────────────────
-    case "cicd": return [
+    case "cicd": return localizeAll(lang, p, [
       {
         id:"iac",
         q:"인프라(서버, 네트워크 등)를 어떻게 만들고 관리할 건가요?",
@@ -700,10 +758,10 @@ export function buildPhaseQuestions(
           {v:"four",    l:"개발 + 스테이징 + 프리-운영 + 운영 (4단계)", d:"운영 직전 단계를 하나 더 두어 안전성을 높입니다. 규정 준수가 중요하거나 대형 조직에 적합합니다."},
         ]
       },
-    ];
+    ]);
 
     // ──────────────────────────────────────────
-    case "cost": return [
+    case "cost": return localizeAll(lang, p, [
       {
         id:"priority",
         q:"비용 절감과 성능/안정성 사이에서 어디에 더 가중치를 두나요?",
@@ -734,7 +792,7 @@ export function buildPhaseQuestions(
           {v:"heavy",  l:"적극 활용 — 배치 처리·빌드 서버 등에 전면 적용", d:"데이터 분석, 빌드, 개발 환경처럼 중간에 재시작해도 괜찮은 작업입니다. 비용을 90%까지 줄일 수 있습니다."},
         ]
       },
-    ];
+    ]);
 
 
     // ──────────────────────────────────────────
@@ -744,7 +802,7 @@ export function buildPhaseQuestions(
       const isEks = state.compute?.orchestration === "eks";
       if(!isEks) return [];
       const isLarge  = ["large","xlarge"].includes(state.scale?.dau);
-      return [
+      return localizeAll(lang, p, [
         {
           id:"node_provisioner",
           q:"쿠버네티스 노드(서버)를 어떻게 자동으로 늘리고 줄일 건가요?",
@@ -856,7 +914,7 @@ export function buildPhaseQuestions(
             {v:"multi_cluster",    l:"클러스터 분리 — prod는 별도 클러스터 (보안 강화)", d:"운영 클러스터는 완전히 독립된 클러스터로 분리합니다. 개발자가 실수로 운영에 접근하는 사고를 원천 차단합니다. 비용은 클러스터당 $73/월 추가."},
           ]
         },
-      ];
+      ]);
     }
 
     // ──────────────────────────────────────────
@@ -866,7 +924,7 @@ export function buildPhaseQuestions(
       const isServerless = state.compute?.arch_pattern === "serverless";
       const isEks        = state.compute?.orchestration === "eks";
       const isLarge      = ["large","xlarge"].includes(state.scale?.dau);
-      return [
+      return localizeAll(lang, p, [
         {
           id:"api_gateway_impl",
           q:"API 게이트웨이를 어디서, 어떻게 구현할 건가요?",
@@ -929,7 +987,7 @@ export function buildPhaseQuestions(
             {v:"confluent_registry",l:"Confluent Schema Registry (Kafka 생태계 표준)",   d:"Kafka 생태계의 사실상 표준입니다. MSK와 함께 자체 운영하거나 Confluent Cloud를 사용합니다. 더 풍부한 호환성 정책(Backward, Forward, Full)을 제공합니다."},
           ]
         },
-      ];
+      ]);
     }
 
     default: return [];

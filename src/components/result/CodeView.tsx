@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import type { WizardState } from "@/lib/types";
 import { generateCodeSnippets } from "@/lib/code-snippets";
+import { useDict, useLang } from "@/lib/i18n/context";
 
 interface CodeViewProps {
   state: WizardState;
@@ -17,16 +18,19 @@ const langColors: Record<string, string> = {
 };
 
 export function CodeView({ state }: CodeViewProps) {
+  const t = useDict();
+  const { lang } = useLang();
+  const allLabel = lang === "ko" ? "전체" : "All";
   const [activeIdx, setActiveIdx] = useState(0);
   const [copied, setCopied] = useState(false);
-  const [filterCat, setFilterCat] = useState("전체");
+  const [filterCat, setFilterCat] = useState(allLabel);
   const allSnippets = generateCodeSnippets(state);
   const categories = [
-    "전체",
+    allLabel,
     ...new Set(allSnippets.map((s) => s.category)),
   ];
   const snippets =
-    filterCat === "전체"
+    filterCat === allLabel
       ? allSnippets
       : allSnippets.filter((s) => s.category === filterCat);
   const active = snippets[activeIdx] || allSnippets[0];
@@ -35,6 +39,10 @@ export function CodeView({ state }: CodeViewProps) {
   useEffect(() => {
     setActiveIdx(0);
   }, [filterCat]);
+
+  useEffect(() => {
+    setFilterCat(allLabel);
+  }, [allLabel]);
 
   const copy = (code: string) => {
     navigator.clipboard.writeText(code).then(() => {
@@ -47,7 +55,7 @@ export function CodeView({ state }: CodeViewProps) {
     return (
       <div className="rounded-xl border border-gray-200 bg-white p-10 text-center">
         <div className="text-[13px] text-gray-500">
-          선택하신 구성에 해당하는 코드 스니펫이 없습니다.
+          {t.codeView.desc}
         </div>
       </div>
     );
@@ -57,7 +65,7 @@ export function CodeView({ state }: CodeViewProps) {
       <div>
         <div className="mb-2.5 rounded-xl border border-gray-200 bg-white px-3.5 py-3">
           <div className="mb-1 text-[13px] font-bold text-gray-900">
-            코드 스니펫{" "}
+            {t.codeView.title}{" "}
             <span className="rounded-full bg-indigo-600 px-[7px] py-px text-[11px] text-white">
               {allSnippets.length}
             </span>
@@ -83,7 +91,7 @@ export function CodeView({ state }: CodeViewProps) {
             >
               <span>{cat}</span>
               <span className="text-[10px] text-gray-400">
-                {cat === "전체"
+                {cat === allLabel
                   ? allSnippets.length
                   : allSnippets.filter((s) => s.category === cat)
                       .length}
@@ -157,7 +165,7 @@ export function CodeView({ state }: CodeViewProps) {
                   : "bg-white text-gray-700"
               )}
             >
-              {copied ? "\u2705 복사됨" : "\uD83D\uDCCB 복사"}
+              {copied ? t.codeView.copied : t.codeView.copyBtn}
             </button>
           </div>
           <div className="flex-1 overflow-hidden bg-[#1e1e1e]">
@@ -166,8 +174,9 @@ export function CodeView({ state }: CodeViewProps) {
             </pre>
           </div>
           <div className="border-t border-gray-100 bg-gray-50 px-5 py-2 text-[11px] text-gray-500">
-            {"\uD83D\uDCA1"} 이 코드는 참고용 스니펫입니다. 배포 전
-            보안{"\u00B7"}IAM{"\u00B7"}네트워크 설정을 반드시 검토하세요.
+            {"💡"} {lang === "ko"
+              ? "이 코드는 참고용 스니펫입니다. 배포 전 보안·IAM·네트워크 설정을 반드시 검토하세요."
+              : "This is a reference snippet. Review security, IAM, and network settings before deploying."}
           </div>
         </div>
       )}
