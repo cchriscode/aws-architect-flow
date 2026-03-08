@@ -454,7 +454,8 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
   // Workload context for conditional scoring
   const growthStage = state.workload?.growth_stage;
   const isMvp = growthStage === "mvp";
-  const isInternalOnly = types.every((tp: string) => ["internal", "data"].includes(tp));
+  const userTypes = state.workload?.user_type || [];
+  const isInternalOnly = types.length > 0 && types.every((tp: string) => ["internal", "data", "iot"].includes(tp)) && !userTypes.includes("b2c") && !userTypes.includes("global");
   const availTarget = state.slo?.availability;
   const isLowSlo = availTarget && parseFloat(availTarget) <= 99;
   const dau = state.scale?.dau;
@@ -521,7 +522,7 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
           ? t.sec_k8s_secrets_rec_native
           : t.sec_k8s_secrets_rec_other),
       I(t.sec_pod_sec_q, 6,
-        podSec === "psa" ? 6 : podSec ? 4 : 1,
+        (podSec === "kyverno" || podSec === "opa_gatekeeper") ? 6 : podSec === "psa" ? 4 : 1,
         podSec === "psa"
           ? t.sec_pod_sec_rec_psa
           : t.sec_pod_sec_rec_other),
@@ -533,7 +534,7 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
       account !== "single" ? 5 : 0,
       t.sec_iam_boundary_rec),
     I(t.sec_data_sens_q, 7,
-      dataS && dataS !== "public" ? 7 : 0,
+      dataS === "critical" ? 7 : dataS === "sensitive" ? 5 : 0,
       t.sec_data_sens_rec),
     I(t.sec_subnet_q, 5,
       subnet === "3tier" ? 5 : (subnet === "private" || subnet === "2tier") ? 3 : 0,
@@ -563,8 +564,7 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
         t.rel_cache_rec),
     ]),
     I(t.rel_region_q, 18,
-      region === "active" ? 18 : region === "dr" ? 12
-        : (availTarget && parseFloat(availTarget) <= 99.9) ? 8 : 5,
+      region === "active" ? 18 : region === "dr" ? 12 : 5,
       t.rel_region_rec),
     ...(isEks ? [
       I(t.rel_k8s_backup_q, 8,
@@ -607,7 +607,7 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
       t.perf_orch_rec),
     I(t.perf_scale_q, 12,
       scalingArr.includes("keda") ? 12
-        : (scalingArr.includes("scheduled") || scalingArr.includes("hpa")) ? 10
+        : scalingArr.includes("scheduled") ? 10
         : scalingArr.includes("ecs_asg") ? 8
         : isServerless ? 10 : 0,
       t.perf_scale_rec),
@@ -654,11 +654,11 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
         : spot === "partial"
           ? t.cost_spot_rec_partial
           : t.cost_spot_rec_other),
-    I(t.cost_nat_q, 12,
+    ...(subnet === "private" ? [] : [I(t.cost_nat_q, 12,
       natStrat === "endpoint" ? 12 : natStrat === "shared" ? 8 : 4,
       natStrat === "shared"
         ? t.cost_nat_rec_shared
-        : t.cost_nat_rec_other),
+        : t.cost_nat_rec_other)]),
     I(t.cost_serverless_q, 10,
       isServerless ? 10 : nodeType === "fargate" ? 8 : (nodeType === "ec2_node" && commit) ? 6 : nodeType === "mixed" ? 5 : nodeType === "ec2_node" ? 2 : 0,
       t.cost_serverless_rec),
@@ -677,7 +677,7 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
         ? t.sus_idle_rec_container
         : t.sus_idle_rec_other),
     // Skip Spot scoring for serverless (no instances to Spot)
-    ...(isServerless && spot !== "heavy" && spot !== "partial" ? [] : [
+    ...(isServerless ? [] : [
       I(t.sus_spot_q, 18,
         (spot === "heavy" || spot === "partial") ? 18 : 0,
         t.sus_spot_rec),
@@ -688,12 +688,12 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
         cdn && cdn !== "no" ? 12 : 0,
         t.sus_cdn_rec),
     ]),
-    I(t.sus_endpoint_q, 8,
+    ...(subnet === "private" ? [] : [I(t.sus_endpoint_q, 8,
       natStrat === "endpoint" ? 8 : natStrat === "shared" ? 4 : natStrat === "per_az" ? 3 : 0,
-      t.sus_endpoint_rec),
+      t.sus_endpoint_rec)]),
     I(t.sus_autoscale_q, 12,
       scalingArr.includes("keda") || scalingArr.includes("scheduled") ? 12
-        : (scalingArr.includes("ecs_asg") || scalingArr.includes("hpa")) ? 10
+        : scalingArr.includes("ecs_asg") ? 10
         : isServerless ? 12 : 0,
       t.sus_autoscale_rec),
     I(t.sus_graviton_q, 12,

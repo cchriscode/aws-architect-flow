@@ -297,6 +297,13 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
   if (!isServerless) {
     I(t.compute, t.alb, t.albDesc, isXL ? 150 : isLarge ? 60 : 20, isXL ? 400 : isLarge ? 150 : 50);
   }
+  if (types.includes("iot") && state.workload?.iot_detail === "industrial") {
+    const greenDevices = isXL ? 500 : isLarge ? 100 : 20;
+    I(t.compute, lang === "ko" ? "IoT Greengrass" : "IoT Greengrass", lang === "ko" ? `코어 디바이스 ${greenDevices}대 기준` : `Based on ${greenDevices} core devices`, Math.round(greenDevices * 0.16), Math.round(greenDevices * 0.16 * 1.5));
+  }
+  if (types.includes("data") && state.workload?.data_detail === "ml_pipeline") {
+    I(t.compute, "Amazon SageMaker", lang === "ko" ? "ml.m5.xlarge 노트북 + 학습 인스턴스" : "ml.m5.xlarge notebook + training instances", 138, 276);
+  }
 
   // -- Database
   if (hasAurora) {
@@ -376,6 +383,9 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
   }
   if (queueArr.includes("eventbridge")) {
     I(t.messaging, t.eventbridge, t.eventbridgeDesc, 0, isXL ? 30 : 10);
+  }
+  if (types.includes("data") && state.workload?.data_detail === "stream_analytics") {
+    I(t.messaging, "Kinesis Data Firehose", lang === "ko" ? "$0.029/GB 수집 기준" : "$0.029/GB ingestion based", 30, isXL ? 150 : isLarge ? 80 : 40);
   }
 
   // -- Operations / Security

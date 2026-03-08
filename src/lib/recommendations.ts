@@ -123,6 +123,8 @@ export function getRecommendations(
     R("scale","traffic_pattern","spike",t("⭐ 이벤트 서비스 필수 체크","⭐ Must-check for event services"),t("타임세일·오픈런: Scheduled Scaling을 이벤트 10분 전에 미리 설정하세요","Flash sales/launches: Set Scheduled Scaling 10 minutes before the event"));
   if (isRT || isIoT || (isEcom && ecomD === "live_commerce"))
     R("scale","traffic_pattern","burst",t("✨ 실시간/라이브 패턴","✨ Realtime/live traffic pattern"),t("CloudFront + SQS 버퍼링으로 예측 불가 폭증을 흡수하세요","Absorb unpredictable traffic spikes with CloudFront + SQS buffering"));
+  if (isTick && isFlash)
+    R("scale","traffic_pattern","burst",t("⭐ 플래시 세일 burst 필수","⭐ Flash sale burst required"),t("플래시 세일 = 극단적 burst 트래픽. Scheduled Scaling + CloudFront 캐시 필수","Flash sale = extreme burst traffic. Scheduled Scaling + CloudFront caching required"));
 
   if (isInternal || isMVP)
     R("scale","data_volume","none",t("✨ 연산 위주 서비스","✨ Compute-focused service"),t("Lambda + 외부 API 호출 위주. 자체 저장소 최소화로 비용 절감","Lambda + external API calls. Minimize own storage for cost savings"));
@@ -164,6 +166,8 @@ export function getRecommendations(
     R("compliance","cert","pci",t("⚠️ 결제 서비스 검토","⚠️ Review for payment services"),t("카드 직접 처리 시 PCI DSS 필수. PG사 위임 시 카드 데이터가 자사 서버를 통과하지 않아 범위 축소","PCI DSS required for direct card processing. Scope reduces when delegating to payment gateway since card data never touches your servers"));
   if (isGlobal && hasPersonal)
     R("compliance","cert","gdpr",t("⭐ EU 사용자 법적 의무","⭐ Legal obligation for EU users"),t("EU 사용자 데이터 보호 + 잊혀질 권리 구현이 법적 의무. EU 리전 저장이 가장 간단하나 SCC로 비EU 리전도 가능","EU user data protection + right to be forgotten are legal obligations. EU region storage is simplest, but SCCs allow non-EU regions"));
+  if (isSaaS && isGlobal && !hasPersonal)
+    R("compliance","cert","gdpr",t("⭐ 글로벌 SaaS GDPR 필수","⭐ GDPR required for global SaaS"),t("글로벌 서비스 + 개인정보 처리 가능성 → GDPR 준비 필수. EU 리전 저장이 가장 간단한 규정 준수 경로","Global service + potential personal data processing -> GDPR preparation required. EU region storage is the simplest compliance path"));
   if (isIoT && iotD === "healthcare_iot")
     R("compliance","cert","hipaa",t("⭐ 헬스케어 법적 의무","⭐ Healthcare legal obligation"),t("생체 데이터 처리 시 HIPAA BAA 서명 + KMS 암호화 + CloudTrail이 법적 요건","Processing biometric data requires HIPAA BAA signing + KMS encryption + CloudTrail as legal requirements"));
   if (isB2B && isLarge)
@@ -278,6 +282,8 @@ export function getRecommendations(
     R("compute","orchestration","ecs",t("⭐ 소~중형 서비스 표준","⭐ Standard for small-to-mid services"),t("ECS Fargate: K8s 없이 컨테이너 운영. EKS 대비 운영 부담 50% 절감. AWS 권장","ECS Fargate: Run containers without K8s. 50% less operational burden vs EKS. AWS recommended"));
   if (seniorLarge || (isXL && exp !== "beginner"))
     R("compute","orchestration","eks",t("✨ 대규모 정밀 제어","✨ Large-scale fine-grained control"),t("Karpenter + KEDA + Argo CD: 수백 개 서비스를 하나의 플랫폼으로 통합 관리","Karpenter + KEDA + Argo CD: Manage hundreds of services on a single unified platform"));
+  if (begOrSolo)
+    R("compute","orchestration","eks",t("⚠️ 초급 팀 EKS 운영 위험","⚠️ EKS operational risk for beginner teams"),t("EKS는 운영 복잡도 높음 — 초급 팀은 ECS Fargate로 시작 권장. K8s 학습 곡선 + 클러스터 관리 부담","EKS has high operational complexity — beginner teams should start with ECS Fargate. K8s learning curve + cluster management burden"));
 
   if (begOrSolo || ops === "managed" || isMVP)
     R("compute","compute_node","fargate",t("⭐ 관리 최소화 표준","⭐ Minimal management standard"),t("EC2 노드 패치·관리 없음. Fargate는 EC2 대비 약 20~30% 비용 높음","No EC2 node patching or management. Fargate costs about 20-30% more than EC2"));
@@ -312,6 +318,10 @@ export function getRecommendations(
     R("data","primary_db","rds_mysql",t("✨ MVP 비용 절감","✨ MVP cost savings"),t("RDS MySQL t3.micro: 서울 리전 월 약 $19. Aurora보다 약 20% 저렴. 검증 후 Aurora 마이그레이션","RDS MySQL t3.micro: ~$19/month in Seoul region. ~20% cheaper than Aurora. Migrate to Aurora after validation"));
   if ((isMVP || isSmall) && !hasCritCert && !isTx)
     R("data","primary_db","rds_pg",t("✨ MVP PostgreSQL 비용 절감","✨ MVP PostgreSQL cost savings"),t("RDS PostgreSQL t4g.micro: 서울 리전 월 약 $18. Aurora PG보다 약 20% 저렴. JSONB·배열 등 고급 기능 활용 가능","RDS PostgreSQL t4g.micro: ~$18/month in Seoul region. ~20% cheaper than Aurora PostgreSQL. Advanced features like JSONB and arrays available"));
+  if (isHighAvail)
+    R("data","primary_db","rds_pg",t("⚠️ 고가용성 시 Aurora 권장","⚠️ Aurora recommended for high availability"),t("99.95%+ 가용성 목표 시 Aurora 권장. RDS 대비 빠른 장애조치 (30초 vs 수 분) + 자동 스토리지 확장","Aurora recommended for 99.95%+ availability targets. Faster failover than RDS (30s vs minutes) + auto storage scaling"));
+  if (isHighAvail)
+    R("data","primary_db","rds_mysql",t("⚠️ 고가용성 시 Aurora 권장","⚠️ Aurora recommended for high availability"),t("99.95%+ 가용성 목표 시 Aurora MySQL 권장. RDS MySQL 대비 빠른 장애조치 + 최대 15 Read Replica 지원","Aurora MySQL recommended for 99.95%+ availability targets. Faster failover than RDS MySQL + up to 15 Read Replicas"));
   if (isIoT || isFlash || isUltraRPS || (isData && dataD === "stream_analytics"))
     R("data","primary_db","dynamodb",t("⭐ 고성능/IoT 필수","⭐ Required for high-performance/IoT"),t("초당 수만 건 읽기/쓰기 + 자동 확장. 티켓팅 재고 원자적 처리에 최적의 선택","Tens of thousands of reads/writes per second + Auto Scaling. Optimal for atomic ticket inventory processing"));
   if (isInternal && !isTx)
@@ -374,6 +384,8 @@ export function getRecommendations(
     R("integration","auth","sso",t("⭐ B2B SaaS 필수","⭐ Required for B2B SaaS"),t("SAML/OIDC로 고객사 계정 연동. 퇴사자 접근 차단이 고객 IT팀에서 자동 처리","Integrate client accounts via SAML/OIDC. Departed employee access revocation handled automatically by client IT team"));
   if (hasCritCert && !isB2B)
     R("integration","auth","selfmgd",t("✨ 규정 준수 커스텀 인증","✨ Compliance custom authentication"),t("PCI/HIPAA 특수 요건이 있을 때만 선택. Cognito로 해결 안 될 때 최후 수단","Choose only when PCI/HIPAA has special requirements. Last resort when Cognito can't solve it"));
+  if (isHighAvail)
+    R("integration","auth","selfmgd",t("⚠️ 자체 인증 SPOF 위험","⚠️ Self-managed auth SPOF risk"),t("자체 인증 서버는 SPOF — 장애 시 전체 서비스 로그인 불가. Cognito/SSO 검토 권장","Self-managed auth server is a SPOF — all service login fails on outage. Consider Cognito/SSO"));
 
   if (!isTx && isInternal)
     R("integration","sync_async","sync_only",t("✨ 단순 서비스 적합","✨ Suitable for simple services"),t("요청-처리-응답의 단순 구조. 비동기의 복잡도 없이 빠른 개발 가능","Simple request-process-response structure. Fast development without async complexity"));
@@ -420,6 +432,8 @@ export function getRecommendations(
     R("edge","cdn","yes",t("⭐ 모든 외부 서비스 기본","⭐ Default for all external services"),t("CloudFront: 정적 파일 캐시 + 오리진 보호 + HTTPS 자동. 비용보다 이득이 더 큼","CloudFront: Static file cache + origin protection + automatic HTTPS. Benefits outweigh costs"));
   if (isGlobal)
     R("edge","cdn","global",t("⭐ 글로벌 서비스 필수","⭐ Required for global services"),t("Global Accelerator + CloudFront: 전 세계 엣지에서 50ms 이하 응답","Global Accelerator + CloudFront: Sub-50ms response from edge locations worldwide"));
+  if (isEcom && isGlobal)
+    R("edge","cdn","global",t("⭐ 글로벌 이커머스 CDN 필수","⭐ Global e-commerce CDN required"),t("글로벌 이커머스는 Global CDN 필수. 상품 이미지·정적 자산 캐싱으로 오리진 부하 90% 감소 + 해외 사용자 레이턴시 최소화","Global CDN required for global e-commerce. 90% origin load reduction with product image/static asset caching + minimize overseas user latency"));
 
   if (!isGlobal && !isHighAvail && !isTx)
     R("edge","dns","basic",t("✨ 단일 리전 기본","✨ Single region baseline"),t("Route53 기본 라우팅. 추가 설정 없이 신뢰할 수 있는 DNS 서비스","Route53 basic routing. Reliable DNS service without additional configuration"));
@@ -438,6 +452,8 @@ export function getRecommendations(
     R("edge","waf","bot",t("⭐ 이커머스/티켓팅 필수","⭐ Required for e-commerce/ticketing"),t("매크로 봇 없이 공정한 선착순 불가. 이벤트 당일 봇이 70~90% 트래픽을 차지합니다","Fair first-come-first-served is impossible without blocking macro bots. Bots account for 70-90% of event-day traffic"));
   if (hasCritCert || avail === "99.99" || (isXL && isTx))
     R("edge","waf","shield",t("⭐ 고가용성/금융 필수","⭐ Required for high availability/financial"),t("DDoS 방어 SLA + 24/7 DRT 대응팀. 공격 중에도 서비스 유지. 금융 규정 준수 요건","DDoS defense SLA + 24/7 DDoS Response Team (DRT). Service maintained during attacks. Financial compliance requirement"));
+  if (isTick && isFlash && isHighAvail)
+    R("edge","waf","shield",t("⭐ 플래시 세일 DDoS 방어 필수","⭐ Flash sale DDoS defense required"),t("플래시 세일 트래픽과 DDoS 공격 구별 불가. Shield Advanced DRT팀이 실시간 대응하여 정상 트래픽 보호","Cannot distinguish flash sale traffic from DDoS attacks. Shield Advanced DRT team provides real-time response to protect legitimate traffic"));
 
   // ── EDGE: cost-aware recommendations ──────────────────────────
   if (isCostFirst && isInternal)

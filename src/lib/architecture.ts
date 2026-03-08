@@ -264,7 +264,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
       ...(s.edge?.waf !== "no" ? [{ name:`WAF${s.edge?.waf === "bot" ? " + Bot Control" : s.edge?.waf === "shield" ? " + Shield Advanced" : ""}`, detail:t("edge.waf.detail"), reason:`OWASP${s.edge?.waf === "bot" ? ", "+t("edge.waf.bot") : ""}${s.edge?.waf === "shield" ? ", "+t("edge.waf.ddos") : ""}`, cost:s.edge?.waf === "shield" ? lang==="ko"?"$3,000/월 고정":"$3,000/mo fixed" : lang==="ko"?"~$20/월+":"~$20/mo+", opt:t("edge.waf.opt") }] : []),
     ];
     // CloudFront Functions / Lambda@Edge (CDN 선택 시)
-    if(hasCDN && (isGlobal || isSaaS || isTicketing)) {
+    if(hasCDN && (isGlobal || isSaaS || isTicketing || types.includes("ecommerce") || isBtoC)) {
       edgeServices.push({ name:"CloudFront Functions / Lambda@Edge", detail:t("edge.func.detail"), reason:`${isTicketing ? t("edge.func.bot") : isSaaS ? t("edge.func.tenant") : t("edge.func.geo")}`, cost:lang==="ko"?"CloudFront Functions $0.1/100만 요청, Lambda@Edge $0.6/100만":"CloudFront Functions $0.1/1M req, Lambda@Edge $0.6/1M", opt:t("edge.func.opt") });
     }
     // CloudWatch Synthetics (고가용성 시)
@@ -279,6 +279,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
       s.slo?.region === "dr" ? t("edge.insight.failover") : "",
       s.edge?.dns === "health" ? t("edge.insight.healthint") : "",
       isHighAvail ? t("edge.insight.canary") : "",
+      isSaaS && isGlobal && s.edge?.cdn === "global" ? (lang==="ko"?"Global Accelerator 검토: TCP/UDP 워크로드(API 서버)에 CloudFront보다 낮은 레이턴시. Anycast IP로 고정 엔트리포인트 제공":"Consider Global Accelerator: lower latency than CloudFront for TCP/UDP workloads (API servers). Fixed entry point with Anycast IP") : "",
     ].filter(Boolean);
     layers.push({ id:"edge", label:t("edge.label"), icon:"🚀", color:"#0891b2", bg:"#ecfeff", services:edgeServices, insights:edgeInsights });
   }
@@ -307,7 +308,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
     }
     if(!hasCache) {
       computeServices.push({ name:t("comp.redis.name"), detail:t("comp.redis.detail"), reason:t("comp.redis.reason"), cost:lang==="ko"?"ElastiCache Redis ~$100/월":"ElastiCache Redis ~$100/mo", opt:t("comp.redis.opt") });
-    } else if(!isServerless) {
+    } else {
       computeServices.push({ name:t("comp.redis2.name"), detail:t("comp.redis2.detail"), reason:t("comp.redis2.reason"), cost:t("comp.redis2.cost"), opt:t("comp.redis2.opt") });
     }
   }
@@ -736,7 +737,8 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
   if(isIoT) {
     dbServices.unshift(
       { name:"AWS IoT Core", detail:lang==="ko"?"MQTT 브로커, 디바이스 관리":"MQTT broker, device management", reason:lang==="ko"?"수만 대 디바이스 동시 연결 관리":"Manage tens of thousands of concurrent device connections", cost:lang==="ko"?"$1/100만 메시지":"$1/1M messages", opt:lang==="ko"?"Rules Engine으로 Kinesis·Lambda·DynamoDB로 자동 라우팅":"Auto-route to Kinesis/Lambda/DynamoDB via Rules Engine" },
-      { name:"Amazon Timestream", detail:lang==="ko"?"시계열 DB (센서 이력 보관)":"Time-series DB (sensor history)", reason:lang==="ko"?"시간 기반 집계·이상 탐지 쿼리에 최적화":"Optimized for time-based aggregation and anomaly detection queries", cost:lang==="ko"?"쓰기 $0.50/100만 건, 메모리 $0.036/GB·시간":"Write $0.50/1M records, memory $0.036/GB-hr", opt:lang==="ko"?"자동 데이터 티어링: 최신 인메모리 → 오래된 데이터 자동 저비용 SSD":"Auto data tiering: recent in-memory -> old data auto-moved to low-cost SSD" }
+      { name:"Amazon Timestream", detail:lang==="ko"?"시계열 DB (센서 이력 보관)":"Time-series DB (sensor history)", reason:lang==="ko"?"시간 기반 집계·이상 탐지 쿼리에 최적화":"Optimized for time-based aggregation and anomaly detection queries", cost:lang==="ko"?"쓰기 $0.50/100만 건, 메모리 $0.036/GB·시간":"Write $0.50/1M records, memory $0.036/GB-hr", opt:lang==="ko"?"자동 데이터 티어링: 최신 인메모리 → 오래된 데이터 자동 저비용 SSD":"Auto data tiering: recent in-memory -> old data auto-moved to low-cost SSD" },
+      ...(s.workload?.iot_detail === "industrial" ? [{ name:"AWS IoT Greengrass", detail:lang==="ko"?"엣지 컴퓨팅, 로컬 ML 추론":"Edge computing, local ML inference", reason:lang==="ko"?"네트워크 단절 시에도 로컬 디바이스 제어·데이터 처리 지속":"Continue local device control and data processing even during network disconnection", cost:lang==="ko"?"$0.16/디바이스/월 (코어 디바이스)":"$0.16/device/mo (core device)", opt:lang==="ko"?"Lambda 함수를 엣지에서 실행. 오프라인 시 로컬 MQTT로 디바이스 간 통신":"Run Lambda functions at edge. Local MQTT communication between devices when offline" }] : [])
     );
   }
 
@@ -748,6 +750,12 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
     );
     if(s.scale?.data_volume === "ptb" || s.scale?.data_volume === "tb") {
       dbServices.push({ name:"Amazon Redshift (Serverless)", detail:lang==="ko"?"클라우드 DW, 컬럼형 스토리지":"Cloud DW, columnar storage", reason:lang==="ko"?"대규모 집계 쿼리 고속 처리":"High-speed processing of large aggregate queries", cost:lang==="ko"?"사용 시간당 과금 (Serverless)":"Billed per usage hour (Serverless)", opt:lang==="ko"?"Redshift Spectrum으로 S3 데이터 직접 쿼리 (이동 없음)":"Query S3 data directly with Redshift Spectrum (no data movement)" });
+    }
+    if(s.workload?.data_detail === "ml_pipeline") {
+      dbServices.push({ name:"Amazon SageMaker", detail:lang==="ko"?"ML 모델 학습·배포·추론 플랫폼":"ML model training, deployment, and inference platform", reason:lang==="ko"?"데이터 전처리→학습→배포 파이프라인 통합 관리":"Integrated management of data preprocessing -> training -> deployment pipeline", cost:lang==="ko"?"ml.m5.xlarge 기준 ~$0.23/시간 (학습)":"~$0.23/hr based on ml.m5.xlarge (training)", opt:lang==="ko"?"SageMaker Serverless Inference로 유휴 비용 제거. Spot Training으로 학습 비용 최대 90% 절감":"Eliminate idle costs with SageMaker Serverless Inference. Up to 90% training cost savings with Spot Training" });
+    }
+    if(s.workload?.data_detail === "stream_analytics" && (hasSearch || s.data?.storage?.includes("s3"))) {
+      dbServices.push({ name:"Amazon Kinesis Data Firehose", detail:lang==="ko"?"스트림 → S3/OpenSearch 자동 전송":"Stream -> S3/OpenSearch auto delivery", reason:lang==="ko"?"Kinesis Data Streams 데이터를 변환·압축 후 목적지로 자동 적재":"Auto-load Kinesis Data Streams data to destination after transform/compress", cost:lang==="ko"?"$0.029/GB (수집 기준)":"$0.029/GB (ingestion)", opt:lang==="ko"?"동적 파티셔닝으로 S3 쿼리 비용 절감. 버퍼 크기/시간 조정으로 비용·지연 트레이드오프 최적화":"Reduce S3 query costs with dynamic partitioning. Optimize cost/latency trade-off by adjusting buffer size/time" });
     }
   }
 
@@ -764,6 +772,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
         s.scale?.data_volume === "ptb" ? (lang==="ko"?"수십 TB 이상: S3 Intelligent-Tiering + Lifecycle 정책으로 Glacier 자동 이관 필수 (비용 80% 절감)":"10+ TB: S3 Intelligent-Tiering + Lifecycle policy for auto Glacier migration required (80% cost savings)") : "",
         s.slo?.region === "dr" ? (lang==="ko"?"DR 전략: Aurora Global (보조 리전 읽기 전용) + S3 Cross-Region Replication 설정":"DR strategy: Aurora Global (secondary region read-only) + S3 Cross-Region Replication") : "",
         s.slo?.region === "active" ? (lang==="ko"?"Active-Active: Aurora Global + DynamoDB Global Tables 조합. 리전간 쓰기 충돌 해결 전략 필수":"Active-Active: Aurora Global + DynamoDB Global Tables combo. Cross-region write conflict resolution strategy required") : "",
+        isGlobal && s.slo?.region === "active" && primaryDbs.includes("dynamodb") ? (lang==="ko"?"DynamoDB Global Tables: 리전간 복제 지연 ~1초. 충돌 방지를 위해 리전별 쓰기 파티셔닝 또는 Last-Writer-Wins 전략 설계 필수":"DynamoDB Global Tables: ~1s cross-region replication delay. Design per-region write partitioning or Last-Writer-Wins strategy to prevent conflicts") : "",
       ].filter(Boolean)
     });
   }
@@ -772,7 +781,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
   if(needsAsync && s.integration?.queue_type?.length > 0) {
     const msgServices: any[] = [];
     if(s.integration.queue_type.includes("sqs")) {
-      msgServices.push({ name:"SQS", detail:lang==="ko"?"Standard + DLQ 필수 구성":"Standard + DLQ required", reason:lang==="ko"?"서비스 디커플링, 재시도 보장, 버퍼링":"Service decoupling, guaranteed retries, buffering", cost:lang==="ko"?"$0.40/100만 요청":"$0.40/1M requests", opt:lang==="ko"?"Long Polling으로 빈 수신 비용 제거":"Eliminate empty receive costs with Long Polling" });
+      msgServices.push({ name:"SQS", detail:(types.includes("ecommerce") || types.includes("ticketing") || isCritical) ? (lang==="ko"?"SQS FIFO + DLQ 필수 구성":"SQS FIFO + DLQ required") : (lang==="ko"?"Standard + DLQ 필수 구성":"Standard + DLQ required"), reason:lang==="ko"?"서비스 디커플링, 재시도 보장, 버퍼링":"Service decoupling, guaranteed retries, buffering", cost:lang==="ko"?"$0.40/100만 요청":"$0.40/1M requests", opt:lang==="ko"?"Long Polling으로 빈 수신 비용 제거":"Eliminate empty receive costs with Long Polling" });
     }
     if(s.integration.queue_type.includes("sns")) {
       msgServices.push({ name:"SNS", detail:lang==="ko"?"SNS→SQS 팬아웃 패턴":"SNS->SQS fan-out pattern", reason:lang==="ko"?"1→다수 이벤트 전파":"1-to-many event propagation", cost:lang==="ko"?"$0.50/100만 메시지":"$0.50/1M messages", opt:lang==="ko"?"메시지 필터링으로 SQS 분리":"Separate SQS with message filtering" });
@@ -878,7 +887,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
     secServices.push({ name:"KMS (Customer Managed Key)", detail:lang==="ko"?"RDS, S3, EBS 암호화":"RDS, S3, EBS encryption", reason:lang==="ko"?"저장 데이터 암호화 + 감사 추적":"Data-at-rest encryption + audit trail", cost:lang==="ko"?"$1/키/월 + $0.03/1만 API":"$1/key/mo + $0.03/10K API", opt:lang==="ko"?"AWS Managed Key로 비용 절감 (감사 유연성 낮아짐)":"Cost savings with AWS Managed Key (less audit flexibility)" });
   }
   const certList = s.compliance?.cert || [];
-  if(certList.some((c: string) => ["pci","hipaa","isms","sox"].includes(c))) {
+  if(certList.some((c: string) => ["pci","hipaa","isms","sox","gdpr"].includes(c))) {
     const certLabel = certList.includes("pci") ? "PCI-DSS" : certList.includes("hipaa") ? "HIPAA" : certList.includes("isms") ? "ISMS" : "SOX";
     secServices.push({ name:"AWS Config + Security Hub", detail:lang==="ko"?"규정 준수 자동 모니터링":"Automated compliance monitoring", reason:lang==="ko"?`${certLabel} 컴플라이언스 지속 체크`:`${certLabel} continuous compliance checks`, cost:lang==="ko"?"~$5/활성 규칙/월":"~$5/active rule/mo", opt:lang==="ko"?"AWS Managed Rules로 빠른 시작":"Quick start with AWS Managed Rules" });
     if(certList.includes("pci")) secInsights.push(lang==="ko"?"PCI-DSS: 카드 데이터 환경(CDE) 격리, 네트워크 분할 필수. QSA 심사 별도 진행 필요":"PCI-DSS: Cardholder Data Environment (CDE) isolation, network segmentation required. Separate QSA assessment needed");

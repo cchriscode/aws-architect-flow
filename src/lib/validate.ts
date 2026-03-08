@@ -71,6 +71,9 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     globalDbSingleRegion: { t: "Global DB + 단일 리전 모순", m: "Global Database는 멀티리전 전제 설계. 단일 리전이면 Multi-AZ로 충분." },
     canaryRealtime:     { t: "Canary 배포 + 실시간 서비스 주의", m: "Canary 배포 중 WebSocket 연결 드롭 위험. Blue/Green 또는 연결 드레이닝 검토." },
     dynamoOnDemandLarge:{ t: "대규모 DynamoDB 용량 계획 필요", m: "DAU 10만+ DynamoDB는 On-Demand 사용 시 Provisioned 대비 5~10배 비용 가능. 용량 모드 확인 및 Provisioned + Auto Scaling 검토 권장." },
+    iotNetworkIso:      { t: "IoT 디바이스 네트워크 격리 미설정", m: "IoT 디바이스 데이터는 private/strict 네트워크 격리 권장. 기본 네트워크는 디바이스 데이터 유출 위험." },
+    mlPipelineServerless:{ t: "ML 파이프라인 + 서버리스 조합 주의", m: "ML 학습 워크로드는 서버리스보다 컨테이너/EC2 권장. Lambda 15분 타임아웃으로 장시간 학습 불가." },
+    globalDynamoSingle:  { t: "글로벌 + DynamoDB + 단일 리전", m: "글로벌 사용자 + DynamoDB 조합 시 Global Tables(DR/Active) 권장. 단일 리전은 해외 사용자 지연시간 문제." },
   } : {
     availAz:            { t: "99.99% availability + single AZ impossible", m: "Single AZ means full outage on AZ failure. At least 2 AZs required for 99.99% (3 AZs recommended)." },
     highAvailAz:        { t: "High availability target conflicts with single AZ", m: "99.95%+ availability cannot be achieved without Multi-AZ." },
@@ -136,6 +139,9 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     globalDbSingleRegion: { t: "Global DB contradicts single-region setup", m: "Global Database is designed for multi-region. Multi-AZ is sufficient for single region." },
     canaryRealtime:     { t: "Canary deploy + realtime service warning", m: "Canary deployment may cause WebSocket connection drops. Consider Blue/Green or connection draining." },
     dynamoOnDemandLarge:{ t: "DynamoDB capacity planning needed at scale", m: "At DAU 100K+, DynamoDB On-Demand can cost 5-10x vs Provisioned. Review capacity mode and consider Provisioned + Auto Scaling." },
+    iotNetworkIso:      { t: "IoT device network isolation not configured", m: "Private/strict network isolation recommended for IoT device data. Default network risks device data exposure." },
+    mlPipelineServerless:{ t: "ML pipeline + serverless combination caveat", m: "Containers/EC2 recommended over serverless for ML training workloads. Lambda 15-minute timeout prevents long-running training." },
+    globalDynamoSingle:  { t: "Global + DynamoDB + single region", m: "Global Tables (DR/Active) recommended for global users + DynamoDB. Single region causes latency issues for overseas users." },
   };
 
   const types     = state.workload?.type || [];
@@ -314,6 +320,8 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     W(_.s3SensitiveEncr.t, _.s3SensitiveEncr.m, ["data","compliance"]);
   if (isLarge && dbArr.includes("dynamodb"))
     W(_.dynamoOnDemandLarge.t, _.dynamoOnDemandLarge.m, ["data","cost"]);
+  if (userTypes.includes("global") && dbArr.includes("dynamodb") && region === "single")
+    W(_.globalDynamoSingle.t, _.globalDynamoSingle.m, ["data","slo"]);
 
   // -- 네트워크 --
   if (dau === "xlarge" && account === "single")
@@ -337,6 +345,8 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
   const queueArr = Array.isArray(queueT) ? queueT : (queueT ? [queueT] : []);
   if (types.includes("iot") && rps === "ultra" && queueArr.includes("sqs"))
     W(_.iotSqs.t, _.iotSqs.m, ["integration"]);
+  if (types.includes("iot") && netIso && !["strict","private"].includes(netIso))
+    W(_.iotNetworkIso.t, _.iotNetworkIso.m, ["workload","compliance"]);
 
   // -- Lambda + VPC --
   if (isServerless && subnet && natStrat && natStrat !== "endpoint" && natStrat !== "none")
@@ -355,6 +365,8 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
   // -- 서버리스 + 대용량 데이터 --
   if (isServerless && state.scale?.data_volume === "ptb")
     W(_.serverlessBigData.t, _.serverlessBigData.m, ["compute","scale"]);
+  if (state.workload?.data_detail === "ml_pipeline" && isServerless)
+    W(_.mlPipelineServerless.t, _.mlPipelineServerless.m, ["compute","workload"]);
 
   // -- MSA 구성인데 서비스 디스커버리 없음 --
   if (orchest === "ecs" && isLarge && syncMode !== "sync_only" && !apiType)

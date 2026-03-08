@@ -9,37 +9,49 @@ const SITE_URL = "https://archflow-aws.online";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "ArchFlow — AWS 아키텍처 설계 가이드",
+    default: "ArchFlow — AWS Architecture Design Guide | AWS 아키텍처 설계 가이드",
     template: "%s | ArchFlow",
   },
   description:
-    "14단계 위자드로 AWS 아키텍처를 설계하세요. VPC, 서브넷, 보안 그룹, IAM, 비용 추정까지 한 번에 완성합니다.",
+    "Design AWS architecture with a 14-step wizard. VPC, Subnet, Security Groups, IAM, Terraform code, cost estimation — all in one. 14단계 위자드로 AWS 아키텍처를 설계하세요.",
   keywords: [
     "AWS",
+    "AWS architecture",
+    "AWS architecture design",
+    "AWS architecture diagram",
+    "AWS infrastructure",
+    "cloud architecture",
+    "cloud design tool",
+    "AWS Well-Architected",
+    "Terraform",
+    "CDK",
+    "VPC",
+    "EKS",
+    "ECS",
+    "serverless",
+    "AWS cost calculator",
+    "infrastructure as code",
     "아키텍처",
     "설계",
     "클라우드",
     "인프라",
-    "VPC",
-    "Terraform",
-    "CDK",
-    "AWS architecture",
-    "cloud design",
+    "AWS 설계 도구",
   ],
   openGraph: {
-    title: "ArchFlow — AWS 아키텍처 설계 가이드",
+    title: "ArchFlow — AWS Architecture Design Guide",
     description:
-      "14단계 위자드로 AWS 아키텍처를 설계하세요. 다이어그램, IaC 코드, 비용 추정까지 한 번에.",
+      "Design AWS architecture with a 14-step wizard. Diagrams, Terraform code, cost estimation, and Well-Architected review — all in one free tool.",
     url: SITE_URL,
     siteName: "ArchFlow",
     type: "website",
     locale: "ko_KR",
+    alternateLocale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "ArchFlow — AWS 아키텍처 설계 가이드",
+    title: "ArchFlow — AWS Architecture Design Guide",
     description:
-      "14단계 위자드로 AWS 아키텍처를 설계하세요. 다이어그램, IaC 코드, 비용 추정까지 한 번에.",
+      "Design AWS architecture with a 14-step wizard. Diagrams, Terraform code, cost estimation, and Well-Architected review — all free.",
   },
   alternates: {
     languages: {
@@ -60,11 +72,11 @@ const jsonLd = {
   name: "ArchFlow",
   url: SITE_URL,
   description:
-    "14단계 위자드를 통해 AWS 클라우드 아키텍처를 설계하고, 다이어그램·IaC 코드·비용 추정을 생성하는 무료 웹 도구입니다.",
+    "Free AWS architecture design tool with a 14-step wizard. Generates diagrams, Terraform/CDK code, security groups, cost estimation, and Well-Architected review.",
   applicationCategory: "DeveloperApplication",
   operatingSystem: "Web",
   inLanguage: ["ko", "en"],
-  offers: { "@type": "Offer", price: "0", priceCurrency: "KRW" },
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
 };
 
 export default function RootLayout({
