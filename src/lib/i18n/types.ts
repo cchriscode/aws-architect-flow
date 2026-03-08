@@ -9,6 +9,7 @@ export interface Dict {
   header: {
     subtitle: string;
     historyLink: string;
+    glossaryLink: string;
     downloadJSON: string;
     importFile: string;
     share: string;
@@ -263,6 +264,22 @@ export interface Dict {
     pillarScores: string;
     scoreCriteria: string;
     grades: { range: string; grade: string; desc: string }[];
+  };
+  glossary: {
+    title: string;
+    subtitle: string;
+    backHome: string;
+    searchPlaceholder: string;
+    noResults: string;
+    placementLabel: string;
+    relatedLabel: string;
+    analogyLabel: string;
+    badgeAll: string;
+    badgeAws: string;
+    badgeGeneral: string;
+    badgeK8s: string;
+    groups: Record<string, string>;
+    placements: Record<string, string>;
   };
   diagram: {
     title: string;

@@ -18,13 +18,15 @@ export function Header() {
   return (
     <div className="flex items-center justify-between border-b border-gray-200 bg-white px-7 py-3.5">
       <div className="flex items-center gap-2.5">
-        <div className="h-2.5 w-2.5 rounded-full bg-indigo-600" />
-        <span className="text-base font-extrabold text-gray-900">
-          ArchFlow
-        </span>
-        <span className="text-xs text-gray-400">
-          {t.header.subtitle}
-        </span>
+        <Link href="/" className="flex items-center gap-2.5">
+          <div className="h-2.5 w-2.5 rounded-full bg-indigo-600" />
+          <span className="text-base font-extrabold text-gray-900">
+            ArchFlow
+          </span>
+          <span className="text-xs text-gray-400">
+            {t.header.subtitle}
+          </span>
+        </Link>
         <Link
           href="/history"
           className="ml-2 flex items-center gap-1 rounded-lg border-[1.5px] border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
@@ -35,6 +37,12 @@ export function Header() {
               {historyCount}
             </span>
           )}
+        </Link>
+        <Link
+          href="/glossary"
+          className="flex items-center gap-1 rounded-lg border-[1.5px] border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
+        >
+          {t.header.glossaryLink}
         </Link>
       </div>
       <div className="flex items-center gap-2">
