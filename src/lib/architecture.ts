@@ -238,7 +238,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
     services:[
       { name:"VPC", detail:`ap-northeast-2, /16 CIDR, ${azNum} AZ`, reason:t("net.vpc.reason"), cost:t("net.vpc.cost"), opt:t("net.vpc.opt") },
       { name:t("net.subnet.name"), detail:subnetDesc, reason:s.network?.subnet_tier === "3tier" ? t("net.3tier.reason") : isPrivateNet ? t("net.private.reason") : t("net.2tier.reason"), cost:t("net.vpc.cost"), opt:t("net.subnet.opt") },
-      ...(natDesc ? [{ name:natDesc, detail:t("net.nat.detail"), reason:t("net.nat.reason"), cost:`~$33/${lang==="ko"?"월/개":"mo each"} + $0.045/GB`, opt:t("net.nat.opt") }] : []),
+      ...(natDesc ? [{ name:natDesc, detail:t("net.nat.detail"), reason:t("net.nat.reason"), cost:`~$43/${lang==="ko"?"월/개":"mo each"} + $0.045/GB`, opt:t("net.nat.opt") }] : []),
       ...(isPrivateNet ? [{ name:"Transit Gateway / VPN Endpoint", detail:t("net.tgw.detail"), reason:t("net.tgw.reason"), cost:"TGW $0.05/hr + $0.02/GB", opt:t("net.tgw.opt") }] : []),
       { name:"VPC Endpoint", detail:t("net.vpcep.detail"), reason:t("net.vpcep.reason"), cost:lang==="ko"?"Gateway EP 무료, Interface EP $7/월/개":"Gateway EP free, Interface EP $7/mo each", opt:t("net.vpcep.opt") },
       ...(hybridConns.includes("vpn") ? [{ name:"Site-to-Site VPN", detail:t("net.vpn.detail"), reason:t("net.vpn.reason"), cost:lang==="ko"?"~$36/월 + 데이터전송":"~$36/mo + data transfer", opt:t("net.vpn.opt") }] : []),
@@ -248,7 +248,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
     ],
     insights:[
       s.network?.subnet_tier === "3tier" ? t("net.insight.3tier") : t("net.insight.default"),
-      isPrivateNet ? t("net.insight.fullpriv") : s.network?.nat_strategy === "per_az" ? `NAT GW ${azNum}${t("net.insight.natperaz")}` : t("net.insight.natshared"),
+      isPrivateNet ? t("net.insight.fullpriv") : s.network?.nat_strategy === "per_az" ? `NAT GW ${azNum}${t("net.insight.natperaz")}` : s.network?.nat_strategy === "endpoint" ? (lang==="ko"?"VPC Endpoint 중심: NAT GW 최소화로 비용 절감. 인터넷 필요 시 최소 NAT GW 1개 유지":"VPC Endpoint focused: cost savings by minimizing NAT GW. Keep at least 1 NAT GW for internet access") : t("net.insight.natshared"),
       t("net.insight.sg"),
       s.compliance?.network_iso === "private" && s.network?.subnet_tier !== "private" ? t("net.insight.mismatch") : "",
       ["strict","private"].includes(s.compliance?.network_iso) && !["3tier","private"].includes(s.network?.subnet_tier) ? t("net.insight.zone") : "",
@@ -415,7 +415,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
     if(ingress === "alb_controller") {
       platformSvcs.push({ name:"AWS ALB Ingress Controller", detail:lang==="ko"?"ALB를 K8s Ingress 리소스로 관리":"Manage ALB as K8s Ingress resource", reason:lang==="ko"?"ALB·WAF·ACM·Target Group 자동 통합":"Auto-integration with ALB, WAF, ACM, Target Group", cost:"ALB ($0.008/LCU-hr)", opt:lang==="ko"?"IngressClass 분리로 내부/외부 트래픽 구분 관리":"Separate internal/external traffic with IngressClass" });
     } else if(ingress === "nginx") {
-      platformSvcs.push({ name:"NGINX Ingress Controller", detail:lang==="ko"?"K8s 표준 Ingress, NLB 앞단 배치":"K8s standard Ingress, placed in front of NLB", reason:lang==="ko"?"멀티클라우드 이식성, 풍부한 레퍼런스":"Multi-cloud portability, abundant references", cost:lang==="ko"?"무료 (NLB 비용 별도)":"Free (NLB cost separate)", opt:lang==="ko"?"ConfigMap으로 업스트림 타임아웃·버퍼 크기 조정 필수":"Must adjust upstream timeout and buffer size via ConfigMap" });
+      platformSvcs.push({ name:"NGINX Ingress Controller", detail:lang==="ko"?"K8s 표준 Ingress, NLB 뒷단 배치":"K8s standard Ingress, placed behind NLB", reason:lang==="ko"?"멀티클라우드 이식성, 풍부한 레퍼런스":"Multi-cloud portability, abundant references", cost:lang==="ko"?"무료 (NLB 비용 별도)":"Free (NLB cost separate)", opt:lang==="ko"?"ConfigMap으로 업스트림 타임아웃·버퍼 크기 조정 필수":"Must adjust upstream timeout and buffer size via ConfigMap" });
     } else if(ingress === "kong") {
       platformSvcs.push({ name:"Kong Gateway (K8s)", detail:lang==="ko"?"API Gateway + Ingress 통합, KongIngress CRD":"API Gateway + Ingress integration, KongIngress CRD", reason:lang==="ko"?"100+ 플러그인: 인증·속도제한·변환 중앙 관리":"100+ plugins: centralized auth, rate limiting, transformation", cost:lang==="ko"?"Kong OSS 무료, PostgreSQL 필요":"Kong OSS free, PostgreSQL required", opt:lang==="ko"?"DB-less 모드로 단순화 가능. Rate Limiting 플러그인 필수 적용":"Simplify with DB-less mode. Rate Limiting plugin required" });
     } else if(ingress === "traefik") {
@@ -502,7 +502,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
 
     const platformInsights = [
       np === "karpenter" ? (lang==="ko"?"Karpenter: Spot 인터럽션 시 자동 노드 교체. PodDisruptionBudget 설정으로 중단 최소화":"Karpenter: auto node replacement on Spot interruption. Minimize disruption with PodDisruptionBudget") : (lang==="ko"?"Cluster Autoscaler: Node Group min/max 설정 후 HPA와 함께 사용":"Cluster Autoscaler: set Node Group min/max, use with HPA"),
-      ingress === "nginx" ? (lang==="ko"?"NGINX: NLB(L4) 앞에 배치. HTTP/2, WebSocket, gRPC 모두 지원":"NGINX: placed in front of NLB (L4). Supports HTTP/2, WebSocket, gRPC") : ingress === "kong" ? (lang==="ko"?"Kong: DB 모드는 PostgreSQL RDS 필요. DB-less KongIngress 모드로 단순화 가능":"Kong: DB mode requires PostgreSQL RDS. Simplify with DB-less KongIngress mode") : (lang==="ko"?"ALB Controller: 서브넷 태그(kubernetes.io/role/elb=1) 필수":"ALB Controller: subnet tag (kubernetes.io/role/elb=1) required"),
+      ingress === "nginx" ? (lang==="ko"?"NGINX: NLB(L4) 뒤에 배치. HTTP/2, WebSocket, gRPC 모두 지원":"NGINX: placed behind NLB (L4). Supports HTTP/2, WebSocket, gRPC") : ingress === "kong" ? (lang==="ko"?"Kong: DB 모드는 PostgreSQL RDS 필요. DB-less KongIngress 모드로 단순화 가능":"Kong: DB mode requires PostgreSQL RDS. Simplify with DB-less KongIngress mode") : (lang==="ko"?"ALB Controller: 서브넷 태그(kubernetes.io/role/elb=1) 필수":"ALB Controller: subnet tag (kubernetes.io/role/elb=1) required"),
       mesh === "istio" ? (lang==="ko"?"⚠️ Istio 리소스 오버헤드: 서비스 수 × 사이드카 메모리 추가. 소규모에선 과한 복잡도":"⚠️ Istio resource overhead: service count x sidecar memory. Excessive complexity for small scale") : mesh === "none" ? (lang==="ko"?"서비스 메시 없음: Security Group으로 Pod 간 트래픽 제어, ECS Service Connect 대안 검토":"No service mesh: control Pod traffic with Security Groups, consider ECS Service Connect") : "",
       gitops !== "none" ? (lang==="ko"?"GitOps: main 브랜치 보호 규칙 + PR 리뷰 필수. 직접 클러스터 접근 차단":"GitOps: main branch protection rules + PR review required. Block direct cluster access") : "",
       secrets === "native" ? (lang==="ko"?"⚠️ K8s Secret 기본: etcd 암호화(aws-encryption-provider + KMS) 설정 필수":"⚠️ K8s Secret default: etcd encryption (aws-encryption-provider + KMS) setup required") : secrets === "external_secrets" ? (lang==="ko"?"External Secrets: IRSA로 Secrets Manager 읽기 권한만 부여. 네임스페이스별 ESO 분리 운영":"External Secrets: grant only Secrets Manager read via IRSA. Operate ESO separately per namespace") : "",
@@ -663,7 +663,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
 
     dbServices.push({
       name: dbName,
-      detail: isDynamo ? `${dbHaDetail.replace("Multi-AZ, ", (lang==="ko"?"Global Table 가능, ":"Global Table available, "))}, On-Demand/Provisioned` : `${dbHaDetail}, ${lang==="ko"?"격리 서브넷":"isolated subnet"}`,
+      detail: isDynamo ? `${dbHaDetail.replace("Multi-AZ, ", (lang==="ko"?"Global Table 가능, ":"Global Table available, "))}, On-Demand/Provisioned` : `${dbHaDetail}, ${s.network?.subnet_tier === "3tier" ? (lang==="ko"?"격리 서브넷":"isolated subnet") : (lang==="ko"?"프라이빗 서브넷":"private subnet")}`,
       reason: primaryDbs.length > 1
         ? (isDynamo ? (lang==="ko"?"세션·상태·실시간 NoSQL (낮은 지연)":"Session/state/real-time NoSQL (low latency)") : (lang==="ko"?"트랜잭션·관계형 데이터 SoT":"Transactional/relational data SoT"))
         : (lang==="ko"?"주요 데이터 SoT (Source of Truth)":"Primary data SoT (Source of Truth)"),
@@ -853,7 +853,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
       drInsights.push(lang==="ko"?"Pilot Light 패턴: DR 리전에 최소 인프라만 상시 운영 (비용 절감)":"Pilot Light pattern: maintain minimum infrastructure in DR region (cost savings)");
     } else {
       drServices.push(
-        { name:lang==="ko"?"Aurora Global Database (멀티리전 Active-Active)":"Aurora Global Database (multi-region Active-Active)", detail:lang==="ko"?"여러 리전에서 동시 읽기·쓰기":"Simultaneous read/write across multiple regions", reason:lang==="ko"?"최저 레이턴시 + 리전 장애 자동 복구":"Lowest latency + auto region failure recovery", cost:lang==="ko"?"리전별 인스턴스 비용":"Per-region instance cost", opt:lang==="ko"?"쓰기는 Primary에 집중, Secondary는 읽기 우선 설계 권장":"Concentrate writes on Primary, design Secondary for reads first" },
+        { name:lang==="ko"?"Aurora Global Database (멀티리전 Primary-Secondary)":"Aurora Global Database (multi-region Primary-Secondary)", detail:lang==="ko"?"Primary 리전 쓰기, Secondary 리전 읽기 전용 (<1초 복제)":"Primary region writes, secondary region read-only (<1s replication)", reason:lang==="ko"?"글로벌 읽기 레이턴시 최소화 + 리전 장애 시 수동 프로모션":"Minimize global read latency + manual promotion on region failure", cost:lang==="ko"?"리전별 인스턴스 비용":"Per-region instance cost", opt:lang==="ko"?"쓰기는 Primary에 집중, Secondary는 읽기 전용. 페일오버 시 수동 프로모션 필요 (RTO ~1-5분)":"Writes on Primary only, Secondary is read-only. Manual promotion needed on failover (RTO ~1-5min)" },
         { name:"DynamoDB Global Tables", detail:lang==="ko"?"멀티리전 자동 양방향 복제":"Multi-region automatic bidirectional replication", reason:lang==="ko"?"NoSQL 글로벌 동기화, RTT 최소화":"NoSQL global sync, minimize RTT", cost:lang==="ko"?"리전별 WCU·RCU 과금":"Per-region WCU/RCU billing", opt:lang==="ko"?"충돌 해결(Last-Writer-Wins) 정책 사전 설계 필수":"Conflict resolution (Last-Writer-Wins) policy pre-design required" },
         { name:lang==="ko"?"Route 53 레이턴시 기반 라우팅":"Route 53 latency-based routing", detail:lang==="ko"?"사용자 → 가장 가까운 리전 자동 연결":"Auto-connect users to nearest region", reason:lang==="ko"?"글로벌 응답 속도 최적화":"Optimize global response speed", cost:lang==="ko"?"쿼리당 $0.60/100만":"$0.60/1M queries", opt:lang==="ko"?"CloudFront + Lambda@Edge와 조합 시 엣지에서 직접 처리 가능":"Direct edge processing when combined with CloudFront + Lambda@Edge" }
       );

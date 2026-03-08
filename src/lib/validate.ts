@@ -7,7 +7,7 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
   const W = (title: string, message: string, phases: string[]) => issues.push({severity:"warn",title,message,phases});
 
   const _ = lang === "ko" ? {
-    availAz:            { t: "99.99% 가용성 + 단일 AZ 불가능", m: "단일 AZ는 AZ 장애 시 전체 중단. 99.99% 달성엔 최소 3 AZ 필수." },
+    availAz:            { t: "99.99% 가용성 + 단일 AZ 불가능", m: "단일 AZ는 AZ 장애 시 전체 중단. 99.99% 달성엔 최소 2 AZ 필수 (3 AZ 권장)." },
     highAvailAz:        { t: "고가용성 목표와 단일 AZ 불일치", m: "99.95%+ 가용성은 Multi-AZ 없이 달성 불가." },
     highAvailDb:        { t: "고가용성 목표와 단일 AZ DB", m: "DB Single-AZ는 수십 분 다운타임 발생. Multi-AZ 필수." },
     avail99_2az:        { t: "99.99% 가용성 + 2 AZ 구성", m: "2 AZ에서 1개 장애 시 용량 50% 손실. 99.99% 달성에는 3 AZ를 강력 권장합니다." },
@@ -19,8 +19,8 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     critCertNetIso:     { t: "규정 준수 인증 + 기본 네트워크 격리", m: "PCI/HIPAA는 DB·앱 완전 격리 없이 인증 통과 불가." },
     critCertSubnet:     { t: "규정 준수 인증 + 2계층 네트워크", m: "PCI DSS는 CDE 격리 필요. 3계층 서브넷 권장." },
     critCertIac:        { t: "규정 준수 인증 + IaC 없음", m: "PCI/HIPAA/SOX 감사는 인프라 변경 이력 요구. Terraform/CDK 필수." },
-    gdprSingleRegion:   { t: "GDPR + 한국 단일 리전", m: "EU 사용자 데이터를 한국 리전에만 저장하면 GDPR 데이터 거주지 요건 위반 가능." },
-    gdprGlobalSingle:   { t: "GDPR + 글로벌 사용자 + 단일 리전", m: "EU 사용자 데이터를 한국 단일 리전에 저장하면 GDPR 데이터 거주지 요건 위반. 멀티 리전(EU 리전 포함) 전환 필수." },
+    gdprSingleRegion:   { t: "GDPR + 비EU 단일 리전", m: "EU 사용자 데이터를 비EU 리전에만 저장 시 SCC(표준 계약 조항) 등 적절한 전송 메커니즘이 필요합니다. EU 리전 포함이 가장 간단한 규정 준수 경로." },
+    gdprGlobalSingle:   { t: "GDPR + 글로벌 사용자 + 단일 리전", m: "글로벌 사용자에게 단일 비EU 리전은 지연시간 문제와 GDPR 전송 규정 대응이 필요합니다. EU 리전 포함 멀티 리전 권장 (SCC로 비EU 리전도 가능하나 복잡)." },
     pciDynamo:          { t: "PCI DSS + DynamoDB 기본 암호화", m: "DynamoDB CMK(고객 관리 키) 암호화가 PCI DSS 심사 항목. CMK 설정 권장." },
     ticketNoRedis:      { t: "선착순 티켓팅에 Redis/DynamoDB 없음", m: "초당 수만 건 동시 선점 요청을 RDB만으로 처리하면 데드락+DB 붕괴 발생." },
     txSyncOnly:         { t: "결제/이커머스 서비스에 동기 처리만", m: "주문→결제→재고 체인을 동기로 연결하면 하나가 느려지면 전체가 느려짐." },
@@ -34,6 +34,7 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     ultraRpsLambda:     { t: "초고RPS + Lambda 콜드스타트 위험", m: "Lambda Provisioned Concurrency 없이 초고 RPS는 콜드스타트로 p99 급등." },
     lambdaUltraRpsSync: { t: "Lambda + 초고RPS + 동기 DB 복합 위험", m: "콜드스타트 + 동기 RDS 연결 = p99 지연 폭발. 비동기 처리 또는 DynamoDB 전환 필수." },
     spotCritical:       { t: "Spot + 결제/실시간 서비스 위험", m: "Spot은 2분 예고 후 강제 종료. 결제·채팅 유실 위험." },
+    spotPartialCritical:{ t: "Spot Partial + 결제/실시간 서비스 주의", m: "Spot 인스턴스 중단 시 일부 결제·채팅 요청 유실 가능. 결제/실시간 워크로드에는 On-Demand 권장." },
     commit3yrMvp:       { t: "3년 약정 + MVP 단계 위험", m: "방향 전환 가능성 높은 MVP에 3년 약정은 비용 낭비 위험. 1년 또는 On-Demand 권장." },
     shieldSmall:        { t: "Shield Advanced + 소규모 서비스 과투자", m: "$3,000/월 고정. 소규모 서비스는 WAF Basic으로 충분." },
     fargateXlarge:      { t: "Fargate + DAU 100만+ 비용 초과", m: "DAU 100만+ Fargate는 EC2+RI 대비 2배 이상 비용 초과 가능. EC2 노드 + RI/Savings Plans 전환 필수." },
@@ -59,8 +60,19 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     msaNoDiscovery:     { t: "대규모 비동기 MSA에 서비스 디스커버리 미설정", m: "ECS Service Connect 또는 Cloud Map으로 서비스 간 통신 관리 권장." },
     realtimeSyncOnly:   { t: "실시간 서비스에 동기 처리만", m: "채팅·알림 등 실시간 이벤트를 동기로만 처리하면 병목 발생. SNS/EventBridge 비동기 전파 검토." },
     globalSingleNoCdn:  { t: "글로벌 사용자 + 단일 리전 + CDN 없음", m: "해외 사용자는 서울 직접 연결로 150~300ms 지연. CloudFront 필수이며 멀티 리전 검토 권장." },
+    costEks:            { t: "비용 우선 전략 + EKS 선택 괴리", m: "EKS 클러스터 비용($73/월) + K8s 운영 전문성 필요로 ECS Fargate 대비 총 운영 비용 증가. 비용 우선이면 ECS Fargate 전환 검토." },
+    cost3az:            { t: "비용 우선 전략 + 3 AZ 과잉", m: "99.95% 미만 가용성 목표에서 3 AZ는 NAT GW 비용이 2 AZ의 1.5배. 2 AZ로 충분." },
+    costNatPerAz:       { t: "비용 우선 전략 + AZ별 NAT GW", m: "규정 준수·고가용성 요건 없이 AZ별 NAT GW는 월 $43×AZ 추가 비용. shared/endpoint 전환 검토." },
+    costDbHa:           { t: "비용 우선 전략 + DB 과잉 HA", m: "규정 준수 없이 Read Replica/Global DB는 Multi-AZ 대비 비용 2배+. Multi-AZ면 충분." },
+    costShield:         { t: "비용 우선 전략 + Shield Advanced", m: "Shield Advanced는 월 $3,000 고정. 규정 준수 요건 없으면 WAF Basic으로 전환 시 대폭 절감." },
+    costBluegreen:      { t: "비용 우선 전략 + Blue/Green 배포", m: "Blue/Green은 배포 시 2배 리소스 필요. PCI 요건 없으면 Rolling 전환 시 배포 리소스 비용 0." },
+    costCdnInternal:    { t: "비용 우선 전략 + 내부 도구에 CDN", m: "내부 전용 서비스에 CDN은 불필요한 비용. 제거 시 월 비용 절감." },
+    avail99DbSingleAz: { t: "99.9% 가용성 + 단일 AZ DB 주의", m: "99.9% 목표에서도 Single-AZ DB는 연간 43분 다운타임 위험. Multi-AZ 권장." },
+    globalDbSingleRegion: { t: "Global DB + 단일 리전 모순", m: "Global Database는 멀티리전 전제 설계. 단일 리전이면 Multi-AZ로 충분." },
+    canaryRealtime:     { t: "Canary 배포 + 실시간 서비스 주의", m: "Canary 배포 중 WebSocket 연결 드롭 위험. Blue/Green 또는 연결 드레이닝 검토." },
+    dynamoOnDemandLarge:{ t: "대규모 DynamoDB 용량 계획 필요", m: "DAU 10만+ DynamoDB는 On-Demand 사용 시 Provisioned 대비 5~10배 비용 가능. 용량 모드 확인 및 Provisioned + Auto Scaling 검토 권장." },
   } : {
-    availAz:            { t: "99.99% availability + single AZ impossible", m: "Single AZ means full outage on AZ failure. At least 3 AZs required for 99.99%." },
+    availAz:            { t: "99.99% availability + single AZ impossible", m: "Single AZ means full outage on AZ failure. At least 2 AZs required for 99.99% (3 AZs recommended)." },
     highAvailAz:        { t: "High availability target conflicts with single AZ", m: "99.95%+ availability cannot be achieved without Multi-AZ." },
     highAvailDb:        { t: "High availability target conflicts with single-AZ DB", m: "Single-AZ DB causes tens of minutes of downtime. Multi-AZ is required." },
     avail99_2az:        { t: "99.99% availability + 2 AZ configuration", m: "Losing 1 of 2 AZs means 50% capacity loss. 3 AZs strongly recommended for 99.99%." },
@@ -72,8 +84,8 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     critCertNetIso:     { t: "Compliance certification + default network isolation", m: "PCI/HIPAA cannot pass certification without full DB and app isolation." },
     critCertSubnet:     { t: "Compliance certification + 2-tier network", m: "PCI DSS requires CDE isolation. 3-tier subnet recommended." },
     critCertIac:        { t: "Compliance certification + no IaC", m: "PCI/HIPAA/SOX audits require infrastructure change history. Terraform/CDK required." },
-    gdprSingleRegion:   { t: "GDPR + non-EU single region", m: "Storing EU user data only in a non-EU single region may violate GDPR data residency requirements." },
-    gdprGlobalSingle:   { t: "GDPR + global users + single region", m: "Storing EU user data in a non-EU single region violates GDPR data residency requirements. Multi-region (including EU region) migration required." },
+    gdprSingleRegion:   { t: "GDPR + non-EU single region", m: "Storing EU user data in a non-EU region requires proper transfer mechanisms (SCCs, adequacy decisions). Including an EU region is the simplest compliance path." },
+    gdprGlobalSingle:   { t: "GDPR + global users + single region", m: "Single non-EU region for global users causes latency issues and requires GDPR transfer safeguards. Multi-region including EU recommended (SCCs allow non-EU storage but add complexity)." },
     pciDynamo:          { t: "PCI DSS + DynamoDB default encryption", m: "DynamoDB CMK (customer-managed key) encryption is a PCI DSS audit item. CMK configuration recommended." },
     ticketNoRedis:      { t: "First-come-first-served ticketing without Redis/DynamoDB", m: "Processing tens of thousands of concurrent reservation requests with RDB alone causes deadlocks and database overload." },
     txSyncOnly:         { t: "Payment/e-commerce service with sync-only processing", m: "Synchronously chaining order-payment-inventory means one slow link slows everything." },
@@ -87,6 +99,7 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     ultraRpsLambda:     { t: "Very high request rates + Lambda cold start risk", m: "High RPS without Lambda Provisioned Concurrency causes p99 latency spikes from cold starts." },
     lambdaUltraRpsSync: { t: "Lambda + high RPS + sync DB compound risk", m: "Cold starts + synchronous RDS connections = severe p99 latency degradation. Switch to async processing or DynamoDB." },
     spotCritical:       { t: "Spot + payment/realtime service risk", m: "Spot instances terminate with 2-minute warning. Risk of losing payments and chat messages." },
+    spotPartialCritical:{ t: "Partial Spot + payment/realtime service risk", m: "Spot interruptions may cause some payment/chat request loss. On-Demand recommended for payment/realtime workloads." },
     commit3yrMvp:       { t: "3-year commitment + MVP stage risk", m: "3-year commitment on a pivot-prone MVP risks wasted spend. 1-year or On-Demand recommended." },
     shieldSmall:        { t: "Shield Advanced + small service overinvestment", m: "$3,000/month fixed cost. WAF Basic is sufficient for small services." },
     fargateXlarge:      { t: "Fargate + DAU 1M+ cost overrun", m: "Fargate at DAU 1M+ can cost 2x+ vs EC2+RI. Switch to EC2 nodes + RI/Savings Plans." },
@@ -112,6 +125,17 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     msaNoDiscovery:     { t: "Large-scale async microservices without service discovery", m: "Use ECS Service Connect or Cloud Map for inter-service communication management." },
     realtimeSyncOnly:   { t: "Realtime service with sync-only processing", m: "Processing realtime events like chat and notifications synchronously creates bottlenecks. Consider SNS/EventBridge async propagation." },
     globalSingleNoCdn:  { t: "Global users + single region + no CDN", m: "Overseas users face 150-300ms latency connecting directly to the origin region. CloudFront required and multi-region recommended." },
+    costEks:            { t: "Cost-first strategy + EKS selection mismatch", m: "EKS cluster cost ($73/mo) + K8s operational expertise increases total cost of ownership vs ECS Fargate. Consider switching to ECS Fargate for cost optimization." },
+    cost3az:            { t: "Cost-first strategy + 3 AZ excess", m: "3 AZs cost 1.5x more for NAT GW than 2 AZs. For availability targets below 99.95%, 2 AZs are sufficient." },
+    costNatPerAz:       { t: "Cost-first strategy + per-AZ NAT GW", m: "Without compliance or high-availability requirements, per-AZ NAT GW adds $43/AZ/mo. Consider shared/endpoint." },
+    costDbHa:           { t: "Cost-first strategy + excessive DB HA", m: "Without compliance requirements, Read Replica/Global DB costs 2x+ vs Multi-AZ. Multi-AZ is sufficient." },
+    costShield:         { t: "Cost-first strategy + Shield Advanced", m: "Shield Advanced is $3,000/mo fixed. Without compliance requirements, switching to WAF Basic saves significantly." },
+    costBluegreen:      { t: "Cost-first strategy + Blue/Green deploy", m: "Blue/Green requires 2x resources during deployment. Without PCI requirements, Rolling deploy has zero deployment resource cost." },
+    costCdnInternal:    { t: "Cost-first strategy + CDN for internal tool", m: "CDN is unnecessary for internal-only services. Removing it saves monthly costs." },
+    avail99DbSingleAz: { t: "Single-AZ DB adds risk at 99.9% availability", m: "Single-AZ DB risks ~43 minutes annual downtime even at 99.9% target. Multi-AZ recommended." },
+    globalDbSingleRegion: { t: "Global DB contradicts single-region setup", m: "Global Database is designed for multi-region. Multi-AZ is sufficient for single region." },
+    canaryRealtime:     { t: "Canary deploy + realtime service warning", m: "Canary deployment may cause WebSocket connection drops. Consider Blue/Green or connection draining." },
+    dynamoOnDemandLarge:{ t: "DynamoDB capacity planning needed at scale", m: "At DAU 100K+, DynamoDB On-Demand can cost 5-10x vs Provisioned. Review capacity mode and consider Provisioned + Auto Scaling." },
   };
 
   const types     = state.workload?.type || [];
@@ -173,14 +197,17 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
   const isServerless= archP === "serverless";
   const hasRdbms    = dbArr.some((d: string) => ["aurora_mysql","aurora_pg","rds_mysql","rds_pg"].includes(d));
   const hasRedis    = cache === "redis" || cache === "both";
+  const isInternalOnly = (types.includes("internal") || (userTypes.length === 1 && userTypes[0] === "internal")) && !types.some((t: string) => ["ecommerce","ticketing","realtime","saas"].includes(t));
+  const isCostFirst = priority === "cost_first";
+  const highAvail   = avail === "99.95" || avail === "99.99";
 
   // -- 가용성 & AZ --
-  if (avail === "99.99" && az === "1az")
-    E(_.availAz.t, _.availAz.m, ["slo","network"]);
   if ((avail === "99.95" || avail === "99.99") && az === "1az")
     E(_.highAvailAz.t, _.highAvailAz.m, ["slo","network"]);
   if ((avail === "99.95" || avail === "99.99") && dbHa === "single_az")
     E(_.highAvailDb.t, _.highAvailDb.m, ["slo","data"]);
+  if (avail === "99.9" && dbHa === "single_az")
+    W(_.avail99DbSingleAz.t, _.avail99DbSingleAz.m, ["slo","data"]);
   if (avail === "99.99" && az === "2az")
     W(_.avail99_2az.t, _.avail99_2az.m, ["slo","network"]);
 
@@ -193,6 +220,8 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     W(_.rto1minDr.t, _.rto1minDr.m, ["slo","network"]);
   if (rpo === "zero" && syncMode === "sync_only" && isTx)
     W(_.rpoZeroSyncOnly.t, _.rpoZeroSyncOnly.m, ["slo","integration"]);
+  if (dbHa === "global" && region === "single")
+    W(_.globalDbSingleRegion.t, _.globalDbSingleRegion.m, ["data","slo"]);
 
   // -- 규정 준수 --
   if (hasCritCert && encr !== "strict")
@@ -206,9 +235,9 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
   if (isGdpr && region === "single" && !userTypes.includes("global"))
     W(_.gdprSingleRegion.t, _.gdprSingleRegion.m, ["compliance","slo"]);
   if (isGdpr && region === "single" && userTypes.includes("global"))
-    E(_.gdprGlobalSingle.t, _.gdprGlobalSingle.m, ["compliance","slo"]);
-  if (hasCritCert && dbArr.includes("dynamodb") && encr !== "strict")
-    W(_.pciDynamo.t, _.pciDynamo.m, ["compliance","data"]);
+    W(_.gdprGlobalSingle.t, _.gdprGlobalSingle.m, ["compliance","slo"]);
+  if (cert.includes("pci") && dbArr.includes("dynamodb") && encr !== "strict")
+    E(_.pciDynamo.t, _.pciDynamo.m, ["compliance","data"]);
 
   // -- 티켓팅 / 결제 --
   if (types.includes("ticketing") && (tickD === "flash" || tickD === "concert") && !dbArr.includes("dynamodb") && !hasRedis)
@@ -227,8 +256,8 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     W(_.istioBeginnerTeam.t, _.istioBeginnerTeam.m, ["platform","team"]);
   if (isEks && meshType === "istio" && teamSize === "solo")
     W(_.istioSolo.t, _.istioSolo.m, ["platform","team"]);
-  if (nodeP === "karpenter" && orchest && !isEks)
-    E(_.karpenterNonK8s.t, _.karpenterNonK8s.m, ["platform","compute"]);
+  // karpenter is a platform-phase field, only settable when orchest === "eks"
+  // so karpenter + !isEks is impossible — rule removed as dead code
   if (isServerless && isEks)
     W(_.serverlessEks.t, _.serverlessEks.m, ["compute","platform"]);
   if (rps === "ultra" && isServerless && (!scaling || (Array.isArray(scaling) && scaling.length === 0)))
@@ -239,6 +268,8 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
   // -- Spot --
   if (spot === "heavy" && (types.includes("ticketing") || types.includes("realtime") || isTx))
     E(_.spotCritical.t, _.spotCritical.m, ["cost","workload"]);
+  if (spot === "partial" && (types.includes("ticketing") || types.includes("realtime") || isTx))
+    W(_.spotPartialCritical.t, _.spotPartialCritical.m, ["cost","workload"]);
 
   // -- 비용 --
   if (commit === "3yr" && stage === "mvp")
@@ -250,14 +281,29 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
   else if (nodeType === "fargate" && isLarge)
     W(_.fargateLarge.t, _.fargateLarge.m, ["compute","cost"]);
 
+  // -- 비용 전략 vs 실제 선택 괴리 --
+  if (isCostFirst && isEks)
+    W(_.costEks.t, _.costEks.m, ["cost","compute"]);
+  if (isCostFirst && az === "3az" && !highAvail)
+    W(_.cost3az.t, _.cost3az.m, ["cost","network"]);
+  if (isCostFirst && natStrat === "per_az" && !hasCritCert && !highAvail)
+    W(_.costNatPerAz.t, _.costNatPerAz.m, ["cost","network"]);
+  if (isCostFirst && (dbHa === "multi_az_read" || dbHa === "global") && dataS !== "critical" && !hasCritCert)
+    W(_.costDbHa.t, _.costDbHa.m, ["cost","data"]);
+  if (isCostFirst && waf === "shield" && !hasCritCert)
+    W(_.costShield.t, _.costShield.m, ["cost","edge"]);
+  if (isCostFirst && deploy === "bluegreen" && !cert.includes("pci"))
+    W(_.costBluegreen.t, _.costBluegreen.m, ["cost","cicd"]);
+  if (isCostFirst && cdn && cdn !== "no" && isInternalOnly)
+    W(_.costCdnInternal.t, _.costCdnInternal.m, ["cost","edge"]);
+
   // -- WAF / 엣지 --
-  const isInternalOnly = types.includes("internal") || (Array.isArray(userTypes) && userTypes.length === 1 && userTypes[0] === "internal");
   if (!isInternalOnly && (!waf || waf === "no") && types.length > 0)
     W(_.noWafPublic.t, _.noWafPublic.m, ["edge"]);
   if ((types.includes("ecommerce") || types.includes("ticketing")) && waf !== "bot" && waf !== "shield")
     W(_.ecommNoBotCtrl.t, _.ecommNoBotCtrl.m, ["edge"]);
-  if (userTypes.includes("global") && cdn === "no")
-    E(_.globalNoCdn.t, _.globalNoCdn.m, ["edge","workload"]);
+  if (userTypes.includes("global") && (!cdn || cdn === "no") && region !== "single")
+    W(_.globalNoCdn.t, _.globalNoCdn.m, ["edge","workload"]);
   if (state.appstack?.protocol === "graphql" && orchest === "ecs")
     W(_.graphqlAlb.t, _.graphqlAlb.m, ["integration","compute"]);
 
@@ -266,6 +312,8 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     W(_.largeCacheNone.t, _.largeCacheNone.m, ["scale","data"]);
   if (storArr.includes("s3") && dataS === "critical" && encr !== "strict")
     W(_.s3SensitiveEncr.t, _.s3SensitiveEncr.m, ["data","compliance"]);
+  if (isLarge && dbArr.includes("dynamodb"))
+    W(_.dynamoOnDemandLarge.t, _.dynamoOnDemandLarge.m, ["data","cost"]);
 
   // -- 네트워크 --
   if (dau === "xlarge" && account === "single")
@@ -280,8 +328,10 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     E(_.largeNoIac.t, _.largeNoIac.m, ["cicd"]);
   if ((avail === "99.95" || avail === "99.99") && region !== "single" && envCnt === "dev_prod")
     W(_.multiRegionEnv.t, _.multiRegionEnv.m, ["slo","cicd"]);
-  if (gitops === "argocd" && orchest && !isEks)
-    W(_.argoNonEks.t, _.argoNonEks.m, ["platform","compute"]);
+  // gitops is a platform-phase field, only settable when orchest === "eks"
+  // so argocd + !isEks is impossible — rule removed as dead code
+  if (deploy === "canary" && types.includes("realtime"))
+    W(_.canaryRealtime.t, _.canaryRealtime.m, ["cicd","workload"]);
 
   // -- IoT --
   const queueArr = Array.isArray(queueT) ? queueT : (queueT ? [queueT] : []);
@@ -289,7 +339,7 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     W(_.iotSqs.t, _.iotSqs.m, ["integration"]);
 
   // -- Lambda + VPC --
-  if (isServerless && subnet && subnet !== "private" && natStrat !== "endpoint")
+  if (isServerless && subnet && natStrat && natStrat !== "endpoint" && natStrat !== "none")
     W(_.lambdaVpcEndpoint.t, _.lambdaVpcEndpoint.m, ["compute","network"]);
   if (isServerless && hasRdbms && !dbArr.some((d: string) => d.startsWith("aurora")))
     W(_.lambdaRds.t, _.lambdaRds.m, ["compute","data"]);
@@ -307,7 +357,7 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     W(_.serverlessBigData.t, _.serverlessBigData.m, ["compute","scale"]);
 
   // -- MSA 구성인데 서비스 디스커버리 없음 --
-  if (!isServerless && !isEks && isLarge && syncMode !== "sync_only" && !apiType)
+  if (orchest === "ecs" && isLarge && syncMode !== "sync_only" && !apiType)
     W(_.msaNoDiscovery.t, _.msaNoDiscovery.m, ["integration","compute"]);
 
   // -- 실시간 서비스 + 동기 전용 --

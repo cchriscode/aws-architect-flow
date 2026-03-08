@@ -44,7 +44,7 @@ const dict = {
     opensearch: "OpenSearch",
     opensearchDesc: (azNum: number) => `r6g.large × ${azNum}`,
     rdsProxy: "RDS Proxy",
-    rdsProxyDesc: "Lambda→RDS 커넥션 풀링 (DB 비용의 ~3%)",
+    rdsProxyDesc: "Lambda→RDS 커넥션 풀링 (DB 비용의 ~15%)",
 
     // Network items
     natGateway: (count: number) => `NAT Gateway (${count}개)`,
@@ -52,7 +52,7 @@ const dict = {
     dataTransfer: "데이터 전송 (outbound)",
     dataTransferDesc: "인터넷 아웃바운드 첫 1GB 무료",
     vpn: "Site-to-Site VPN",
-    vpnDesc: "$0.05/시간 × 2 터널 + 데이터 전송 $0.09/GB",
+    vpnDesc: "$0.05/시간 (2 터널 포함) + 데이터 전송 $0.09/GB",
     directConnect: "Direct Connect (1Gbps)",
     directConnectDesc: "포트 $0.30/시간(1Gbps) + 아웃바운드 $0.02-0.09/GB",
     vpcEndpoints: "VPC Interface Endpoints",
@@ -144,7 +144,7 @@ const dict = {
     opensearch: "OpenSearch",
     opensearchDesc: (azNum: number) => `r6g.large × ${azNum}`,
     rdsProxy: "RDS Proxy",
-    rdsProxyDesc: "Lambda-to-RDS connection pooling (~3% of DB cost)",
+    rdsProxyDesc: "Lambda-to-RDS connection pooling (~15% of DB cost)",
 
     // Network items
     natGateway: (count: number) => `NAT Gateway (${count})`,
@@ -152,7 +152,7 @@ const dict = {
     dataTransfer: "Data Transfer (outbound)",
     dataTransferDesc: "Internet outbound, first 1GB free",
     vpn: "Site-to-Site VPN",
-    vpnDesc: "$0.05/hr x 2 tunnels + data transfer $0.09/GB",
+    vpnDesc: "$0.05/hr per connection (incl. 2 tunnels) + data transfer $0.09/GB",
     directConnect: "Direct Connect (1Gbps)",
     directConnectDesc: "Port $0.30/hr (1Gbps) + outbound $0.02-0.09/GB",
     vpcEndpoints: "VPC Interface Endpoints",
@@ -248,6 +248,7 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
   const isServerless= archP === "serverless";
   const isLarge     = dau === "large" || dau === "xlarge";
   const isXL        = dau === "xlarge";
+  const isMedium    = dau === "medium";
   const hasCritCert = cert.includes("pci") || cert.includes("hipaa") || cert.includes("sox");
   const hasAurora   = dbArr.some((d: string) => d.startsWith("aurora"));
   const hasRds      = dbArr.some((d: string) => d.startsWith("rds"));
@@ -255,7 +256,8 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
   const hasRedis    = cache === "redis" || cache === "both";
 
   // Commitment discount rate
-  const commitDiscount = commit === "3yr" ? 0.34 : commit === "1yr" ? 0.40 : 1.0;
+  const commitDiscount = commit === "3yr" ? 0.34 : commit === "1yr" ? 0.65 : 1.0;
+  const fargateCommitDiscount = commit === "3yr" ? 0.48 : commit === "1yr" ? 0.78 : 1.0;
   const spotDiscount   = spot === "heavy" ? 0.30 : spot === "partial" ? 0.70 : 1.0;
 
   // Scale coefficient by DAU
@@ -275,7 +277,7 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
   // -- Compute
   if (isEks) {
     const nodeBase = isXL ? 800 : isLarge ? 400 : 180;
-    const nodeMin  = Math.round(nodeBase * commitDiscount * (spot !== "no" ? spotDiscount : 1));
+    const nodeMin  = Math.round(nodeBase * Math.min(commitDiscount, spot !== "no" ? spotDiscount : 1));
     const nodeMax  = Math.round(nodeBase * 1.4 * commitDiscount);
     I(t.compute, t.eksCluster, t.eksClusterDesc(azNum), 73 + nodeMin, 73 + nodeMax);
     if (nodeP === "karpenter") {
@@ -285,44 +287,45 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
   } else if (isEcs) {
     const fargateBase = isXL ? 600 : isLarge ? 300 : 120;
     I(t.compute, t.ecsFargate, t.ecsFargateDesc(azNum),
-      Math.round(fargateBase * commitDiscount * (spot !== "no" ? spotDiscount : 1)),
-      Math.round(fargateBase * 1.4));
+      Math.round(fargateBase * Math.min(fargateCommitDiscount, spot !== "no" ? spotDiscount : 1)),
+      Math.round(fargateBase * 1.4 * fargateCommitDiscount));
   } else if (isServerless) {
     const lambdaBase = isXL ? 150 : isLarge ? 60 : 15;
     I(t.compute, t.lambda, t.lambdaDesc, 0, lambdaBase);
     I(t.compute, t.apiGateway, t.apiGatewayDesc, isXL ? 50 : isLarge ? 20 : 5, isXL ? 150 : isLarge ? 60 : 20);
   }
   if (!isServerless) {
-    I(t.compute, t.alb, t.albDesc, isXL ? 80 : isLarge ? 40 : 16, isXL ? 200 : isLarge ? 100 : 40);
+    I(t.compute, t.alb, t.albDesc, isXL ? 150 : isLarge ? 60 : 20, isXL ? 400 : isLarge ? 150 : 50);
   }
 
   // -- Database
   if (hasAurora) {
-    const auroraBase = isXL ? 800 : isLarge ? 400 : isServerless ? 30 : 120;
+    const auroraBase = isXL ? 800 : isLarge ? 400 : isMedium ? 200 : isServerless ? 30 : 120;
     const maxAcu = isXL ? 128 : isLarge ? 64 : 8;
     I(t.database, t.auroraServerless, t.auroraServerlessDesc(maxAcu),
       Math.round(auroraBase * 0.6 * commitDiscount), Math.round(auroraBase * commitDiscount));
     if (dbHa === "multi_az_read" || dbHa === "global") {
       I(t.database, t.auroraReadReplica, t.auroraReadReplicaDesc,
-        Math.round(auroraBase * 0.3 * commitDiscount), Math.round(auroraBase * 0.5 * commitDiscount));
+        Math.round(auroraBase * 0.8 * commitDiscount), Math.round(auroraBase * 1.0 * commitDiscount));
     }
     I(t.database, t.auroraStorage, t.auroraStorageDesc, isXL ? 200 : isLarge ? 80 : 20, isXL ? 600 : isLarge ? 200 : 60);
   }
   if (hasRds) {
-    const rdsBase = isXL ? 700 : isLarge ? 350 : 100;
-    I(t.database, t.rdsInstance, `${dbHa === "multi_az" ? "Multi-AZ" : "Single-AZ"}`,
-      Math.round(rdsBase * commitDiscount), Math.round(rdsBase * 1.3 * commitDiscount));
+    const rdsBase = isXL ? 700 : isLarge ? 350 : isMedium ? 180 : 100;
+    const rdsMaFactor = dbHa !== "single_az" ? 2.0 : 1.0;
+    I(t.database, t.rdsInstance, `${dbHa !== "single_az" ? "Multi-AZ" : "Single-AZ"}`,
+      Math.round(rdsBase * rdsMaFactor * commitDiscount), Math.round(rdsBase * rdsMaFactor * 1.2 * commitDiscount));
   }
   if (hasDynamo) {
     I(t.database, t.dynamodb, t.dynamodbDesc, isXL ? 200 : isLarge ? 80 : 10, isXL ? 800 : isLarge ? 300 : 40);
   }
   if (hasRedis) {
-    const redisBase = isXL ? 400 : isLarge ? 200 : 80;
+    const redisBase = isXL ? 400 : isLarge ? 200 : isMedium ? 120 : 80;
     I(t.database, t.elasticache, t.elasticacheDesc(azNum),
       Math.round(redisBase * commitDiscount), Math.round(redisBase * 1.2 * commitDiscount));
   }
   if (search === "opensearch") {
-    I(t.database, t.opensearch, t.opensearchDesc(azNum), isXL ? 500 : isLarge ? 250 : 100, isXL ? 1000 : isLarge ? 500 : 200);
+    I(t.database, t.opensearch, t.opensearchDesc(azNum), isXL ? 800 : isLarge ? 400 : 150, isXL ? 1800 : isLarge ? 800 : 300);
   }
   if (isServerless && (hasAurora || hasRds)) {
     const rdsProxyBase = hasAurora ? (isXL ? 50 : isLarge ? 25 : 8) : (isXL ? 40 : isLarge ? 20 : 6);
@@ -333,7 +336,7 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
   const natCount = natStrat === "per_az" ? azNum : natStrat === "endpoint" ? 0 : 1;
   if (natCount > 0) {
     I(t.network, t.natGateway(natCount), t.natGatewayDesc,
-      natCount * 43, natCount * 43 + (isXL ? 200 : isLarge ? 100 : 30));
+      natCount * 43, natCount * 43 + (isXL ? 450 : isLarge ? 150 : 45));
   }
   I(t.network, t.dataTransfer, t.dataTransferDesc, isXL ? 80 : isLarge ? 30 : 5, isXL ? 300 : isLarge ? 100 : 20);
   if (hybridArr.includes("vpn")) I(t.network, t.vpn, t.vpnDesc, 36, 72 + (isXL ? 90 : isLarge ? 45 : 10));
@@ -377,7 +380,7 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
 
   // -- Operations / Security
   I(t.operations, t.cloudwatch, t.cloudwatchDesc, isXL ? 50 : isLarge ? 25 : 10, isXL ? 200 : isLarge ? 80 : 30);
-  if (isEks && monitor === "prometheus_grafana") {
+  if (isEks && (monitor === "prometheus_grafana" || monitor === "hybrid")) {
     I(t.operations, t.prometheus, t.prometheusDesc, isXL ? 100 : 40, isXL ? 300 : 100);
   }
   const hasPersonalData = ["sensitive","critical"].includes(state.workload?.data_sensitivity);

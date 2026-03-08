@@ -103,8 +103,8 @@ const dict: Record<string, Record<Lang, string>> = {
     en: "Enable S3 Block Public Access at account level",
   },
   p1_s3_block_d: {
-    ko: "s3:PutBucketPublicAccessBlock 계정 수준 활성화. 개별 버킷보다 계정 레벨 차단이 우선",
-    en: "Enable s3:PutBucketPublicAccessBlock at account level. Account-level block takes precedence over individual buckets",
+    ko: "s3:PutAccountPublicAccessBlock 계정 수준 활성화. 개별 버킷보다 계정 레벨 차단이 우선",
+    en: "Enable s3:PutAccountPublicAccessBlock at account level. Account-level block takes precedence over individual buckets",
   },
   p1_cloudtrail: {
     ko: "CloudTrail 활성화 (모든 리전)",
@@ -145,36 +145,36 @@ const dict: Record<string, Record<Lang, string>> = {
     en: (n: number) => `Create ${n} public subnets (/24 each)`,
   } as any,
   p2_pub_subnet_d_3: {
-    ko: "ALB 배치용. 10.0.101-103.0/24",
-    en: "For ALB placement. 10.0.101-103.0/24",
+    ko: "ALB 배치용. 10.0.101.0/24, 10.0.102.0/24, 10.0.103.0/24",
+    en: "For ALB placement. 10.0.101.0/24, 10.0.102.0/24, 10.0.103.0/24",
   },
   p2_pub_subnet_d_other: {
-    ko: "ALB 배치용. 10.0.101-102.0/24",
-    en: "For ALB placement. 10.0.101-102.0/24",
+    ko: "ALB 배치용. 10.0.101.0/24, 10.0.102.0/24",
+    en: "For ALB placement. 10.0.101.0/24, 10.0.102.0/24",
   },
   p2_priv_subnet: {
     ko: (n: number) => `프라이빗 서브넷 ${n}개 생성 (/24 각)`,
     en: (n: number) => `Create ${n} private subnets (/24 each)`,
   } as any,
   p2_priv_subnet_d_3: {
-    ko: "앱 서버 배치용. 10.0.1-3.0/24",
-    en: "For app server placement. 10.0.1-3.0/24",
+    ko: "앱 서버 배치용. 10.0.1.0/24, 10.0.2.0/24, 10.0.3.0/24",
+    en: "For app server placement. 10.0.1.0/24, 10.0.2.0/24, 10.0.3.0/24",
   },
   p2_priv_subnet_d_other: {
-    ko: "앱 서버 배치용. 10.0.1-2.0/24",
-    en: "For app server placement. 10.0.1-2.0/24",
+    ko: "앱 서버 배치용. 10.0.1.0/24, 10.0.2.0/24",
+    en: "For app server placement. 10.0.1.0/24, 10.0.2.0/24",
   },
   p2_iso_subnet: {
     ko: (n: number) => `격리(Isolated) 서브넷 ${n}개 생성 (/24 각)`,
     en: (n: number) => `Create ${n} isolated subnets (/24 each)`,
   } as any,
   p2_iso_subnet_d_3: {
-    ko: "DB 전용. 인터넷 라우팅 없음. 10.0.201-203.0/24",
-    en: "DB only. No internet routing. 10.0.201-203.0/24",
+    ko: "DB 전용. 인터넷 라우팅 없음. 10.0.201.0/24, 10.0.202.0/24, 10.0.203.0/24",
+    en: "DB only. No internet routing. 10.0.201.0/24, 10.0.202.0/24, 10.0.203.0/24",
   },
   p2_iso_subnet_d_other: {
-    ko: "DB 전용. 인터넷 라우팅 없음. 10.0.201-202.0/24",
-    en: "DB only. No internet routing. 10.0.201-202.0/24",
+    ko: "DB 전용. 인터넷 라우팅 없음. 10.0.201.0/24, 10.0.202.0/24",
+    en: "DB only. No internet routing. 10.0.201.0/24, 10.0.202.0/24",
   },
   p2_igw: {
     ko: "Internet Gateway 생성 및 퍼블릭 서브넷에 라우팅 연결",
@@ -213,8 +213,8 @@ const dict: Record<string, Record<Lang, string>> = {
     en: "Create VPC Endpoints: ECR, Secrets Manager, CloudWatch, SSM",
   },
   p2_vpce_if_d: {
-    ko: "Interface Endpoint. 인터넷 없이 AWS 서비스 접근 ($7/월/개)",
-    en: "Interface Endpoints. Access AWS services without internet ($7/mo each)",
+    ko: "Interface Endpoint. 인터넷 없이 AWS 서비스 접근 ($7~10/AZ/월/개)",
+    en: "Interface Endpoints. Access AWS services without internet ($7-10/AZ/month each)",
   },
   p2_vpn: {
     ko: "Site-to-Site VPN 구성",
@@ -259,8 +259,8 @@ const dict: Record<string, Record<Lang, string>> = {
     en: "Configure KMS key policy",
   },
   p3_kms_policy_d: {
-    ko: "최소 권한 원칙. 루트 계정만 키 관리자. 서비스 역할만 사용자로 지정",
-    en: "Least privilege principle. Only root account as key admin. Only service roles as users",
+    ko: "최소 권한 원칙. 지정된 IAM 역할만 Key Administrator로 설정. root 계정은 기본 접근만 유지. 서비스 역할만 사용자로 지정",
+    en: "Least privilege principle. Designate specific IAM roles as Key Administrators. Keep root account with default access only. Only service roles as users",
   },
   p3_acm_apne2: {
     ko: "ACM 인증서 발급 (ap-northeast-2)",
@@ -283,8 +283,8 @@ const dict: Record<string, Record<Lang, string>> = {
     en: "Create Secrets Manager secrets",
   },
   p3_secrets_d: {
-    ko: "DB 비밀번호, API 키, OAuth 시크릿. 30일 자동 교체 Lambda 설정",
-    en: "DB passwords, API keys, OAuth secrets. Set up 30-day auto-rotation Lambda",
+    ko: "DB 비밀번호, API 키, OAuth 시크릿. RDS/Aurora는 네이티브 자동 로테이션. 커스텀 시크릿만 Lambda 필요",
+    en: "DB passwords, API keys, OAuth secrets. RDS/Aurora use native auto-rotation. Lambda only needed for custom secrets",
   },
   p3_cognito_pool: {
     ko: "Cognito User Pool 생성",
@@ -389,8 +389,8 @@ const dict: Record<string, Record<Lang, string>> = {
     en: (eng: string) => `Create Aurora ${eng} cluster (Serverless v2)`,
   } as any,
   p4_aurora_cluster_d: {
-    ko: (maxAcu: number) => `min 0.5 ACU, max ${maxAcu} ACU. Multi-AZ 자동 설정`,
-    en: (maxAcu: number) => `min 0.5 ACU, max ${maxAcu} ACU. Multi-AZ auto-configured`,
+    ko: (maxAcu: number) => `min 0.5 ACU, max ${maxAcu} ACU. Multi-AZ는 Reader 인스턴스 추가 필요`,
+    en: (maxAcu: number) => `min 0.5 ACU, max ${maxAcu} ACU. Multi-AZ requires adding a Reader instance`,
   } as any,
   p4_aurora_replica: {
     ko: "Aurora Read Replica 인스턴스 추가",
@@ -469,8 +469,8 @@ const dict: Record<string, Record<Lang, string>> = {
     en: "Enable DynamoDB Point-in-Time Recovery",
   },
   p4_ddb_pitr_d: {
-    ko: "스토리지 비용의 약 20% 추가. 35일 임의 시점 복구 가능. 항상 활성화 권장",
-    en: "Adds ~20% to storage cost. 35-day arbitrary point-in-time recovery. Always recommended",
+    ko: "별도 GB당 과금 (테이블 스토리지와 동일 단가). 35일 임의 시점 복구 가능. 항상 활성화 권장",
+    en: "Billed per GB at the same rate as table storage. 35-day arbitrary point-in-time recovery. Always recommended",
   },
   p4_ddb_streams: {
     ko: "DynamoDB Streams 활성화 (이벤트 처리 시)",
@@ -553,8 +553,8 @@ const dict: Record<string, Record<Lang, string>> = {
     en: "Create OpenSearch domain",
   },
   p4_opensearch_d: {
-    ko: (azNum: number) => `or1.medium (소), r6g.large (중대). VPC 배치. ${azNum}AZ. 암호화=Yes`,
-    en: (azNum: number) => `or1.medium (small), r6g.large (medium-large). VPC placement. ${azNum} AZs. Encryption=Yes`,
+    ko: (azNum: number) => `t3.small.search (소), r6g.large (중대). VPC 배치. ${azNum}AZ. 암호화=Yes`,
+    en: (azNum: number) => `t3.small.search (small), r6g.large (medium-large). VPC placement. ${azNum} AZs. Encryption=Yes`,
   } as any,
   p4_opensearch_index: {
     ko: "OpenSearch 인덱스 설계",
@@ -695,16 +695,16 @@ const dict: Record<string, Record<Lang, string>> = {
     en: "Create Lambda function",
   },
   p5_lambda_d: {
-    ko: "VPC 배치(DB 접근 시). 메모리 512MB~1GB. 타임아웃 29초(API GW 한도)",
-    en: "VPC placement (for DB access). Memory 512MB-1GB. Timeout 29s (API GW limit)",
+    ko: "VPC 배치(DB 접근 시). 메모리 512MB~1GB. 타임아웃 29초(API Gateway) 또는 60초(ALB)",
+    en: "VPC placement (for DB access). Memory 512MB-1GB. Timeout 29s (API Gateway) or 60s (ALB)",
   },
   p5_apigw: {
     ko: "API Gateway REST/HTTP API 생성",
     en: "Create API Gateway REST/HTTP API",
   },
   p5_apigw_d: {
-    ko: "HTTPS Only. 스테이지 변수 설정. 스로틀링 설정(기본 10,000 RPS)",
-    en: "HTTPS only. Set stage variables. Configure throttling (default 10,000 RPS)",
+    ko: "HTTPS Only. 스테이지 변수 설정. 계정 전체 10,000 RPS 한도. 스테이지별 별도 설정 필수",
+    en: "HTTPS only. Set stage variables. Account-wide 10,000 RPS limit. Per-stage throttle configuration required",
   },
   p5_lambda_concurrency: {
     ko: "Lambda 동시성 설정",
@@ -729,8 +729,8 @@ const dict: Record<string, Record<Lang, string>> = {
     en: "Create CloudFront distribution",
   },
   p6_cf_dist_d: {
-    ko: "오리진: ALB. OAC(Origin Access Control) 설정. HTTPS만 허용. 가격 등급: PriceClass_200",
-    en: "Origin: ALB. Set OAC (Origin Access Control). HTTPS only. Price class: PriceClass_200",
+    ko: "Origin: ALB. HTTPS만 허용, ALB SG에서 CloudFront IP만 허용. 가격 등급: PriceClass_200",
+    en: "Origin: ALB. HTTPS only. Restrict ALB SG to CloudFront IPs. Price class: PriceClass_200",
   },
   p6_cf_cache: {
     ko: "CloudFront 캐시 정책 설정",
@@ -757,13 +757,13 @@ const dict: Record<string, Record<Lang, string>> = {
     en: "Block direct S3 bucket access. Use OAC (Origin Access Control) method (OAI deprecated)",
   },
   p6_waf_acl: {
-    ko: "WAF Web ACL 생성 (us-east-1)",
-    en: "Create WAF Web ACL (us-east-1)",
-  },
+    ko: (hasCf: boolean) => hasCf ? "WAF Web ACL 생성 (us-east-1)" : "WAF Web ACL 생성 (서비스 리전)",
+    en: (hasCf: boolean) => hasCf ? "Create WAF Web ACL (us-east-1)" : "Create WAF Web ACL (service region)",
+  } as any,
   p6_waf_acl_d: {
-    ko: "CloudFront 연결 시 반드시 us-east-1에 생성. AWS Managed Rules 활성화",
-    en: "Must create in us-east-1 when connecting to CloudFront. Enable AWS Managed Rules",
-  },
+    ko: (hasCf: boolean) => hasCf ? "CloudFront 연결 시 반드시 us-east-1에 생성. AWS Managed Rules 활성화" : "ALB/API Gateway 연결 시 서비스 리전(ap-northeast-2)에 생성. AWS Managed Rules 활성화",
+    en: (hasCf: boolean) => hasCf ? "Must create in us-east-1 when connecting to CloudFront. Enable AWS Managed Rules" : "Create in service region (ap-northeast-2) when connecting to ALB/API Gateway. Enable AWS Managed Rules",
+  } as any,
   p6_waf_managed: {
     ko: "WAF 관리형 규칙 활성화",
     en: "Enable WAF managed rules",
@@ -855,8 +855,8 @@ const dict: Record<string, Record<Lang, string>> = {
     en: (shards: number) => `Shard count: ${shards} (1MB/s per shard). Enable Enhanced Fan-Out`,
   } as any,
   p7_firehose: {
-    ko: "Kinesis Firehose 생성 (S3 장기 보관)",
-    en: "Create Kinesis Firehose (S3 long-term storage)",
+    ko: "Amazon Data Firehose 생성 (S3 장기 보관)",
+    en: "Create Amazon Data Firehose (S3 long-term storage)",
   },
   p7_firehose_d: {
     ko: "Parquet 변환. S3 파티셔닝 설정(년/월/일). Glue 카탈로그 연동",
@@ -941,8 +941,8 @@ const dict: Record<string, Record<Lang, string>> = {
     en: "Run CDK Bootstrap (per account/region)",
   },
   p8_cdk_bootstrap_d: {
-    ko: "cdk bootstrap aws://ACCOUNT/ap-northeast-2. S3 버킷 + ECR 레포 자동 생성",
-    en: "cdk bootstrap aws://ACCOUNT/ap-northeast-2. Auto-create S3 bucket + ECR repo",
+    ko: "cdk bootstrap aws://ACCOUNT/ap-northeast-2. S3 버킷 + IAM 역할 자동 생성",
+    en: "cdk bootstrap aws://ACCOUNT/ap-northeast-2. Auto-creates S3 bucket + IAM roles",
   },
   p8_cdk_stacks: {
     ko: "CDK Stack 분리 구성",
@@ -1473,7 +1473,8 @@ export function generateChecklist(state: WizardState, lang: Lang = "ko") {
     }
   }
   if (waf && waf !== "no") {
-    p6.items.push(item(t("p6_waf_acl", lang), t("p6_waf_acl_d", lang), true));
+    const hasCf = cdn !== "no" && !!cdn;
+    p6.items.push(item(t("p6_waf_acl", lang, hasCf), t("p6_waf_acl_d", lang, hasCf), true));
     p6.items.push(item(t("p6_waf_managed", lang), t("p6_waf_managed_d", lang)));
     if (waf === "bot") {
       p6.items.push(item(t("p6_bot", lang), t("p6_bot_d", lang), true));
@@ -1560,7 +1561,7 @@ export function generateChecklist(state: WizardState, lang: Lang = "ko") {
   if (cache === "redis" || cache === "both") {
     p9.items.push(item(t("p9_cache_alarm", lang), t("p9_cache_alarm_d", lang)));
   }
-  if (avail === "99.95" || avail === "99.99") {
+  if (avail === "99.9" || avail === "99.95" || avail === "99.99") {
     p9.items.push(item(t("p9_synthetics", lang), t("p9_synthetics_d", lang), true));
   }
   p9.items.push(item(t("p9_sns_oncall", lang), t("p9_sns_oncall_d", lang)));

@@ -1,11 +1,18 @@
 import type { WizardState } from "@/lib/types";
 
+export type BudgetPriority = "cost_first" | "balanced" | "perf_first";
+
 export interface QuickTemplate {
   id: string;
   label: string;
   icon: string;
   desc: string;
   state: WizardState;
+}
+
+export interface BudgetAdjustResult {
+  state: WizardState;
+  changes: string[];
 }
 
 export const TEMPLATES: QuickTemplate[] = [
@@ -703,3 +710,237 @@ export const TEMPLATES: QuickTemplate[] = [
     },
   },
 ];
+
+/* ── deep clone helper ── */
+function cloneState(s: WizardState): WizardState {
+  return JSON.parse(JSON.stringify(s));
+}
+
+/* ── helpers to read / write nested state safely ── */
+function getArr(s: WizardState, phase: string, key: string): string[] {
+  const v = s[phase]?.[key];
+  return Array.isArray(v) ? v : [];
+}
+
+function has(s: WizardState, phase: string, key: string, val: string): boolean {
+  const v = s[phase]?.[key];
+  return Array.isArray(v) ? v.includes(val) : v === val;
+}
+
+function set(s: WizardState, phase: string, key: string, val: unknown) {
+  if (!s[phase]) s[phase] = {};
+  s[phase][key] = val;
+}
+
+function get(s: WizardState, phase: string, key: string): unknown {
+  return s[phase]?.[key];
+}
+
+/* ── workload type helpers ── */
+function isWorkload(s: WizardState, ...types: string[]) {
+  return types.some((t) => has(s, "workload", "type", t));
+}
+
+function isTx(s: WizardState) {
+  return isWorkload(s, "ticketing", "ecommerce") || has(s, "workload", "business_model", "transaction");
+}
+
+function isRealtime(s: WizardState) {
+  return isWorkload(s, "realtime", "ticketing");
+}
+
+/* ── cost_first adjustments ── */
+function applyCostFirst(s: WizardState): string[] {
+  const changes: string[] = [];
+
+  // cost priority & commitment
+  set(s, "cost", "priority", "cost_first");
+  set(s, "cost", "commitment", "none");
+
+  // spot for data/iot
+  if (isWorkload(s, "data", "iot")) {
+    set(s, "cost", "spot_usage", "partial");
+    changes.push("Spot Instances partial");
+  }
+
+  // primary_db: aurora → rds (skip SaaS, ticketing, serverless — Aurora Serverless v2 cheaper at low scale)
+  if (!isWorkload(s, "saas", "ticketing") && get(s, "compute", "arch_pattern") !== "serverless") {
+    const dbs = getArr(s, "data", "primary_db");
+    const mapped = dbs.map((db) => {
+      if (db === "aurora_pg") return "rds_pg";
+      if (db === "aurora_mysql") return "rds_mysql";
+      return db;
+    });
+    if (mapped.join() !== dbs.join()) {
+      set(s, "data", "primary_db", mapped);
+      changes.push("Aurora → RDS (20-28% savings)");
+    }
+  }
+
+  // db_ha downgrade
+  const dbHa = get(s, "data", "db_ha") as string;
+  if (dbHa === "multi_az_read" || dbHa === "global") {
+    set(s, "data", "db_ha", "multi_az");
+    changes.push("DB HA → Multi-AZ (no read replica)");
+  }
+
+  // az_count → 2az
+  if (get(s, "network", "az_count") === "3az") {
+    set(s, "network", "az_count", "2az");
+    changes.push("3AZ → 2AZ");
+  }
+
+  // nat_strategy downgrade
+  const nat = get(s, "network", "nat_strategy") as string;
+  if (nat === "per_az") {
+    set(s, "network", "nat_strategy", "shared");
+    changes.push("NAT per-AZ → shared ($43/mo savings per GW)");
+  } else if (nat === "shared") {
+    set(s, "network", "nat_strategy", "endpoint");
+    changes.push("NAT GW → VPC Endpoint (free for S3/DDB)");
+  }
+
+  // cache: remove redis if not tx/realtime/iot (IoT needs Redis as ingestion buffer)
+  if (!isTx(s) && !isRealtime(s) && !isWorkload(s, "iot") && get(s, "data", "cache") === "redis") {
+    set(s, "data", "cache", "no");
+    changes.push("Redis removed");
+  }
+
+  // search: remove opensearch if not data/iot workload (IoT needs analytics)
+  if (!isWorkload(s, "data", "iot") && get(s, "data", "search") === "opensearch") {
+    set(s, "data", "search", "no");
+    changes.push("OpenSearch removed");
+  }
+
+  // deploy: bluegreen → rolling (skip tx/realtime — persistent connections need zero-downtime deploy)
+  if (!isTx(s) && !isRealtime(s) && get(s, "cicd", "deploy_strategy") === "bluegreen") {
+    set(s, "cicd", "deploy_strategy", "rolling");
+    changes.push("Blue/Green → Rolling deploy");
+  }
+
+  // waf: shield → basic
+  const waf = get(s, "edge", "waf") as string;
+  if (waf === "shield") {
+    set(s, "edge", "waf", "basic");
+    changes.push("Shield ($3,000/mo) → WAF Basic");
+  }
+
+  // env_count → dev_prod
+  if (get(s, "cicd", "env_count") === "three") {
+    set(s, "cicd", "env_count", "dev_prod");
+    changes.push("3 envs → dev/prod only");
+  }
+
+  // B2B SaaS special: EKS → ECS, remove platform section
+  if (isWorkload(s, "saas") && get(s, "compute", "orchestration") === "eks") {
+    set(s, "compute", "orchestration", "ecs");
+    set(s, "compute", "compute_node", "fargate");
+    const scaling = getArr(s, "compute", "scaling").filter((v) => v !== "keda");
+    set(s, "compute", "scaling", scaling.length ? scaling : ["ecs_asg"]);
+    delete s.platform;
+    // fix appstack that depends on k8s
+    if (get(s, "appstack", "service_discovery") === "k8s_dns") {
+      delete s.appstack!.service_discovery;
+    }
+    if (get(s, "appstack", "api_gateway_impl") === "spring_gateway") {
+      set(s, "appstack", "api_gateway_impl", "alb_only");
+    }
+    changes.push("EKS → ECS Fargate (lower ops cost)");
+  }
+
+  return changes;
+}
+
+/* ── perf_first adjustments ── */
+function applyPerfFirst(s: WizardState): string[] {
+  const changes: string[] = [];
+
+  // cost priority & commitment
+  set(s, "cost", "priority", "perf_first");
+  set(s, "cost", "commitment", "1yr");
+  changes.push("1-year Reserved (30-40% savings)");
+
+  // spot: disable for tx/realtime
+  if (isTx(s) || isRealtime(s)) {
+    set(s, "cost", "spot_usage", "no");
+  }
+
+  // primary_db: rds → aurora
+  const dbs = getArr(s, "data", "primary_db");
+  const mapped = dbs.map((db) => {
+    if (db === "rds_pg") return "aurora_pg";
+    if (db === "rds_mysql") return "aurora_mysql";
+    return db;
+  });
+  if (mapped.join() !== dbs.join()) {
+    set(s, "data", "primary_db", mapped);
+    changes.push("RDS → Aurora (5x performance)");
+  }
+
+  // db_ha upgrade
+  const dbHa = get(s, "data", "db_ha") as string;
+  if (dbHa === "multi_az" || dbHa === "single_az") {
+    set(s, "data", "db_ha", "multi_az_read");
+    changes.push("DB + read replica");
+  }
+
+  // az_count → 3az
+  if (get(s, "network", "az_count") !== "3az") {
+    set(s, "network", "az_count", "3az");
+    changes.push("→ 3AZ (fault tolerance)");
+  }
+
+  // nat → per_az
+  if (get(s, "network", "nat_strategy") !== "per_az") {
+    set(s, "network", "nat_strategy", "per_az");
+    changes.push("NAT per-AZ (AZ isolation)");
+  }
+
+  // cache: add redis if not internal
+  if (!isWorkload(s, "internal") && get(s, "data", "cache") !== "redis") {
+    set(s, "data", "cache", "redis");
+    changes.push("+ Redis cache");
+  }
+
+  // deploy: rolling → bluegreen
+  if (get(s, "cicd", "deploy_strategy") === "rolling") {
+    set(s, "cicd", "deploy_strategy", "bluegreen");
+    changes.push("Rolling → Blue/Green (instant rollback)");
+  }
+
+  // waf upgrade for external services
+  if (!isWorkload(s, "internal")) {
+    const waf = get(s, "edge", "waf") as string;
+    if (waf === "no") {
+      set(s, "edge", "waf", "basic");
+      changes.push("+ WAF Basic");
+    } else if (waf === "basic") {
+      set(s, "edge", "waf", "bot");
+      changes.push("WAF → Bot Control");
+    }
+  }
+
+  // env_count → three
+  if (get(s, "cicd", "env_count") !== "three") {
+    set(s, "cicd", "env_count", "three");
+    changes.push("+ Staging environment");
+  }
+
+  return changes;
+}
+
+/**
+ * Adjust a template's WizardState for a given budget priority.
+ * Returns the adjusted state and a list of human-readable changes.
+ */
+export function adjustTemplateForBudget(
+  original: WizardState,
+  priority: BudgetPriority,
+): BudgetAdjustResult {
+  if (priority === "balanced") {
+    return { state: cloneState(original), changes: [] };
+  }
+  const s = cloneState(original);
+  const changes = priority === "cost_first" ? applyCostFirst(s) : applyPerfFirst(s);
+  return { state: s, changes };
+}

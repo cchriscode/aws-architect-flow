@@ -86,7 +86,7 @@ const ko: I18nDict = {
         log_analytics:    { l: "로그 / 이벤트 분석",   d: "클릭스트림, 앱 로그 집계. OpenSearch 또는 CloudWatch Insights로 실시간 조회합니다." },
         ml_pipeline:      { l: "ML / AI 파이프라인",   d: "학습 데이터 수집·전처리·모델 학습. S3 데이터 레이크 + SageMaker가 중심입니다." },
         bi_dashboard:     { l: "BI 대시보드 / 경영 리포트", d: "KPI, 매출 집계. Redshift + QuickSight로 일 단위 배치 집계가 일반적입니다." },
-        stream_analytics: { l: "실시간 스트림 분석",   d: "사기 탐지, 실시간 집계. Kinesis Analytics 또는 MSK + Flink로 ms 단위 처리합니다." },
+        stream_analytics: { l: "실시간 스트림 분석",   d: "사기 탐지, 실시간 집계. Managed Apache Flink(구 Kinesis Analytics) 또는 MSK + Flink로 ms 단위 처리합니다." },
       },
     },
     growth_stage: {
@@ -208,7 +208,7 @@ const ko: I18nDict = {
       q: "백엔드 코드를 어떤 언어/프레임워크로 작성할 건가요?",
       help: "언어 선택은 이후 인프라 선택에 직접 영향을 줍니다. Spring Boot는 JVM 워밍업 때문에 서버리스(Lambda)와 궁합이 나쁘고 컨테이너가 유리합니다. Go/Rust는 컨테이너 이미지가 작아 배포 비용이 낮고, Node.js/Python은 Lambda에도 잘 맞습니다.",
       opts: {
-        spring_boot:  { l: "Java / Spring Boot (엔터프라이즈 표준)",         d: "전 세계 자바 개발자의 60%가 사용하는 표준입니다. Spring Cloud 생태계(Gateway, Eureka, Config)가 풍부합니다. JVM 특성상 최소 512MB RAM, 콜드스타트 3~10초(SnapStart 시 1~2초). Lambda보다 컨테이너에 적합합니다." },
+        spring_boot:  { l: "Java / Spring Boot (엔터프라이즈 표준)",         d: "가장 널리 쓰이는 자바 백엔드 프레임워크입니다. Spring Cloud 생태계(Gateway, Eureka, Config)가 풍부합니다. JVM 특성상 최소 512MB RAM, 콜드스타트 3~10초(SnapStart 시 1~2초). Lambda보다 컨테이너에 적합합니다." },
         node_express: { l: "Node.js / Express·Fastify (빠른 개발, JS 통일)", d: "프론트엔드와 언어를 통일할 수 있습니다. 콜드스타트가 짧아 Lambda에도 적합합니다. 비동기 I/O 특성상 API 서버에 강합니다." },
         python_fastapi: { l: "Python / FastAPI·Django (AI/ML 통합, 빠른 개발)", d: "AI/ML 모델 연동이 가장 쉽습니다. FastAPI는 성능이 좋고 타입 힌트를 지원합니다. Lambda에도 잘 맞습니다." },
         go:           { l: "Go (고성능, 적은 메모리, MSA 최적)",              d: "바이너리 하나로 배포되어 컨테이너 이미지가 10MB 수준입니다. 메모리 사용량이 적고 동시 처리 성능이 뛰어납니다. Kubernetes 생태계 도구 대부분이 Go로 작성되어 있습니다." },
@@ -229,7 +229,7 @@ const ko: I18nDict = {
       },
     },
     rto: {
-      q: "서버 장애가 났을 때, 몇 분 안에 복구되어야 하나요? (RTO)",
+      q: "서버 장애가 났을 때, 얼마나 빨리 복구되어야 하나요? (RTO)",
       help: "RTO(Recovery Time Objective)는 '장애 후 서비스가 다시 정상화되는 최대 허용 시간'입니다. 짧을수록 비용이 높아집니다.",
       opts: {
         hours:   { l: "몇 시간 이내",                  d: "야간 배치 서비스나 내부 도구. 담당자가 출근해서 수동으로 복구해도 됩니다." },
@@ -322,7 +322,7 @@ const ko: I18nDict = {
       q: "내부 서버가 인터넷에 나가려면 '출구'가 필요합니다. 어떻게 구성할까요?",
       help: "내부(프라이빗) 서버는 외부 API를 호출하거나 소프트웨어를 설치할 때 인터넷 출구(NAT Gateway)가 필요합니다. 이 출구는 유료입니다.",
       opts: {
-        per_az:   { l: "구역마다 별도 출구 (안정적, 권장)",        d: "각 구역에 독립된 출구가 있어 하나가 고장나도 나머지가 작동합니다. 약 월 $33~45 x 구역 수 비용이 듭니다." },
+        per_az:   { l: "구역마다 별도 출구 (안정적, 권장)",        d: "각 구역에 독립된 출구가 있어 하나가 고장나도 나머지가 작동합니다. 약 월 $43~59 x 구역 수 비용이 듭니다." },
         shared:   { l: "출구 1개 공유 (비용 절감)",                d: "비용을 줄일 수 있지만 이 출구가 문제 생기면 전체 내부 서버의 외부 통신이 막힙니다. 개발 환경에 적합합니다." },
         endpoint: { l: "AWS 서비스 전용 통로 활용으로 출구 최소화", d: "AWS의 S3, DB 등은 전용 내부 통로를 통해 접근해 비용을 줄입니다. 외부 API 호출이 많지 않은 경우에 유리합니다." },
       },
@@ -381,7 +381,7 @@ const ko: I18nDict = {
       q: "주요 데이터를 어떤 데이터베이스에 저장할 건가요? (복수 선택 가능)",
       help: "DB를 하나만 쓸 필요는 없습니다. 예: Aurora(주문·결제 트랜잭션) + DynamoDB(세션·장바구니·실시간 상태) 조합이 대규모 서비스의 일반적 패턴입니다. 역할이 다른 DB는 함께 선택하세요. 파일만 쓴다면 'DB 없음'을 선택하세요.",
       opts: {
-        aurora_pg:    { l: "Aurora PostgreSQL — 고성능 관계형 DB",    d: "AWS가 만든 고성능 DB입니다. 복잡한 쿼리, 트랜잭션(결제 등)에 강합니다. 일반 DB보다 최대 3배 빠릅니다. 운영 서비스 권장입니다." },
+        aurora_pg:    { l: "Aurora PostgreSQL — 고성능 관계형 DB",    d: "AWS가 만든 고성능 DB입니다. 복잡한 쿼리, 트랜잭션(결제 등)에 강합니다. RDS보다 높은 쓰기 처리량과 자동 스토리지 확장을 제공합니다. 운영 서비스 권장입니다." },
         aurora_mysql: { l: "Aurora MySQL — MySQL 호환 고성능 DB",     d: "기존에 MySQL을 쓰고 있다면 호환되면서 더 빠른 Aurora MySQL로 올리세요." },
         rds_pg:       { l: "RDS PostgreSQL — 표준 PostgreSQL",         d: "PostgreSQL을 그대로 씁니다. 소·중규모 서비스에 충분하고 Aurora보다 저렴합니다." },
         rds_mysql:    { l: "RDS MySQL — 표준 MySQL",                   d: "MySQL을 그대로 씁니다. 가장 널리 쓰이는 조합입니다." },
@@ -394,7 +394,7 @@ const ko: I18nDict = {
       help: "DB가 멈추면 전체 서비스가 멈춥니다. '자동으로 복구되게 할지', '수동으로 복구할지'를 결정합니다.",
       opts: {
         single_az:     { l: "단일 서버 — 수동 복구 (개발/비용 절감용)", d: "서버가 하나입니다. 고장 시 수동으로 복구해야 합니다. 개발/테스트 환경이나 비용이 매우 중요한 경우에만 사용하세요." },
-        multi_az:      { l: "자동 전환 — 문제 시 자동 복구 (Aurora 30초, RDS 1~2분)",    d: "주 서버가 죽으면 예비 서버가 자동으로 받습니다. 운영 서비스 기본입니다. 추가 비용이 있지만 다운타임을 최소화합니다." },
+        multi_az:      { l: "자동 전환 — 문제 시 자동 복구 (Aurora 15~40초, RDS 1~2분)",    d: "주 서버가 죽으면 예비 서버가 자동으로 받습니다. 운영 서비스 기본입니다. 추가 비용이 있지만 다운타임을 최소화합니다." },
         multi_az_read: { l: "자동 전환 + 읽기 분산 — 속도와 안정성 모두", d: "자동 복구에 더해, 조회 요청을 별도 서버에서 처리해 DB 부하를 줄입니다. 읽기가 많은 서비스에 적합합니다." },
         global:        { l: "글로벌 복제 — 다른 나라에도 동시 복제", d: "여러 리전에 동시에 데이터를 복제합니다. 한 리전 전체가 장애나도 다른 리전에서 즉시 서비스합니다." },
       },
@@ -405,7 +405,7 @@ const ko: I18nDict = {
       opts: {
         no:    { l: "캐시 없음 — DB에서 직접 조회",               d: "데이터 양이 적거나 조회 빈도가 낮은 서비스. 단순하고 관리 포인트가 없습니다." },
         redis: { l: "Redis 캐시 — 빠른 임시 저장소",               d: "세션 관리, 로그인 상태 유지, 좌석 임시 잠금, 초당 요청 제한 등에 활용합니다. 속도가 매우 빠릅니다." },
-        dax:   { l: "DAX — DynamoDB 전용 캐시",                  d: "DynamoDB 앞에 붙이는 캐시입니다. 별도 코드 변경 없이 응답 속도를 마이크로초 수준으로 높입니다." },
+        dax:   { l: "DAX — DynamoDB 전용 캐시",                  d: "DynamoDB 앞에 붙이는 캐시입니다. DAX SDK로 엔드포인트만 변경하면 응답 속도를 마이크로초 수준으로 높입니다." },
         both:  { l: "Redis + DAX 모두 사용",                    d: "복잡한 캐싱이 필요한 대규모 서비스. 두 가지 캐시를 역할별로 활용합니다." },
       },
     },
@@ -465,7 +465,7 @@ const ko: I18nDict = {
       help: "서비스의 '정문'을 결정합니다. 트래픽을 받아서 실제 서버에 전달하는 관문입니다.",
       opts: {
         alb:         { l: "ALB — 웹/앱 서비스의 표준 로드밸런서",    d: "웹 서비스와 앱 API의 기본 입구입니다. 들어오는 트래픽을 여러 서버에 분산하고 서버 상태를 확인합니다." },
-        api_gateway: { l: "API Gateway — 서버리스 API 전용 관문",   d: "Lambda 함수 앞에 붙이는 관문입니다. 요청 수 제한, 인증, 버전 관리를 자동으로 처리합니다." },
+        api_gateway: { l: "API Gateway — 서버리스 API 전용 관문",   d: "서버리스·컨테이너 API 앞에 붙이는 관문입니다. 요청 수 제한, 인증, 버전 관리를 자동으로 처리합니다." },
         nlb:         { l: "NLB — 고성능 / 게임·IoT 전용",           d: "초저지연이 필요하거나 TCP/UDP 기반 통신(게임, IoT)에 사용합니다. HTTP가 아닌 통신에 적합합니다." },
         both:        { l: "ALB + API Gateway 혼합",                 d: "일부는 컨테이너(ALB), 일부는 서버리스(API Gateway)를 혼합해서 씁니다." },
       },
@@ -507,7 +507,7 @@ const ko: I18nDict = {
       help: "WAF(웹 방화벽)는 해킹 시도, 과도한 요청, 봇 트래픽을 차단합니다. 티켓팅처럼 매크로가 많은 서비스는 필수입니다.",
       opts: {
         no:     { l: "없음 — 사내 서비스나 낮은 위협 환경",           d: "직원만 쓰는 내부 서비스이거나 위협이 거의 없는 환경입니다." },
-        basic:  { l: "기본 WAF — 주요 해킹 공격 차단 + IP 요청 제한", d: "OWASP 상위 10개 해킹 패턴 방어, IP별 초당 요청 제한. 대부분의 B2C 서비스에 권장합니다." },
+        basic:  { l: "기본 WAF — 주요 해킹 공격 차단 + IP 요청 제한", d: "OWASP Top 10 주요 취약점(SQL 인젝션, XSS 등) 방어, IP별 초당 요청 제한. 대부분의 B2C 서비스에 권장합니다." },
         bot:    { l: "WAF + 봇 차단 — 매크로·자동화 봇 방어",       d: "티켓팅 매크로, 이커머스 재고 독점 봇을 차단합니다. 선착순 이벤트가 있는 서비스에 필수입니다." },
         shield: { l: "WAF + DDoS 완전 방어 (Shield Advanced)",      d: "대규모 DDoS 공격을 방어합니다. 월 $3,000 고정 비용이 발생합니다. 금융·공공·대형 플랫폼에 적합합니다." },
       },
@@ -574,7 +574,7 @@ const ko: I18nDict = {
     },
     spot_usage: {
       q: "저렴한 대신 가끔 갑자기 꺼질 수 있는 서버(Spot)를 활용할 수 있나요?",
-      help: "Spot은 AWS에 남는 서버를 70~90% 저렴하게 빌리는 방식입니다. 단, AWS가 필요하면 2분 예고 후 회수할 수 있습니다. 갑자기 꺼져도 괜찮은 작업에만 사용해야 합니다.",
+      help: "Spot은 AWS에 남는 서버를 70~90% 저렴하게 빌리는 방식입니다. 단, AWS가 필요하면 2분 예고 후 회수할 수 있습니다(EC2 기준. Fargate Spot은 30초). 갑자기 꺼져도 괜찮은 작업에만 사용해야 합니다.",
       opts: {
         no:      { l: "사용 안 함 — 안정성이 더 중요",                d: "결제, 세션, DB처럼 중간에 꺼지면 안 되는 서비스입니다." },
         partial: { l: "일부 사용 — 이메일 발송·이미지 처리 등 후처리 작업에만", d: "메인 서버는 안정적으로, 이메일 발송이나 이미지 변환 같은 보조 작업에만 Spot을 씁니다. 70% 절약 가능합니다." },
@@ -606,7 +606,7 @@ const ko: I18nDict = {
       help: "서비스 메시는 모든 서비스 간 트래픽을 가로채서 mTLS 암호화, 서킷브레이커, 트래픽 미러링 등을 자동으로 처리합니다. 강력하지만 운영 복잡도가 크게 높아집니다.",
       opts: {
         none:         { l: "없음 — 서비스 메시 미사용 (대부분 팀에 충분)", d: "서비스 간 보안이 덜 중요하거나 팀이 운영 복잡도를 감당하기 어려운 경우입니다. Security Group으로 기본 격리는 됩니다." },
-        aws_app_mesh: { l: "AWS App Mesh (AWS 관리형, 설정 단순)",           d: "Envoy 프록시를 AWS가 관리해줍니다. 설정이 Istio보다 단순합니다. AWS X-Ray, CloudWatch와 자동 통합됩니다." },
+        aws_app_mesh: { l: "AWS App Mesh (AWS 관리형, 설정 단순, 2026년 지원 종료 예정)",           d: "Envoy 프록시를 AWS가 관리해줍니다. 설정이 Istio보다 단순합니다. AWS X-Ray, CloudWatch와 자동 통합됩니다." },
         istio:        { l: "Istio (업계 표준, 가장 강력)",                    d: "가장 많이 쓰이는 서비스 메시입니다. mTLS, 서킷브레이커, 카나리 배포, 트래픽 미러링을 세밀하게 제어합니다. 러닝 커브가 높고 리소스를 많이 씁니다." },
       },
     },
@@ -632,7 +632,7 @@ const ko: I18nDict = {
       q: "K8s Secret(비밀값)을 어떻게 안전하게 관리할 건가요?",
       help: "K8s 기본 Secret은 base64 인코딩일 뿐 암호화가 아닙니다. Secrets Manager나 Vault와 연동하면 실제로 암호화된 비밀값을 K8s Pod에 자동으로 주입할 수 있습니다.",
       opts: {
-        native:           { l: "K8s Secret 기본 — 단순 환경변수 주입",            d: "가장 단순하지만 etcd에 Base64로 저장됩니다. IAM + RBAC으로 접근 제한 필수. 개발 환경이나 민감도가 낮은 값에 적합합니다." },
+        native:           { l: "K8s Secret 기본 — 단순 환경변수 주입",            d: "가장 단순하지만 etcd에 Base64로 저장됩니다. K8s RBAC으로 접근 제한 필수. etcd 암호화 별도 설정 권장. 개발 환경이나 민감도가 낮은 값에 적합합니다." },
         external_secrets: { l: "External Secrets Operator + Secrets Manager (권장)", d: "K8s가 AWS Secrets Manager의 값을 자동으로 가져와 Pod에 주입합니다. 비밀값 로테이션 시 자동 반영됩니다. IRSA로 IAM 권한 부여." },
         secrets_csi:      { l: "Secrets Store CSI Driver (볼륨 마운트 방식)",     d: "비밀값을 환경변수 대신 파일로 마운트합니다. 파일 기반 비밀 소비가 필요한 앱에 적합합니다. Secrets Manager, Parameter Store 모두 지원." },
       },
@@ -807,7 +807,7 @@ const en: I18nDict = {
         log_analytics:    { l: "Log / Event Analytics",         d: "Clickstream and app log aggregation. Real-time querying with OpenSearch or CloudWatch Insights." },
         ml_pipeline:      { l: "ML / AI Pipeline",              d: "Training data collection, preprocessing, and model training. S3 data lake + SageMaker at the core." },
         bi_dashboard:     { l: "BI Dashboard / Business Reports", d: "KPI and revenue aggregation. Daily batch processing with Redshift + QuickSight is typical." },
-        stream_analytics: { l: "Real-time Stream Analytics",     d: "Fraud detection, real-time aggregation. Millisecond-level processing with Kinesis Analytics or MSK + Flink." },
+        stream_analytics: { l: "Real-time Stream Analytics",     d: "Fraud detection, real-time aggregation. Millisecond-level processing with Managed Apache Flink (formerly Kinesis Analytics) or MSK + Flink." },
       },
     },
     growth_stage: {
@@ -929,7 +929,7 @@ const en: I18nDict = {
       q: "What language/framework will the backend be written in?",
       help: "Language choice directly affects infrastructure decisions. Spring Boot's JVM warm-up makes it a poor fit for serverless (Lambda) but great for containers. Go/Rust have small container images with low deployment costs, and Node.js/Python work well with Lambda.",
       opts: {
-        spring_boot:    { l: "Java / Spring Boot (Enterprise Standard)",            d: "Used by 60% of Java developers worldwide. Rich Spring Cloud ecosystem (Gateway, Eureka, Config). JVM requires min 512MB RAM, cold start 3-10s (1-2s with SnapStart). Better suited for containers than Lambda." },
+        spring_boot:    { l: "Java / Spring Boot (Enterprise Standard)",            d: "The most widely used Java backend framework. Rich Spring Cloud ecosystem (Gateway, Eureka, Config). JVM requires min 512MB RAM, cold start 3-10s (1-2s with SnapStart). Better suited for containers than Lambda." },
         node_express:   { l: "Node.js / Express/Fastify (Fast Dev, Unified JS)",    d: "Unify language with frontend. Short cold start makes it suitable for Lambda. Strong for API servers due to async I/O." },
         python_fastapi: { l: "Python / FastAPI/Django (AI/ML Integration)",         d: "Easiest AI/ML model integration. FastAPI offers good performance and type hints. Works well with Lambda." },
         go:             { l: "Go (High Performance, Low Memory, Microservices Optimal)",      d: "Deploys as a single binary with ~10MB container images. Low memory usage and excellent concurrency. Most Kubernetes ecosystem tools are written in Go." },
@@ -1043,7 +1043,7 @@ const en: I18nDict = {
       q: "Internal servers need an internet exit (NAT). How should it be configured?",
       help: "Internal (private) servers need a NAT Gateway to call external APIs or install software. This exit point is a paid service.",
       opts: {
-        per_az:   { l: "Separate exit per AZ (Reliable, Recommended)",        d: "Each AZ has its own exit. If one fails, others still work. Costs ~$33-45/month per AZ." },
+        per_az:   { l: "Separate exit per AZ (Reliable, Recommended)",        d: "Each AZ has its own exit. If one fails, others still work. Costs ~$43-59/month per AZ." },
         shared:   { l: "Shared single exit (Cost savings)",                    d: "Saves costs but if this exit fails, all internal servers lose external connectivity. Suitable for dev environments." },
         endpoint: { l: "Minimize exits using AWS service-specific VPC Endpoints", d: "Access AWS services like S3 and databases through dedicated internal pathways to reduce costs. Best when external API calls are infrequent." },
       },
@@ -1102,7 +1102,7 @@ const en: I18nDict = {
       q: "Which database will store the primary data? (multiple selection allowed)",
       help: "You don't need just one database. Example: Aurora (orders/payment transactions) + DynamoDB (sessions/cart/real-time state) is a common pattern for large services. Select multiple if they serve different roles. Select 'No DB' if you only use files.",
       opts: {
-        aurora_pg:    { l: "Aurora PostgreSQL -- high-performance relational DB",    d: "High-performance DB built by AWS. Strong for complex queries and transactions (payments, etc.). Up to 3x faster than standard databases. Recommended for production." },
+        aurora_pg:    { l: "Aurora PostgreSQL -- high-performance relational DB",    d: "High-performance DB built by AWS. Strong for complex queries and transactions (payments, etc.). Higher write throughput and auto-scaling storage compared to standard RDS. Recommended for production." },
         aurora_mysql: { l: "Aurora MySQL -- MySQL-compatible high-performance DB",     d: "If you are already using MySQL, upgrade to Aurora MySQL for compatibility and better performance." },
         rds_pg:       { l: "RDS PostgreSQL -- standard PostgreSQL",         d: "Standard PostgreSQL. Sufficient for small to mid-size services and cheaper than Aurora." },
         rds_mysql:    { l: "RDS MySQL -- standard MySQL",                   d: "Standard MySQL. The most widely used combination." },
@@ -1115,7 +1115,7 @@ const en: I18nDict = {
       help: "If the DB stops, the entire service stops. Decide whether recovery should be automatic or manual.",
       opts: {
         single_az:     { l: "Single server -- manual recovery (Dev/cost savings)", d: "One server only. Must be recovered manually on failure. Use only for dev/test or when cost is critical." },
-        multi_az:      { l: "Auto-failover -- automatic recovery (Aurora 30s, RDS 1-2min)",    d: "A standby server takes over automatically when the primary fails. The standard for production services. Higher cost but minimizes downtime." },
+        multi_az:      { l: "Auto-failover -- automatic recovery (Aurora 15-40s, RDS 1-2min)",    d: "A standby server takes over automatically when the primary fails. The standard for production services. Higher cost but minimizes downtime." },
         multi_az_read: { l: "Auto-failover + read replicas -- speed and reliability", d: "In addition to auto-failover, read requests are handled by separate servers to reduce DB load. Ideal for read-heavy services." },
         global:        { l: "Global replication -- replicated across regions simultaneously", d: "Data is replicated to multiple regions simultaneously. Service continues from another region even during a full region outage." },
       },
@@ -1126,7 +1126,7 @@ const en: I18nDict = {
       opts: {
         no:    { l: "No cache -- query DB directly",               d: "For services with small data volumes or low query frequency. Simple with no additional management." },
         redis: { l: "Redis cache -- fast temporary store",               d: "Used for session management, login state, temporary seat locks, and rate limiting. Extremely fast." },
-        dax:   { l: "DAX -- DynamoDB-specific cache",                  d: "A cache placed in front of DynamoDB. Improves response times to microsecond level without code changes." },
+        dax:   { l: "DAX -- DynamoDB-specific cache",                  d: "A cache placed in front of DynamoDB. Improves response times to microsecond level by switching to the DAX SDK endpoint." },
         both:  { l: "Both Redis + DAX",                    d: "For large-scale services with complex caching needs. Two caches serving different roles." },
       },
     },
@@ -1186,7 +1186,7 @@ const en: I18nDict = {
       help: "This determines the 'front door' of your service -- the gateway that receives traffic and forwards it to actual servers.",
       opts: {
         alb:         { l: "ALB -- standard load balancer for web/app services",    d: "The default entry point for web services and app APIs. Distributes incoming traffic across multiple servers and checks server health." },
-        api_gateway: { l: "API Gateway -- serverless API gateway",   d: "A gateway placed in front of Lambda functions. Automatically handles rate limiting, authentication, and version management." },
+        api_gateway: { l: "API Gateway -- serverless API gateway",   d: "A gateway placed in front of serverless and container APIs. Automatically handles rate limiting, authentication, and version management." },
         nlb:         { l: "NLB -- high performance / gaming and IoT",           d: "For ultra-low latency or TCP/UDP-based communication (gaming, IoT). Suitable for non-HTTP traffic." },
         both:        { l: "ALB + API Gateway hybrid",                 d: "Some services use containers (ALB), others use serverless (API Gateway)." },
       },
@@ -1228,7 +1228,7 @@ const en: I18nDict = {
       help: "WAF (Web Application Firewall) blocks hacking attempts, excessive requests, and bot traffic. Essential for services like ticketing where bots are common.",
       opts: {
         no:     { l: "None -- internal service or low-threat environment",           d: "Internal-only services or environments with minimal threats." },
-        basic:  { l: "Basic WAF -- block major attacks + IP rate limiting", d: "OWASP Top 10 attack defense, per-IP rate limiting. Recommended for most B2C services." },
+        basic:  { l: "Basic WAF -- block major attacks + IP rate limiting", d: "OWASP Top 10 vulnerability defense (SQL injection, XSS, etc.), per-IP rate limiting. Recommended for most B2C services." },
         bot:    { l: "WAF + Bot control -- defend against macros and automation bots",       d: "Block ticketing macros and e-commerce inventory hoarding bots. Essential for services with first-come-first-served events." },
         shield: { l: "WAF + Full DDoS protection (Shield Advanced)",      d: "Defends against large-scale DDoS attacks. Fixed cost of $3,000/month. For finance, government, and major platforms." },
       },
@@ -1295,7 +1295,7 @@ const en: I18nDict = {
     },
     spot_usage: {
       q: "Can you use cheaper servers (Spot) that may be interrupted occasionally?",
-      help: "Spot instances rent AWS surplus servers at 70-90% discount. However, AWS can reclaim them with 2 minutes notice. Only use for workloads that can tolerate sudden termination.",
+      help: "Spot instances rent AWS surplus servers at 70-90% discount. However, AWS can reclaim them with 2 minutes notice (EC2 Spot. Fargate Spot: 30 seconds). Only use for workloads that can tolerate sudden termination.",
       opts: {
         no:      { l: "No -- stability is more important",                d: "Services like payments, sessions, or databases that cannot be interrupted." },
         partial: { l: "Partial use -- only for background tasks like email/image processing", d: "Keep main servers stable; use Spot only for auxiliary tasks like email sending or image conversion. Up to 70% savings." },
@@ -1327,7 +1327,7 @@ const en: I18nDict = {
       help: "A service mesh intercepts all inter-service traffic to automatically handle mTLS encryption, circuit breakers, traffic mirroring, etc. Powerful but significantly increases operational complexity.",
       opts: {
         none:         { l: "None -- no service mesh (Sufficient for most teams)", d: "When inter-service security is less critical or the team cannot handle the operational complexity. Security Groups provide basic isolation." },
-        aws_app_mesh: { l: "AWS App Mesh (AWS managed, simpler setup)",           d: "AWS manages the Envoy proxies. Simpler configuration than Istio. Auto-integrates with AWS X-Ray and CloudWatch." },
+        aws_app_mesh: { l: "AWS App Mesh (AWS managed, simpler setup, EOL Sept 2026)",           d: "AWS manages the Envoy proxies. Simpler configuration than Istio. Auto-integrates with AWS X-Ray and CloudWatch." },
         istio:        { l: "Istio (Industry standard, most powerful)",                    d: "The most widely used service mesh. Fine-grained control over mTLS, circuit breakers, canary deployments, and traffic mirroring. Steep learning curve and high resource usage." },
       },
     },
@@ -1353,7 +1353,7 @@ const en: I18nDict = {
       q: "How will K8s Secrets be managed securely?",
       help: "Default K8s Secrets are only base64-encoded, not encrypted. Integrating with Secrets Manager or Vault allows injecting truly encrypted secrets into K8s Pods automatically.",
       opts: {
-        native:           { l: "K8s Secret default -- simple env var injection",            d: "Simplest but stored as Base64 in etcd. IAM + RBAC access restriction required. Suitable for dev environments or low-sensitivity values." },
+        native:           { l: "K8s Secret default -- simple env var injection",            d: "Simplest but stored as Base64 in etcd. K8s RBAC access restriction required. etcd encryption recommended. Suitable for dev environments or low-sensitivity values." },
         external_secrets: { l: "External Secrets Operator + Secrets Manager (Recommended)", d: "K8s automatically fetches values from AWS Secrets Manager and injects them into Pods. Auto-reflects secret rotation. IAM permissions via IRSA." },
         secrets_csi:      { l: "Secrets Store CSI Driver (Volume mount approach)",     d: "Mounts secrets as files instead of environment variables. Suitable for apps that need file-based secret consumption. Supports both Secrets Manager and Parameter Store." },
       },

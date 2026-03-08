@@ -50,8 +50,8 @@ export function generateSecurityGroups(
     app_lb_nlb: "nlb_sg (NLB에서 앱으로)",
     app_lb_alb: "alb_sg (ALB에서 앱으로)",
     app_nlb_client_ip: "0.0.0.0/0 (NLB는 클라이언트 IP를 보존하여 전달. Target SG에서 허용 필요)",
-    app_out_aws: "0.0.0.0/0 VPC Endpoint 경유 (AWS 서비스 - Secrets Manager, ECR, CloudWatch)",
-    app_eks_cp_kubelet: "eks_control_plane_sg (EKS Control Plane → kubelet)",
+    app_out_aws: "443 (VPC Endpoint - Secrets Manager, ECR, CloudWatch)",
+    app_eks_cp_kubelet: "eks_control_plane_sg (EKS Control Plane → API webhook/admission (443))",
     app_eks_cp_metrics: "eks_control_plane_sg (EKS Control Plane → 노드 메트릭)",
     app_desc: "ALB → 앱 서버. 앱 → DB/캐시 아웃바운드",
     // Lambda SG
@@ -75,8 +75,8 @@ export function generateSecurityGroups(
     // EKS CP SG
     eks_cp_desc: "EKS 관리형 SG. 직접 수정 금지",
     eks_cp_in_api: "app_sg (노드 그룹) - kubectl API 접근",
-    eks_cp_out_worker: "app_sg (노드 그룹) - 워커 노드 통신",
-    eks_cp_out_kubelet: "app_sg (노드 그룹) - kubelet HTTPS",
+    eks_cp_out_worker: "app_sg (노드 그룹) - kubelet + pods (10250+)",
+    eks_cp_out_kubelet: "app_sg (노드 그룹) - API server HTTPS",
     // Comment
     comment_dynamic_port: "앱 스택에 따른 동적 포트 결정",
   } : {
@@ -98,8 +98,8 @@ export function generateSecurityGroups(
     app_lb_nlb: "nlb_sg (NLB to app)",
     app_lb_alb: "alb_sg (ALB to app)",
     app_nlb_client_ip: "0.0.0.0/0 (NLB preserves client IP. Must allow in target SG)",
-    app_out_aws: "0.0.0.0/0 via VPC Endpoint (AWS services - Secrets Manager, ECR, CloudWatch)",
-    app_eks_cp_kubelet: "eks_control_plane_sg (EKS Control Plane -> kubelet)",
+    app_out_aws: "443 (VPC Endpoints - Secrets Manager, ECR, CloudWatch)",
+    app_eks_cp_kubelet: "eks_control_plane_sg (EKS Control Plane -> API webhook/admission (443))",
     app_eks_cp_metrics: "eks_control_plane_sg (EKS Control Plane -> node metrics)",
     app_desc: "ALB -> app server. App -> DB/cache outbound",
     // Lambda SG
@@ -123,8 +123,8 @@ export function generateSecurityGroups(
     // EKS CP SG
     eks_cp_desc: "EKS managed SG. Do not modify directly",
     eks_cp_in_api: "app_sg (node group) - kubectl API access",
-    eks_cp_out_worker: "app_sg (node group) - worker node communication",
-    eks_cp_out_kubelet: "app_sg (node group) - kubelet HTTPS",
+    eks_cp_out_worker: "app_sg (node group) - kubelet + pods (10250+)",
+    eks_cp_out_kubelet: "app_sg (node group) - API server HTTPS",
     // Comment
     comment_dynamic_port: "Dynamic port determination based on app stack",
   };
@@ -369,11 +369,6 @@ export function generateSecurityGroups(
     if (hasRdbms) {
       bastionOutbound.push({
         port: dbArr.some((d) => d.includes("pg")) ? "5432" : "3306",
-        to: _.bastion_out_db,
-      });
-    } else {
-      bastionOutbound.push({
-        port: "443",
         to: _.bastion_out_db,
       });
     }

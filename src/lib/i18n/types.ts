@@ -94,6 +94,7 @@ export interface Dict {
     recBestPractice: string;
     recCostOpt: string;
     autoSelect: string;
+    stepHint: string;
   };
   phases: {
     id: string;
@@ -110,6 +111,21 @@ export interface Dict {
     title: string;
     desc: string;
     apply: string;
+  };
+  budgetModal: {
+    title: string;
+    desc: string;
+    costFirst: string;
+    costFirstDesc: string;
+    balanced: string;
+    balancedDesc: string;
+    perfFirst: string;
+    perfFirstDesc: string;
+    estimated: string;
+    perMonth: string;
+    keyChanges: string;
+    cancel: string;
+    generate: string;
   };
   questionCard: {
     helpToggle: string;

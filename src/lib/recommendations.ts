@@ -51,6 +51,10 @@ export function getRecommendations(
   const orchestr: string | undefined = state.compute?.orchestration;
   const region: string | undefined = state.slo?.region;
 
+  const costPriority = state.cost?.priority;
+  const isCostFirst = costPriority === "cost_first";
+  const isPerfFirst = costPriority === "perf_first";
+
   const isXL = dau === "xlarge";
   const isLarge = dau === "large" || isXL;
   const isMedPlus = dau === "medium" || isLarge;
@@ -79,6 +83,7 @@ export function getRecommendations(
   const isTick = types.includes("ticketing");
   const isEcom = types.includes("ecommerce");
   const isSaaS = types.includes("saas");
+  const isWebApi = types.includes("web_api");
   const isInternal =
     types.includes("internal") &&
     !types.some((t) =>
@@ -158,7 +163,7 @@ export function getRecommendations(
   if (isEcom || isTx)
     R("compliance","cert","pci",t("⚠️ 결제 서비스 검토","⚠️ Review for payment services"),t("카드 직접 처리 시 PCI DSS 필수. PG사 위임 시 카드 데이터가 자사 서버를 통과하지 않아 범위 축소","PCI DSS required for direct card processing. Scope reduces when delegating to payment gateway since card data never touches your servers"));
   if (isGlobal && hasPersonal)
-    R("compliance","cert","gdpr",t("⭐ EU 사용자 법적 의무","⭐ Legal obligation for EU users"),t("EU 사용자 데이터는 EU 리전 저장 + 잊혀질 권리 구현이 법적 의무","Storing EU user data in EU regions + implementing right to be forgotten is a legal obligation"));
+    R("compliance","cert","gdpr",t("⭐ EU 사용자 법적 의무","⭐ Legal obligation for EU users"),t("EU 사용자 데이터 보호 + 잊혀질 권리 구현이 법적 의무. EU 리전 저장이 가장 간단하나 SCC로 비EU 리전도 가능","EU user data protection + right to be forgotten are legal obligations. EU region storage is simplest, but SCCs allow non-EU regions"));
   if (isIoT && iotD === "healthcare_iot")
     R("compliance","cert","hipaa",t("⭐ 헬스케어 법적 의무","⭐ Healthcare legal obligation"),t("생체 데이터 처리 시 HIPAA BAA 서명 + KMS 암호화 + CloudTrail이 법적 요건","Processing biometric data requires HIPAA BAA signing + KMS encryption + CloudTrail as legal requirements"));
   if (isB2B && isLarge)
@@ -188,7 +193,7 @@ export function getRecommendations(
   if (isTx || (isSaaS && isB2B))
     R("slo","availability","99.95",t("⭐ 결제/B2B SaaS 권장","⭐ Recommended for payment/B2B SaaS"),t("연 4.4시간 이하 다운. 3개 AZ + Aurora Multi-AZ + Route53 헬스체크로 달성","Under 4.4 hours/year downtime. Achieved with 3 AZs + Aurora Multi-AZ + Route53 health checks"));
   if (hasCritCert || (isTx && isLarge) || avail === "99.99")
-    R("slo","availability","99.99",t("⭐ 금융/결제 대형 서비스","⭐ Large-scale financial/payment services"),t("연 52분 이하. 3 AZ + Aurora Global + Multi-Region + 완전 자동화 복구 필요","Under 52 min/year. Requires 3 AZs + Aurora Global + Multi-Region + fully automated recovery"));
+    R("slo","availability","99.99",t("⭐ 금융/결제 대형 서비스","⭐ Large-scale financial/payment services"),t("연 53분 이하. 3 AZ + Aurora Global + Multi-Region + 완전 자동화 복구 필요","Under 53 min/year. Requires 3 AZs + Aurora Global + Multi-Region + fully automated recovery"));
 
   if ((isInternal || isMVP) && !isTx)
     R("slo","rto","hours",t("✨ 사내/저중요 서비스 적정","✨ Ideal for internal/low-priority services"),t("CloudWatch 알림 + 담당자 수동 복구. 업무시간 내 복구면 충분합니다","CloudWatch alerts + manual recovery by on-call. Recovery within business hours is sufficient"));
@@ -240,7 +245,7 @@ export function getRecommendations(
   if (hasCritCert || isHighAvail)
     R("network","nat_strategy","per_az",t("⭐ 고가용성 필수","⭐ Required for high availability"),t("AZ별 독립 NAT GW: 하나의 AZ NAT 장애가 다른 AZ에 영향 없음","Independent NAT GW per AZ: One AZ's NAT failure doesn't affect other AZs"));
   if (!isHighAvail && !hasCritCert && !isSmall)
-    R("network","nat_strategy","shared",t("✨ 비용 절감 옵션","✨ Cost savings option"),t("NAT GW 1개 공유로 월 $33+ 절감. 단일 AZ 장애 시 전체 아웃바운드 영향","Save $33+/month sharing 1 NAT GW. Single AZ failure affects all outbound traffic"));
+    R("network","nat_strategy","shared",t("✨ 비용 절감 옵션","✨ Cost savings option"),t("NAT GW 1개 공유로 월 $43+ 절감. 단일 AZ 장애 시 전체 아웃바운드 영향","Save $43+/month sharing 1 NAT GW. Single AZ failure affects all outbound traffic"));
   if (isLarge || isMedPlus)
     R("network","nat_strategy","endpoint",t("💰 대규모 비용 절감","💰 Large-scale cost savings"),t("S3·DynamoDB 트래픽을 NAT GW 없이 직접 라우팅. 대용량 서비스에서 월 수십만원 절감","Route S3/DynamoDB traffic directly without NAT GW. Saves hundreds of dollars/month for high-volume services"));
 
@@ -250,6 +255,14 @@ export function getRecommendations(
     R("network","hybrid","vpn",t("✨ B2B 사무실 연결","✨ B2B office connectivity"),t("Site-to-Site VPN으로 사무실과 AWS 연결. 구성 빠르고 비용 저렴. 고대역폭 불필요 시","Connect office to AWS with Site-to-Site VPN. Quick setup, low cost. When high bandwidth isn't needed"));
   if (isXL || (isB2B && isLarge) || hasCritCert)
     R("network","hybrid","dx",t("⭐ 대규모/보안 필수","⭐ Required for large-scale/security"),t("Direct Connect: 전용 물리 회선으로 안정적 연결. 온프레미스 DB 연동 또는 대용량 전송","Direct Connect: Reliable connection via dedicated physical line. On-premises DB integration or high-volume transfer"));
+
+  // ── NETWORK: cost-aware recommendations ───────────────────────
+  if (isCostFirst)
+    R("network","az_count","1az",t("💰 NAT GW 1개로 월 $43+ 절감","💰 Save $43+/mo with 1 NAT GW"),t("비용 우선: NAT GW 1개로 비용 최소화. 운영 전환 시 2 AZ 확장 계획 수립","Cost first: Minimize cost with 1 NAT GW. Plan to expand to 2 AZs when transitioning to production"));
+  if (isCostFirst)
+    R("network","nat_strategy","endpoint",t("💰 NAT GW 제거로 월 $43~100+ 절감","💰 Save $43-100+/mo by eliminating NAT GW"),t("비용 우선: VPC Endpoint로 S3·DynamoDB 트래픽을 NAT 없이 직접 라우팅. 대용량 서비스에서 큰 절감","Cost first: Route S3/DynamoDB traffic directly via VPC Endpoint without NAT. Significant savings for high-volume services"));
+  if (isPerfFirst)
+    R("network","az_count","3az",t("⭐ AZ 장애에도 서비스 유지","⭐ Service survives AZ failure"),t("성능 우선: 3 AZ로 AZ 1개 완전 장애에도 서비스 유지. 99.95~99.99% 가용성 달성","Performance first: With 3 AZs, service survives complete AZ failure. Achieves 99.95-99.99% availability"));
 
   // ── COMPUTE ────────────────────────────────────────────────────
   if (isMVP || begOrSolo || isInternal)
@@ -281,6 +294,14 @@ export function getRecommendations(
     R("compute","scaling","keda",t("✨ 이벤트 기반 처리 권장","✨ Recommended for event-driven processing"),t("SQS/Kinesis 메시지 수 기반 확장. CPU보다 30% 더 정확한 스케일링","Scale based on SQS/Kinesis message count. 30% more accurate scaling than CPU-based"));
   if (isInternal && isSteady)
     R("compute","scaling","manual",t("✨ 고정 트래픽 절약","✨ Savings for fixed traffic"),t("트래픽이 완전히 예측 가능하면 고정 용량 + Reserved Instance가 가장 저렴","Fixed capacity + Reserved Instances is cheapest when traffic is fully predictable"));
+
+  // ── COMPUTE: cost-aware recommendations ───────────────────────
+  if (isCostFirst && !isLarge)
+    R("compute","arch_pattern","serverless",t("💰 유휴 비용 0원 최저 비용 아키텍처","💰 Zero idle cost, lowest cost architecture"),t("비용 우선 + 소규모: Lambda는 트래픽 없을 때 비용 0. 가장 저렴한 시작점","Cost first + small scale: Lambda costs zero with no traffic. The cheapest starting point"));
+  if (isCostFirst)
+    R("compute","compute_node","fargate",t("💰 EC2 대비 관리 비용 제로","💰 Zero management cost vs EC2"),t("비용 우선: Fargate는 EC2 대비 약간 비싸지만 패치·모니터링 인건비 절감. 총 비용(TCO) 최적","Cost first: Fargate is slightly more expensive than EC2 but saves patching/monitoring labor. Optimal TCO"));
+  if (isPerfFirst)
+    R("compute","orchestration","eks",t("⭐ 최대 유연성·성능 제어","⭐ Maximum flexibility and performance control"),t("성능 우선: EKS + Karpenter로 노드 타입·스케일링을 세밀하게 제어. 대규모 트래픽 최적화","Performance first: Fine-grained control over node types and scaling with EKS + Karpenter. Large-scale traffic optimization"));
 
   // ── DATA ───────────────────────────────────────────────────────
   if ((isEcom || isTick) && !isFlash && !isUltraRPS)
@@ -337,6 +358,14 @@ export function getRecommendations(
     R("data","search","opensearch",t("⭐ 로그/이벤트 분석 필수","⭐ Required for log/event analytics"),t("로그 집계·패턴 분석·실시간 대시보드. CloudWatch Logs Insights 대비 복잡 쿼리 성능 우수","Log aggregation, pattern analysis, real-time dashboards. Superior complex query performance vs CloudWatch Logs Insights"));
   if (isSaaS && isMedPlus)
     R("data","search","opensearch",t("⭐ SaaS 검색/감사 권장","⭐ Recommended for SaaS search/audit"),t("테넌트별 데이터 검색·감사 로그 분석. Kibana 대시보드로 운영 모니터링 통합","Per-tenant data search and audit log analysis. Unified operations monitoring with Kibana dashboards"));
+
+  // ── DATA: cost-aware recommendations ──────────────────────────
+  if (isCostFirst)
+    R("data","primary_db","rds_mysql",t("💰 Aurora 대비 ~20% 저렴","💰 ~20% cheaper than Aurora"),t("비용 우선 시 RDS MySQL로 시작하면 Aurora 대비 월 비용 대폭 절감. 성장 후 Aurora 전환 가능","When cost is priority, starting with RDS MySQL saves significantly vs Aurora. Can migrate to Aurora later"));
+  if (isCostFirst && !isCritData)
+    R("data","db_ha","single_az",t("💰 Multi-AZ 대비 50% 절감","💰 50% savings vs Multi-AZ"),t("비용 우선 시 Single-AZ로 DB 비용 절반. 핵심 데이터가 아니면 충분한 선택","When cost is priority, Single-AZ halves DB cost. Sufficient when data isn't critical"));
+  if (isPerfFirst && isTx)
+    R("data","db_ha","multi_az_read",t("⭐ 읽기 분산으로 결제 안정성 강화","⭐ Read distribution for payment stability"),t("성능 우선: 읽기 전용 복제본으로 결제 조회 분산. DB 병목 제거로 거래 안정성 확보","Performance first: Distribute payment reads across replicas. Ensure transaction stability by eliminating DB bottlenecks"));
 
   // ── INTEGRATION ────────────────────────────────────────────────
   if (!isB2B && !hasCritCert)
@@ -410,6 +439,14 @@ export function getRecommendations(
   if (hasCritCert || avail === "99.99" || (isXL && isTx))
     R("edge","waf","shield",t("⭐ 고가용성/금융 필수","⭐ Required for high availability/financial"),t("DDoS 방어 SLA + 24/7 DRT 대응팀. 공격 중에도 서비스 유지. 금융 규정 준수 요건","DDoS defense SLA + 24/7 DDoS Response Team (DRT). Service maintained during attacks. Financial compliance requirement"));
 
+  // ── EDGE: cost-aware recommendations ──────────────────────────
+  if (isCostFirst && isInternal)
+    R("edge","waf","no",t("💰 내부 도구에 WAF 불필요","💰 WAF unnecessary for internal tools"),t("비용 우선 + 사내 도구: 인터넷 노출이 없으면 WAF 비용 절약. Security Group + IAM으로 충분","Cost first + internal tools: Save WAF costs when no internet exposure. Security Groups + IAM are sufficient"));
+  if (isPerfFirst && !isInternal)
+    R("edge","waf","bot",t("⭐ 봇 공격 방어로 안정성 확보","⭐ Stability via bot attack defense"),t("성능 우선: Bot Control로 악성 트래픽 차단. 정상 사용자에게 안정적 응답 보장","Performance first: Block malicious traffic with Bot Control. Guarantee stable responses for legitimate users"));
+  if (isCostFirst && isSmall)
+    R("edge","cdn","no",t("💰 트래픽 적으면 CDN 비용이 더 큼","💰 CDN costs more with low traffic"),t("비용 우선: 소규모 트래픽에서는 CloudFront 비용이 ALB 직접 연결보다 비쌀 수 있음. 중대형 트래픽에서는 CDN이 오히려 비용 절감","Cost first: For low traffic, CloudFront costs can exceed direct ALB connection. For medium+ traffic, CDN actually reduces costs"));
+
   // ── CICD ───────────────────────────────────────────────────────
   if (isMVP || begOrSolo)
     R("cicd","iac","cdk",t("✨ 소규모 첫 시작 권장","✨ Recommended for small-scale first start"),t("TypeScript/Python CDK: AWS 서비스를 코드로 정의. Terraform보다 학습 곡선 낮음","TypeScript/Python CDK: Define AWS services as code. Lower learning curve than Terraform"));
@@ -441,6 +478,14 @@ export function getRecommendations(
   if (isXL || (isLarge && hasCritCert))
     R("cicd","env_count","four",t("✨ 대규모/규정 준수","✨ Large-scale/compliance"),t("Dev->Stage->PreProd->Prod: 성능 테스트 전용 환경 분리. PCI DSS 환경 분리 요건","Dev->Stage->PreProd->Prod: Separate environment for performance testing. PCI DSS environment separation requirement"));
 
+  // ── CICD: cost-aware recommendations ──────────────────────────
+  if (isCostFirst)
+    R("cicd","deploy_strategy","rolling",t("💰 추가 비용 없는 무중단 배포","💰 Zero-cost zero-downtime deployment"),t("비용 우선: Rolling 배포는 추가 인프라 비용 없이 무중단 배포 가능. 대부분 서비스에 충분","Cost first: Rolling deployment enables zero-downtime deployment without extra infrastructure cost. Sufficient for most services"));
+  if (isPerfFirst)
+    R("cicd","deploy_strategy","bluegreen",t("⭐ 1분 내 즉시 롤백 가능","⭐ Instant rollback within 1 minute"),t("성능 우선: Blue/Green은 문제 발생 시 1분 내 이전 버전으로 즉시 전환. 서비스 안정성 최대화","Performance first: Blue/Green enables instant rollback to previous version within 1 minute. Maximizes service stability"));
+  if (isPerfFirst)
+    R("cicd","env_count","three",t("⭐ Stage 환경으로 프로덕션 사고 70% 방지","⭐ Stage env prevents 70% of production incidents"),t("성능 우선: Dev->Stage->Prod 3환경으로 프로덕션 환경 사전 검증. 운영 사고 대폭 감소","Performance first: Pre-validate in production-like Stage with Dev->Stage->Prod. Drastically reduces production incidents"));
+
   // ── COST ───────────────────────────────────────────────────────
   if (isMVP || isSmall)
     R("cost","priority","cost_first",t("⭐ MVP/소규모 최우선","⭐ Top priority for MVP/small scale"),t("검증 전 성능 과투자는 낭비. 필요할 때 쉽게 업그레이드 가능한 서비스를 선택하세요","Over-investing in performance before validation is wasteful. Choose services that can be easily upgraded when needed"));
@@ -464,6 +509,8 @@ export function getRecommendations(
     R("cost","spot_usage","partial",t("💰 혼합 권장","💰 Mixed use recommended"),t("메인 API는 On-Demand, 배치·데이터 처리는 Spot. 안정성과 비용 절감 동시 달성","Main API on On-Demand, batch/data processing on Spot. Achieve both stability and cost savings"));
   if ((isData || isIoT) && !isTx && !isTick && !isRT)
     R("cost","spot_usage","heavy",t("💰 데이터 처리 최적","💰 Optimal for data processing"),t("ML 학습·ETL·로그 집계: Spot으로 70% 절감. 중단 후 자동 재시작으로 완전 자동화","ML training, ETL, log aggregation: 70% savings with Spot. Fully automated with auto-restart after interruption"));
+  if ((isSaaS || isWebApi) && !isTx && !isTick && !isRT && !isData && !isIoT)
+    R("cost","spot_usage","partial",t("💰 백그라운드 워커에 Spot 활용","💰 Use Spot for background workers"),t("메인 API는 On-Demand, 백그라운드 작업(리포트·알림·집계)은 Spot으로 비용 절감. 안정성과 비용 최적화 동시 달성","Main API on On-Demand, background tasks (reports, notifications, aggregation) on Spot for savings. Achieve both stability and cost optimization"));
 
   // ── PLATFORM ───────────────────────────────────────────────────
   R("platform","node_provisioner","karpenter",t("⭐ EKS 신규 표준","⭐ New EKS standard"),t("Cluster Autoscaler 대비 2~3배 빠른 노드 프로비저닝. Spot 혼합 자동 관리","2-3x faster node provisioning vs Cluster Autoscaler. Automatic Spot mix management"));

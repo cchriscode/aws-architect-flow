@@ -240,7 +240,7 @@ const ko: WafrStrings = {
   cost_strategy_q: "비용 최적화 전략이 수립되어 있습니까?",
   cost_strategy_rec: "비용 최적화 우선순위를 설정해 예산을 관리하세요",
   cost_commit_q: "약정(Reserved/Savings Plans)을 활용합니까?",
-  cost_commit_rec_1yr: "3년 약정으로 최대 72% 추가 절감 가능합니다",
+  cost_commit_rec_1yr: "3년 약정으로 전환하면 총 최대 72%까지 절감 가능합니다",
   cost_commit_rec_other: "안정적 트래픽이면 1년 RI/Savings Plans로 40% 절감을 시작하세요",
   cost_spot_q: "Spot 인스턴스를 활용합니까?",
   cost_spot_rec_heavy_tx: "결제/실시간 서비스에 Heavy Spot은 위험. Stateless 배치만 Spot 적용 권장",
@@ -369,7 +369,7 @@ const en: WafrStrings = {
   cost_strategy_q: "Is a cost optimization strategy established?",
   cost_strategy_rec: "Set cost optimization priorities to manage your budget",
   cost_commit_q: "Are you using commitments (Reserved/Savings Plans)?",
-  cost_commit_rec_1yr: "Save up to an additional 72% with a 3-year commitment",
+  cost_commit_rec_1yr: "Upgrade to a 3-year commitment for up to 72% total savings",
   cost_commit_rec_other: "Start saving 40% with 1-year RI/Savings Plans for stable traffic",
   cost_spot_q: "Are you using Spot instances?",
   cost_spot_rec_heavy_tx: "Aggressive Spot usage is risky for payment/real-time services. Apply Spot only to stateless batch workloads",
@@ -447,9 +447,18 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
   const isEks = orchest === "eks";
   const isServerless = archP === "serverless";
   const scalingArr = Array.isArray(scaling) ? scaling : (scaling ? [scaling] : []);
-  const isTx = types.includes("ecommerce") || types.includes("ticketing") || types.includes("realtime");
+  const isTx = state.workload?.business_model === "transaction" || types.includes("ecommerce") || types.includes("ticketing") || types.includes("realtime");
   const dbArr = Array.isArray(state.data?.primary_db) ? state.data.primary_db : (state.data?.primary_db ? [state.data.primary_db] : []);
   const azNum = az === "3az" ? 3 : az === "1az" ? 1 : 2;
+
+  // Workload context for conditional scoring
+  const growthStage = state.workload?.growth_stage;
+  const isMvp = growthStage === "mvp";
+  const isInternalOnly = types.every((tp: string) => ["internal", "data"].includes(tp));
+  const availTarget = state.slo?.availability;
+  const isLowSlo = availTarget && parseFloat(availTarget) <= 99;
+  const dau = state.scale?.dau;
+  const isLowTraffic = isInternalOnly && (dau === "tiny" || dau === "small");
 
   // ── Operational Excellence ─────────────────────────────
   const opsItems: WafrItem[] = [
@@ -467,7 +476,7 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
       t.ops_env_rec),
     ...(isEks ? [
       I(t.ops_k8s_monitor_q, 15,
-        monitor === "prometheus_grafana" || monitor === "hybrid" ? 15 : monitor === "cloudwatch" ? 10 : 5,
+        monitor === "hybrid" ? 15 : monitor === "prometheus_grafana" ? 13 : monitor === "cloudwatch" ? 10 : 5,
         t.ops_k8s_monitor_rec),
       I(t.ops_gitops_q, 10,
         gitops === "argocd" || gitops === "flux" ? 10 : 0,
@@ -480,7 +489,7 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
       account !== "single" ? 10 : 0,
       t.ops_multi_account_rec),
     I(t.ops_audit_q, 5,
-      hasCritCert || cert.includes("isms") ? 5 : 0,
+      hasCritCert || cert.includes("isms") ? 5 : 2,
       t.ops_audit_rec),
   ];
 
@@ -492,15 +501,18 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
         ? t.sec_encrypt_rec_standard
         : t.sec_encrypt_rec_other),
     I(t.sec_netiso_q, 18,
-      netIso === "private" ? 18 : netIso === "strict" ? 14 : 6,
+      netIso === "strict" ? 18 : netIso === "private" ? 14 : 6,
       t.sec_netiso_rec),
-    I(t.sec_waf_q, 16,
-      waf === "shield" ? 16 : waf === "bot" ? 14 : waf === "basic" ? 10 : 0,
-      waf === "basic"
-        ? t.sec_waf_rec_basic
-        : t.sec_waf_rec_other),
+    // Skip WAF scoring for internal-only/data workloads with no WAF
+    ...(isInternalOnly && (!waf || waf === "no") ? [] : [
+      I(t.sec_waf_q, 16,
+        waf === "shield" ? 16 : waf === "bot" ? 14 : waf === "basic" ? 10 : 0,
+        waf === "basic"
+          ? t.sec_waf_rec_basic
+          : t.sec_waf_rec_other),
+    ]),
     I(t.sec_auth_q, 12,
-      authArr.includes("sso") || authArr.includes("selfmgd") ? 12 : authArr.includes("cognito") ? 10 : 3,
+      authArr.includes("sso") ? 12 : authArr.includes("cognito") ? 10 : authArr.includes("selfmgd") ? 8 : 3,
       t.sec_auth_rec),
     ...(isEks ? [
       I(t.sec_k8s_secrets_q, 8,
@@ -509,7 +521,7 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
           ? t.sec_k8s_secrets_rec_native
           : t.sec_k8s_secrets_rec_other),
       I(t.sec_pod_sec_q, 6,
-        podSec && podSec !== "psa" ? 6 : podSec === "psa" ? 3 : 1,
+        podSec === "psa" ? 6 : podSec ? 4 : 1,
         podSec === "psa"
           ? t.sec_pod_sec_rec_psa
           : t.sec_pod_sec_rec_other),
@@ -534,20 +546,25 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
   // ── Reliability ────────────────────────────────────────
   const relItems: WafrItem[] = [
     I(t.rel_az_q, 18,
-      azNum >= 3 ? 18 : azNum === 2 ? 12 : 3,
+      azNum >= 3 ? 18 : azNum === 2 ? 12 : isLowSlo ? 5 : 2,
       azNum === 2
         ? t.rel_az_rec_2
         : t.rel_az_rec_1),
     I(t.rel_db_ha_q, 18,
-      dbHa === "global" ? 18 : dbHa === "multi_az_read" ? 15 : dbHa === "multi_az" ? 10 : 3,
+      dbHa === "global" ? 18 : dbHa === "multi_az_read" ? 15 : dbHa === "multi_az" ? 12
+        : isLowSlo ? 4 : 2,
       dbHa === "multi_az"
         ? t.rel_db_ha_rec_multi_az
         : t.rel_db_ha_rec_other),
-    I(t.rel_cache_q, 8,
-      cache && cache !== "no" ? 8 : 0,
-      t.rel_cache_rec),
+    // Skip cache scoring for low-traffic internal workloads
+    ...(isLowTraffic && (!cache || cache === "no") ? [] : [
+      I(t.rel_cache_q, 8,
+        cache && cache !== "no" ? 8 : 0,
+        t.rel_cache_rec),
+    ]),
     I(t.rel_region_q, 18,
-      region === "active" ? 18 : region === "dr" ? 12 : 5,
+      region === "active" ? 18 : region === "dr" ? 12
+        : (availTarget && parseFloat(availTarget) <= 99.9) ? 8 : 5,
       t.rel_region_rec),
     ...(isEks ? [
       I(t.rel_k8s_backup_q, 8,
@@ -559,15 +576,18 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
     ...(dbArr.includes("dynamodb")
       ? [I(t.rel_dynamodb_repl, 5, 5)]
       : []),
-    I(t.rel_dns_failover_q, 8,
-      dns === "health" || dns === "latency" ? 8 : 0,
-      t.rel_dns_failover_rec),
+    // Skip DNS failover scoring for internal-only workloads
+    ...(isInternalOnly && dns !== "health" && dns !== "latency" ? [] : [
+      I(t.rel_dns_failover_q, 8,
+        dns === "health" || dns === "latency" ? 8 : 0,
+        t.rel_dns_failover_rec),
+    ]),
     I(t.rel_autoscale_q, 8,
       (scalingArr.length > 0 && !scalingArr.every((s: string) => s === "manual")) || isServerless ? 8 : 0,
       t.rel_autoscale_rec),
     ...(isEks ? [
       I(t.rel_k8s_monitor_q, 7,
-        monitor === "prometheus_grafana" || monitor === "hybrid" ? 7 : monitor === "cloudwatch" ? 5 : 2,
+        monitor === "hybrid" ? 7 : monitor === "prometheus_grafana" ? 6 : monitor === "cloudwatch" ? 5 : 2,
         t.rel_k8s_monitor_rec),
     ] : [
       I(t.rel_cw_alarm, 6, 6),
@@ -580,7 +600,7 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
   // ── Performance Efficiency ─────────────────────────────
   const perfItems: WafrItem[] = [
     I(t.perf_arch_q, 18,
-      isServerless ? 18 : archP === "container" ? 14 : 0,
+      isServerless ? 18 : archP === "container" || archP === "hybrid" ? 14 : archP === "vm" ? 4 : 0,
       t.perf_arch_rec),
     I(t.perf_orch_q, 8,
       isEks ? 8 : orchest === "ecs" ? 6 : isServerless ? 6 : 0,
@@ -591,18 +611,27 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
         : scalingArr.includes("ecs_asg") ? 8
         : isServerless ? 10 : 0,
       t.perf_scale_rec),
-    I(t.perf_cache_q, 15,
-      cache && cache !== "no" ? 15 : 0,
-      t.perf_cache_rec),
-    I(t.perf_cdn_q, 15,
-      cdn && cdn !== "no" ? 15 : 0,
-      t.perf_cdn_rec),
+    // Skip cache scoring for low-traffic internal workloads
+    ...(isLowTraffic && (!cache || cache === "no") ? [] : [
+      I(t.perf_cache_q, 15,
+        cache && cache !== "no" ? 15 : 0,
+        t.perf_cache_rec),
+    ]),
+    // Skip CDN scoring for internal-only/data workloads
+    ...(isInternalOnly ? [] : [
+      I(t.perf_cdn_q, 15,
+        cdn && cdn !== "no" ? 15 : 0,
+        t.perf_cdn_rec),
+    ]),
     I(t.perf_node_q, 8,
       nodeType === "ec2_node" ? 8 : nodeType === "mixed" ? 6 : nodeType === "fargate" ? 4 : isServerless ? 4 : 0,
       t.perf_node_rec),
-    I(t.perf_dns_q, 8,
-      dns === "latency" ? 8 : dns === "geoloc" ? 6 : dns === "health" ? 4 : 0,
-      t.perf_dns_rec),
+    // Skip DNS latency scoring for internal-only workloads
+    ...(isInternalOnly && dns !== "latency" && dns !== "geoloc" ? [] : [
+      I(t.perf_dns_q, 8,
+        dns === "latency" ? 8 : dns === "geoloc" ? 6 : dns === "health" ? 4 : 0,
+        t.perf_dns_rec),
+    ]),
     I(t.perf_graviton_q, 5,
       (nodeType === "ec2_node" || nodeType === "mixed") ? 5 : isServerless ? 5 : nodeType === "fargate" ? 4 : 0,
       t.perf_graviton_rec),
@@ -611,15 +640,15 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
   // ── Cost Optimization ──────────────────────────────────
   const costItems: WafrItem[] = [
     I(t.cost_strategy_q, 15,
-      priority === "cost_first" ? 15 : priority === "balanced" ? 12 : 5,
+      priority === "cost_first" ? 15 : priority === "balanced" ? 12 : 8,
       t.cost_strategy_rec),
     I(t.cost_commit_q, 22,
-      commit === "3yr" ? 22 : commit === "1yr" ? 18 : 5,
+      commit === "3yr" ? 22 : commit === "1yr" ? 18 : isMvp ? 8 : 5,
       commit === "1yr"
         ? t.cost_commit_rec_1yr
         : t.cost_commit_rec_other),
     I(t.cost_spot_q, 18,
-      spot === "heavy" ? (isTx ? 10 : 18) : spot === "partial" ? 14 : 4,
+      spot === "heavy" ? (isTx ? 4 : 18) : spot === "partial" ? 14 : (isMvp || isTx) ? 8 : 4,
       spot === "heavy" && isTx
         ? t.cost_spot_rec_heavy_tx
         : spot === "partial"
@@ -631,7 +660,7 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
         ? t.cost_nat_rec_shared
         : t.cost_nat_rec_other),
     I(t.cost_serverless_q, 10,
-      isServerless ? 10 : nodeType === "fargate" ? 6 : (nodeType === "ec2_node" && commit) ? 8 : nodeType === "mixed" ? 5 : 0,
+      isServerless ? 10 : nodeType === "fargate" ? 8 : (nodeType === "ec2_node" && commit) ? 6 : nodeType === "mixed" ? 5 : nodeType === "ec2_node" ? 2 : 0,
       t.cost_serverless_rec),
     I(t.cost_account_q, 8,
       account === "org" ? 8 : account === "envs" ? 6 : 3,
@@ -643,18 +672,24 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
   // ── Sustainability ─────────────────────────────────────
   const susItems: WafrItem[] = [
     I(t.sus_idle_q, 22,
-      isServerless ? 22 : archP === "container" ? (cache && cache !== "no" ? 20 : 15) : 0,
+      isServerless ? 22 : archP === "container" || archP === "hybrid" ? (cache && cache !== "no" ? 20 : 15) : archP === "vm" ? 5 : 0,
       archP === "container" && !(cache && cache !== "no")
         ? t.sus_idle_rec_container
         : t.sus_idle_rec_other),
-    I(t.sus_spot_q, 18,
-      (spot === "heavy" || spot === "partial") ? 18 : 0,
-      t.sus_spot_rec),
-    I(t.sus_cdn_q, 12,
-      cdn && cdn !== "no" ? 12 : 0,
-      t.sus_cdn_rec),
+    // Skip Spot scoring for serverless (no instances to Spot)
+    ...(isServerless && spot !== "heavy" && spot !== "partial" ? [] : [
+      I(t.sus_spot_q, 18,
+        (spot === "heavy" || spot === "partial") ? 18 : 0,
+        t.sus_spot_rec),
+    ]),
+    // Skip CDN scoring for internal-only/data workloads
+    ...(isInternalOnly ? [] : [
+      I(t.sus_cdn_q, 12,
+        cdn && cdn !== "no" ? 12 : 0,
+        t.sus_cdn_rec),
+    ]),
     I(t.sus_endpoint_q, 8,
-      natStrat === "endpoint" ? 8 : natStrat === "shared" ? 4 : 0,
+      natStrat === "endpoint" ? 8 : natStrat === "shared" ? 4 : natStrat === "per_az" ? 3 : 0,
       t.sus_endpoint_rec),
     I(t.sus_autoscale_q, 12,
       scalingArr.includes("keda") || scalingArr.includes("scheduled") ? 12
@@ -662,7 +697,7 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
         : isServerless ? 12 : 0,
       t.sus_autoscale_rec),
     I(t.sus_graviton_q, 12,
-      (nodeType === "ec2_node" || nodeType === "mixed") ? 12 : isServerless ? 10 : nodeType === "fargate" ? 8 : 4,
+      isServerless ? 12 : (nodeType === "ec2_node" || nodeType === "mixed") ? 10 : nodeType === "fargate" ? 8 : 4,
       t.sus_graviton_rec),
     I(t.sus_log_q, 6,
       (natStrat === "endpoint" || isServerless) ? 6 : 3,

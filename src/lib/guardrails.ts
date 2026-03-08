@@ -62,6 +62,43 @@ const CONTEXT_WARNINGS: Record<string, ContextWarning> = {
     level: "caution",
     message: "\uAC15\uD654 \uC554\uD638\uD654\uB294 \uADDC\uC815 \uC900\uC218\uAC00 \uD544\uC694\uD55C \uACBD\uC6B0\uC5D0 \uC801\uD569\uD569\uB2C8\uB2E4. \uC77C\uBC18 \uC11C\uBE44\uC2A4\uB294 '\uC804\uC1A1+\uC800\uC7A5 \uC554\uD638\uD654'\uB85C \uCDA9\uBD84\uD569\uB2C8\uB2E4.",
   },
+  // Cost-aware warnings (shown when cost_first is selected)
+  eks: {
+    check: (s) => s.cost?.priority === "cost_first",
+    level: "caution",
+    message: "EKS는 ECS 대비 운영 비용 2~3배입니다. 비용 우선이면 ECS Fargate를 검토하세요.",
+  },
+  "3az": {
+    check: (s) => {
+      const avail = s.slo?.availability;
+      return s.cost?.priority === "cost_first" && avail !== "99.95" && avail !== "99.99";
+    },
+    level: "caution",
+    message: "3 AZ는 NAT GW 비용 2배입니다. 99.9% 이하 가용성이면 2 AZ로 충분합니다.",
+  },
+  per_az: {
+    check: (s) => s.cost?.priority === "cost_first",
+    level: "caution",
+    message: "AZ별 NAT GW는 월 $43×AZ수 비용입니다. shared 또는 endpoint가 더 저렴합니다.",
+  },
+  global: {
+    check: (s) => s.cost?.priority === "cost_first",
+    level: "caution",
+    message: "Aurora Global DB는 Multi-AZ 대비 2배 이상 비용입니다. 글로벌 요건이 아니면 불필요합니다.",
+  },
+  shield: {
+    check: (s) => s.cost?.priority === "cost_first",
+    level: "caution",
+    message: "Shield Advanced는 월 $3,000 고정 비용입니다. 규정 준수가 아니면 Shield Standard(무료) + AWS WAF로 충분합니다.",
+  },
+  bluegreen: {
+    check: (s) => {
+      const cert = s.compliance?.cert || [];
+      return s.cost?.priority === "cost_first" && !cert.includes("pci");
+    },
+    level: "caution",
+    message: "Blue/Green은 배포 시 2배 리소스가 필요합니다. Rolling이 무료 대안입니다.",
+  },
   // Network - private is very restrictive
   private: {
     check: (s) => {
