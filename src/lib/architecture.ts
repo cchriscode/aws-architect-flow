@@ -1,185 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { WizardState } from "@/lib/types";
+import { toArray, toArrayFiltered, azToNum } from "@/lib/shared";
+import { T } from "./architecture-dict";
 
 export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko") {
   const s = state;
-  const T: Record<string, [string,string]> = {
-    // --- Section 1: Account/Org ---
-    "org.label":["계정/조직 구조","Account/Organization Structure"],
-    "org.orgs.detail":["루트 계정 + BU별 멤버 계정","Root account + member accounts per BU"],
-    "org.orgs.reason":["중앙 정책 관리, 비용 통합","Centralized policy management, consolidated billing"],
-    "org.orgs.opt":["SCPs로 권한 경계 설정","Set permission boundaries with SCPs"],
-    "org.envs.name":["환경별 계정 분리","Environment-based account separation"],
-    "org.envs.detail":["Prod / Stage / Dev 계정","Prod / Stage / Dev accounts"],
-    "org.envs.reason":["환경 간 완전 격리, 보안 강화","Full isolation between environments, enhanced security"],
-    "org.envs.opt":["Control Tower로 계정 관리 자동화","Automate account management with Control Tower"],
-    "org.single.name":["단일 계정","Single account"],
-    "org.single.detail":["태그 기반 환경 구분","Tag-based environment separation"],
-    "org.single.reason":["단순한 관리","Simple management"],
-    "org.single.opt":["성장 시 계정 분리 계획 수립","Plan for account separation as you grow"],
-    "org.insight.prod":["Prod 계정은 반드시 별도 분리 권장","Separating the Prod account is strongly recommended"],
-    "org.insight.ct":["AWS Control Tower로 Landing Zone 자동화 가능","Landing Zone automation available via AWS Control Tower"],
-    "org.insight.single":["단일 계정은 IAM 정책으로 환경 격리 필수","Single account requires environment isolation via IAM policies"],
-    // --- Section 2: Network ---
-    "net.label":["네트워크 설계","Network Design"],
-    "net.vpc.reason":["리소스 격리 경계","Resource isolation boundary"],
-    "net.vpc.cost":["무료","Free"],
-    "net.vpc.opt":["CIDR 설계 시 미래 확장 고려","Consider future expansion when designing CIDR"],
-    "net.subnet.name":["서브넷 구성","Subnet Configuration"],
-    "net.3tier.reason":["DB 완전 격리, 공격 표면 최소화","Full DB isolation, minimized attack surface"],
-    "net.private.reason":["인터넷 없는 완전 내부 네트워크","Fully internal network with no internet access"],
-    "net.2tier.reason":["ALB 노출, 앱 격리","ALB exposed, app isolated"],
-    "net.subnet.opt":["AZ당 서브넷 CIDR /24 권장","Recommended /24 CIDR per AZ subnet"],
-    "net.nat.detail":["프라이빗 서브넷 아웃바운드","Private subnet outbound"],
-    "net.nat.reason":["ECR, Secrets 등 AWS 서비스 접근","Access AWS services like ECR, Secrets"],
-    "net.nat.opt":["VPC Endpoint 활용 시 NAT 비용 절감","Reduce NAT costs by using VPC Endpoints"],
-    "net.tgw.detail":["사내망(VPN 또는 Direct Connect)으로만 접근","Access only via corporate network (VPN or Direct Connect)"],
-    "net.tgw.reason":["인터넷 완전 차단, 내부망 전용 라우팅","Complete internet block, internal-only routing"],
-    "net.tgw.opt":["Client VPN + Mutual TLS로 원격 개발자 접근 허용","Allow remote developer access via Client VPN + Mutual TLS"],
-    "net.vpcep.detail":["S3, ECR, SecretsManager, CloudWatch, SSM","S3, ECR, SecretsManager, CloudWatch, SSM"],
-    "net.vpcep.reason":["NAT GW 우회, 보안 강화","Bypass NAT GW, enhanced security"],
-    "net.vpcep.opt":["S3/DynamoDB는 무료 Gateway Endpoint 우선","Prefer free Gateway Endpoints for S3/DynamoDB"],
-    "net.vpn.detail":["Virtual Private Gateway + CGW","Virtual Private Gateway + CGW"],
-    "net.vpn.reason":["온프레미스 연결","On-premises connectivity"],
-    "net.vpn.opt":["DR VPN으로 백업 구성 권장","Recommend backup configuration with DR VPN"],
-    "net.dx.detail":["전용선 1Gbps+","Dedicated line 1Gbps+"],
-    "net.dx.reason":["안정적 대역폭, 낮은 레이턴시","Stable bandwidth, low latency"],
-    "net.dx.opt":["VPN을 백업으로 병행 구성","Configure VPN as backup"],
-    "net.dual.name":["VPN + DX 이중화","VPN + DX redundancy"],
-    "net.dual.detail":["DX 주 경로 + VPN 백업","DX primary path + VPN backup"],
-    "net.dual.reason":["전용선 장애 시 자동 VPN 페일오버","Automatic VPN failover on dedicated line failure"],
-    "net.dual.cost":["두 서비스 합산","Combined cost of both services"],
-    "net.dual.opt":["BGP 우선순위로 DX 우선, 장애 시 VPN 자동 전환","DX priority via BGP, automatic VPN switchover on failure"],
-    "net.tgwhub.detail":["멀티 VPC 중앙 라우팅 허브","Multi-VPC central routing hub"],
-    "net.tgwhub.reason":["Organizations 멀티 계정 간 VPC 통신 중앙 관리","Centralized VPC communication management across Organizations multi-account"],
-    "net.tgwhub.opt":["RAM(Resource Access Manager)으로 계정 간 TGW 공유. Route Table 분리로 Prod/Dev 트래픽 격리","Share TGW across accounts via RAM. Isolate Prod/Dev traffic with separate Route Tables"],
-    "net.insight.3tier":["격리 서브넷의 DB는 인터넷 완전 차단. SSM Session Manager로 접근","DB in isolated subnet has no internet. Access via SSM Session Manager"],
-    "net.insight.default":["DB를 프라이빗 서브넷에만 배치","Place DB in private subnets only"],
-    "net.insight.fullpriv":["완전 프라이빗 네트워크: 모든 트래픽은 VPN/DX 경유. Internet Gateway 없음","Fully private network: all traffic via VPN/DX. No Internet Gateway"],
-    "net.insight.natperaz":["로 AZ 장애 시 아웃바운드 보호"," NAT GWs for outbound protection during AZ failure"],
-    "net.insight.natshared":["NAT GW 공유 구성: 비용 절감이지만 단일 장애점 주의","Shared NAT GW: cost savings but beware single point of failure"],
-    "net.insight.sg":["Security Group은 IP 대신 SG ID 참조로 체이닝 구성","Chain Security Groups by referencing SG IDs instead of IPs"],
-    "net.insight.mismatch":["⚠️ 보안 요건(완전 프라이빗)과 네트워크 구성(퍼블릭 서브넷 포함)이 불일치합니다. 네트워크 설계를 '사내망 전용'으로 변경 권장","⚠️ Security requirements (fully private) and network config (includes public subnets) are mismatched. Recommend changing network design to 'internal only'"],
-    "net.insight.zone":["⚠️ 보안 요건(DB 완전 차단)에 비해 네트워크가 2구역 구성입니다. 3구역(public/private/isolated) 이상 권장","⚠️ Network has 2-zone config despite security requirements (full DB isolation). 3+ zones (public/private/isolated) recommended"],
-    // --- Section 3: Edge/CDN ---
-    "edge.label":["엣지/CDN","Edge/CDN"],
-    "edge.r53.health":["헬스체크 + 페일오버 라우팅","Health check + failover routing"],
-    "edge.r53.latency":["레이턴시 기반 라우팅","Latency-based routing"],
-    "edge.r53.geoloc":["국가별 라우팅","Geolocation routing"],
-    "edge.r53.basic":["기본 A레코드","Basic A record"],
-    "edge.r53.reason":["DNS 관리 + 도메인 라우팅","DNS management + domain routing"],
-    "edge.r53.opt":["헬스체크 + Route53 Resolver로 내부 DNS 통합","Integrate internal DNS with health checks + Route53 Resolver"],
-    "edge.acm.detail":["ALB·CloudFront TLS 인증서 자동 발급·갱신","Auto-issue and renew TLS certificates for ALB/CloudFront"],
-    "edge.acm.reason":["전송 중 암호화(TLS 1.2+) 필수. 인증서 만료 자동 갱신으로 운영 리스크 제거","In-transit encryption (TLS 1.2+) required. Auto-renewal eliminates operational risk"],
-    "edge.acm.cost":["퍼블릭 인증서 무료 (ALB/CloudFront 연결 시)","Public certificates free (when linked to ALB/CloudFront)"],
-    "edge.acm.opt":["us-east-1 리전에 발급한 인증서만 CloudFront에서 사용 가능. 각 리전별 별도 발급 필요","Only certificates issued in us-east-1 can be used with CloudFront. Separate issuance required per region"],
-    "edge.cf.detail":["정적 파일 + 동적 캐시","Static files + dynamic cache"],
-    "edge.cf.reason":["오리진 트래픽 감소, 글로벌 배포","Reduce origin traffic, global distribution"],
-    "edge.cf.opt":["OAC(Origin Access Control)로 S3 직접 접근 차단. OAI는 Deprecated → OAC로 설정 필수","Block direct S3 access with OAC (Origin Access Control). OAI is deprecated -- use OAC"],
-    "edge.waf.detail":["CloudFront/ALB 앞단","In front of CloudFront/ALB"],
-    "edge.waf.bot":["매크로/봇 차단","macro/bot blocking"],
-    "edge.waf.ddos":["DDoS 방어","DDoS protection"],
-    "edge.waf.opt":["관리형 규칙으로 커스텀 룰 비용 절감","Reduce custom rule costs with managed rules"],
-    "edge.func.detail":["엣지 로케이션에서 요청/응답 가공","Process requests/responses at edge locations"],
-    "edge.func.bot":["봇 판별 헤더 주입","Bot detection header injection"],
-    "edge.func.tenant":["테넌트별 오리진 라우팅","Per-tenant origin routing"],
-    "edge.func.geo":["지역별 리다이렉트·A/B 테스트","Geo-based redirects / A/B testing"],
-    "edge.func.opt":["단순 헤더 조작은 CloudFront Functions(1ms 이내), DB 조회 등 복잡한 로직은 Lambda@Edge 사용","Use CloudFront Functions for simple header manipulation (<1ms), Lambda@Edge for complex logic like DB lookups"],
-    "edge.synth.detail":["Canary 스크립트로 API/웹 주기적 헬스체크","Periodic API/web health checks via Canary scripts"],
-    "edge.synth.reason":["사용자보다 먼저 장애를 감지하는 프로액티브 모니터링","Proactive monitoring to detect failures before users do"],
-    "edge.synth.opt":["주요 API 엔드포인트별 Canary 생성. 실패 시 CloudWatch Alarm → SNS 즉시 알림","Create Canary per key API endpoint. On failure: CloudWatch Alarm to SNS instant notification"],
-    "edge.insight.alb":["ALB는 퍼블릭 서브넷에, 앱 서버는 프라이빗 서브넷에 배치","Place ALB in public subnets, app servers in private subnets"],
-    "edge.insight.shield":["CloudFront Origin Shield 활성화 시 오리진 보호 강화","Enable CloudFront Origin Shield for enhanced origin protection"],
-    "edge.insight.bot":["Bot Control 필수: 티켓팅 매크로 방어의 핵심","Bot Control required: key defense against ticketing macros"],
-    "edge.insight.failover":["Route 53 Failover: 헬스체크 실패 시 DR 리전으로 자동 전환","Route 53 Failover: auto-switch to DR region on health check failure"],
-    "edge.insight.healthint":["Route 53 헬스체크 간격 10초로 설정 시 장애 감지 최대 30초","Route 53 health check interval at 10s detects failures within 30s max"],
-    "edge.insight.canary":["CloudWatch Synthetics Canary: 외부 관점에서 API 가용성을 주기적으로 검증","CloudWatch Synthetics Canary: periodically verifies API availability from external perspective"],
-    // --- Section 4: Compute ---
-    "comp.label":["컴퓨트 계층","Compute Layer"],
-    "comp.nlb.detail":["퍼블릭 서브넷, TCP/UDP","Public subnet, TCP/UDP"],
-    "comp.nlb.reason":["초저지연, WebSocket/게임/IoT 프로토콜","Ultra-low latency, WebSocket/gaming/IoT protocols"],
-    "comp.nlb.opt":["Connection draining 설정으로 무중단 배포","Zero-downtime deployment with connection draining"],
-    "comp.apigw.reason":["Rate Limit, 인증, Lambda 연동","Rate limiting, auth, Lambda integration"],
-    "comp.apigw.opt":["HTTP API가 REST API보다 70% 저렴","HTTP API is 70% cheaper than REST API"],
-    "comp.alb.detail":["퍼블릭 서브넷, TLS 종료","Public subnet, TLS termination"],
-    "comp.alb.reason":["HTTP/HTTPS 라우팅, 헬스체크","HTTP/HTTPS routing, health checks"],
-    "comp.alb.opt":["ALB Access Log → S3 → Athena 분석","ALB Access Log -> S3 -> Athena analysis"],
-    "comp.ws.detail":["서버리스 WebSocket 연결 관리","Serverless WebSocket connection management"],
-    "comp.ws.reason":["연결 상태 유지, Lambda로 메시지 라우팅","Maintain connection state, route messages via Lambda"],
-    "comp.ws.opt":["connectionId로 특정 연결에 직접 메시지 전송 가능. 연결당 최대 10시간","Send messages directly to specific connections via connectionId. Max 10 hours per connection"],
-    "comp.redis.name":["⚠️ Redis Pub/Sub 필수","⚠️ Redis Pub/Sub required"],
-    "comp.redis.detail":["서버 간 실시간 메시지 브로드캐스트","Real-time message broadcast across servers"],
-    "comp.redis.reason":["여러 서버에 분산된 WebSocket 클라이언트에게 동시 전달 필요","Must deliver simultaneously to WebSocket clients distributed across servers"],
-    "comp.redis.opt":["Redis Pub/Sub 없이 다중 서버 운영 시 같은 서버에 붙은 사용자에게만 메시지 전달됨 (치명적 버그)","Without Redis Pub/Sub in multi-server setup, messages only reach users on the same server (critical bug)"],
-    "comp.redis2.name":["Redis Pub/Sub 설정 필요","Redis Pub/Sub setup required"],
-    "comp.redis2.detail":["기존 Redis에 Pub/Sub 채널 구성","Configure Pub/Sub channels on existing Redis"],
-    "comp.redis2.reason":["다중 서버 환경에서 WebSocket 메시지를 모든 서버에 브로드캐스트","Broadcast WebSocket messages to all servers in multi-server environment"],
-    "comp.redis2.cost":["추가 비용 없음 (기존 Redis 활용)","No additional cost (uses existing Redis)"],
-    "comp.redis2.opt":["Redis Pub/Sub 채널 설계: 채팅방 ID 또는 토픽별 채널 분리. SUBSCRIBE/PUBLISH 패턴 구현 필수","Redis Pub/Sub channel design: separate by chat room ID or topic. SUBSCRIBE/PUBLISH pattern implementation required"],
-    "comp.cognito.reason":["회원가입·로그인·소셜 인증 관리형 처리","Managed sign-up, login, and social auth"],
-    "comp.cognito.cost":["MAU 1만 무료(신규 풀), 이후 $0.0055/MAU","10K MAU free (new pool), then $0.0055/MAU"],
-    "comp.cognito.opt":["ALB와 직접 통합 가능. Lambda Trigger로 커스텀 인증 흐름 가능","Direct ALB integration available. Custom auth flows via Lambda Triggers"],
-    "comp.sso.reason":["사내 AD·Google Workspace·Okta 통합 로그인","Unified login with AD, Google Workspace, Okta"],
-    "comp.sso.opt":["Permission Sets로 계정·서비스별 접근 권한 중앙 관리","Centralized access management per account/service via Permission Sets"],
-    "comp.selfauth.name":["자체 인증 서버 (JWT)","Self-managed auth server (JWT)"],
-    "comp.selfauth.detail":["ECS/EC2 프라이빗 서브넷 배포","Deployed in ECS/EC2 private subnet"],
-    "comp.selfauth.reason":["토큰 발급·검증·갱신 직접 제어","Direct control over token issuance, validation, renewal"],
-    "comp.selfauth.cost":["서버 운영 비용 (ECS t3.small ~$15/월)","Server operation cost (ECS t3.small ~$15/mo)"],
-    "comp.selfauth.opt":["⚠️ 보안 취약점 직접 관리 필요. RS256 알고리즘, 짧은 토큰 만료(15분), Refresh Token Rotation 구현 필수","⚠️ Must manage security vulnerabilities directly. RS256 algorithm, short token expiry (15min), Refresh Token Rotation required"],
-    "comp.dualauth.name":["인증 이중 구조 설계 필요","Dual auth architecture design required"],
-    "comp.dualauth.detail":["Cognito(고객용) + SSO(관리자용)","Cognito (customers) + SSO (admins)"],
-    "comp.dualauth.reason":["사용자 유형별 인증 분리로 보안 강화","Enhanced security by separating auth per user type"],
-    "comp.dualauth.cost":["각 서비스 비용 합산","Combined cost of each service"],
-    "comp.dualauth.opt":["관리자 콘솔은 SSO + MFA 필수. ALB 리스너 규칙으로 /admin 경로 → SSO, 나머지 → Cognito 라우팅","Admin console requires SSO + MFA. Route /admin path to SSO, rest to Cognito via ALB listener rules"],
-    "comp.lambda.reason":["이벤트성 처리, 스케일-투-제로","Event-driven processing, scale-to-zero"],
-    "comp.lambda.cost":["월 100만 요청 무료","1M requests/mo free"],
-    "comp.lambda.opt":["ARM 선택 시 20% 절감, PowerTuning 필수","20% savings with ARM, PowerTuning required"],
-    "comp.rdsproxy.detail":["Lambda ↔ RDS 커넥션 풀링","Lambda <-> RDS connection pooling"],
-    "comp.rdsproxy.reason":["Lambda 스케일업 시 RDS 커넥션 폭발 방지","Prevent RDS connection explosion during Lambda scale-up"],
-    "comp.rdsproxy.opt":["Lambda에서 RDS 직접 연결 금지. RDS Proxy 없으면 연결 한도 초과로 장애 발생","Direct RDS connection from Lambda prohibited. Without RDS Proxy, connection limit overflow causes failures"],
-    "comp.ecr.detail":["프라이빗 컨테이너 이미지 레지스트리","Private container image registry"],
-    "comp.ecr.reason":["빌드된 이미지를 안전하게 저장·버전 관리","Securely store and version built images"],
-    "comp.ecr.opt":["ECR Lifecycle Policy로 오래된 이미지 자동 삭제. Image Scanning으로 CVE 취약점 자동 탐지","Auto-delete old images with ECR Lifecycle Policy. Auto-detect CVE vulnerabilities with Image Scanning"],
-    "comp.ec2.reason":["OS 수준 제어, 특수 인스턴스(GPU 등) 필요","OS-level control, special instances (GPU, etc.) needed"],
-    "comp.ec2.cost":["인스턴스 타입별 On-Demand 과금","On-Demand pricing per instance type"],
-    "comp.ec2.opt":["Launch Template 사용. RI 1년 40%, Spot Fleet으로 Stateless 70% 절약","Use Launch Template. RI 1yr 40%, Spot Fleet for Stateless 70% savings"],
-    "comp.ssm.reason":["SSH 없이 서버 접근, OS 패치 자동화","Server access without SSH, automated OS patching"],
-    "comp.ssm.opt":["배스천 호스트 없이 프라이빗 EC2 직접 접근 가능","Direct access to private EC2 without bastion host"],
-    "comp.eks.reason":["k8s 오케스트레이션, 이식성","K8s orchestration, portability"],
-    "comp.ecs.reason":["컨테이너 오케스트레이션, 서버 관리 불필요","Container orchestration, no server management needed"],
-    "comp.ecs.spotopt":["Fargate Spot으로 Stateless 서비스 70% 절약","70% savings on Stateless services with Fargate Spot"],
-    "comp.ecs.spopt":["Compute Savings Plans 1년 50% 절약","50% savings with 1yr Compute Savings Plans"],
-    "comp.ec2as.detail":["Graviton 인스턴스 권장","Graviton instances recommended"],
-    "comp.ec2as.reason":["비용 최적화, 특수 인스턴스","Cost optimization, special instances"],
-    "comp.ec2as.opt":["RI 1년 40%, Spot Fleet으로 Stateless 70% 절약","RI 1yr 40%, Spot Fleet for Stateless 70% savings"],
-    // --- Section 4 Insights ---
-    "comp.i.vm":["VM 패턴: SSM Session Manager로 배스천 호스트 없이 접근. OS 패치·AMI 갱신 자동화 필수","VM pattern: Access via SSM Session Manager without bastion host. Automated OS patching and AMI updates required"],
-    "comp.i.ecs":["ECS Fargate는 서버 관리 없이 컨테이너 실행","ECS Fargate runs containers without server management"],
-    "comp.i.ssm":["SSM Session Manager: EKS EC2 노드 디버깅에 활용. 배스천 호스트 없이 프라이빗 노드 직접 접근 가능","SSM Session Manager: debug EKS EC2 nodes. Direct access to private nodes without bastion host"],
-    "comp.i.svccon":["ECS Service Connect: 마이크로서비스 간 HTTP/gRPC 통신에 서비스 디스커버리 + 자동 재시도 + 회로차단기 내장. App Mesh 대비 설정 단순","ECS Service Connect: built-in service discovery + auto-retry + circuit breaker for HTTP/gRPC between microservices. Simpler than App Mesh"],
-    "comp.i.rdsproxy":["⚠️ Lambda + RDS: RDS Proxy 없이 직접 연결하면 동시 Lambda 실행 시 커넥션 한도 초과로 장애 발생","⚠️ Lambda + RDS: Direct connection without RDS Proxy causes connection limit overflow during concurrent Lambda executions"],
-    "comp.i.ticket":["⚠️ 티켓팅 서비스에 캐시 없음: 동시 좌석 요청 처리에 Redis SET NX(원자적 잠금)가 없으면 이중 예매가 발생합니다. Redis 도입을 강력 권장합니다.","⚠️ No cache for ticketing service: without Redis SET NX (atomic lock) for concurrent seat requests, double bookings will occur. Redis is strongly recommended."],
-    "comp.i.ecom":["⚠️ 이커머스 재고 동시성: Redis SETNX/INCR 원자적 연산으로 재고 임시 잠금 필수. 캐시 없이 DB만 사용 시 Overselling(초과 판매) 발생","⚠️ E-commerce inventory concurrency: Redis SETNX/INCR atomic operations required for temporary inventory locking. Using DB only without cache causes overselling"],
-    "comp.i.rt":["실시간 서비스: WebSocket 연결 유지를 위해 API Gateway WebSocket API 또는 NLB 검토 필요. ALB는 기본 유휴 타임아웃 60초 제한 있음.","Real-time service: review API Gateway WebSocket API or NLB for WebSocket connections. ALB has default 60s idle timeout limit."],
-    "comp.i.rtalb":["⚠️ 실시간 서비스에 ALB 사용: ALB Idle Timeout을 3600초로 늘리거나, API Gateway WebSocket API($1/100만 메시지)로 교체 권장","⚠️ ALB for real-time service: increase ALB Idle Timeout to 3600s, or switch to API Gateway WebSocket API ($1/1M messages)"],
-    "comp.i.spot":["Spot은 Stateless 서비스에만 적용. 결제/DB 절대 금지","Spot for Stateless services only. Never for payments/DB"],
-    "comp.i.lambdascale":["Lambda 자동 동시성 스케일링. Reserved Concurrency로 최대치 제한 권장","Lambda auto-scales concurrency. Reserved Concurrency recommended to limit max"],
-    "comp.i.spike":["⚡ 스파이크 트래픽: 이벤트 10분 전 Scheduled Scaling으로 사전 예열 필수. Cold Start 방지 위해 최소 인스턴스 수 확보","Spike traffic: pre-warm with Scheduled Scaling 10min before events. Ensure minimum instance count to prevent Cold Start"],
-    "comp.i.lambdacold":["⚡ Lambda Cold Start 방지: Provisioned Concurrency 설정 필수. 이벤트 시작 5분 전 Application Auto Scaling으로 자동 활성화 가능 (스파이크·버스트·실시간 모두 해당)","Lambda Cold Start prevention: Provisioned Concurrency required. Auto-activate via Application Auto Scaling 5min before events (applies to spike, burst, real-time)"],
-    "comp.i.burst":["⚡ 예측 불가 버스트: ECS Fargate Spot 혼합으로 즉시 확장. CloudFront 캐시로 오리진 보호","Unpredictable burst: instant scaling with ECS Fargate Spot mix. Protect origin with CloudFront cache"],
-    "comp.i.biz":["🕐 업무시간 패턴: Scheduled Scaling으로 야간/주말 인스턴스 감소 → 비용 30~50% 절감","Business hours pattern: reduce instances at night/weekends with Scheduled Scaling for 30-50% savings"],
-    "comp.i.ultra":["🚀 초당 10,000+ RPS: ALB 미리 워밍 요청(AWS 지원팀), Connection Draining 타임아웃 최적화, ECS 최소 Task 수 50+ 유지","10,000+ RPS: pre-warm ALB (AWS support), optimize Connection Draining timeout, maintain 50+ minimum ECS Tasks"],
-    "comp.i.high":["📈 초당 1,000~10,000 RPS: Auto Scaling 쿨다운 시간을 60초로 단축, 예상 피크 30분 전 사전 Scaling 이벤트 등록","1,000-10,000 RPS: shorten Auto Scaling cooldown to 60s, register pre-scaling events 30min before expected peak"],
-  };
   const t = (k: string) => T[k] ? T[k][lang==="ko"?0:1] : k;
 
   // ── 배열 필드 헬퍼 (multi:true 전환된 필드들)
-  const types        = Array.isArray(s.workload?.type) ? s.workload.type : (s.workload?.type ? [s.workload.type] : []);
-  const userTypes    = Array.isArray(s.workload?.user_type) ? s.workload.user_type : (s.workload?.user_type ? [s.workload.user_type] : []);
-  const trafficPats  = Array.isArray(s.scale?.traffic_pattern) ? s.scale.traffic_pattern : (s.scale?.traffic_pattern ? [s.scale.traffic_pattern] : []);
-  const primaryDbs   = Array.isArray(s.data?.primary_db) ? s.data.primary_db.filter((v: string)=>v!=="none") : (s.data?.primary_db && s.data.primary_db !== "none" ? [s.data.primary_db] : []);
-  const authMethods  = Array.isArray(s.integration?.auth) ? s.integration.auth.filter((v: string)=>v!=="none") : (s.integration?.auth && s.integration.auth !== "none" ? [s.integration.auth] : []);
-  const hybridConns  = Array.isArray(s.network?.hybrid) ? s.network.hybrid.filter((v: string)=>v!=="no") : (s.network?.hybrid && s.network.hybrid !== "no" ? [s.network.hybrid] : []);
+  const types        = toArray(s.workload?.type);
+  const userTypes    = toArray(s.workload?.user_type);
+  const trafficPats  = toArray(s.scale?.traffic_pattern);
+  const primaryDbs   = toArrayFiltered(s.data?.primary_db);
+  const authMethods  = toArrayFiltered(s.integration?.auth);
+  const hybridConns  = toArray(s.network?.hybrid).filter((v) => v !== "no");
 
   const isCritical = s.workload?.data_sensitivity === "critical";
   const isHighAvail = ["99.99","99.95"].includes(s.slo?.availability);
@@ -195,8 +29,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
   const isBtoC      = userTypes.includes("b2c");
   const hasSpike    = trafficPats.includes("spike");
   const hasBurst    = trafficPats.includes("burst");
-  const az = s.network?.az_count || "2az";
-  const azNum = az === "3az" ? 3 : az === "1az" ? 1 : 2;
+  const azNum = azToNum(s.network?.az_count);
   const needsAsync = s.integration?.sync_async !== "sync_only";
   const hasCDN = s.edge?.cdn !== "no";
   const hasCache = s.data?.cache !== "no" && s.data?.cache;

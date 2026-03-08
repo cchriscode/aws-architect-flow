@@ -18,7 +18,8 @@ export function ChecklistView({ state }: ChecklistViewProps) {
   const [checked, setChecked] = useState<Record<string, boolean>>(() => {
     try {
       return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-    } catch {
+    } catch (e) {
+      console.warn('[checklist] Failed to load saved state:', e);
       return {};
     }
   });
@@ -34,7 +35,7 @@ export function ChecklistView({ state }: ChecklistViewProps) {
     setChecked(next);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch {}
+    } catch (e) { console.warn('[checklist] Failed to save toggle:', e); }
   };
 
   const resetPhase = (phaseLabel: string) => {
@@ -47,7 +48,7 @@ export function ChecklistView({ state }: ChecklistViewProps) {
     setChecked(next);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch {}
+    } catch (e) { console.warn('[checklist] Failed to save reset:', e); }
   };
 
   const doneCount = Object.values(checked).filter(Boolean).length;

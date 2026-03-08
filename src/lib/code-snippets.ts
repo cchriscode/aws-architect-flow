@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { WizardState, CodeSnippet } from "@/lib/types";
+import { toArray, toArrayFiltered, azToNum } from "@/lib/shared";
 
 /**
  * generateCodeSnippets -- generates IaC code snippets (Terraform / CDK)
@@ -9,12 +10,10 @@ export function generateCodeSnippets(state: WizardState): CodeSnippet[] {
   const orchest  = state.compute?.orchestration;
   const archP    = state.compute?.arch_pattern;
   const nodeType = state.compute?.compute_node;
-  const db       = state.data?.primary_db || [];
-  const dbArr    = Array.isArray(db) ? db : (db && db !== "none" ? [db] : []);
+  const dbArr    = toArrayFiltered(state.data?.primary_db);
   const dbHa     = state.data?.db_ha;
   const cache    = state.data?.cache;
-  const az       = state.network?.az_count;
-  const azNum    = az === "3az" ? 3 : az === "1az" ? 1 : 2;
+  const azNum    = azToNum(state.network?.az_count);
   const iac      = state.cicd?.iac || "terraform";
   const deploy   = state.cicd?.deploy_strategy;
   const pipeline = state.cicd?.pipeline;
@@ -26,20 +25,17 @@ export function generateCodeSnippets(state: WizardState): CodeSnippet[] {
   const scaling  = state.compute?.scaling;
   const gitops   = state.platform?.gitops;
   const dau      = state.scale?.dau;
-  const types    = state.workload?.type || [];
-  const cert     = state.compliance?.cert || [];
+  const types    = toArray(state.workload?.type);
+  const cert     = toArray(state.compliance?.cert);
   const encr     = state.compliance?.encryption;
   const nodeP    = state.platform?.node_provisioner;
   const secrets  = state.platform?.k8s_secrets;
-  const auth     = state.integration?.auth || [];
-  const authArr  = Array.isArray(auth) ? auth : [auth];
-  const queueRaw = state.integration?.queue_type;
-  const queueArr = Array.isArray(queueRaw) ? queueRaw : (queueRaw ? [queueRaw] : []);
+  const authArr  = toArray(state.integration?.auth);
+  const queueArr = toArray(state.integration?.queue_type);
   const account  = state.network?.account_structure;
   const hybrid   = state.network?.hybrid;
   const search   = state.data?.search;
-  const storage  = state.data?.storage || [];
-  const storArr  = Array.isArray(storage) ? storage : (storage ? [storage] : []);
+  const storArr  = toArray(state.data?.storage);
   const avail    = state.slo?.availability;
   const envCnt   = state.cicd?.env_count;
   const commit   = state.cost?.commitment;
@@ -52,7 +48,7 @@ export function generateCodeSnippets(state: WizardState): CodeSnippet[] {
   const isEks       = orchest === "eks";
   const isEcs       = !isEks && !isServerless;
   const isLarge     = dau === "large" || dau === "xlarge";
-  const hasCritCert = cert.includes("pci") || cert.includes("hipaa") || cert.includes("sox");
+  const hasCritCert = cert.some((c) => ["pci", "hipaa", "sox"].includes(c));
   const hasPersonal = ["sensitive","critical"].includes(state.workload?.data_sensitivity);
   const hasAurora   = dbArr.includes("aurora_mysql") || dbArr.includes("aurora_pg");
   const hasRds      = dbArr.includes("rds_mysql") || dbArr.includes("rds_pg");

@@ -431,7 +431,7 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
   const td = useDict().diagram;
   const z = buildDiagramZones(arch);
   const subnetTier = state.network?.subnet_tier || "2tier";
-  const [viewMode, setViewMode] = useState<"card" | "drawio">("card");
+  const [viewMode, setViewMode] = useState<"card" | "drawio">("drawio");
 
   const diagramXml = useMemo(() => generateDiagramXml(arch, state), [arch, state]);
 
@@ -457,7 +457,7 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
           win.postMessage(JSON.stringify({ action: "load", xml: diagramXml }), "*");
         }
         if (msg.event === "exit") window.removeEventListener("message", onMsg);
-      } catch { /* non-JSON */ }
+      } catch (e) { /* non-JSON message, expected from other origins */ }
     };
     window.addEventListener("message", onMsg);
   };

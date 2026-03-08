@@ -14,7 +14,8 @@ function loadSaved() {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return null;
     return JSON.parse(raw);
-  } catch {
+  } catch (e) {
+    console.warn('[wizard] Failed to load saved state:', e);
     return null;
   }
 }
@@ -171,7 +172,7 @@ export function useWizard() {
         completedPhases: [...completedPhases],
       };
       localStorage.setItem(SAVE_KEY, JSON.stringify(toSave));
-    } catch {}
+    } catch (e) { console.warn('[wizard] Failed to save state:', e); }
   }, [currentPhase, state, showResult, arch, completedPhases]);
 
   // URL에서 상태 복원
@@ -189,7 +190,7 @@ export function useWizard() {
         setArch(generateArchitecture(parsed.state, lang));
         window.history.replaceState({}, "", window.location.pathname);
       }
-    } catch {}
+    } catch (e) { console.warn('[wizard] Failed to restore from URL:', e); }
   }, []);
 
   return {

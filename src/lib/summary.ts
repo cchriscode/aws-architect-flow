@@ -3,6 +3,7 @@ import { generateArchitecture } from "@/lib/architecture";
 import { estimateMonthlyCost } from "@/lib/cost";
 import { wellArchitectedScore } from "@/lib/wafr";
 import { validateState } from "@/lib/validate";
+import { toArray } from "@/lib/shared";
 
 export interface ArchSummary {
   headline: string;
@@ -334,7 +335,7 @@ export function generateSummary(
   const issues = precomputed?.issues || validateState(state, lang);
 
   // headline
-  const types: string[] = state.workload?.type || [];
+  const types = toArray(state.workload?.type);
   const typeLabel = types.map((t) => WORKLOAD_LABELS[lang][t] || t).join(" + ");
   const pattern = state.compute?.arch_pattern || "container";
   const orch = state.compute?.orchestration;
@@ -353,7 +354,7 @@ export function generateSummary(
   if (state.platform?.service_mesh === "istio") { score += 2; factors.push(cf.service_mesh as string); }
   if (state.slo?.region === "active") { score += 2; factors.push(cf.multi_region_active as string); }
   else if (state.slo?.region === "dr") { score += 1; factors.push(cf.dr_region as string); }
-  const cert: string[] = state.compliance?.cert || [];
+  const cert = toArray(state.compliance?.cert);
   if (cert.includes("pci") || cert.includes("hipaa")) { score += 2; factors.push(cf.regulatory as string); }
   if (cert.includes("sox")) { score += 1; factors.push(cf.financial_audit as string); }
   if (types.length > 2) { score += 1; factors.push((cf.workload_composite as (n: string) => string)(String(types.length))); }

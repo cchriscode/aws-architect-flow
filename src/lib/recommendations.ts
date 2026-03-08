@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { WizardState, Recommendation } from "@/lib/types";
+import { toArray } from "@/lib/shared";
 
 /**
  * getRecommendations -- returns recommendation badges for each wizard option.
@@ -30,20 +31,20 @@ export function getRecommendations(
     }
   };
 
-  const types: string[] = state.workload?.type || [];
+  const types = toArray(state.workload?.type);
   const dau: string | undefined = state.scale?.dau;
   const rps: string | undefined = state.scale?.peak_rps;
-  const pattern: string[] = state.scale?.traffic_pattern || [];
+  const pattern = toArray(state.scale?.traffic_pattern);
   const vol: string | undefined = state.scale?.data_volume;
   const teamSize: string | undefined = state.team?.team_size;
   const exp: string | undefined = state.team?.cloud_exp;
   const ops: string | undefined = state.team?.ops_model;
   const avail: string | undefined = state.slo?.availability;
-  const cert: string[] = state.compliance?.cert || [];
+  const cert = toArray(state.compliance?.cert);
   const dataS: string | undefined = state.workload?.data_sensitivity;
   const stage: string | undefined = state.workload?.growth_stage;
   const bizModel: string | undefined = state.workload?.business_model;
-  const userTypes: string[] = state.workload?.user_type || [];
+  const userTypes = toArray(state.workload?.user_type);
   const ecomD: string | undefined = state.workload?.ecommerce_detail;
   const tickD: string | undefined = state.workload?.ticketing_detail;
   const dataD: string | undefined = state.workload?.data_detail;
@@ -64,8 +65,7 @@ export function getRecommendations(
   const isHighRPS = rps === "high" || rps === "ultra";
   const isUltraRPS = rps === "ultra";
   const isHighAvail = avail === "99.95" || avail === "99.99";
-  const hasCritCert =
-    cert.includes("pci") || cert.includes("hipaa") || cert.includes("sox");
+  const hasCritCert = cert.some((c) => ["pci", "hipaa", "sox"].includes(c));
   const hasPersonal = dataS === "sensitive" || dataS === "critical";
   const isCritData = dataS === "critical";
   const isGlobal = userTypes.includes("global");
@@ -86,8 +86,8 @@ export function getRecommendations(
   const isWebApi = types.includes("web_api");
   const isInternal =
     types.includes("internal") &&
-    !types.some((t) =>
-      ["ecommerce", "ticketing", "realtime", "saas"].includes(t)
+    !types.some((tp) =>
+      ["ecommerce", "ticketing", "realtime", "saas"].includes(tp)
     );
   const isFlash = tickD === "flash" || tickD === "concert";
   const begOrSolo = exp === "beginner" || teamSize === "solo";

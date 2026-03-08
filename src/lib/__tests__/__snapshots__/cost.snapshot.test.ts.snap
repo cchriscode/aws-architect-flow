@@ -1,0 +1,3877 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`estimateMonthlyCost snapshots > b2b_saas (en) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "Control Plane $73/mo + Graviton nodes 3AZ",
+          "max": 237,
+          "min": 190,
+          "name": "EKS Cluster",
+        },
+        {
+          "desc": "Up to 70% savings with Spot mix",
+          "max": 0,
+          "min": 0,
+          "name": "Karpenter Dynamic Node Provisioning",
+        },
+        {
+          "desc": "1x t3.medium instance",
+          "max": 50,
+          "min": 30,
+          "name": "ArgoCD (EC2)",
+        },
+        {
+          "desc": "Based on LCU",
+          "max": 50,
+          "min": 20,
+          "name": "ALB (Application Load Balancer)",
+        },
+      ],
+      "name": "Compute",
+      "total": {
+        "max": 337,
+        "min": 240,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "min 0.5 ~ max 8 ACU",
+          "max": 130,
+          "min": 78,
+          "name": "Aurora Serverless v2",
+        },
+        {
+          "desc": "Reader instance for read distribution",
+          "max": 130,
+          "min": 104,
+          "name": "Aurora Read Replica",
+        },
+        {
+          "desc": "Based on Aurora I/O-Optimized",
+          "max": 60,
+          "min": 20,
+          "name": "Aurora Storage + I/O",
+        },
+        {
+          "desc": "3AZ Replication Group",
+          "max": 94,
+          "min": 78,
+          "name": "ElastiCache Valkey/Redis",
+        },
+        {
+          "desc": "r6g.large × 3",
+          "max": 300,
+          "min": 150,
+          "name": "OpenSearch",
+        },
+      ],
+      "name": "Database",
+      "total": {
+        "max": 714,
+        "min": 430,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "$0.059/hr + data processing charges",
+          "max": 174,
+          "min": 129,
+          "name": "NAT Gateway (3)",
+        },
+        {
+          "desc": "Internet outbound, first 1GB free",
+          "max": 20,
+          "min": 5,
+          "name": "Data Transfer (outbound)",
+        },
+      ],
+      "name": "Network",
+      "total": {
+        "max": 194,
+        "min": 134,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Data transfer + per-request charges",
+          "max": 30,
+          "min": 5,
+          "name": "CloudFront",
+        },
+        {
+          "desc": "$5/mo + rule/request charges",
+          "max": 30,
+          "min": 20,
+          "name": "WAF Web ACL",
+        },
+      ],
+      "name": "Edge",
+      "total": {
+        "max": 60,
+        "min": 25,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Storage + requests + data transfer",
+          "max": 20,
+          "min": 5,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+      ],
+      "name": "Storage",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "First 1M free, then $0.4/1M",
+          "max": 5,
+          "min": 0,
+          "name": "SQS",
+        },
+        {
+          "desc": "$1/1M events",
+          "max": 10,
+          "min": 0,
+          "name": "EventBridge",
+        },
+      ],
+      "name": "Messaging",
+      "total": {
+        "max": 15,
+        "min": 0,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Included by default, detailed monitoring extra",
+          "max": 30,
+          "min": 10,
+          "name": "CloudWatch (Logs + Metrics + Alarms)",
+        },
+        {
+          "desc": "Metrics collection + dashboards",
+          "max": 100,
+          "min": 40,
+          "name": "Amazon Managed Prometheus + Grafana",
+        },
+        {
+          "desc": "Compliance / sensitive data monitoring",
+          "max": 200,
+          "min": 80,
+          "name": "Security Hub + GuardDuty + Config",
+        },
+        {
+          "desc": "Event logging + queries",
+          "max": 60,
+          "min": 20,
+          "name": "CloudTrail (S3 storage)",
+        },
+      ],
+      "name": "Operations",
+      "total": {
+        "max": 390,
+        "min": 150,
+      },
+    },
+  ],
+  "hasCommit": true,
+  "hasSpot": true,
+  "totalMax": 1730,
+  "totalMid": 1357,
+  "totalMin": 984,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > b2b_saas (ko) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "Control Plane $73/월 + Graviton 노드 3AZ",
+          "max": 237,
+          "min": 190,
+          "name": "EKS 클러스터",
+        },
+        {
+          "desc": "Spot 혼합으로 최대 70% 절감",
+          "max": 0,
+          "min": 0,
+          "name": "Karpenter 노드 동적 프로비저닝",
+        },
+        {
+          "desc": "t3.medium 1대",
+          "max": 50,
+          "min": 30,
+          "name": "ArgoCD (EC2)",
+        },
+        {
+          "desc": "LCU 기준",
+          "max": 50,
+          "min": 20,
+          "name": "ALB (Application Load Balancer)",
+        },
+      ],
+      "name": "컴퓨팅",
+      "total": {
+        "max": 337,
+        "min": 240,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "min 0.5 ~ max 8 ACU",
+          "max": 130,
+          "min": 78,
+          "name": "Aurora Serverless v2",
+        },
+        {
+          "desc": "읽기 분산용 리더 인스턴스",
+          "max": 130,
+          "min": 104,
+          "name": "Aurora Read Replica",
+        },
+        {
+          "desc": "Aurora I/O-Optimized 기준",
+          "max": 60,
+          "min": 20,
+          "name": "Aurora 스토리지 + I/O",
+        },
+        {
+          "desc": "3AZ Replication Group",
+          "max": 94,
+          "min": 78,
+          "name": "ElastiCache Valkey/Redis",
+        },
+        {
+          "desc": "r6g.large × 3",
+          "max": 300,
+          "min": 150,
+          "name": "OpenSearch",
+        },
+      ],
+      "name": "데이터베이스",
+      "total": {
+        "max": 714,
+        "min": 430,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "$0.059/시간 + 데이터 처리 비용",
+          "max": 174,
+          "min": 129,
+          "name": "NAT Gateway (3개)",
+        },
+        {
+          "desc": "인터넷 아웃바운드 첫 1GB 무료",
+          "max": 20,
+          "min": 5,
+          "name": "데이터 전송 (outbound)",
+        },
+      ],
+      "name": "네트워크",
+      "total": {
+        "max": 194,
+        "min": 134,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "데이터 전송 + 요청 건당",
+          "max": 30,
+          "min": 5,
+          "name": "CloudFront",
+        },
+        {
+          "desc": "$5/월 + 규칙/요청 비용",
+          "max": 30,
+          "min": 20,
+          "name": "WAF Web ACL",
+        },
+      ],
+      "name": "엣지",
+      "total": {
+        "max": 60,
+        "min": 25,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "저장 + 요청 + 데이터 전송",
+          "max": 20,
+          "min": 5,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+      ],
+      "name": "스토리지",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "첫 1M 무료, 이후 $0.4/1M",
+          "max": 5,
+          "min": 0,
+          "name": "SQS",
+        },
+        {
+          "desc": "이벤트 건당 $1/1M",
+          "max": 10,
+          "min": 0,
+          "name": "EventBridge",
+        },
+      ],
+      "name": "메시징",
+      "total": {
+        "max": 15,
+        "min": 0,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "기본 포함, 상세 모니터링 추가",
+          "max": 30,
+          "min": 10,
+          "name": "CloudWatch (로그+메트릭+알람)",
+        },
+        {
+          "desc": "메트릭 수집 + 대시보드",
+          "max": 100,
+          "min": 40,
+          "name": "Amazon Managed Prometheus + Grafana",
+        },
+        {
+          "desc": "규정 준수 / 민감 데이터 모니터링",
+          "max": 200,
+          "min": 80,
+          "name": "Security Hub + GuardDuty + Config",
+        },
+        {
+          "desc": "이벤트 기록 + 쿼리",
+          "max": 60,
+          "min": 20,
+          "name": "CloudTrail (S3 저장)",
+        },
+      ],
+      "name": "운영",
+      "total": {
+        "max": 390,
+        "min": 150,
+      },
+    },
+  ],
+  "hasCommit": true,
+  "hasSpot": true,
+  "totalMax": 1730,
+  "totalMid": 1357,
+  "totalMin": 984,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > compliance (en) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "3AZ, CPU/memory based",
+          "max": 328,
+          "min": 234,
+          "name": "ECS Fargate (ARM64)",
+        },
+        {
+          "desc": "Based on LCU",
+          "max": 150,
+          "min": 60,
+          "name": "ALB (Application Load Balancer)",
+        },
+      ],
+      "name": "Compute",
+      "total": {
+        "max": 478,
+        "min": 294,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "min 0.5 ~ max 64 ACU",
+          "max": 260,
+          "min": 156,
+          "name": "Aurora Serverless v2",
+        },
+        {
+          "desc": "Reader instance for read distribution",
+          "max": 260,
+          "min": 208,
+          "name": "Aurora Read Replica",
+        },
+        {
+          "desc": "Based on Aurora I/O-Optimized",
+          "max": 200,
+          "min": 80,
+          "name": "Aurora Storage + I/O",
+        },
+        {
+          "desc": "3AZ Replication Group",
+          "max": 156,
+          "min": 130,
+          "name": "ElastiCache Valkey/Redis",
+        },
+        {
+          "desc": "r6g.large × 3",
+          "max": 800,
+          "min": 400,
+          "name": "OpenSearch",
+        },
+      ],
+      "name": "Database",
+      "total": {
+        "max": 1676,
+        "min": 974,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "$0.059/hr + data processing charges",
+          "max": 279,
+          "min": 129,
+          "name": "NAT Gateway (3)",
+        },
+        {
+          "desc": "Internet outbound, first 1GB free",
+          "max": 100,
+          "min": 30,
+          "name": "Data Transfer (outbound)",
+        },
+        {
+          "desc": "4 Interface Endpoints ($7/each/mo)",
+          "max": 40,
+          "min": 28,
+          "name": "VPC Interface Endpoints",
+        },
+      ],
+      "name": "Network",
+      "total": {
+        "max": 419,
+        "min": 187,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Data transfer + per-request charges",
+          "max": 150,
+          "min": 40,
+          "name": "CloudFront",
+        },
+        {
+          "desc": "$5/mo + rule/request charges",
+          "max": 80,
+          "min": 20,
+          "name": "WAF Web ACL",
+        },
+        {
+          "desc": "$10/mo + $1/1M requests",
+          "max": 50,
+          "min": 10,
+          "name": "Bot Control",
+        },
+      ],
+      "name": "Edge",
+      "total": {
+        "max": 280,
+        "min": 70,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Storage + requests + data transfer",
+          "max": 80,
+          "min": 20,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+      ],
+      "name": "Storage",
+      "total": {
+        "max": 80,
+        "min": 20,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "First 1M free, then $0.4/1M",
+          "max": 20,
+          "min": 0,
+          "name": "SQS",
+        },
+      ],
+      "name": "Messaging",
+      "total": {
+        "max": 20,
+        "min": 0,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Included by default, detailed monitoring extra",
+          "max": 80,
+          "min": 25,
+          "name": "CloudWatch (Logs + Metrics + Alarms)",
+        },
+        {
+          "desc": "Compliance / sensitive data monitoring",
+          "max": 200,
+          "min": 80,
+          "name": "Security Hub + GuardDuty + Config",
+        },
+        {
+          "desc": "Event logging + queries",
+          "max": 60,
+          "min": 20,
+          "name": "CloudTrail (S3 storage)",
+        },
+        {
+          "desc": "Per key usage + $1/key/mo",
+          "max": 30,
+          "min": 10,
+          "name": "KMS CMK (per service)",
+        },
+        {
+          "desc": "Full account auditing",
+          "max": 80,
+          "min": 30,
+          "name": "Control Tower + AWS Config (Organization)",
+        },
+      ],
+      "name": "Operations",
+      "total": {
+        "max": 450,
+        "min": 165,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "DR region base infrastructure cost",
+          "max": 1000,
+          "min": 400,
+          "name": "Replica Region Infrastructure",
+        },
+        {
+          "desc": "Health checks + GlobalAccelerator",
+          "max": 100,
+          "min": 35,
+          "name": "Route53 Health Checks + Global Accelerator",
+        },
+      ],
+      "name": "Multi-Region",
+      "total": {
+        "max": 1100,
+        "min": 435,
+      },
+    },
+  ],
+  "hasCommit": true,
+  "hasSpot": false,
+  "totalMax": 4503,
+  "totalMid": 3324,
+  "totalMin": 2145,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > compliance (ko) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "3AZ, CPU/메모리 기준",
+          "max": 328,
+          "min": 234,
+          "name": "ECS Fargate (ARM64)",
+        },
+        {
+          "desc": "LCU 기준",
+          "max": 150,
+          "min": 60,
+          "name": "ALB (Application Load Balancer)",
+        },
+      ],
+      "name": "컴퓨팅",
+      "total": {
+        "max": 478,
+        "min": 294,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "min 0.5 ~ max 64 ACU",
+          "max": 260,
+          "min": 156,
+          "name": "Aurora Serverless v2",
+        },
+        {
+          "desc": "읽기 분산용 리더 인스턴스",
+          "max": 260,
+          "min": 208,
+          "name": "Aurora Read Replica",
+        },
+        {
+          "desc": "Aurora I/O-Optimized 기준",
+          "max": 200,
+          "min": 80,
+          "name": "Aurora 스토리지 + I/O",
+        },
+        {
+          "desc": "3AZ Replication Group",
+          "max": 156,
+          "min": 130,
+          "name": "ElastiCache Valkey/Redis",
+        },
+        {
+          "desc": "r6g.large × 3",
+          "max": 800,
+          "min": 400,
+          "name": "OpenSearch",
+        },
+      ],
+      "name": "데이터베이스",
+      "total": {
+        "max": 1676,
+        "min": 974,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "$0.059/시간 + 데이터 처리 비용",
+          "max": 279,
+          "min": 129,
+          "name": "NAT Gateway (3개)",
+        },
+        {
+          "desc": "인터넷 아웃바운드 첫 1GB 무료",
+          "max": 100,
+          "min": 30,
+          "name": "데이터 전송 (outbound)",
+        },
+        {
+          "desc": "Interface Endpoint 4개 ($7/개/월)",
+          "max": 40,
+          "min": 28,
+          "name": "VPC Interface Endpoints",
+        },
+      ],
+      "name": "네트워크",
+      "total": {
+        "max": 419,
+        "min": 187,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "데이터 전송 + 요청 건당",
+          "max": 150,
+          "min": 40,
+          "name": "CloudFront",
+        },
+        {
+          "desc": "$5/월 + 규칙/요청 비용",
+          "max": 80,
+          "min": 20,
+          "name": "WAF Web ACL",
+        },
+        {
+          "desc": "$10/월 + $1/1M 요청",
+          "max": 50,
+          "min": 10,
+          "name": "Bot Control",
+        },
+      ],
+      "name": "엣지",
+      "total": {
+        "max": 280,
+        "min": 70,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "저장 + 요청 + 데이터 전송",
+          "max": 80,
+          "min": 20,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+      ],
+      "name": "스토리지",
+      "total": {
+        "max": 80,
+        "min": 20,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "첫 1M 무료, 이후 $0.4/1M",
+          "max": 20,
+          "min": 0,
+          "name": "SQS",
+        },
+      ],
+      "name": "메시징",
+      "total": {
+        "max": 20,
+        "min": 0,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "기본 포함, 상세 모니터링 추가",
+          "max": 80,
+          "min": 25,
+          "name": "CloudWatch (로그+메트릭+알람)",
+        },
+        {
+          "desc": "규정 준수 / 민감 데이터 모니터링",
+          "max": 200,
+          "min": 80,
+          "name": "Security Hub + GuardDuty + Config",
+        },
+        {
+          "desc": "이벤트 기록 + 쿼리",
+          "max": 60,
+          "min": 20,
+          "name": "CloudTrail (S3 저장)",
+        },
+        {
+          "desc": "키 사용 건당 + 월 $1/키",
+          "max": 30,
+          "min": 10,
+          "name": "KMS CMK (서비스별)",
+        },
+        {
+          "desc": "전체 계정 감사",
+          "max": 80,
+          "min": 30,
+          "name": "Control Tower + AWS Config (조직)",
+        },
+      ],
+      "name": "운영",
+      "total": {
+        "max": 450,
+        "min": 165,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "DR 리전 기본 인프라 비용",
+          "max": 1000,
+          "min": 400,
+          "name": "복제 리전 인프라",
+        },
+        {
+          "desc": "헬스체크 + GlobalAccelerator",
+          "max": 100,
+          "min": 35,
+          "name": "Route53 헬스체크 + 글로벌 가속",
+        },
+      ],
+      "name": "멀티리전",
+      "total": {
+        "max": 1100,
+        "min": 435,
+      },
+    },
+  ],
+  "hasCommit": true,
+  "hasSpot": false,
+  "totalMax": 4503,
+  "totalMid": 3324,
+  "totalMin": 2145,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > data_pipeline (en) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "Based on 1M+ requests/mo (first 1M free)",
+          "max": 15,
+          "min": 0,
+          "name": "Lambda Functions",
+        },
+        {
+          "desc": "Based on HTTP API",
+          "max": 20,
+          "min": 5,
+          "name": "API Gateway",
+        },
+      ],
+      "name": "Compute",
+      "total": {
+        "max": 35,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Billed per read/write request",
+          "max": 40,
+          "min": 10,
+          "name": "DynamoDB (On-Demand)",
+        },
+        {
+          "desc": "r6g.large × 2",
+          "max": 300,
+          "min": 150,
+          "name": "OpenSearch",
+        },
+      ],
+      "name": "Database",
+      "total": {
+        "max": 340,
+        "min": 160,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Internet outbound, first 1GB free",
+          "max": 20,
+          "min": 5,
+          "name": "Data Transfer (outbound)",
+        },
+      ],
+      "name": "Network",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Storage + requests + data transfer",
+          "max": 20,
+          "min": 5,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+      ],
+      "name": "Storage",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "First 1M free, then $0.4/1M",
+          "max": 5,
+          "min": 0,
+          "name": "SQS",
+        },
+        {
+          "desc": "Shard hours + data processing",
+          "max": 60,
+          "min": 20,
+          "name": "Kinesis Data Streams",
+        },
+        {
+          "desc": "$1/1M events",
+          "max": 10,
+          "min": 0,
+          "name": "EventBridge",
+        },
+      ],
+      "name": "Messaging",
+      "total": {
+        "max": 75,
+        "min": 20,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Included by default, detailed monitoring extra",
+          "max": 30,
+          "min": 10,
+          "name": "CloudWatch (Logs + Metrics + Alarms)",
+        },
+      ],
+      "name": "Operations",
+      "total": {
+        "max": 30,
+        "min": 10,
+      },
+    },
+  ],
+  "hasCommit": false,
+  "hasSpot": false,
+  "totalMax": 520,
+  "totalMid": 363,
+  "totalMin": 205,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > data_pipeline (ko) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "1M+ 요청/월 기준 (첫 1M 무료)",
+          "max": 15,
+          "min": 0,
+          "name": "Lambda 함수",
+        },
+        {
+          "desc": "HTTP API 기준",
+          "max": 20,
+          "min": 5,
+          "name": "API Gateway",
+        },
+      ],
+      "name": "컴퓨팅",
+      "total": {
+        "max": 35,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "읽기/쓰기 요청 건당 과금",
+          "max": 40,
+          "min": 10,
+          "name": "DynamoDB (On-Demand)",
+        },
+        {
+          "desc": "r6g.large × 2",
+          "max": 300,
+          "min": 150,
+          "name": "OpenSearch",
+        },
+      ],
+      "name": "데이터베이스",
+      "total": {
+        "max": 340,
+        "min": 160,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "인터넷 아웃바운드 첫 1GB 무료",
+          "max": 20,
+          "min": 5,
+          "name": "데이터 전송 (outbound)",
+        },
+      ],
+      "name": "네트워크",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "저장 + 요청 + 데이터 전송",
+          "max": 20,
+          "min": 5,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+      ],
+      "name": "스토리지",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "첫 1M 무료, 이후 $0.4/1M",
+          "max": 5,
+          "min": 0,
+          "name": "SQS",
+        },
+        {
+          "desc": "샤드 시간 + 데이터 처리",
+          "max": 60,
+          "min": 20,
+          "name": "Kinesis Data Streams",
+        },
+        {
+          "desc": "이벤트 건당 $1/1M",
+          "max": 10,
+          "min": 0,
+          "name": "EventBridge",
+        },
+      ],
+      "name": "메시징",
+      "total": {
+        "max": 75,
+        "min": 20,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "기본 포함, 상세 모니터링 추가",
+          "max": 30,
+          "min": 10,
+          "name": "CloudWatch (로그+메트릭+알람)",
+        },
+      ],
+      "name": "운영",
+      "total": {
+        "max": 30,
+        "min": 10,
+      },
+    },
+  ],
+  "hasCommit": false,
+  "hasSpot": false,
+  "totalMax": 520,
+  "totalMid": 363,
+  "totalMin": 205,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > ecommerce_mvp (en) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "2AZ, CPU/memory based",
+          "max": 168,
+          "min": 120,
+          "name": "ECS Fargate (ARM64)",
+        },
+        {
+          "desc": "Based on LCU",
+          "max": 50,
+          "min": 20,
+          "name": "ALB (Application Load Balancer)",
+        },
+      ],
+      "name": "Compute",
+      "total": {
+        "max": 218,
+        "min": 140,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "min 0.5 ~ max 8 ACU",
+          "max": 120,
+          "min": 72,
+          "name": "Aurora Serverless v2",
+        },
+        {
+          "desc": "Based on Aurora I/O-Optimized",
+          "max": 60,
+          "min": 20,
+          "name": "Aurora Storage + I/O",
+        },
+        {
+          "desc": "2AZ Replication Group",
+          "max": 96,
+          "min": 80,
+          "name": "ElastiCache Valkey/Redis",
+        },
+      ],
+      "name": "Database",
+      "total": {
+        "max": 276,
+        "min": 172,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "$0.059/hr + data processing charges",
+          "max": 88,
+          "min": 43,
+          "name": "NAT Gateway (1)",
+        },
+        {
+          "desc": "Internet outbound, first 1GB free",
+          "max": 20,
+          "min": 5,
+          "name": "Data Transfer (outbound)",
+        },
+        {
+          "desc": "4 Interface Endpoints ($7/each/mo)",
+          "max": 40,
+          "min": 28,
+          "name": "VPC Interface Endpoints",
+        },
+      ],
+      "name": "Network",
+      "total": {
+        "max": 148,
+        "min": 76,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Data transfer + per-request charges",
+          "max": 30,
+          "min": 5,
+          "name": "CloudFront",
+        },
+        {
+          "desc": "$5/mo + rule/request charges",
+          "max": 30,
+          "min": 20,
+          "name": "WAF Web ACL",
+        },
+        {
+          "desc": "$10/mo + $1/1M requests",
+          "max": 20,
+          "min": 10,
+          "name": "Bot Control",
+        },
+      ],
+      "name": "Edge",
+      "total": {
+        "max": 80,
+        "min": 35,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Storage + requests + data transfer",
+          "max": 20,
+          "min": 5,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+      ],
+      "name": "Storage",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "First 1M free, then $0.4/1M",
+          "max": 5,
+          "min": 0,
+          "name": "SQS",
+        },
+      ],
+      "name": "Messaging",
+      "total": {
+        "max": 5,
+        "min": 0,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Included by default, detailed monitoring extra",
+          "max": 30,
+          "min": 10,
+          "name": "CloudWatch (Logs + Metrics + Alarms)",
+        },
+        {
+          "desc": "Compliance / sensitive data monitoring",
+          "max": 200,
+          "min": 80,
+          "name": "Security Hub + GuardDuty + Config",
+        },
+        {
+          "desc": "Event logging + queries",
+          "max": 60,
+          "min": 20,
+          "name": "CloudTrail (S3 storage)",
+        },
+        {
+          "desc": "Per key usage + $1/key/mo",
+          "max": 30,
+          "min": 10,
+          "name": "KMS CMK (per service)",
+        },
+      ],
+      "name": "Operations",
+      "total": {
+        "max": 320,
+        "min": 120,
+      },
+    },
+  ],
+  "hasCommit": false,
+  "hasSpot": false,
+  "totalMax": 1067,
+  "totalMid": 808,
+  "totalMin": 548,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > ecommerce_mvp (ko) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "2AZ, CPU/메모리 기준",
+          "max": 168,
+          "min": 120,
+          "name": "ECS Fargate (ARM64)",
+        },
+        {
+          "desc": "LCU 기준",
+          "max": 50,
+          "min": 20,
+          "name": "ALB (Application Load Balancer)",
+        },
+      ],
+      "name": "컴퓨팅",
+      "total": {
+        "max": 218,
+        "min": 140,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "min 0.5 ~ max 8 ACU",
+          "max": 120,
+          "min": 72,
+          "name": "Aurora Serverless v2",
+        },
+        {
+          "desc": "Aurora I/O-Optimized 기준",
+          "max": 60,
+          "min": 20,
+          "name": "Aurora 스토리지 + I/O",
+        },
+        {
+          "desc": "2AZ Replication Group",
+          "max": 96,
+          "min": 80,
+          "name": "ElastiCache Valkey/Redis",
+        },
+      ],
+      "name": "데이터베이스",
+      "total": {
+        "max": 276,
+        "min": 172,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "$0.059/시간 + 데이터 처리 비용",
+          "max": 88,
+          "min": 43,
+          "name": "NAT Gateway (1개)",
+        },
+        {
+          "desc": "인터넷 아웃바운드 첫 1GB 무료",
+          "max": 20,
+          "min": 5,
+          "name": "데이터 전송 (outbound)",
+        },
+        {
+          "desc": "Interface Endpoint 4개 ($7/개/월)",
+          "max": 40,
+          "min": 28,
+          "name": "VPC Interface Endpoints",
+        },
+      ],
+      "name": "네트워크",
+      "total": {
+        "max": 148,
+        "min": 76,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "데이터 전송 + 요청 건당",
+          "max": 30,
+          "min": 5,
+          "name": "CloudFront",
+        },
+        {
+          "desc": "$5/월 + 규칙/요청 비용",
+          "max": 30,
+          "min": 20,
+          "name": "WAF Web ACL",
+        },
+        {
+          "desc": "$10/월 + $1/1M 요청",
+          "max": 20,
+          "min": 10,
+          "name": "Bot Control",
+        },
+      ],
+      "name": "엣지",
+      "total": {
+        "max": 80,
+        "min": 35,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "저장 + 요청 + 데이터 전송",
+          "max": 20,
+          "min": 5,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+      ],
+      "name": "스토리지",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "첫 1M 무료, 이후 $0.4/1M",
+          "max": 5,
+          "min": 0,
+          "name": "SQS",
+        },
+      ],
+      "name": "메시징",
+      "total": {
+        "max": 5,
+        "min": 0,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "기본 포함, 상세 모니터링 추가",
+          "max": 30,
+          "min": 10,
+          "name": "CloudWatch (로그+메트릭+알람)",
+        },
+        {
+          "desc": "규정 준수 / 민감 데이터 모니터링",
+          "max": 200,
+          "min": 80,
+          "name": "Security Hub + GuardDuty + Config",
+        },
+        {
+          "desc": "이벤트 기록 + 쿼리",
+          "max": 60,
+          "min": 20,
+          "name": "CloudTrail (S3 저장)",
+        },
+        {
+          "desc": "키 사용 건당 + 월 $1/키",
+          "max": 30,
+          "min": 10,
+          "name": "KMS CMK (서비스별)",
+        },
+      ],
+      "name": "운영",
+      "total": {
+        "max": 320,
+        "min": 120,
+      },
+    },
+  ],
+  "hasCommit": false,
+  "hasSpot": false,
+  "totalMax": 1067,
+  "totalMid": 808,
+  "totalMin": 548,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > eks_full (en) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "Control Plane $73/mo + Graviton nodes 3AZ",
+          "max": 454,
+          "min": 345,
+          "name": "EKS Cluster",
+        },
+        {
+          "desc": "Up to 70% savings with Spot mix",
+          "max": 0,
+          "min": 0,
+          "name": "Karpenter Dynamic Node Provisioning",
+        },
+        {
+          "desc": "1x t3.medium instance",
+          "max": 50,
+          "min": 30,
+          "name": "ArgoCD (EC2)",
+        },
+        {
+          "desc": "Based on LCU",
+          "max": 400,
+          "min": 150,
+          "name": "ALB (Application Load Balancer)",
+        },
+      ],
+      "name": "Compute",
+      "total": {
+        "max": 904,
+        "min": 525,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "min 0.5 ~ max 128 ACU",
+          "max": 272,
+          "min": 163,
+          "name": "Aurora Serverless v2",
+        },
+        {
+          "desc": "Reader instance for read distribution",
+          "max": 272,
+          "min": 218,
+          "name": "Aurora Read Replica",
+        },
+        {
+          "desc": "Based on Aurora I/O-Optimized",
+          "max": 600,
+          "min": 200,
+          "name": "Aurora Storage + I/O",
+        },
+        {
+          "desc": "Billed per read/write request",
+          "max": 800,
+          "min": 200,
+          "name": "DynamoDB (On-Demand)",
+        },
+        {
+          "desc": "3AZ Replication Group",
+          "max": 163,
+          "min": 136,
+          "name": "ElastiCache Valkey/Redis",
+        },
+        {
+          "desc": "r6g.large × 3",
+          "max": 1800,
+          "min": 800,
+          "name": "OpenSearch",
+        },
+      ],
+      "name": "Database",
+      "total": {
+        "max": 3907,
+        "min": 1717,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "$0.059/hr + data processing charges",
+          "max": 579,
+          "min": 129,
+          "name": "NAT Gateway (3)",
+        },
+        {
+          "desc": "Internet outbound, first 1GB free",
+          "max": 300,
+          "min": 80,
+          "name": "Data Transfer (outbound)",
+        },
+        {
+          "desc": "$0.05/hr per connection (incl. 2 tunnels) + data transfer $0.09/GB",
+          "max": 162,
+          "min": 36,
+          "name": "Site-to-Site VPN",
+        },
+        {
+          "desc": "Port $0.30/hr (1Gbps) + outbound $0.02-0.09/GB",
+          "max": 400,
+          "min": 180,
+          "name": "Direct Connect (1Gbps)",
+        },
+        {
+          "desc": "4 Interface Endpoints ($7/each/mo)",
+          "max": 40,
+          "min": 28,
+          "name": "VPC Interface Endpoints",
+        },
+      ],
+      "name": "Network",
+      "total": {
+        "max": 1481,
+        "min": 453,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Data transfer + per-request charges",
+          "max": 500,
+          "min": 100,
+          "name": "CloudFront",
+        },
+        {
+          "desc": "Fixed $3,000/mo (includes DDoS Response Team (DRT))",
+          "max": 3000,
+          "min": 3000,
+          "name": "Shield Advanced",
+        },
+      ],
+      "name": "Edge",
+      "total": {
+        "max": 3500,
+        "min": 3100,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Storage + requests + data transfer",
+          "max": 300,
+          "min": 50,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+        {
+          "desc": "Standard $0.30/GB/mo, One Zone $0.16/GB/mo",
+          "max": 500,
+          "min": 150,
+          "name": "EFS",
+        },
+      ],
+      "name": "Storage",
+      "total": {
+        "max": 800,
+        "min": 200,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "First 1M free, then $0.4/1M",
+          "max": 50,
+          "min": 0,
+          "name": "SQS",
+        },
+        {
+          "desc": "Shard hours + data processing",
+          "max": 600,
+          "min": 200,
+          "name": "Kinesis Data Streams",
+        },
+        {
+          "desc": "$1/1M events",
+          "max": 30,
+          "min": 0,
+          "name": "EventBridge",
+        },
+      ],
+      "name": "Messaging",
+      "total": {
+        "max": 680,
+        "min": 200,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Included by default, detailed monitoring extra",
+          "max": 200,
+          "min": 50,
+          "name": "CloudWatch (Logs + Metrics + Alarms)",
+        },
+        {
+          "desc": "Metrics collection + dashboards",
+          "max": 300,
+          "min": 100,
+          "name": "Amazon Managed Prometheus + Grafana",
+        },
+        {
+          "desc": "Compliance / sensitive data monitoring",
+          "max": 200,
+          "min": 80,
+          "name": "Security Hub + GuardDuty + Config",
+        },
+        {
+          "desc": "Event logging + queries",
+          "max": 60,
+          "min": 20,
+          "name": "CloudTrail (S3 storage)",
+        },
+        {
+          "desc": "Per key usage + $1/key/mo",
+          "max": 30,
+          "min": 10,
+          "name": "KMS CMK (per service)",
+        },
+        {
+          "desc": "Full account auditing",
+          "max": 80,
+          "min": 30,
+          "name": "Control Tower + AWS Config (Organization)",
+        },
+      ],
+      "name": "Operations",
+      "total": {
+        "max": 870,
+        "min": 290,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "DR region base infrastructure cost",
+          "max": 2000,
+          "min": 800,
+          "name": "Replica Region Infrastructure",
+        },
+        {
+          "desc": "Health checks + GlobalAccelerator",
+          "max": 100,
+          "min": 35,
+          "name": "Route53 Health Checks + Global Accelerator",
+        },
+      ],
+      "name": "Multi-Region",
+      "total": {
+        "max": 2100,
+        "min": 835,
+      },
+    },
+  ],
+  "hasCommit": true,
+  "hasSpot": true,
+  "totalMax": 14242,
+  "totalMid": 10781,
+  "totalMin": 7320,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > eks_full (ko) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "Control Plane $73/월 + Graviton 노드 3AZ",
+          "max": 454,
+          "min": 345,
+          "name": "EKS 클러스터",
+        },
+        {
+          "desc": "Spot 혼합으로 최대 70% 절감",
+          "max": 0,
+          "min": 0,
+          "name": "Karpenter 노드 동적 프로비저닝",
+        },
+        {
+          "desc": "t3.medium 1대",
+          "max": 50,
+          "min": 30,
+          "name": "ArgoCD (EC2)",
+        },
+        {
+          "desc": "LCU 기준",
+          "max": 400,
+          "min": 150,
+          "name": "ALB (Application Load Balancer)",
+        },
+      ],
+      "name": "컴퓨팅",
+      "total": {
+        "max": 904,
+        "min": 525,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "min 0.5 ~ max 128 ACU",
+          "max": 272,
+          "min": 163,
+          "name": "Aurora Serverless v2",
+        },
+        {
+          "desc": "읽기 분산용 리더 인스턴스",
+          "max": 272,
+          "min": 218,
+          "name": "Aurora Read Replica",
+        },
+        {
+          "desc": "Aurora I/O-Optimized 기준",
+          "max": 600,
+          "min": 200,
+          "name": "Aurora 스토리지 + I/O",
+        },
+        {
+          "desc": "읽기/쓰기 요청 건당 과금",
+          "max": 800,
+          "min": 200,
+          "name": "DynamoDB (On-Demand)",
+        },
+        {
+          "desc": "3AZ Replication Group",
+          "max": 163,
+          "min": 136,
+          "name": "ElastiCache Valkey/Redis",
+        },
+        {
+          "desc": "r6g.large × 3",
+          "max": 1800,
+          "min": 800,
+          "name": "OpenSearch",
+        },
+      ],
+      "name": "데이터베이스",
+      "total": {
+        "max": 3907,
+        "min": 1717,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "$0.059/시간 + 데이터 처리 비용",
+          "max": 579,
+          "min": 129,
+          "name": "NAT Gateway (3개)",
+        },
+        {
+          "desc": "인터넷 아웃바운드 첫 1GB 무료",
+          "max": 300,
+          "min": 80,
+          "name": "데이터 전송 (outbound)",
+        },
+        {
+          "desc": "$0.05/시간 (2 터널 포함) + 데이터 전송 $0.09/GB",
+          "max": 162,
+          "min": 36,
+          "name": "Site-to-Site VPN",
+        },
+        {
+          "desc": "포트 $0.30/시간(1Gbps) + 아웃바운드 $0.02-0.09/GB",
+          "max": 400,
+          "min": 180,
+          "name": "Direct Connect (1Gbps)",
+        },
+        {
+          "desc": "Interface Endpoint 4개 ($7/개/월)",
+          "max": 40,
+          "min": 28,
+          "name": "VPC Interface Endpoints",
+        },
+      ],
+      "name": "네트워크",
+      "total": {
+        "max": 1481,
+        "min": 453,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "데이터 전송 + 요청 건당",
+          "max": 500,
+          "min": 100,
+          "name": "CloudFront",
+        },
+        {
+          "desc": "고정 $3,000/월 (DRT 포함)",
+          "max": 3000,
+          "min": 3000,
+          "name": "Shield Advanced",
+        },
+      ],
+      "name": "엣지",
+      "total": {
+        "max": 3500,
+        "min": 3100,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "저장 + 요청 + 데이터 전송",
+          "max": 300,
+          "min": 50,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+        {
+          "desc": "Standard $0.30/GB/월, One Zone $0.16/GB/월",
+          "max": 500,
+          "min": 150,
+          "name": "EFS",
+        },
+      ],
+      "name": "스토리지",
+      "total": {
+        "max": 800,
+        "min": 200,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "첫 1M 무료, 이후 $0.4/1M",
+          "max": 50,
+          "min": 0,
+          "name": "SQS",
+        },
+        {
+          "desc": "샤드 시간 + 데이터 처리",
+          "max": 600,
+          "min": 200,
+          "name": "Kinesis Data Streams",
+        },
+        {
+          "desc": "이벤트 건당 $1/1M",
+          "max": 30,
+          "min": 0,
+          "name": "EventBridge",
+        },
+      ],
+      "name": "메시징",
+      "total": {
+        "max": 680,
+        "min": 200,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "기본 포함, 상세 모니터링 추가",
+          "max": 200,
+          "min": 50,
+          "name": "CloudWatch (로그+메트릭+알람)",
+        },
+        {
+          "desc": "메트릭 수집 + 대시보드",
+          "max": 300,
+          "min": 100,
+          "name": "Amazon Managed Prometheus + Grafana",
+        },
+        {
+          "desc": "규정 준수 / 민감 데이터 모니터링",
+          "max": 200,
+          "min": 80,
+          "name": "Security Hub + GuardDuty + Config",
+        },
+        {
+          "desc": "이벤트 기록 + 쿼리",
+          "max": 60,
+          "min": 20,
+          "name": "CloudTrail (S3 저장)",
+        },
+        {
+          "desc": "키 사용 건당 + 월 $1/키",
+          "max": 30,
+          "min": 10,
+          "name": "KMS CMK (서비스별)",
+        },
+        {
+          "desc": "전체 계정 감사",
+          "max": 80,
+          "min": 30,
+          "name": "Control Tower + AWS Config (조직)",
+        },
+      ],
+      "name": "운영",
+      "total": {
+        "max": 870,
+        "min": 290,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "DR 리전 기본 인프라 비용",
+          "max": 2000,
+          "min": 800,
+          "name": "복제 리전 인프라",
+        },
+        {
+          "desc": "헬스체크 + GlobalAccelerator",
+          "max": 100,
+          "min": 35,
+          "name": "Route53 헬스체크 + 글로벌 가속",
+        },
+      ],
+      "name": "멀티리전",
+      "total": {
+        "max": 2100,
+        "min": 835,
+      },
+    },
+  ],
+  "hasCommit": true,
+  "hasSpot": true,
+  "totalMax": 14242,
+  "totalMid": 10781,
+  "totalMin": 7320,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > generic_web_api (en) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "2AZ, CPU/memory based",
+          "max": 168,
+          "min": 120,
+          "name": "ECS Fargate (ARM64)",
+        },
+        {
+          "desc": "Based on LCU",
+          "max": 50,
+          "min": 20,
+          "name": "ALB (Application Load Balancer)",
+        },
+      ],
+      "name": "Compute",
+      "total": {
+        "max": 218,
+        "min": 140,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Multi-AZ",
+          "max": 240,
+          "min": 200,
+          "name": "RDS Instance",
+        },
+      ],
+      "name": "Database",
+      "total": {
+        "max": 240,
+        "min": 200,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "$0.059/hr + data processing charges",
+          "max": 88,
+          "min": 43,
+          "name": "NAT Gateway (1)",
+        },
+        {
+          "desc": "Internet outbound, first 1GB free",
+          "max": 20,
+          "min": 5,
+          "name": "Data Transfer (outbound)",
+        },
+      ],
+      "name": "Network",
+      "total": {
+        "max": 108,
+        "min": 48,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Data transfer + per-request charges",
+          "max": 30,
+          "min": 5,
+          "name": "CloudFront",
+        },
+        {
+          "desc": "$5/mo + rule/request charges",
+          "max": 30,
+          "min": 20,
+          "name": "WAF Web ACL",
+        },
+      ],
+      "name": "Edge",
+      "total": {
+        "max": 60,
+        "min": 25,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Storage + requests + data transfer",
+          "max": 20,
+          "min": 5,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+      ],
+      "name": "Storage",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Included by default, detailed monitoring extra",
+          "max": 30,
+          "min": 10,
+          "name": "CloudWatch (Logs + Metrics + Alarms)",
+        },
+        {
+          "desc": "Compliance / sensitive data monitoring",
+          "max": 200,
+          "min": 80,
+          "name": "Security Hub + GuardDuty + Config",
+        },
+        {
+          "desc": "Event logging + queries",
+          "max": 60,
+          "min": 20,
+          "name": "CloudTrail (S3 storage)",
+        },
+      ],
+      "name": "Operations",
+      "total": {
+        "max": 290,
+        "min": 110,
+      },
+    },
+  ],
+  "hasCommit": false,
+  "hasSpot": false,
+  "totalMax": 936,
+  "totalMid": 732,
+  "totalMin": 528,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > generic_web_api (ko) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "2AZ, CPU/메모리 기준",
+          "max": 168,
+          "min": 120,
+          "name": "ECS Fargate (ARM64)",
+        },
+        {
+          "desc": "LCU 기준",
+          "max": 50,
+          "min": 20,
+          "name": "ALB (Application Load Balancer)",
+        },
+      ],
+      "name": "컴퓨팅",
+      "total": {
+        "max": 218,
+        "min": 140,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Multi-AZ",
+          "max": 240,
+          "min": 200,
+          "name": "RDS 인스턴스",
+        },
+      ],
+      "name": "데이터베이스",
+      "total": {
+        "max": 240,
+        "min": 200,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "$0.059/시간 + 데이터 처리 비용",
+          "max": 88,
+          "min": 43,
+          "name": "NAT Gateway (1개)",
+        },
+        {
+          "desc": "인터넷 아웃바운드 첫 1GB 무료",
+          "max": 20,
+          "min": 5,
+          "name": "데이터 전송 (outbound)",
+        },
+      ],
+      "name": "네트워크",
+      "total": {
+        "max": 108,
+        "min": 48,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "데이터 전송 + 요청 건당",
+          "max": 30,
+          "min": 5,
+          "name": "CloudFront",
+        },
+        {
+          "desc": "$5/월 + 규칙/요청 비용",
+          "max": 30,
+          "min": 20,
+          "name": "WAF Web ACL",
+        },
+      ],
+      "name": "엣지",
+      "total": {
+        "max": 60,
+        "min": 25,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "저장 + 요청 + 데이터 전송",
+          "max": 20,
+          "min": 5,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+      ],
+      "name": "스토리지",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "기본 포함, 상세 모니터링 추가",
+          "max": 30,
+          "min": 10,
+          "name": "CloudWatch (로그+메트릭+알람)",
+        },
+        {
+          "desc": "규정 준수 / 민감 데이터 모니터링",
+          "max": 200,
+          "min": 80,
+          "name": "Security Hub + GuardDuty + Config",
+        },
+        {
+          "desc": "이벤트 기록 + 쿼리",
+          "max": 60,
+          "min": 20,
+          "name": "CloudTrail (S3 저장)",
+        },
+      ],
+      "name": "운영",
+      "total": {
+        "max": 290,
+        "min": 110,
+      },
+    },
+  ],
+  "hasCommit": false,
+  "hasSpot": false,
+  "totalMax": 936,
+  "totalMid": 732,
+  "totalMin": 528,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > internal_tool (en) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "Based on 1M+ requests/mo (first 1M free)",
+          "max": 15,
+          "min": 0,
+          "name": "Lambda Functions",
+        },
+        {
+          "desc": "Based on HTTP API",
+          "max": 20,
+          "min": 5,
+          "name": "API Gateway",
+        },
+      ],
+      "name": "Compute",
+      "total": {
+        "max": 35,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "min 0.5 ~ max 8 ACU",
+          "max": 30,
+          "min": 18,
+          "name": "Aurora Serverless v2",
+        },
+        {
+          "desc": "Based on Aurora I/O-Optimized",
+          "max": 60,
+          "min": 20,
+          "name": "Aurora Storage + I/O",
+        },
+        {
+          "desc": "Lambda-to-RDS connection pooling (~15% of DB cost)",
+          "max": 12,
+          "min": 8,
+          "name": "RDS Proxy",
+        },
+      ],
+      "name": "Database",
+      "total": {
+        "max": 102,
+        "min": 46,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Internet outbound, first 1GB free",
+          "max": 20,
+          "min": 5,
+          "name": "Data Transfer (outbound)",
+        },
+      ],
+      "name": "Network",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Storage + requests + data transfer",
+          "max": 20,
+          "min": 5,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+      ],
+      "name": "Storage",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Included by default, detailed monitoring extra",
+          "max": 30,
+          "min": 10,
+          "name": "CloudWatch (Logs + Metrics + Alarms)",
+        },
+      ],
+      "name": "Operations",
+      "total": {
+        "max": 30,
+        "min": 10,
+      },
+    },
+  ],
+  "hasCommit": false,
+  "hasSpot": false,
+  "totalMax": 207,
+  "totalMid": 139,
+  "totalMin": 71,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > internal_tool (ko) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "1M+ 요청/월 기준 (첫 1M 무료)",
+          "max": 15,
+          "min": 0,
+          "name": "Lambda 함수",
+        },
+        {
+          "desc": "HTTP API 기준",
+          "max": 20,
+          "min": 5,
+          "name": "API Gateway",
+        },
+      ],
+      "name": "컴퓨팅",
+      "total": {
+        "max": 35,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "min 0.5 ~ max 8 ACU",
+          "max": 30,
+          "min": 18,
+          "name": "Aurora Serverless v2",
+        },
+        {
+          "desc": "Aurora I/O-Optimized 기준",
+          "max": 60,
+          "min": 20,
+          "name": "Aurora 스토리지 + I/O",
+        },
+        {
+          "desc": "Lambda→RDS 커넥션 풀링 (DB 비용의 ~15%)",
+          "max": 12,
+          "min": 8,
+          "name": "RDS Proxy",
+        },
+      ],
+      "name": "데이터베이스",
+      "total": {
+        "max": 102,
+        "min": 46,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "인터넷 아웃바운드 첫 1GB 무료",
+          "max": 20,
+          "min": 5,
+          "name": "데이터 전송 (outbound)",
+        },
+      ],
+      "name": "네트워크",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "저장 + 요청 + 데이터 전송",
+          "max": 20,
+          "min": 5,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+      ],
+      "name": "스토리지",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "기본 포함, 상세 모니터링 추가",
+          "max": 30,
+          "min": 10,
+          "name": "CloudWatch (로그+메트릭+알람)",
+        },
+      ],
+      "name": "운영",
+      "total": {
+        "max": 30,
+        "min": 10,
+      },
+    },
+  ],
+  "hasCommit": false,
+  "hasSpot": false,
+  "totalMax": 207,
+  "totalMid": 139,
+  "totalMin": 71,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > iot_platform (en) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "2AZ, CPU/memory based",
+          "max": 168,
+          "min": 84,
+          "name": "ECS Fargate (ARM64)",
+        },
+        {
+          "desc": "Based on LCU",
+          "max": 50,
+          "min": 20,
+          "name": "ALB (Application Load Balancer)",
+        },
+        {
+          "desc": "Based on 20 core devices",
+          "max": 5,
+          "min": 3,
+          "name": "IoT Greengrass",
+        },
+      ],
+      "name": "Compute",
+      "total": {
+        "max": 223,
+        "min": 107,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Billed per read/write request",
+          "max": 40,
+          "min": 10,
+          "name": "DynamoDB (On-Demand)",
+        },
+        {
+          "desc": "2AZ Replication Group",
+          "max": 144,
+          "min": 120,
+          "name": "ElastiCache Valkey/Redis",
+        },
+        {
+          "desc": "r6g.large × 2",
+          "max": 300,
+          "min": 150,
+          "name": "OpenSearch",
+        },
+      ],
+      "name": "Database",
+      "total": {
+        "max": 484,
+        "min": 280,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "$0.059/hr + data processing charges",
+          "max": 88,
+          "min": 43,
+          "name": "NAT Gateway (1)",
+        },
+        {
+          "desc": "Internet outbound, first 1GB free",
+          "max": 20,
+          "min": 5,
+          "name": "Data Transfer (outbound)",
+        },
+      ],
+      "name": "Network",
+      "total": {
+        "max": 108,
+        "min": 48,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "$5/mo + rule/request charges",
+          "max": 30,
+          "min": 20,
+          "name": "WAF Web ACL",
+        },
+      ],
+      "name": "Edge",
+      "total": {
+        "max": 30,
+        "min": 20,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Storage + requests + data transfer",
+          "max": 20,
+          "min": 5,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+      ],
+      "name": "Storage",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "First 1M free, then $0.4/1M",
+          "max": 5,
+          "min": 0,
+          "name": "SQS",
+        },
+        {
+          "desc": "Shard hours + data processing",
+          "max": 60,
+          "min": 20,
+          "name": "Kinesis Data Streams",
+        },
+        {
+          "desc": "$1/1M events",
+          "max": 10,
+          "min": 0,
+          "name": "EventBridge",
+        },
+      ],
+      "name": "Messaging",
+      "total": {
+        "max": 75,
+        "min": 20,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Included by default, detailed monitoring extra",
+          "max": 30,
+          "min": 10,
+          "name": "CloudWatch (Logs + Metrics + Alarms)",
+        },
+        {
+          "desc": "Compliance / sensitive data monitoring",
+          "max": 200,
+          "min": 80,
+          "name": "Security Hub + GuardDuty + Config",
+        },
+        {
+          "desc": "Event logging + queries",
+          "max": 60,
+          "min": 20,
+          "name": "CloudTrail (S3 storage)",
+        },
+      ],
+      "name": "Operations",
+      "total": {
+        "max": 290,
+        "min": 110,
+      },
+    },
+  ],
+  "hasCommit": false,
+  "hasSpot": true,
+  "totalMax": 1230,
+  "totalMid": 910,
+  "totalMin": 590,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > iot_platform (ko) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "2AZ, CPU/메모리 기준",
+          "max": 168,
+          "min": 84,
+          "name": "ECS Fargate (ARM64)",
+        },
+        {
+          "desc": "LCU 기준",
+          "max": 50,
+          "min": 20,
+          "name": "ALB (Application Load Balancer)",
+        },
+        {
+          "desc": "코어 디바이스 20대 기준",
+          "max": 5,
+          "min": 3,
+          "name": "IoT Greengrass",
+        },
+      ],
+      "name": "컴퓨팅",
+      "total": {
+        "max": 223,
+        "min": 107,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "읽기/쓰기 요청 건당 과금",
+          "max": 40,
+          "min": 10,
+          "name": "DynamoDB (On-Demand)",
+        },
+        {
+          "desc": "2AZ Replication Group",
+          "max": 144,
+          "min": 120,
+          "name": "ElastiCache Valkey/Redis",
+        },
+        {
+          "desc": "r6g.large × 2",
+          "max": 300,
+          "min": 150,
+          "name": "OpenSearch",
+        },
+      ],
+      "name": "데이터베이스",
+      "total": {
+        "max": 484,
+        "min": 280,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "$0.059/시간 + 데이터 처리 비용",
+          "max": 88,
+          "min": 43,
+          "name": "NAT Gateway (1개)",
+        },
+        {
+          "desc": "인터넷 아웃바운드 첫 1GB 무료",
+          "max": 20,
+          "min": 5,
+          "name": "데이터 전송 (outbound)",
+        },
+      ],
+      "name": "네트워크",
+      "total": {
+        "max": 108,
+        "min": 48,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "$5/월 + 규칙/요청 비용",
+          "max": 30,
+          "min": 20,
+          "name": "WAF Web ACL",
+        },
+      ],
+      "name": "엣지",
+      "total": {
+        "max": 30,
+        "min": 20,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "저장 + 요청 + 데이터 전송",
+          "max": 20,
+          "min": 5,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+      ],
+      "name": "스토리지",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "첫 1M 무료, 이후 $0.4/1M",
+          "max": 5,
+          "min": 0,
+          "name": "SQS",
+        },
+        {
+          "desc": "샤드 시간 + 데이터 처리",
+          "max": 60,
+          "min": 20,
+          "name": "Kinesis Data Streams",
+        },
+        {
+          "desc": "이벤트 건당 $1/1M",
+          "max": 10,
+          "min": 0,
+          "name": "EventBridge",
+        },
+      ],
+      "name": "메시징",
+      "total": {
+        "max": 75,
+        "min": 20,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "기본 포함, 상세 모니터링 추가",
+          "max": 30,
+          "min": 10,
+          "name": "CloudWatch (로그+메트릭+알람)",
+        },
+        {
+          "desc": "규정 준수 / 민감 데이터 모니터링",
+          "max": 200,
+          "min": 80,
+          "name": "Security Hub + GuardDuty + Config",
+        },
+        {
+          "desc": "이벤트 기록 + 쿼리",
+          "max": 60,
+          "min": 20,
+          "name": "CloudTrail (S3 저장)",
+        },
+      ],
+      "name": "운영",
+      "total": {
+        "max": 290,
+        "min": 110,
+      },
+    },
+  ],
+  "hasCommit": false,
+  "hasSpot": true,
+  "totalMax": 1230,
+  "totalMid": 910,
+  "totalMin": 590,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > minimal (en) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "2AZ, CPU/memory based",
+          "max": 168,
+          "min": 120,
+          "name": "ECS Fargate (ARM64)",
+        },
+        {
+          "desc": "Based on LCU",
+          "max": 50,
+          "min": 20,
+          "name": "ALB (Application Load Balancer)",
+        },
+      ],
+      "name": "Compute",
+      "total": {
+        "max": 218,
+        "min": 140,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "$0.059/hr + data processing charges",
+          "max": 88,
+          "min": 43,
+          "name": "NAT Gateway (1)",
+        },
+        {
+          "desc": "Internet outbound, first 1GB free",
+          "max": 20,
+          "min": 5,
+          "name": "Data Transfer (outbound)",
+        },
+      ],
+      "name": "Network",
+      "total": {
+        "max": 108,
+        "min": 48,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Data transfer + per-request charges",
+          "max": 30,
+          "min": 5,
+          "name": "CloudFront",
+        },
+      ],
+      "name": "Edge",
+      "total": {
+        "max": 30,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "First 1M free, then $0.4/1M",
+          "max": 5,
+          "min": 0,
+          "name": "SQS",
+        },
+      ],
+      "name": "Messaging",
+      "total": {
+        "max": 5,
+        "min": 0,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Included by default, detailed monitoring extra",
+          "max": 30,
+          "min": 10,
+          "name": "CloudWatch (Logs + Metrics + Alarms)",
+        },
+      ],
+      "name": "Operations",
+      "total": {
+        "max": 30,
+        "min": 10,
+      },
+    },
+  ],
+  "hasCommit": false,
+  "hasSpot": false,
+  "totalMax": 391,
+  "totalMid": 297,
+  "totalMin": 203,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > minimal (ko) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "2AZ, CPU/메모리 기준",
+          "max": 168,
+          "min": 120,
+          "name": "ECS Fargate (ARM64)",
+        },
+        {
+          "desc": "LCU 기준",
+          "max": 50,
+          "min": 20,
+          "name": "ALB (Application Load Balancer)",
+        },
+      ],
+      "name": "컴퓨팅",
+      "total": {
+        "max": 218,
+        "min": 140,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "$0.059/시간 + 데이터 처리 비용",
+          "max": 88,
+          "min": 43,
+          "name": "NAT Gateway (1개)",
+        },
+        {
+          "desc": "인터넷 아웃바운드 첫 1GB 무료",
+          "max": 20,
+          "min": 5,
+          "name": "데이터 전송 (outbound)",
+        },
+      ],
+      "name": "네트워크",
+      "total": {
+        "max": 108,
+        "min": 48,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "데이터 전송 + 요청 건당",
+          "max": 30,
+          "min": 5,
+          "name": "CloudFront",
+        },
+      ],
+      "name": "엣지",
+      "total": {
+        "max": 30,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "첫 1M 무료, 이후 $0.4/1M",
+          "max": 5,
+          "min": 0,
+          "name": "SQS",
+        },
+      ],
+      "name": "메시징",
+      "total": {
+        "max": 5,
+        "min": 0,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "기본 포함, 상세 모니터링 추가",
+          "max": 30,
+          "min": 10,
+          "name": "CloudWatch (로그+메트릭+알람)",
+        },
+      ],
+      "name": "운영",
+      "total": {
+        "max": 30,
+        "min": 10,
+      },
+    },
+  ],
+  "hasCommit": false,
+  "hasSpot": false,
+  "totalMax": 391,
+  "totalMid": 297,
+  "totalMin": 203,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > realtime_chat (en) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "2AZ, CPU/memory based",
+          "max": 168,
+          "min": 120,
+          "name": "ECS Fargate (ARM64)",
+        },
+        {
+          "desc": "Based on LCU",
+          "max": 50,
+          "min": 20,
+          "name": "ALB (Application Load Balancer)",
+        },
+      ],
+      "name": "Compute",
+      "total": {
+        "max": 218,
+        "min": 140,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "min 0.5 ~ max 8 ACU",
+          "max": 200,
+          "min": 120,
+          "name": "Aurora Serverless v2",
+        },
+        {
+          "desc": "Based on Aurora I/O-Optimized",
+          "max": 60,
+          "min": 20,
+          "name": "Aurora Storage + I/O",
+        },
+        {
+          "desc": "Billed per read/write request",
+          "max": 40,
+          "min": 10,
+          "name": "DynamoDB (On-Demand)",
+        },
+        {
+          "desc": "2AZ Replication Group",
+          "max": 144,
+          "min": 120,
+          "name": "ElastiCache Valkey/Redis",
+        },
+        {
+          "desc": "r6g.large × 2",
+          "max": 300,
+          "min": 150,
+          "name": "OpenSearch",
+        },
+      ],
+      "name": "Database",
+      "total": {
+        "max": 744,
+        "min": 420,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "$0.059/hr + data processing charges",
+          "max": 131,
+          "min": 86,
+          "name": "NAT Gateway (2)",
+        },
+        {
+          "desc": "Internet outbound, first 1GB free",
+          "max": 20,
+          "min": 5,
+          "name": "Data Transfer (outbound)",
+        },
+      ],
+      "name": "Network",
+      "total": {
+        "max": 151,
+        "min": 91,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Data transfer + per-request charges",
+          "max": 30,
+          "min": 5,
+          "name": "CloudFront",
+        },
+        {
+          "desc": "$5/mo + rule/request charges",
+          "max": 30,
+          "min": 20,
+          "name": "WAF Web ACL",
+        },
+      ],
+      "name": "Edge",
+      "total": {
+        "max": 60,
+        "min": 25,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Storage + requests + data transfer",
+          "max": 20,
+          "min": 5,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+      ],
+      "name": "Storage",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "First 1M free, then $0.4/1M",
+          "max": 5,
+          "min": 0,
+          "name": "SQS",
+        },
+        {
+          "desc": "Shard hours + data processing",
+          "max": 60,
+          "min": 20,
+          "name": "Kinesis Data Streams",
+        },
+      ],
+      "name": "Messaging",
+      "total": {
+        "max": 65,
+        "min": 20,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Included by default, detailed monitoring extra",
+          "max": 30,
+          "min": 10,
+          "name": "CloudWatch (Logs + Metrics + Alarms)",
+        },
+        {
+          "desc": "Compliance / sensitive data monitoring",
+          "max": 200,
+          "min": 80,
+          "name": "Security Hub + GuardDuty + Config",
+        },
+        {
+          "desc": "Event logging + queries",
+          "max": 60,
+          "min": 20,
+          "name": "CloudTrail (S3 storage)",
+        },
+      ],
+      "name": "Operations",
+      "total": {
+        "max": 290,
+        "min": 110,
+      },
+    },
+  ],
+  "hasCommit": false,
+  "hasSpot": false,
+  "totalMax": 1548,
+  "totalMid": 1180,
+  "totalMin": 811,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > realtime_chat (ko) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "2AZ, CPU/메모리 기준",
+          "max": 168,
+          "min": 120,
+          "name": "ECS Fargate (ARM64)",
+        },
+        {
+          "desc": "LCU 기준",
+          "max": 50,
+          "min": 20,
+          "name": "ALB (Application Load Balancer)",
+        },
+      ],
+      "name": "컴퓨팅",
+      "total": {
+        "max": 218,
+        "min": 140,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "min 0.5 ~ max 8 ACU",
+          "max": 200,
+          "min": 120,
+          "name": "Aurora Serverless v2",
+        },
+        {
+          "desc": "Aurora I/O-Optimized 기준",
+          "max": 60,
+          "min": 20,
+          "name": "Aurora 스토리지 + I/O",
+        },
+        {
+          "desc": "읽기/쓰기 요청 건당 과금",
+          "max": 40,
+          "min": 10,
+          "name": "DynamoDB (On-Demand)",
+        },
+        {
+          "desc": "2AZ Replication Group",
+          "max": 144,
+          "min": 120,
+          "name": "ElastiCache Valkey/Redis",
+        },
+        {
+          "desc": "r6g.large × 2",
+          "max": 300,
+          "min": 150,
+          "name": "OpenSearch",
+        },
+      ],
+      "name": "데이터베이스",
+      "total": {
+        "max": 744,
+        "min": 420,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "$0.059/시간 + 데이터 처리 비용",
+          "max": 131,
+          "min": 86,
+          "name": "NAT Gateway (2개)",
+        },
+        {
+          "desc": "인터넷 아웃바운드 첫 1GB 무료",
+          "max": 20,
+          "min": 5,
+          "name": "데이터 전송 (outbound)",
+        },
+      ],
+      "name": "네트워크",
+      "total": {
+        "max": 151,
+        "min": 91,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "데이터 전송 + 요청 건당",
+          "max": 30,
+          "min": 5,
+          "name": "CloudFront",
+        },
+        {
+          "desc": "$5/월 + 규칙/요청 비용",
+          "max": 30,
+          "min": 20,
+          "name": "WAF Web ACL",
+        },
+      ],
+      "name": "엣지",
+      "total": {
+        "max": 60,
+        "min": 25,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "저장 + 요청 + 데이터 전송",
+          "max": 20,
+          "min": 5,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+      ],
+      "name": "스토리지",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "첫 1M 무료, 이후 $0.4/1M",
+          "max": 5,
+          "min": 0,
+          "name": "SQS",
+        },
+        {
+          "desc": "샤드 시간 + 데이터 처리",
+          "max": 60,
+          "min": 20,
+          "name": "Kinesis Data Streams",
+        },
+      ],
+      "name": "메시징",
+      "total": {
+        "max": 65,
+        "min": 20,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "기본 포함, 상세 모니터링 추가",
+          "max": 30,
+          "min": 10,
+          "name": "CloudWatch (로그+메트릭+알람)",
+        },
+        {
+          "desc": "규정 준수 / 민감 데이터 모니터링",
+          "max": 200,
+          "min": 80,
+          "name": "Security Hub + GuardDuty + Config",
+        },
+        {
+          "desc": "이벤트 기록 + 쿼리",
+          "max": 60,
+          "min": 20,
+          "name": "CloudTrail (S3 저장)",
+        },
+      ],
+      "name": "운영",
+      "total": {
+        "max": 290,
+        "min": 110,
+      },
+    },
+  ],
+  "hasCommit": false,
+  "hasSpot": false,
+  "totalMax": 1548,
+  "totalMid": 1180,
+  "totalMin": 811,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > serverless (en) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "Based on 1M+ requests/mo (first 1M free)",
+          "max": 15,
+          "min": 0,
+          "name": "Lambda Functions",
+        },
+        {
+          "desc": "Based on HTTP API",
+          "max": 20,
+          "min": 5,
+          "name": "API Gateway",
+        },
+      ],
+      "name": "Compute",
+      "total": {
+        "max": 35,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Billed per read/write request",
+          "max": 40,
+          "min": 10,
+          "name": "DynamoDB (On-Demand)",
+        },
+      ],
+      "name": "Database",
+      "total": {
+        "max": 40,
+        "min": 10,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Internet outbound, first 1GB free",
+          "max": 20,
+          "min": 5,
+          "name": "Data Transfer (outbound)",
+        },
+      ],
+      "name": "Network",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Storage + requests + data transfer",
+          "max": 20,
+          "min": 5,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+      ],
+      "name": "Storage",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Included by default, detailed monitoring extra",
+          "max": 30,
+          "min": 10,
+          "name": "CloudWatch (Logs + Metrics + Alarms)",
+        },
+      ],
+      "name": "Operations",
+      "total": {
+        "max": 30,
+        "min": 10,
+      },
+    },
+  ],
+  "hasCommit": false,
+  "hasSpot": false,
+  "totalMax": 145,
+  "totalMid": 90,
+  "totalMin": 35,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > serverless (ko) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "1M+ 요청/월 기준 (첫 1M 무료)",
+          "max": 15,
+          "min": 0,
+          "name": "Lambda 함수",
+        },
+        {
+          "desc": "HTTP API 기준",
+          "max": 20,
+          "min": 5,
+          "name": "API Gateway",
+        },
+      ],
+      "name": "컴퓨팅",
+      "total": {
+        "max": 35,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "읽기/쓰기 요청 건당 과금",
+          "max": 40,
+          "min": 10,
+          "name": "DynamoDB (On-Demand)",
+        },
+      ],
+      "name": "데이터베이스",
+      "total": {
+        "max": 40,
+        "min": 10,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "인터넷 아웃바운드 첫 1GB 무료",
+          "max": 20,
+          "min": 5,
+          "name": "데이터 전송 (outbound)",
+        },
+      ],
+      "name": "네트워크",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "저장 + 요청 + 데이터 전송",
+          "max": 20,
+          "min": 5,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+      ],
+      "name": "스토리지",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "기본 포함, 상세 모니터링 추가",
+          "max": 30,
+          "min": 10,
+          "name": "CloudWatch (로그+메트릭+알람)",
+        },
+      ],
+      "name": "운영",
+      "total": {
+        "max": 30,
+        "min": 10,
+      },
+    },
+  ],
+  "hasCommit": false,
+  "hasSpot": false,
+  "totalMax": 145,
+  "totalMid": 90,
+  "totalMin": 35,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > ticketing (en) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "2AZ, CPU/memory based",
+          "max": 168,
+          "min": 120,
+          "name": "ECS Fargate (ARM64)",
+        },
+        {
+          "desc": "Based on LCU",
+          "max": 50,
+          "min": 20,
+          "name": "ALB (Application Load Balancer)",
+        },
+      ],
+      "name": "Compute",
+      "total": {
+        "max": 218,
+        "min": 140,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "min 0.5 ~ max 8 ACU",
+          "max": 200,
+          "min": 120,
+          "name": "Aurora Serverless v2",
+        },
+        {
+          "desc": "Based on Aurora I/O-Optimized",
+          "max": 60,
+          "min": 20,
+          "name": "Aurora Storage + I/O",
+        },
+        {
+          "desc": "Billed per read/write request",
+          "max": 40,
+          "min": 10,
+          "name": "DynamoDB (On-Demand)",
+        },
+        {
+          "desc": "2AZ Replication Group",
+          "max": 144,
+          "min": 120,
+          "name": "ElastiCache Valkey/Redis",
+        },
+      ],
+      "name": "Database",
+      "total": {
+        "max": 444,
+        "min": 270,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "$0.059/hr + data processing charges",
+          "max": 88,
+          "min": 43,
+          "name": "NAT Gateway (1)",
+        },
+        {
+          "desc": "Internet outbound, first 1GB free",
+          "max": 20,
+          "min": 5,
+          "name": "Data Transfer (outbound)",
+        },
+        {
+          "desc": "4 Interface Endpoints ($7/each/mo)",
+          "max": 40,
+          "min": 28,
+          "name": "VPC Interface Endpoints",
+        },
+      ],
+      "name": "Network",
+      "total": {
+        "max": 148,
+        "min": 76,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Data transfer + per-request charges",
+          "max": 30,
+          "min": 5,
+          "name": "CloudFront",
+        },
+        {
+          "desc": "$5/mo + rule/request charges",
+          "max": 30,
+          "min": 20,
+          "name": "WAF Web ACL",
+        },
+        {
+          "desc": "$10/mo + $1/1M requests",
+          "max": 20,
+          "min": 10,
+          "name": "Bot Control",
+        },
+      ],
+      "name": "Edge",
+      "total": {
+        "max": 80,
+        "min": 35,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Storage + requests + data transfer",
+          "max": 20,
+          "min": 5,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+      ],
+      "name": "Storage",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "First 1M free, then $0.4/1M",
+          "max": 5,
+          "min": 0,
+          "name": "SQS",
+        },
+      ],
+      "name": "Messaging",
+      "total": {
+        "max": 5,
+        "min": 0,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "Included by default, detailed monitoring extra",
+          "max": 30,
+          "min": 10,
+          "name": "CloudWatch (Logs + Metrics + Alarms)",
+        },
+        {
+          "desc": "Compliance / sensitive data monitoring",
+          "max": 200,
+          "min": 80,
+          "name": "Security Hub + GuardDuty + Config",
+        },
+        {
+          "desc": "Event logging + queries",
+          "max": 60,
+          "min": 20,
+          "name": "CloudTrail (S3 storage)",
+        },
+        {
+          "desc": "Per key usage + $1/key/mo",
+          "max": 30,
+          "min": 10,
+          "name": "KMS CMK (per service)",
+        },
+      ],
+      "name": "Operations",
+      "total": {
+        "max": 320,
+        "min": 120,
+      },
+    },
+  ],
+  "hasCommit": false,
+  "hasSpot": false,
+  "totalMax": 1235,
+  "totalMid": 941,
+  "totalMin": 646,
+}
+`;
+
+exports[`estimateMonthlyCost snapshots > ticketing (ko) 1`] = `
+{
+  "categories": [
+    {
+      "items": [
+        {
+          "desc": "2AZ, CPU/메모리 기준",
+          "max": 168,
+          "min": 120,
+          "name": "ECS Fargate (ARM64)",
+        },
+        {
+          "desc": "LCU 기준",
+          "max": 50,
+          "min": 20,
+          "name": "ALB (Application Load Balancer)",
+        },
+      ],
+      "name": "컴퓨팅",
+      "total": {
+        "max": 218,
+        "min": 140,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "min 0.5 ~ max 8 ACU",
+          "max": 200,
+          "min": 120,
+          "name": "Aurora Serverless v2",
+        },
+        {
+          "desc": "Aurora I/O-Optimized 기준",
+          "max": 60,
+          "min": 20,
+          "name": "Aurora 스토리지 + I/O",
+        },
+        {
+          "desc": "읽기/쓰기 요청 건당 과금",
+          "max": 40,
+          "min": 10,
+          "name": "DynamoDB (On-Demand)",
+        },
+        {
+          "desc": "2AZ Replication Group",
+          "max": 144,
+          "min": 120,
+          "name": "ElastiCache Valkey/Redis",
+        },
+      ],
+      "name": "데이터베이스",
+      "total": {
+        "max": 444,
+        "min": 270,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "$0.059/시간 + 데이터 처리 비용",
+          "max": 88,
+          "min": 43,
+          "name": "NAT Gateway (1개)",
+        },
+        {
+          "desc": "인터넷 아웃바운드 첫 1GB 무료",
+          "max": 20,
+          "min": 5,
+          "name": "데이터 전송 (outbound)",
+        },
+        {
+          "desc": "Interface Endpoint 4개 ($7/개/월)",
+          "max": 40,
+          "min": 28,
+          "name": "VPC Interface Endpoints",
+        },
+      ],
+      "name": "네트워크",
+      "total": {
+        "max": 148,
+        "min": 76,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "데이터 전송 + 요청 건당",
+          "max": 30,
+          "min": 5,
+          "name": "CloudFront",
+        },
+        {
+          "desc": "$5/월 + 규칙/요청 비용",
+          "max": 30,
+          "min": 20,
+          "name": "WAF Web ACL",
+        },
+        {
+          "desc": "$10/월 + $1/1M 요청",
+          "max": 20,
+          "min": 10,
+          "name": "Bot Control",
+        },
+      ],
+      "name": "엣지",
+      "total": {
+        "max": 80,
+        "min": 35,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "저장 + 요청 + 데이터 전송",
+          "max": 20,
+          "min": 5,
+          "name": "S3 (Standard + Intelligent-Tiering)",
+        },
+      ],
+      "name": "스토리지",
+      "total": {
+        "max": 20,
+        "min": 5,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "첫 1M 무료, 이후 $0.4/1M",
+          "max": 5,
+          "min": 0,
+          "name": "SQS",
+        },
+      ],
+      "name": "메시징",
+      "total": {
+        "max": 5,
+        "min": 0,
+      },
+    },
+    {
+      "items": [
+        {
+          "desc": "기본 포함, 상세 모니터링 추가",
+          "max": 30,
+          "min": 10,
+          "name": "CloudWatch (로그+메트릭+알람)",
+        },
+        {
+          "desc": "규정 준수 / 민감 데이터 모니터링",
+          "max": 200,
+          "min": 80,
+          "name": "Security Hub + GuardDuty + Config",
+        },
+        {
+          "desc": "이벤트 기록 + 쿼리",
+          "max": 60,
+          "min": 20,
+          "name": "CloudTrail (S3 저장)",
+        },
+        {
+          "desc": "키 사용 건당 + 월 $1/키",
+          "max": 30,
+          "min": 10,
+          "name": "KMS CMK (서비스별)",
+        },
+      ],
+      "name": "운영",
+      "total": {
+        "max": 320,
+        "min": 120,
+      },
+    },
+  ],
+  "hasCommit": false,
+  "hasSpot": false,
+  "totalMax": 1235,
+  "totalMid": 941,
+  "totalMin": 646,
+}
+`;

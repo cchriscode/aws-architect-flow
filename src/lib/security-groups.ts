@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { WizardState, SecurityGroup, SecurityGroupResult } from "@/lib/types";
+import { toArrayFiltered } from "@/lib/shared";
 
 /**
  * generateSecurityGroups -- generates SG rules and IaC code from wizard state.
@@ -11,12 +12,7 @@ export function generateSecurityGroups(
 ): SecurityGroupResult {
   const orchest = state.compute?.orchestration;
   const archP = state.compute?.arch_pattern;
-  const db = state.data?.primary_db || [];
-  const dbArr: string[] = Array.isArray(db)
-    ? db
-    : db && db !== "none"
-      ? [db]
-      : [];
+  const dbArr = toArrayFiltered(state.data?.primary_db);
   const cache = state.data?.cache;
   const search = state.data?.search;
   const cdn = state.edge?.cdn;

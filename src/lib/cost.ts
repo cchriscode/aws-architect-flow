@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { WizardState, CostEstimate, CostCategory } from "@/lib/types";
+import { toArray, toArrayFiltered, azToNum } from "@/lib/shared";
+import { COMMITMENT_DISCOUNT, FARGATE_COMMITMENT_DISCOUNT, SPOT_DISCOUNT, DAU_SCALE } from "@/lib/shared";
 
 const dict = {
   ko: {
@@ -213,15 +215,12 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
   const orchest  = state.compute?.orchestration;
   const archP    = state.compute?.arch_pattern;
   const nodeType = state.compute?.compute_node;
-  const db       = state.data?.primary_db || [];
-  const dbArr    = Array.isArray(db) ? db : (db && db !== "none" ? [db] : []);
+  const dbArr    = toArrayFiltered(state.data?.primary_db);
   const dbHa     = state.data?.db_ha;
   const cache    = state.data?.cache;
-  const az       = state.network?.az_count;
-  const azNum    = az === "3az" ? 3 : az === "1az" ? 1 : 2;
+  const azNum    = azToNum(state.network?.az_count);
   const natStrat = state.network?.nat_strategy;
-  const hybridRaw = state.network?.hybrid;
-  const hybridArr = Array.isArray(hybridRaw) ? hybridRaw : (hybridRaw ? [hybridRaw] : []);
+  const hybridArr = toArray(state.network?.hybrid);
   const waf      = state.edge?.waf;
   const cdn      = state.edge?.cdn;
   const dau      = state.scale?.dau;
@@ -231,14 +230,13 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
   const spot     = state.cost?.spot_usage;
   const priority = state.cost?.priority;
   const encr     = state.compliance?.encryption;
-  const cert     = state.compliance?.cert || [];
+  const cert     = toArray(state.compliance?.cert);
   const monitor  = state.platform?.k8s_monitoring;
   const account  = state.network?.account_structure;
   const search   = state.data?.search;
-  const storArr  = Array.isArray(state.data?.storage) ? state.data.storage : [];
-  const types    = state.workload?.type || [];
-  const queueRaw = state.integration?.queue_type;
-  const queueArr = Array.isArray(queueRaw) ? queueRaw : (queueRaw ? [queueRaw] : []);
+  const storArr  = toArray(state.data?.storage);
+  const types    = toArray(state.workload?.type);
+  const queueArr = toArray(state.integration?.queue_type);
   const syncMode = state.integration?.sync_async;
   const nodeP    = state.platform?.node_provisioner;
   const gitops   = state.platform?.gitops;
@@ -249,19 +247,19 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
   const isLarge     = dau === "large" || dau === "xlarge";
   const isXL        = dau === "xlarge";
   const isMedium    = dau === "medium";
-  const hasCritCert = cert.includes("pci") || cert.includes("hipaa") || cert.includes("sox");
+  const hasCritCert = cert.some((c: string) => ["pci", "hipaa", "sox"].includes(c));
   const hasAurora   = dbArr.some((d: string) => d.startsWith("aurora"));
   const hasRds      = dbArr.some((d: string) => d.startsWith("rds"));
   const hasDynamo   = dbArr.includes("dynamodb");
   const hasRedis    = cache === "redis" || cache === "both";
 
-  // Commitment discount rate
-  const commitDiscount = commit === "3yr" ? 0.34 : commit === "1yr" ? 0.65 : 1.0;
-  const fargateCommitDiscount = commit === "3yr" ? 0.48 : commit === "1yr" ? 0.78 : 1.0;
-  const spotDiscount   = spot === "heavy" ? 0.30 : spot === "partial" ? 0.70 : 1.0;
+  // Commitment & spot discount rates
+  const commitDiscount = COMMITMENT_DISCOUNT[commit as keyof typeof COMMITMENT_DISCOUNT] ?? 1.0;
+  const fargateCommitDiscount = FARGATE_COMMITMENT_DISCOUNT[commit as keyof typeof FARGATE_COMMITMENT_DISCOUNT] ?? 1.0;
+  const spotDiscount = SPOT_DISCOUNT[spot as keyof typeof SPOT_DISCOUNT] ?? 1.0;
 
   // Scale coefficient by DAU
-  const scale = dau === "xlarge" ? 8 : dau === "large" ? 4 : dau === "medium" ? 2 : dau === "small" ? 1 : 0.5;
+  const scale = DAU_SCALE[dau as keyof typeof DAU_SCALE] ?? 0.5;
 
   const categories: CostCategory[] = [];
   const I = (cat: string, name: string, desc: string, min: number, max: number) => {

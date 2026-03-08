@@ -1,0 +1,2685 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateSummary snapshots > b2b_saas (en) 1`] = `
+{
+  "complexity": {
+    "factors": [
+      "Uses Kubernetes",
+      "Automated deployment management",
+    ],
+    "level": "Medium",
+    "score": 5,
+  },
+  "headline": "SaaS + Web/API service powered by EKS (Kubernetes)",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "ALB (Application Load Balancer)",
+      "role": "Public subnet, TLS termination",
+    },
+    {
+      "icon": "⚙️",
+      "name": "IAM Identity Center (SSO)",
+      "role": "SAML 2.0 / OIDC",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Container Image Registry",
+      "role": "Private container image registry",
+    },
+    {
+      "icon": "⚙️",
+      "name": "EKS on EC2",
+      "role": "3AZ, services 10+",
+    },
+    {
+      "icon": "⚙️",
+      "name": "EC2 Auto Scaling",
+      "role": "Graviton instances recommended",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Tenant isolation strategy",
+      "role": "Row-Level Security (Aurora) / Schema-per-Tenant / DB-per-Tenant",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS PrivateLink (tenant API exposure)",
+      "role": "Provide private API to tenant VPC via VPC Endpoint Service",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS Lake Formation (tenant analytics)",
+      "role": "Per-tenant data catalog + access control",
+    },
+  ],
+  "nextSteps": [
+    "Write base network configuration with Terraform — sets up the foundational environment for service communication",
+    "Set up container runtime and deploy first service — package your app and deploy it to the cloud",
+    "Build a CI/CD pipeline — code changes are automatically deployed through dev, test, and production",
+    "Set up system monitoring and alerting — receive immediate notifications when incidents occur",
+    "Review the security checklist — apply least-privilege access per account and verify security settings",
+  ],
+  "oneLiner": "Configuration balancing growth and stability",
+  "rolloutPath": [
+    {
+      "duration": "3–4 weeks",
+      "phase": "Phase 1: Infrastructure Foundation",
+      "tasks": [
+        "Manage infrastructure as code (eliminate manual configuration)",
+        "Configure multi-AZ setup (automatic failover on outage)",
+        "Separate environments (dev/staging/production)",
+      ],
+    },
+    {
+      "duration": "2–3 weeks",
+      "phase": "Phase 2: Service Deployment",
+      "tasks": [
+        "Build app deployment and runtime environment",
+        "Add caching for frequently accessed data (performance boost)",
+        "Configure CDN for global low-latency responses",
+      ],
+    },
+    {
+      "duration": "2–4 weeks",
+      "phase": "Phase 3: Operations Maturity",
+      "tasks": [
+        "Analyze costs and evaluate reserved/savings plans",
+        "Set up automated security auditing",
+        "Run load tests and tune auto-scaling",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99.95",
+    "errors": 0,
+    "monthlyCost": 1357,
+    "wafrScore": 85,
+    "warnings": 0,
+  },
+  "teamReqs": {
+    "minDevs": 3,
+    "roles": [
+      "Backend Developer",
+      "Infrastructure/Deployment",
+    ],
+    "skills": [
+      "Container/DB operations",
+      "CI/CD pipeline setup",
+      "Infrastructure as Code",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > b2b_saas (ko) 1`] = `
+{
+  "complexity": {
+    "factors": [
+      "쿠버네티스 사용",
+      "자동 배포 관리",
+    ],
+    "level": "보통",
+    "score": 5,
+  },
+  "headline": "EKS(쿠버네티스) 기반 SaaS + 웹/API 서비스",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "ALB (Application Load Balancer)",
+      "role": "퍼블릭 서브넷, TLS 종료",
+    },
+    {
+      "icon": "⚙️",
+      "name": "IAM Identity Center (SSO)",
+      "role": "SAML 2.0 / OIDC",
+    },
+    {
+      "icon": "⚙️",
+      "name": "컨테이너 이미지 저장소",
+      "role": "프라이빗 컨테이너 이미지 레지스트리",
+    },
+    {
+      "icon": "⚙️",
+      "name": "EKS on EC2",
+      "role": "3AZ, 서비스 10+",
+    },
+    {
+      "icon": "⚙️",
+      "name": "EC2 Auto Scaling",
+      "role": "Graviton 인스턴스 권장",
+    },
+    {
+      "icon": "🗄️",
+      "name": "테넌트 격리 전략",
+      "role": "Row-Level Security (Aurora) / Schema-per-Tenant / DB-per-Tenant",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS PrivateLink (테넌트 API 노출)",
+      "role": "VPC Endpoint Service로 테넌트 VPC에 프라이빗 API 제공",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS Lake Formation (테넌트 분석)",
+      "role": "테넌트별 데이터 카탈로그 + 접근 제어",
+    },
+  ],
+  "nextSteps": [
+    "Terraform으로 기본 네트워크 구성 코드 작성하기 — 서버들이 통신할 기본 환경을 만듭니다",
+    "컨테이너 실행 환경 만들고 첫 서비스 배포하기 — 앱을 패키징해서 클라우드에 올립니다",
+    "자동 배포 파이프라인 구축하기 — 코드 변경 시 개발→테스트→운영 환경으로 자동 배포됩니다",
+    "시스템 모니터링 및 알람 설정하기 — 장애 발생 시 즉시 알림을 받을 수 있습니다",
+    "보안 체크리스트 검토하기 — 계정별 최소 권한만 부여하고 보안 설정을 확인합니다",
+  ],
+  "oneLiner": "사용자 확보와 안정성을 동시에 잡는 구성",
+  "rolloutPath": [
+    {
+      "duration": "3–4주",
+      "phase": "1단계: 인프라 기반",
+      "tasks": [
+        "인프라를 코드로 관리하기 (수동 설정 제거)",
+        "다중 가용 영역 구성 (장애 시 자동 전환)",
+        "환경 분리 (개발/테스트/운영)",
+      ],
+    },
+    {
+      "duration": "2–3주",
+      "phase": "2단계: 서비스 배포",
+      "tasks": [
+        "앱 배포 및 실행 환경 구축",
+        "자주 쓰는 데이터 캐시 추가 (속도 향상)",
+        "전 세계 빠른 응답을 위한 CDN 설정",
+      ],
+    },
+    {
+      "duration": "2–4주",
+      "phase": "3단계: 운영 고도화",
+      "tasks": [
+        "비용 분석 및 장기 할인 요금제 검토",
+        "보안 자동 감사 설정",
+        "부하 테스트 및 자동 확장 조정",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99.95",
+    "errors": 0,
+    "monthlyCost": 1357,
+    "wafrScore": 85,
+    "warnings": 0,
+  },
+  "teamReqs": {
+    "minDevs": 3,
+    "roles": [
+      "백엔드 개발자",
+      "인프라/배포 겸직",
+    ],
+    "skills": [
+      "컨테이너/DB 운영",
+      "자동 배포 구축",
+      "인프라 코드화",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > compliance (en) 1`] = `
+{
+  "complexity": {
+    "factors": [
+      "Disaster recovery secondary region",
+      "Regulatory compliance required",
+      "Financial audit compliance",
+      "100K+ daily active users",
+    ],
+    "level": "Complex",
+    "score": 6,
+  },
+  "headline": "E-Commerce service powered by ECS Fargate (managed containers)",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "ALB (Application Load Balancer)",
+      "role": "Public subnet, TLS termination",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Authentication (Cognito)",
+      "role": "User Pool + Identity Pool",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Container Image Registry",
+      "role": "Private container image registry",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Container Runtime (Fargate)",
+      "role": "Private subnet, 3AZ",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Aurora PostgreSQL",
+      "role": "Multi-AZ + Read Replica, isolated subnet",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS Backup",
+      "role": "Backup retention 35 days, cross-region copy",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Cache Server (Valkey/Redis)",
+      "role": "Cluster Mode, Multi-AZ",
+    },
+    {
+      "icon": "🗄️",
+      "name": "OpenSearch Service",
+      "role": "Multi-AZ deployment",
+    },
+  ],
+  "nextSteps": [
+    "Write base network configuration with Terraform — sets up the foundational environment for service communication",
+    "Set up container runtime and deploy first service — package your app and deploy it to the cloud",
+    "Build a CI/CD pipeline — code changes are automatically deployed through dev, test, and production",
+    "Set up system monitoring and alerting — receive immediate notifications when incidents occur",
+    "Review the security checklist — apply least-privilege access per account and verify security settings",
+  ],
+  "oneLiner": "Configuration achieving both cost optimization and high availability",
+  "rolloutPath": [
+    {
+      "duration": "4–6 weeks",
+      "phase": "Phase 1: Design & Foundation",
+      "tasks": [
+        "Set up separate AWS accounts per team/environment",
+        "Design network architecture (inter-service communication)",
+        "Modularize infrastructure code (reusable building blocks)",
+      ],
+    },
+    {
+      "duration": "3–4 weeks",
+      "phase": "Phase 2: Core Services",
+      "tasks": [
+        "Build container orchestration platform",
+        "Configure database high availability (automatic failover)",
+        "Build inter-service messaging infrastructure",
+      ],
+    },
+    {
+      "duration": "2–4 weeks",
+      "phase": "Phase 3: Operations Platform",
+      "tasks": [
+        "Set up monitoring and log aggregation platform",
+        "Build CI/CD pipeline",
+        "Harden security (access control, encryption)",
+      ],
+    },
+    {
+      "duration": "2–4 weeks",
+      "phase": "Phase 4: Optimization",
+      "tasks": [
+        "Cost optimization (reserved instances, spot capacity)",
+        "Performance optimization (eliminate bottlenecks)",
+        "Disaster recovery drills (failure scenario exercises)",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99.99",
+    "errors": 0,
+    "monthlyCost": 3324,
+    "wafrScore": 83,
+    "warnings": 1,
+  },
+  "teamReqs": {
+    "minDevs": 5,
+    "roles": [
+      "Backend Developer",
+      "Infrastructure Engineer",
+      "Frontend Developer",
+    ],
+    "skills": [
+      "Kubernetes management",
+      "Infrastructure automation",
+      "System monitoring",
+      "Security management",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > compliance (ko) 1`] = `
+{
+  "complexity": {
+    "factors": [
+      "재해 복구용 보조 리전",
+      "규정 준수 필수",
+      "재무 감사 준수",
+      "일일 사용자 10만+",
+    ],
+    "level": "복잡",
+    "score": 6,
+  },
+  "headline": "ECS Fargate(관리형 컨테이너) 기반 이커머스 서비스",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "ALB (Application Load Balancer)",
+      "role": "퍼블릭 서브넷, TLS 종료",
+    },
+    {
+      "icon": "⚙️",
+      "name": "로그인/인증 (Cognito)",
+      "role": "User Pool + Identity Pool",
+    },
+    {
+      "icon": "⚙️",
+      "name": "컨테이너 이미지 저장소",
+      "role": "프라이빗 컨테이너 이미지 레지스트리",
+    },
+    {
+      "icon": "⚙️",
+      "name": "컨테이너 실행 (Fargate)",
+      "role": "프라이빗 서브넷, 3AZ",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Aurora PostgreSQL",
+      "role": "Multi-AZ + Read Replica, 격리 서브넷",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS Backup",
+      "role": "백업 보존 35일, 크로스 리전 복사",
+    },
+    {
+      "icon": "🗄️",
+      "name": "캐시 서버 (Valkey/Redis)",
+      "role": "Cluster Mode, Multi-AZ",
+    },
+    {
+      "icon": "🗄️",
+      "name": "OpenSearch Service",
+      "role": "Multi-AZ 배포",
+    },
+  ],
+  "nextSteps": [
+    "Terraform으로 기본 네트워크 구성 코드 작성하기 — 서버들이 통신할 기본 환경을 만듭니다",
+    "컨테이너 실행 환경 만들고 첫 서비스 배포하기 — 앱을 패키징해서 클라우드에 올립니다",
+    "자동 배포 파이프라인 구축하기 — 코드 변경 시 개발→테스트→운영 환경으로 자동 배포됩니다",
+    "시스템 모니터링 및 알람 설정하기 — 장애 발생 시 즉시 알림을 받을 수 있습니다",
+    "보안 체크리스트 검토하기 — 계정별 최소 권한만 부여하고 보안 설정을 확인합니다",
+  ],
+  "oneLiner": "비용 최적화와 고가용성을 모두 달성하는 구성",
+  "rolloutPath": [
+    {
+      "duration": "4–6주",
+      "phase": "1단계: 설계 및 기반",
+      "tasks": [
+        "팀/환경별 별도 AWS 계정 구성",
+        "네트워크 설계 (서버 간 통신 환경)",
+        "인프라 코드 모듈화 (재사용 가능한 블록)",
+      ],
+    },
+    {
+      "duration": "3–4주",
+      "phase": "2단계: 핵심 서비스",
+      "tasks": [
+        "컨테이너 실행 플랫폼 구축",
+        "DB 고가용성 구성 (장애 시 자동 전환)",
+        "서비스 간 메시징 인프라 구축",
+      ],
+    },
+    {
+      "duration": "2–4주",
+      "phase": "3단계: 운영 플랫폼",
+      "tasks": [
+        "시스템 모니터링/로그 수집 플랫폼",
+        "자동 배포 파이프라인 구축",
+        "보안 강화 (권한 관리, 암호화)",
+      ],
+    },
+    {
+      "duration": "2–4주",
+      "phase": "4단계: 최적화",
+      "tasks": [
+        "비용 최적화 (장기 할인/여유 서버 활용)",
+        "성능 최적화 (병목 해소)",
+        "재해 복구 훈련 (장애 대비 시나리오)",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99.99",
+    "errors": 0,
+    "monthlyCost": 3324,
+    "wafrScore": 83,
+    "warnings": 1,
+  },
+  "teamReqs": {
+    "minDevs": 5,
+    "roles": [
+      "백엔드 개발자",
+      "인프라 엔지니어",
+      "프론트엔드 개발자",
+    ],
+    "skills": [
+      "쿠버네티스 관리",
+      "인프라 자동화",
+      "시스템 모니터링",
+      "보안 관리",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > data_pipeline (en) 1`] = `
+{
+  "complexity": {
+    "factors": [],
+    "level": "Easy",
+    "score": 1,
+  },
+  "headline": "Data Pipeline service powered by Serverless (no server management)",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "API Management (API Gateway)",
+      "role": "REST/HTTP API",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Serverless Functions (Lambda)",
+      "role": "ARM/Graviton2, 512MB~3GB",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Key-Value NoSQL DB (DynamoDB)",
+      "role": "Global Table available, auto failover ~30s, On-Demand/Provisioned",
+    },
+    {
+      "icon": "🗄️",
+      "name": "DynamoDB PITR + Backup",
+      "role": "Point-in-Time Recovery (35 days) + AWS Backup policy",
+    },
+    {
+      "icon": "🗄️",
+      "name": "OpenSearch Service",
+      "role": "Multi-AZ deployment",
+    },
+    {
+      "icon": "🗄️",
+      "name": "S3",
+      "role": "Public (static) + Private (data)",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS Glue",
+      "role": "Serverless ETL + data catalog",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Amazon Athena",
+      "role": "Serverless SQL on S3",
+    },
+  ],
+  "nextSteps": [
+    "Write base network configuration with Terraform — sets up the foundational environment for service communication",
+    "Configure serverless functions and API integration — runs only on request, saving costs",
+    "Build a CI/CD pipeline — code changes are automatically deployed through dev, test, and production",
+    "Set up system monitoring and alerting — receive immediate notifications when incidents occur",
+    "Review the security checklist — apply least-privilege access per account and verify security settings",
+  ],
+  "oneLiner": "Configuration balancing growth and stability",
+  "rolloutPath": [
+    {
+      "duration": "3–4 weeks",
+      "phase": "Phase 1: Infrastructure Foundation",
+      "tasks": [
+        "Manage infrastructure as code (eliminate manual configuration)",
+        "Configure multi-AZ setup (automatic failover on outage)",
+        "Separate environments (dev/staging/production)",
+      ],
+    },
+    {
+      "duration": "2–3 weeks",
+      "phase": "Phase 2: Service Deployment",
+      "tasks": [
+        "Build app deployment and runtime environment",
+        "Add caching for frequently accessed data (performance boost)",
+        "Configure CDN for global low-latency responses",
+      ],
+    },
+    {
+      "duration": "2–4 weeks",
+      "phase": "Phase 3: Operations Maturity",
+      "tasks": [
+        "Analyze costs and evaluate reserved/savings plans",
+        "Set up automated security auditing",
+        "Run load tests and tune auto-scaling",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99.9",
+    "errors": 0,
+    "monthlyCost": 363,
+    "wafrScore": 78,
+    "warnings": 0,
+  },
+  "teamReqs": {
+    "minDevs": 1,
+    "roles": [
+      "Full-stack Developer",
+    ],
+    "skills": [
+      "AWS fundamentals",
+      "Infrastructure automation basics",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > data_pipeline (ko) 1`] = `
+{
+  "complexity": {
+    "factors": [],
+    "level": "쉬움",
+    "score": 1,
+  },
+  "headline": "서버리스(서버 관리 불필요) 기반 데이터 파이프라인 서비스",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "API 연결 관리",
+      "role": "REST/HTTP API",
+    },
+    {
+      "icon": "⚙️",
+      "name": "서버리스 함수 (Lambda)",
+      "role": "ARM/Graviton2, 512MB~3GB",
+    },
+    {
+      "icon": "🗄️",
+      "name": "키-값 NoSQL DB (DynamoDB)",
+      "role": "Global Table 가능, 자동 페일오버 ~30초, On-Demand/Provisioned",
+    },
+    {
+      "icon": "🗄️",
+      "name": "DynamoDB PITR + Backup",
+      "role": "Point-in-Time Recovery (35일) + AWS Backup 정책",
+    },
+    {
+      "icon": "🗄️",
+      "name": "OpenSearch Service",
+      "role": "Multi-AZ 배포",
+    },
+    {
+      "icon": "🗄️",
+      "name": "S3",
+      "role": "퍼블릭(정적) + 프라이빗(데이터)",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS Glue",
+      "role": "서버리스 ETL + 데이터 카탈로그",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Amazon Athena",
+      "role": "S3 위의 서버리스 SQL",
+    },
+  ],
+  "nextSteps": [
+    "Terraform으로 기본 네트워크 구성 코드 작성하기 — 서버들이 통신할 기본 환경을 만듭니다",
+    "서버리스 함수와 API 연결 설정하기 — 요청이 올 때만 실행되어 비용이 절약됩니다",
+    "자동 배포 파이프라인 구축하기 — 코드 변경 시 개발→테스트→운영 환경으로 자동 배포됩니다",
+    "시스템 모니터링 및 알람 설정하기 — 장애 발생 시 즉시 알림을 받을 수 있습니다",
+    "보안 체크리스트 검토하기 — 계정별 최소 권한만 부여하고 보안 설정을 확인합니다",
+  ],
+  "oneLiner": "사용자 확보와 안정성을 동시에 잡는 구성",
+  "rolloutPath": [
+    {
+      "duration": "3–4주",
+      "phase": "1단계: 인프라 기반",
+      "tasks": [
+        "인프라를 코드로 관리하기 (수동 설정 제거)",
+        "다중 가용 영역 구성 (장애 시 자동 전환)",
+        "환경 분리 (개발/테스트/운영)",
+      ],
+    },
+    {
+      "duration": "2–3주",
+      "phase": "2단계: 서비스 배포",
+      "tasks": [
+        "앱 배포 및 실행 환경 구축",
+        "자주 쓰는 데이터 캐시 추가 (속도 향상)",
+        "전 세계 빠른 응답을 위한 CDN 설정",
+      ],
+    },
+    {
+      "duration": "2–4주",
+      "phase": "3단계: 운영 고도화",
+      "tasks": [
+        "비용 분석 및 장기 할인 요금제 검토",
+        "보안 자동 감사 설정",
+        "부하 테스트 및 자동 확장 조정",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99.9",
+    "errors": 0,
+    "monthlyCost": 363,
+    "wafrScore": 78,
+    "warnings": 0,
+  },
+  "teamReqs": {
+    "minDevs": 1,
+    "roles": [
+      "풀스택 개발자",
+    ],
+    "skills": [
+      "AWS 기본 사용법",
+      "인프라 자동화 입문",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > ecommerce_mvp (en) 1`] = `
+{
+  "complexity": {
+    "factors": [],
+    "level": "Easy",
+    "score": 1,
+  },
+  "headline": "E-Commerce service powered by ECS Fargate (managed containers)",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "ALB (Application Load Balancer)",
+      "role": "Public subnet, TLS termination",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Authentication (Cognito)",
+      "role": "User Pool + Identity Pool",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Container Image Registry",
+      "role": "Private container image registry",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Container Runtime (Fargate)",
+      "role": "Private subnet, 2AZ",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Aurora PostgreSQL",
+      "role": "Multi-AZ, auto failover ~30s, isolated subnet",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS Backup",
+      "role": "Backup retention 35 days, cross-region copy",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Cache Server (Valkey/Redis)",
+      "role": "Cluster Mode",
+    },
+    {
+      "icon": "🗄️",
+      "name": "S3",
+      "role": "Public (static) + Private (data)",
+    },
+  ],
+  "nextSteps": [
+    "Write base network configuration with Terraform — sets up the foundational environment for service communication",
+    "Set up container runtime and deploy first service — package your app and deploy it to the cloud",
+    "Build a CI/CD pipeline — code changes are automatically deployed through dev, test, and production",
+    "Set up system monitoring and alerting — receive immediate notifications when incidents occur",
+    "Review the security checklist — apply least-privilege access per account and verify security settings",
+  ],
+  "oneLiner": "Minimum-cost configuration for rapid validation",
+  "rolloutPath": [
+    {
+      "duration": "2–4 weeks",
+      "phase": "Phase 1: Foundation",
+      "tasks": [
+        "Create network environment (base infrastructure for service communication)",
+        "Set up database",
+        "Configure CI/CD environment",
+      ],
+    },
+    {
+      "duration": "1–2 weeks",
+      "phase": "Phase 2: MVP Deployment",
+      "tasks": [
+        "Deploy first service",
+        "Connect domain and enable HTTPS",
+        "Set up basic system health monitoring",
+      ],
+    },
+    {
+      "duration": "2–4 weeks",
+      "phase": "Phase 3: Stabilization",
+      "tasks": [
+        "Test auto-scaling under increased traffic",
+        "Run disaster recovery drills",
+        "Review cost optimization",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99.9",
+    "errors": 0,
+    "monthlyCost": 808,
+    "wafrScore": 78,
+    "warnings": 0,
+  },
+  "teamReqs": {
+    "minDevs": 1,
+    "roles": [
+      "Full-stack Developer",
+    ],
+    "skills": [
+      "AWS fundamentals",
+      "Infrastructure automation basics",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > ecommerce_mvp (ko) 1`] = `
+{
+  "complexity": {
+    "factors": [],
+    "level": "쉬움",
+    "score": 1,
+  },
+  "headline": "ECS Fargate(관리형 컨테이너) 기반 이커머스 서비스",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "ALB (Application Load Balancer)",
+      "role": "퍼블릭 서브넷, TLS 종료",
+    },
+    {
+      "icon": "⚙️",
+      "name": "로그인/인증 (Cognito)",
+      "role": "User Pool + Identity Pool",
+    },
+    {
+      "icon": "⚙️",
+      "name": "컨테이너 이미지 저장소",
+      "role": "프라이빗 컨테이너 이미지 레지스트리",
+    },
+    {
+      "icon": "⚙️",
+      "name": "컨테이너 실행 (Fargate)",
+      "role": "프라이빗 서브넷, 2AZ",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Aurora PostgreSQL",
+      "role": "Multi-AZ, 자동 페일오버 ~30초, 격리 서브넷",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS Backup",
+      "role": "백업 보존 35일, 크로스 리전 복사",
+    },
+    {
+      "icon": "🗄️",
+      "name": "캐시 서버 (Valkey/Redis)",
+      "role": "Cluster Mode",
+    },
+    {
+      "icon": "🗄️",
+      "name": "S3",
+      "role": "퍼블릭(정적) + 프라이빗(데이터)",
+    },
+  ],
+  "nextSteps": [
+    "Terraform으로 기본 네트워크 구성 코드 작성하기 — 서버들이 통신할 기본 환경을 만듭니다",
+    "컨테이너 실행 환경 만들고 첫 서비스 배포하기 — 앱을 패키징해서 클라우드에 올립니다",
+    "자동 배포 파이프라인 구축하기 — 코드 변경 시 개발→테스트→운영 환경으로 자동 배포됩니다",
+    "시스템 모니터링 및 알람 설정하기 — 장애 발생 시 즉시 알림을 받을 수 있습니다",
+    "보안 체크리스트 검토하기 — 계정별 최소 권한만 부여하고 보안 설정을 확인합니다",
+  ],
+  "oneLiner": "빠른 검증을 위한 최소 비용 구성",
+  "rolloutPath": [
+    {
+      "duration": "2–4주",
+      "phase": "1단계: 기반 구축",
+      "tasks": [
+        "네트워크 환경 생성 (서버들이 통신할 기본 환경)",
+        "데이터베이스 생성",
+        "자동 배포 환경 설정",
+      ],
+    },
+    {
+      "duration": "1–2주",
+      "phase": "2단계: MVP 배포",
+      "tasks": [
+        "첫 서비스 배포",
+        "도메인 연결 및 보안 접속(HTTPS) 적용",
+        "시스템 상태 모니터링 기본 설정",
+      ],
+    },
+    {
+      "duration": "2–4주",
+      "phase": "3단계: 안정화",
+      "tasks": [
+        "접속자 증가 시 자동 확장 테스트",
+        "장애 발생 시 복구 훈련",
+        "비용 최적화 검토",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99.9",
+    "errors": 0,
+    "monthlyCost": 808,
+    "wafrScore": 78,
+    "warnings": 0,
+  },
+  "teamReqs": {
+    "minDevs": 1,
+    "roles": [
+      "풀스택 개발자",
+    ],
+    "skills": [
+      "AWS 기본 사용법",
+      "인프라 자동화 입문",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > eks_full (en) 1`] = `
+{
+  "complexity": {
+    "factors": [
+      "Uses Kubernetes",
+      "Service mesh communication management",
+      "Multi-region active-active operation",
+      "Regulatory compliance required",
+      "1M+ daily active users",
+      "Automated deployment management",
+    ],
+    "level": "Very Complex",
+    "score": 10,
+  },
+  "headline": "SaaS + Web/API service powered by EKS (Kubernetes)",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "ALB (Application Load Balancer)",
+      "role": "Public subnet, TLS termination",
+    },
+    {
+      "icon": "⚙️",
+      "name": "IAM Identity Center (SSO)",
+      "role": "SAML 2.0 / OIDC",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Container Image Registry",
+      "role": "Private container image registry",
+    },
+    {
+      "icon": "⚙️",
+      "name": "EKS on EC2",
+      "role": "3AZ, services 10+",
+    },
+    {
+      "icon": "⚙️",
+      "name": "EC2 Auto Scaling",
+      "role": "Graviton instances recommended",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Tenant isolation strategy",
+      "role": "Row-Level Security (Aurora) / Schema-per-Tenant / DB-per-Tenant",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS PrivateLink (tenant API exposure)",
+      "role": "Provide private API to tenant VPC via VPC Endpoint Service",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS Lake Formation (tenant analytics)",
+      "role": "Per-tenant data catalog + access control",
+    },
+  ],
+  "nextSteps": [
+    "Write base network configuration with Terraform — sets up the foundational environment for service communication",
+    "Set up container runtime and deploy first service — package your app and deploy it to the cloud",
+    "Build a CI/CD pipeline — code changes are automatically deployed through dev, test, and production",
+    "Set up system monitoring and alerting — receive immediate notifications when incidents occur",
+    "Review the security checklist — apply least-privilege access per account and verify security settings",
+  ],
+  "oneLiner": "Configuration for reliably handling large-scale traffic",
+  "rolloutPath": [
+    {
+      "duration": "4–6 weeks",
+      "phase": "Phase 1: Design & Foundation",
+      "tasks": [
+        "Set up separate AWS accounts per team/environment",
+        "Design network architecture (inter-service communication)",
+        "Modularize infrastructure code (reusable building blocks)",
+      ],
+    },
+    {
+      "duration": "3–4 weeks",
+      "phase": "Phase 2: Core Services",
+      "tasks": [
+        "Build container orchestration platform",
+        "Configure database high availability (automatic failover)",
+        "Build inter-service messaging infrastructure",
+      ],
+    },
+    {
+      "duration": "2–4 weeks",
+      "phase": "Phase 3: Operations Platform",
+      "tasks": [
+        "Set up monitoring and log aggregation platform",
+        "Build CI/CD pipeline",
+        "Harden security (access control, encryption)",
+      ],
+    },
+    {
+      "duration": "2–4 weeks",
+      "phase": "Phase 4: Optimization",
+      "tasks": [
+        "Cost optimization (reserved instances, spot capacity)",
+        "Performance optimization (eliminate bottlenecks)",
+        "Disaster recovery drills (failure scenario exercises)",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99.99",
+    "errors": 0,
+    "monthlyCost": 10781,
+    "wafrScore": 91,
+    "warnings": 1,
+  },
+  "teamReqs": {
+    "minDevs": 8,
+    "roles": [
+      "Backend",
+      "SRE",
+      "Security",
+      "Frontend",
+      "DBA",
+    ],
+    "skills": [
+      "Kubernetes operations",
+      "Service mesh",
+      "Automated deployment/recovery",
+      "Multi-region operations",
+      "Compliance management",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > eks_full (ko) 1`] = `
+{
+  "complexity": {
+    "factors": [
+      "쿠버네티스 사용",
+      "서비스 간 통신 관리",
+      "다중 리전 동시 운영",
+      "규정 준수 필수",
+      "일일 사용자 100만+",
+      "자동 배포 관리",
+    ],
+    "level": "매우 복잡",
+    "score": 10,
+  },
+  "headline": "EKS(쿠버네티스) 기반 SaaS + 웹/API 서비스",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "ALB (Application Load Balancer)",
+      "role": "퍼블릭 서브넷, TLS 종료",
+    },
+    {
+      "icon": "⚙️",
+      "name": "IAM Identity Center (SSO)",
+      "role": "SAML 2.0 / OIDC",
+    },
+    {
+      "icon": "⚙️",
+      "name": "컨테이너 이미지 저장소",
+      "role": "프라이빗 컨테이너 이미지 레지스트리",
+    },
+    {
+      "icon": "⚙️",
+      "name": "EKS on EC2",
+      "role": "3AZ, 서비스 10+",
+    },
+    {
+      "icon": "⚙️",
+      "name": "EC2 Auto Scaling",
+      "role": "Graviton 인스턴스 권장",
+    },
+    {
+      "icon": "🗄️",
+      "name": "테넌트 격리 전략",
+      "role": "Row-Level Security (Aurora) / Schema-per-Tenant / DB-per-Tenant",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS PrivateLink (테넌트 API 노출)",
+      "role": "VPC Endpoint Service로 테넌트 VPC에 프라이빗 API 제공",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS Lake Formation (테넌트 분석)",
+      "role": "테넌트별 데이터 카탈로그 + 접근 제어",
+    },
+  ],
+  "nextSteps": [
+    "Terraform으로 기본 네트워크 구성 코드 작성하기 — 서버들이 통신할 기본 환경을 만듭니다",
+    "컨테이너 실행 환경 만들고 첫 서비스 배포하기 — 앱을 패키징해서 클라우드에 올립니다",
+    "자동 배포 파이프라인 구축하기 — 코드 변경 시 개발→테스트→운영 환경으로 자동 배포됩니다",
+    "시스템 모니터링 및 알람 설정하기 — 장애 발생 시 즉시 알림을 받을 수 있습니다",
+    "보안 체크리스트 검토하기 — 계정별 최소 권한만 부여하고 보안 설정을 확인합니다",
+  ],
+  "oneLiner": "대규모 트래픽을 안정적으로 처리하는 구성",
+  "rolloutPath": [
+    {
+      "duration": "4–6주",
+      "phase": "1단계: 설계 및 기반",
+      "tasks": [
+        "팀/환경별 별도 AWS 계정 구성",
+        "네트워크 설계 (서버 간 통신 환경)",
+        "인프라 코드 모듈화 (재사용 가능한 블록)",
+      ],
+    },
+    {
+      "duration": "3–4주",
+      "phase": "2단계: 핵심 서비스",
+      "tasks": [
+        "컨테이너 실행 플랫폼 구축",
+        "DB 고가용성 구성 (장애 시 자동 전환)",
+        "서비스 간 메시징 인프라 구축",
+      ],
+    },
+    {
+      "duration": "2–4주",
+      "phase": "3단계: 운영 플랫폼",
+      "tasks": [
+        "시스템 모니터링/로그 수집 플랫폼",
+        "자동 배포 파이프라인 구축",
+        "보안 강화 (권한 관리, 암호화)",
+      ],
+    },
+    {
+      "duration": "2–4주",
+      "phase": "4단계: 최적화",
+      "tasks": [
+        "비용 최적화 (장기 할인/여유 서버 활용)",
+        "성능 최적화 (병목 해소)",
+        "재해 복구 훈련 (장애 대비 시나리오)",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99.99",
+    "errors": 0,
+    "monthlyCost": 10781,
+    "wafrScore": 91,
+    "warnings": 1,
+  },
+  "teamReqs": {
+    "minDevs": 8,
+    "roles": [
+      "백엔드",
+      "시스템 안정성(SRE)",
+      "보안",
+      "프론트엔드",
+      "DB 관리자",
+    ],
+    "skills": [
+      "쿠버네티스 운영",
+      "서비스 메시",
+      "자동 배포/복구",
+      "다중 리전 운영",
+      "규정 준수 관리",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > generic_web_api (en) 1`] = `
+{
+  "complexity": {
+    "factors": [],
+    "level": "Easy",
+    "score": 1,
+  },
+  "headline": "Web/API service powered by ECS Fargate (managed containers)",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "ALB (Application Load Balancer)",
+      "role": "Public subnet, TLS termination",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Authentication (Cognito)",
+      "role": "User Pool + Identity Pool",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Container Image Registry",
+      "role": "Private container image registry",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Container Runtime (Fargate)",
+      "role": "Private subnet, 2AZ",
+    },
+    {
+      "icon": "🗄️",
+      "name": "RDS PostgreSQL",
+      "role": "Multi-AZ, auto failover ~30s, isolated subnet",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS Backup",
+      "role": "Backup retention 7 days, cross-region copy",
+    },
+    {
+      "icon": "🗄️",
+      "name": "S3",
+      "role": "Public (static) + Private (data)",
+    },
+    {
+      "icon": "🚀",
+      "name": "DNS/Domain Management",
+      "role": "Health check + failover routing",
+    },
+  ],
+  "nextSteps": [
+    "Write base network configuration with Terraform — sets up the foundational environment for service communication",
+    "Set up container runtime and deploy first service — package your app and deploy it to the cloud",
+    "Build a CI/CD pipeline — code changes are automatically deployed through dev, test, and production",
+    "Set up system monitoring and alerting — receive immediate notifications when incidents occur",
+    "Review the security checklist — apply least-privilege access per account and verify security settings",
+  ],
+  "oneLiner": "Minimum-cost configuration for rapid validation",
+  "rolloutPath": [
+    {
+      "duration": "2–4 weeks",
+      "phase": "Phase 1: Foundation",
+      "tasks": [
+        "Create network environment (base infrastructure for service communication)",
+        "Set up database",
+        "Configure CI/CD environment",
+      ],
+    },
+    {
+      "duration": "1–2 weeks",
+      "phase": "Phase 2: MVP Deployment",
+      "tasks": [
+        "Deploy first service",
+        "Connect domain and enable HTTPS",
+        "Set up basic system health monitoring",
+      ],
+    },
+    {
+      "duration": "2–4 weeks",
+      "phase": "Phase 3: Stabilization",
+      "tasks": [
+        "Test auto-scaling under increased traffic",
+        "Run disaster recovery drills",
+        "Review cost optimization",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99.9",
+    "errors": 0,
+    "monthlyCost": 732,
+    "wafrScore": 69,
+    "warnings": 0,
+  },
+  "teamReqs": {
+    "minDevs": 1,
+    "roles": [
+      "Full-stack Developer",
+    ],
+    "skills": [
+      "AWS fundamentals",
+      "Infrastructure automation basics",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > generic_web_api (ko) 1`] = `
+{
+  "complexity": {
+    "factors": [],
+    "level": "쉬움",
+    "score": 1,
+  },
+  "headline": "ECS Fargate(관리형 컨테이너) 기반 웹/API 서비스",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "ALB (Application Load Balancer)",
+      "role": "퍼블릭 서브넷, TLS 종료",
+    },
+    {
+      "icon": "⚙️",
+      "name": "로그인/인증 (Cognito)",
+      "role": "User Pool + Identity Pool",
+    },
+    {
+      "icon": "⚙️",
+      "name": "컨테이너 이미지 저장소",
+      "role": "프라이빗 컨테이너 이미지 레지스트리",
+    },
+    {
+      "icon": "⚙️",
+      "name": "컨테이너 실행 (Fargate)",
+      "role": "프라이빗 서브넷, 2AZ",
+    },
+    {
+      "icon": "🗄️",
+      "name": "RDS PostgreSQL",
+      "role": "Multi-AZ, 자동 페일오버 ~30초, 격리 서브넷",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS Backup",
+      "role": "백업 보존 7일, 크로스 리전 복사",
+    },
+    {
+      "icon": "🗄️",
+      "name": "S3",
+      "role": "퍼블릭(정적) + 프라이빗(데이터)",
+    },
+    {
+      "icon": "🚀",
+      "name": "DNS/도메인 관리",
+      "role": "헬스체크 + 페일오버 라우팅",
+    },
+  ],
+  "nextSteps": [
+    "Terraform으로 기본 네트워크 구성 코드 작성하기 — 서버들이 통신할 기본 환경을 만듭니다",
+    "컨테이너 실행 환경 만들고 첫 서비스 배포하기 — 앱을 패키징해서 클라우드에 올립니다",
+    "자동 배포 파이프라인 구축하기 — 코드 변경 시 개발→테스트→운영 환경으로 자동 배포됩니다",
+    "시스템 모니터링 및 알람 설정하기 — 장애 발생 시 즉시 알림을 받을 수 있습니다",
+    "보안 체크리스트 검토하기 — 계정별 최소 권한만 부여하고 보안 설정을 확인합니다",
+  ],
+  "oneLiner": "빠른 검증을 위한 최소 비용 구성",
+  "rolloutPath": [
+    {
+      "duration": "2–4주",
+      "phase": "1단계: 기반 구축",
+      "tasks": [
+        "네트워크 환경 생성 (서버들이 통신할 기본 환경)",
+        "데이터베이스 생성",
+        "자동 배포 환경 설정",
+      ],
+    },
+    {
+      "duration": "1–2주",
+      "phase": "2단계: MVP 배포",
+      "tasks": [
+        "첫 서비스 배포",
+        "도메인 연결 및 보안 접속(HTTPS) 적용",
+        "시스템 상태 모니터링 기본 설정",
+      ],
+    },
+    {
+      "duration": "2–4주",
+      "phase": "3단계: 안정화",
+      "tasks": [
+        "접속자 증가 시 자동 확장 테스트",
+        "장애 발생 시 복구 훈련",
+        "비용 최적화 검토",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99.9",
+    "errors": 0,
+    "monthlyCost": 732,
+    "wafrScore": 69,
+    "warnings": 0,
+  },
+  "teamReqs": {
+    "minDevs": 1,
+    "roles": [
+      "풀스택 개발자",
+    ],
+    "skills": [
+      "AWS 기본 사용법",
+      "인프라 자동화 입문",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > internal_tool (en) 1`] = `
+{
+  "complexity": {
+    "factors": [],
+    "level": "Easy",
+    "score": 1,
+  },
+  "headline": "Internal Tools service powered by Serverless (no server management)",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "API Management (API Gateway)",
+      "role": "REST/HTTP API",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Authentication (Cognito)",
+      "role": "User Pool + Identity Pool",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Serverless Functions (Lambda)",
+      "role": "ARM/Graviton2, 512MB~3GB",
+    },
+    {
+      "icon": "⚙️",
+      "name": "RDS Proxy",
+      "role": "Lambda <-> RDS connection pooling",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Aurora PostgreSQL",
+      "role": "Single-AZ, private subnet",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS Backup",
+      "role": "Backup retention 7 days, cross-region copy",
+    },
+    {
+      "icon": "🗄️",
+      "name": "S3",
+      "role": "Public (static) + Private (data)",
+    },
+    {
+      "icon": "🚀",
+      "name": "DNS/Domain Management",
+      "role": "Basic A record",
+    },
+  ],
+  "nextSteps": [
+    "Adopt Infrastructure as Code tooling — managing servers/networks as code reduces errors and eliminates repetitive work",
+    "Configure serverless functions and API integration — runs only on request, saving costs",
+    "Build a CI/CD pipeline — code changes are automatically deployed through dev, test, and production",
+    "Set up system monitoring and alerting — receive immediate notifications when incidents occur",
+    "Review the security checklist — apply least-privilege access per account and verify security settings",
+  ],
+  "oneLiner": "Minimum-cost configuration for rapid validation",
+  "rolloutPath": [
+    {
+      "duration": "2–4 weeks",
+      "phase": "Phase 1: Foundation",
+      "tasks": [
+        "Create network environment (base infrastructure for service communication)",
+        "Set up database",
+        "Configure CI/CD environment",
+      ],
+    },
+    {
+      "duration": "1–2 weeks",
+      "phase": "Phase 2: MVP Deployment",
+      "tasks": [
+        "Deploy serverless functions",
+        "Connect domain and enable HTTPS",
+        "Set up basic system health monitoring",
+      ],
+    },
+    {
+      "duration": "2–4 weeks",
+      "phase": "Phase 3: Stabilization",
+      "tasks": [
+        "Test auto-scaling under increased traffic",
+        "Run disaster recovery drills",
+        "Review cost optimization",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99",
+    "errors": 0,
+    "monthlyCost": 139,
+    "wafrScore": 65,
+    "warnings": 0,
+  },
+  "teamReqs": {
+    "minDevs": 1,
+    "roles": [
+      "Full-stack Developer",
+    ],
+    "skills": [
+      "AWS fundamentals",
+      "Infrastructure automation basics",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > internal_tool (ko) 1`] = `
+{
+  "complexity": {
+    "factors": [],
+    "level": "쉬움",
+    "score": 1,
+  },
+  "headline": "서버리스(서버 관리 불필요) 기반 사내 도구 서비스",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "API 연결 관리",
+      "role": "REST/HTTP API",
+    },
+    {
+      "icon": "⚙️",
+      "name": "로그인/인증 (Cognito)",
+      "role": "User Pool + Identity Pool",
+    },
+    {
+      "icon": "⚙️",
+      "name": "서버리스 함수 (Lambda)",
+      "role": "ARM/Graviton2, 512MB~3GB",
+    },
+    {
+      "icon": "⚙️",
+      "name": "RDS Proxy",
+      "role": "Lambda ↔ RDS 커넥션 풀링",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Aurora PostgreSQL",
+      "role": "Single-AZ, 프라이빗 서브넷",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS Backup",
+      "role": "백업 보존 7일, 크로스 리전 복사",
+    },
+    {
+      "icon": "🗄️",
+      "name": "S3",
+      "role": "퍼블릭(정적) + 프라이빗(데이터)",
+    },
+    {
+      "icon": "🚀",
+      "name": "DNS/도메인 관리",
+      "role": "기본 A레코드",
+    },
+  ],
+  "nextSteps": [
+    "인프라 자동화 도구 도입하기 — 서버/네트워크를 코드로 관리하면 실수가 줄고 반복 작업이 없어집니다",
+    "서버리스 함수와 API 연결 설정하기 — 요청이 올 때만 실행되어 비용이 절약됩니다",
+    "자동 배포 파이프라인 구축하기 — 코드 변경 시 개발→테스트→운영 환경으로 자동 배포됩니다",
+    "시스템 모니터링 및 알람 설정하기 — 장애 발생 시 즉시 알림을 받을 수 있습니다",
+    "보안 체크리스트 검토하기 — 계정별 최소 권한만 부여하고 보안 설정을 확인합니다",
+  ],
+  "oneLiner": "빠른 검증을 위한 최소 비용 구성",
+  "rolloutPath": [
+    {
+      "duration": "2–4주",
+      "phase": "1단계: 기반 구축",
+      "tasks": [
+        "네트워크 환경 생성 (서버들이 통신할 기본 환경)",
+        "데이터베이스 생성",
+        "자동 배포 환경 설정",
+      ],
+    },
+    {
+      "duration": "1–2주",
+      "phase": "2단계: MVP 배포",
+      "tasks": [
+        "서버리스 함수 배포",
+        "도메인 연결 및 보안 접속(HTTPS) 적용",
+        "시스템 상태 모니터링 기본 설정",
+      ],
+    },
+    {
+      "duration": "2–4주",
+      "phase": "3단계: 안정화",
+      "tasks": [
+        "접속자 증가 시 자동 확장 테스트",
+        "장애 발생 시 복구 훈련",
+        "비용 최적화 검토",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99",
+    "errors": 0,
+    "monthlyCost": 139,
+    "wafrScore": 65,
+    "warnings": 0,
+  },
+  "teamReqs": {
+    "minDevs": 1,
+    "roles": [
+      "풀스택 개발자",
+    ],
+    "skills": [
+      "AWS 기본 사용법",
+      "인프라 자동화 입문",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > iot_platform (en) 1`] = `
+{
+  "complexity": {
+    "factors": [],
+    "level": "Easy",
+    "score": 1,
+  },
+  "headline": "IoT service powered by ECS Fargate (managed containers)",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "ALB (Application Load Balancer)",
+      "role": "Public subnet, TLS termination",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Authentication (Cognito)",
+      "role": "User Pool + Identity Pool",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Container Image Registry",
+      "role": "Private container image registry",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Container Runtime (Fargate)",
+      "role": "Private subnet, 2AZ",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS IoT Core",
+      "role": "MQTT broker, device management",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Amazon Timestream",
+      "role": "Time-series DB (sensor history)",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS IoT Greengrass",
+      "role": "Edge computing, local ML inference",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Key-Value NoSQL DB (DynamoDB)",
+      "role": "Global Table available, auto failover ~30s, On-Demand/Provisioned",
+    },
+  ],
+  "nextSteps": [
+    "Write base network configuration with Terraform — sets up the foundational environment for service communication",
+    "Set up container runtime and deploy first service — package your app and deploy it to the cloud",
+    "Build a CI/CD pipeline — code changes are automatically deployed through dev, test, and production",
+    "Set up system monitoring and alerting — receive immediate notifications when incidents occur",
+    "Review the security checklist — apply least-privilege access per account and verify security settings",
+  ],
+  "oneLiner": "Configuration balancing growth and stability",
+  "rolloutPath": [
+    {
+      "duration": "3–4 weeks",
+      "phase": "Phase 1: Infrastructure Foundation",
+      "tasks": [
+        "Manage infrastructure as code (eliminate manual configuration)",
+        "Configure multi-AZ setup (automatic failover on outage)",
+        "Separate environments (dev/staging/production)",
+      ],
+    },
+    {
+      "duration": "2–3 weeks",
+      "phase": "Phase 2: Service Deployment",
+      "tasks": [
+        "Build app deployment and runtime environment",
+        "Add caching for frequently accessed data (performance boost)",
+        "Configure CDN for global low-latency responses",
+      ],
+    },
+    {
+      "duration": "2–4 weeks",
+      "phase": "Phase 3: Operations Maturity",
+      "tasks": [
+        "Analyze costs and evaluate reserved/savings plans",
+        "Set up automated security auditing",
+        "Run load tests and tune auto-scaling",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99.9",
+    "errors": 0,
+    "monthlyCost": 910,
+    "wafrScore": 77,
+    "warnings": 0,
+  },
+  "teamReqs": {
+    "minDevs": 1,
+    "roles": [
+      "Full-stack Developer",
+    ],
+    "skills": [
+      "AWS fundamentals",
+      "Infrastructure automation basics",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > iot_platform (ko) 1`] = `
+{
+  "complexity": {
+    "factors": [],
+    "level": "쉬움",
+    "score": 1,
+  },
+  "headline": "ECS Fargate(관리형 컨테이너) 기반 IoT 서비스",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "ALB (Application Load Balancer)",
+      "role": "퍼블릭 서브넷, TLS 종료",
+    },
+    {
+      "icon": "⚙️",
+      "name": "로그인/인증 (Cognito)",
+      "role": "User Pool + Identity Pool",
+    },
+    {
+      "icon": "⚙️",
+      "name": "컨테이너 이미지 저장소",
+      "role": "프라이빗 컨테이너 이미지 레지스트리",
+    },
+    {
+      "icon": "⚙️",
+      "name": "컨테이너 실행 (Fargate)",
+      "role": "프라이빗 서브넷, 2AZ",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS IoT Core",
+      "role": "MQTT 브로커, 디바이스 관리",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Amazon Timestream",
+      "role": "시계열 DB (센서 이력 보관)",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS IoT Greengrass",
+      "role": "엣지 컴퓨팅, 로컬 ML 추론",
+    },
+    {
+      "icon": "🗄️",
+      "name": "키-값 NoSQL DB (DynamoDB)",
+      "role": "Global Table 가능, 자동 페일오버 ~30초, On-Demand/Provisioned",
+    },
+  ],
+  "nextSteps": [
+    "Terraform으로 기본 네트워크 구성 코드 작성하기 — 서버들이 통신할 기본 환경을 만듭니다",
+    "컨테이너 실행 환경 만들고 첫 서비스 배포하기 — 앱을 패키징해서 클라우드에 올립니다",
+    "자동 배포 파이프라인 구축하기 — 코드 변경 시 개발→테스트→운영 환경으로 자동 배포됩니다",
+    "시스템 모니터링 및 알람 설정하기 — 장애 발생 시 즉시 알림을 받을 수 있습니다",
+    "보안 체크리스트 검토하기 — 계정별 최소 권한만 부여하고 보안 설정을 확인합니다",
+  ],
+  "oneLiner": "사용자 확보와 안정성을 동시에 잡는 구성",
+  "rolloutPath": [
+    {
+      "duration": "3–4주",
+      "phase": "1단계: 인프라 기반",
+      "tasks": [
+        "인프라를 코드로 관리하기 (수동 설정 제거)",
+        "다중 가용 영역 구성 (장애 시 자동 전환)",
+        "환경 분리 (개발/테스트/운영)",
+      ],
+    },
+    {
+      "duration": "2–3주",
+      "phase": "2단계: 서비스 배포",
+      "tasks": [
+        "앱 배포 및 실행 환경 구축",
+        "자주 쓰는 데이터 캐시 추가 (속도 향상)",
+        "전 세계 빠른 응답을 위한 CDN 설정",
+      ],
+    },
+    {
+      "duration": "2–4주",
+      "phase": "3단계: 운영 고도화",
+      "tasks": [
+        "비용 분석 및 장기 할인 요금제 검토",
+        "보안 자동 감사 설정",
+        "부하 테스트 및 자동 확장 조정",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99.9",
+    "errors": 0,
+    "monthlyCost": 910,
+    "wafrScore": 77,
+    "warnings": 0,
+  },
+  "teamReqs": {
+    "minDevs": 1,
+    "roles": [
+      "풀스택 개발자",
+    ],
+    "skills": [
+      "AWS 기본 사용법",
+      "인프라 자동화 입문",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > minimal (en) 1`] = `
+{
+  "complexity": {
+    "factors": [],
+    "level": "Easy",
+    "score": 1,
+  },
+  "headline": " service powered by Container (packaged app execution)",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "ALB (Application Load Balancer)",
+      "role": "Public subnet, TLS termination",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Container Image Registry",
+      "role": "Private container image registry",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Container Runtime (Fargate)",
+      "role": "Private subnet, 2AZ",
+    },
+    {
+      "icon": "🚀",
+      "name": "DNS/Domain Management",
+      "role": "Basic A record",
+    },
+    {
+      "icon": "🚀",
+      "name": "AWS Certificate Manager (ACM)",
+      "role": "Auto-issue and renew TLS certificates for ALB/CloudFront",
+    },
+    {
+      "icon": "🚀",
+      "name": "Content Delivery (CDN)",
+      "role": "Static files + dynamic cache",
+    },
+    {
+      "icon": "🚀",
+      "name": "WAF",
+      "role": "In front of CloudFront/ALB",
+    },
+    {
+      "icon": "🔄",
+      "name": "No IaC",
+      "role": "Full infrastructure as code",
+    },
+  ],
+  "nextSteps": [
+    "Adopt Infrastructure as Code tooling — managing servers/networks as code reduces errors and eliminates repetitive work",
+    "Set up container runtime and deploy first service — package your app and deploy it to the cloud",
+    "Build a CI/CD pipeline — code changes are automatically deployed through dev, test, and production",
+    "Set up system monitoring and alerting — receive immediate notifications when incidents occur",
+    "Review the security checklist — apply least-privilege access per account and verify security settings",
+  ],
+  "oneLiner": "Minimum-cost configuration for rapid validation",
+  "rolloutPath": [
+    {
+      "duration": "2–4 weeks",
+      "phase": "Phase 1: Foundation",
+      "tasks": [
+        "Create network environment (base infrastructure for service communication)",
+        "Set up database",
+        "Configure CI/CD environment",
+      ],
+    },
+    {
+      "duration": "1–2 weeks",
+      "phase": "Phase 2: MVP Deployment",
+      "tasks": [
+        "Deploy first service",
+        "Connect domain and enable HTTPS",
+        "Set up basic system health monitoring",
+      ],
+    },
+    {
+      "duration": "2–4 weeks",
+      "phase": "Phase 3: Stabilization",
+      "tasks": [
+        "Test auto-scaling under increased traffic",
+        "Run disaster recovery drills",
+        "Review cost optimization",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99.9",
+    "errors": 0,
+    "monthlyCost": 297,
+    "wafrScore": 22,
+    "warnings": 0,
+  },
+  "teamReqs": {
+    "minDevs": 1,
+    "roles": [
+      "Full-stack Developer",
+    ],
+    "skills": [
+      "AWS fundamentals",
+      "Infrastructure automation basics",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > minimal (ko) 1`] = `
+{
+  "complexity": {
+    "factors": [],
+    "level": "쉬움",
+    "score": 1,
+  },
+  "headline": "컨테이너(앱 패키징 실행) 기반  서비스",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "ALB (Application Load Balancer)",
+      "role": "퍼블릭 서브넷, TLS 종료",
+    },
+    {
+      "icon": "⚙️",
+      "name": "컨테이너 이미지 저장소",
+      "role": "프라이빗 컨테이너 이미지 레지스트리",
+    },
+    {
+      "icon": "⚙️",
+      "name": "컨테이너 실행 (Fargate)",
+      "role": "프라이빗 서브넷, 2AZ",
+    },
+    {
+      "icon": "🚀",
+      "name": "DNS/도메인 관리",
+      "role": "기본 A레코드",
+    },
+    {
+      "icon": "🚀",
+      "name": "AWS Certificate Manager (ACM)",
+      "role": "ALB·CloudFront TLS 인증서 자동 발급·갱신",
+    },
+    {
+      "icon": "🚀",
+      "name": "콘텐츠 빠른 전송 (CDN)",
+      "role": "정적 파일 + 동적 캐시",
+    },
+    {
+      "icon": "🚀",
+      "name": "WAF",
+      "role": "CloudFront/ALB 앞단",
+    },
+    {
+      "icon": "🔄",
+      "name": "IaC 미적용",
+      "role": "전체 인프라 코드화",
+    },
+  ],
+  "nextSteps": [
+    "인프라 자동화 도구 도입하기 — 서버/네트워크를 코드로 관리하면 실수가 줄고 반복 작업이 없어집니다",
+    "컨테이너 실행 환경 만들고 첫 서비스 배포하기 — 앱을 패키징해서 클라우드에 올립니다",
+    "자동 배포 파이프라인 구축하기 — 코드 변경 시 개발→테스트→운영 환경으로 자동 배포됩니다",
+    "시스템 모니터링 및 알람 설정하기 — 장애 발생 시 즉시 알림을 받을 수 있습니다",
+    "보안 체크리스트 검토하기 — 계정별 최소 권한만 부여하고 보안 설정을 확인합니다",
+  ],
+  "oneLiner": "빠른 검증을 위한 최소 비용 구성",
+  "rolloutPath": [
+    {
+      "duration": "2–4주",
+      "phase": "1단계: 기반 구축",
+      "tasks": [
+        "네트워크 환경 생성 (서버들이 통신할 기본 환경)",
+        "데이터베이스 생성",
+        "자동 배포 환경 설정",
+      ],
+    },
+    {
+      "duration": "1–2주",
+      "phase": "2단계: MVP 배포",
+      "tasks": [
+        "첫 서비스 배포",
+        "도메인 연결 및 보안 접속(HTTPS) 적용",
+        "시스템 상태 모니터링 기본 설정",
+      ],
+    },
+    {
+      "duration": "2–4주",
+      "phase": "3단계: 안정화",
+      "tasks": [
+        "접속자 증가 시 자동 확장 테스트",
+        "장애 발생 시 복구 훈련",
+        "비용 최적화 검토",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99.9",
+    "errors": 0,
+    "monthlyCost": 297,
+    "wafrScore": 22,
+    "warnings": 0,
+  },
+  "teamReqs": {
+    "minDevs": 1,
+    "roles": [
+      "풀스택 개발자",
+    ],
+    "skills": [
+      "AWS 기본 사용법",
+      "인프라 자동화 입문",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > realtime_chat (en) 1`] = `
+{
+  "complexity": {
+    "factors": [],
+    "level": "Easy",
+    "score": 1,
+  },
+  "headline": "Real-time + Web/API service powered by ECS Fargate (managed containers)",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "ALB (Application Load Balancer)",
+      "role": "Public subnet, TLS termination",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Redis Pub/Sub setup required",
+      "role": "Configure Pub/Sub channels on existing Redis",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Authentication (Cognito)",
+      "role": "User Pool + Identity Pool",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Container Image Registry",
+      "role": "Private container image registry",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Container Runtime (Fargate)",
+      "role": "Private subnet, 2AZ",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Aurora PostgreSQL",
+      "role": "Multi-AZ, auto failover ~30s, isolated subnet",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS Backup",
+      "role": "Backup retention 7 days, cross-region copy",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Key-Value NoSQL DB (DynamoDB)",
+      "role": "Global Table available, auto failover ~30s, On-Demand/Provisioned",
+    },
+  ],
+  "nextSteps": [
+    "Write base network configuration with Terraform — sets up the foundational environment for service communication",
+    "Set up container runtime and deploy first service — package your app and deploy it to the cloud",
+    "Build a CI/CD pipeline — code changes are automatically deployed through dev, test, and production",
+    "Set up system monitoring and alerting — receive immediate notifications when incidents occur",
+    "Review the security checklist — apply least-privilege access per account and verify security settings",
+  ],
+  "oneLiner": "Configuration balancing growth and stability",
+  "rolloutPath": [
+    {
+      "duration": "3–4 weeks",
+      "phase": "Phase 1: Infrastructure Foundation",
+      "tasks": [
+        "Manage infrastructure as code (eliminate manual configuration)",
+        "Configure multi-AZ setup (automatic failover on outage)",
+        "Separate environments (dev/staging/production)",
+      ],
+    },
+    {
+      "duration": "2–3 weeks",
+      "phase": "Phase 2: Service Deployment",
+      "tasks": [
+        "Build app deployment and runtime environment",
+        "Add caching for frequently accessed data (performance boost)",
+        "Configure CDN for global low-latency responses",
+      ],
+    },
+    {
+      "duration": "2–4 weeks",
+      "phase": "Phase 3: Operations Maturity",
+      "tasks": [
+        "Analyze costs and evaluate reserved/savings plans",
+        "Set up automated security auditing",
+        "Run load tests and tune auto-scaling",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99.9",
+    "errors": 0,
+    "monthlyCost": 1180,
+    "wafrScore": 74,
+    "warnings": 0,
+  },
+  "teamReqs": {
+    "minDevs": 1,
+    "roles": [
+      "Full-stack Developer",
+    ],
+    "skills": [
+      "AWS fundamentals",
+      "Infrastructure automation basics",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > realtime_chat (ko) 1`] = `
+{
+  "complexity": {
+    "factors": [],
+    "level": "쉬움",
+    "score": 1,
+  },
+  "headline": "ECS Fargate(관리형 컨테이너) 기반 실시간 + 웹/API 서비스",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "ALB (Application Load Balancer)",
+      "role": "퍼블릭 서브넷, TLS 종료",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Redis Pub/Sub 설정 필요",
+      "role": "기존 Redis에 Pub/Sub 채널 구성",
+    },
+    {
+      "icon": "⚙️",
+      "name": "로그인/인증 (Cognito)",
+      "role": "User Pool + Identity Pool",
+    },
+    {
+      "icon": "⚙️",
+      "name": "컨테이너 이미지 저장소",
+      "role": "프라이빗 컨테이너 이미지 레지스트리",
+    },
+    {
+      "icon": "⚙️",
+      "name": "컨테이너 실행 (Fargate)",
+      "role": "프라이빗 서브넷, 2AZ",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Aurora PostgreSQL",
+      "role": "Multi-AZ, 자동 페일오버 ~30초, 격리 서브넷",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS Backup",
+      "role": "백업 보존 7일, 크로스 리전 복사",
+    },
+    {
+      "icon": "🗄️",
+      "name": "키-값 NoSQL DB (DynamoDB)",
+      "role": "Global Table 가능, 자동 페일오버 ~30초, On-Demand/Provisioned",
+    },
+  ],
+  "nextSteps": [
+    "Terraform으로 기본 네트워크 구성 코드 작성하기 — 서버들이 통신할 기본 환경을 만듭니다",
+    "컨테이너 실행 환경 만들고 첫 서비스 배포하기 — 앱을 패키징해서 클라우드에 올립니다",
+    "자동 배포 파이프라인 구축하기 — 코드 변경 시 개발→테스트→운영 환경으로 자동 배포됩니다",
+    "시스템 모니터링 및 알람 설정하기 — 장애 발생 시 즉시 알림을 받을 수 있습니다",
+    "보안 체크리스트 검토하기 — 계정별 최소 권한만 부여하고 보안 설정을 확인합니다",
+  ],
+  "oneLiner": "사용자 확보와 안정성을 동시에 잡는 구성",
+  "rolloutPath": [
+    {
+      "duration": "3–4주",
+      "phase": "1단계: 인프라 기반",
+      "tasks": [
+        "인프라를 코드로 관리하기 (수동 설정 제거)",
+        "다중 가용 영역 구성 (장애 시 자동 전환)",
+        "환경 분리 (개발/테스트/운영)",
+      ],
+    },
+    {
+      "duration": "2–3주",
+      "phase": "2단계: 서비스 배포",
+      "tasks": [
+        "앱 배포 및 실행 환경 구축",
+        "자주 쓰는 데이터 캐시 추가 (속도 향상)",
+        "전 세계 빠른 응답을 위한 CDN 설정",
+      ],
+    },
+    {
+      "duration": "2–4주",
+      "phase": "3단계: 운영 고도화",
+      "tasks": [
+        "비용 분석 및 장기 할인 요금제 검토",
+        "보안 자동 감사 설정",
+        "부하 테스트 및 자동 확장 조정",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99.9",
+    "errors": 0,
+    "monthlyCost": 1180,
+    "wafrScore": 74,
+    "warnings": 0,
+  },
+  "teamReqs": {
+    "minDevs": 1,
+    "roles": [
+      "풀스택 개발자",
+    ],
+    "skills": [
+      "AWS 기본 사용법",
+      "인프라 자동화 입문",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > serverless (en) 1`] = `
+{
+  "complexity": {
+    "factors": [],
+    "level": "Easy",
+    "score": 1,
+  },
+  "headline": "Web/API service powered by Serverless (no server management)",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "API Management (API Gateway)",
+      "role": "REST/HTTP API",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Serverless Functions (Lambda)",
+      "role": "ARM/Graviton2, 512MB~3GB",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Key-Value NoSQL DB (DynamoDB)",
+      "role": "Single-AZ, On-Demand/Provisioned",
+    },
+    {
+      "icon": "🗄️",
+      "name": "DynamoDB PITR + Backup",
+      "role": "Point-in-Time Recovery (35 days) + AWS Backup policy",
+    },
+    {
+      "icon": "🗄️",
+      "name": "S3",
+      "role": "Public (static) + Private (data)",
+    },
+    {
+      "icon": "🚀",
+      "name": "DNS/Domain Management",
+      "role": "Basic A record",
+    },
+    {
+      "icon": "🚀",
+      "name": "AWS Certificate Manager (ACM)",
+      "role": "Auto-issue and renew TLS certificates for ALB/CloudFront",
+    },
+    {
+      "icon": "🔄",
+      "name": "No IaC",
+      "role": "Full infrastructure as code",
+    },
+  ],
+  "nextSteps": [
+    "Adopt Infrastructure as Code tooling — managing servers/networks as code reduces errors and eliminates repetitive work",
+    "Configure serverless functions and API integration — runs only on request, saving costs",
+    "Build a CI/CD pipeline — code changes are automatically deployed through dev, test, and production",
+    "Set up system monitoring and alerting — receive immediate notifications when incidents occur",
+    "Review the security checklist — apply least-privilege access per account and verify security settings",
+  ],
+  "oneLiner": "Minimum-cost configuration for rapid validation",
+  "rolloutPath": [
+    {
+      "duration": "2–4 weeks",
+      "phase": "Phase 1: Foundation",
+      "tasks": [
+        "Create network environment (base infrastructure for service communication)",
+        "Set up database",
+        "Configure CI/CD environment",
+      ],
+    },
+    {
+      "duration": "1–2 weeks",
+      "phase": "Phase 2: MVP Deployment",
+      "tasks": [
+        "Deploy serverless functions",
+        "Connect domain and enable HTTPS",
+        "Set up basic system health monitoring",
+      ],
+    },
+    {
+      "duration": "2–4 weeks",
+      "phase": "Phase 3: Stabilization",
+      "tasks": [
+        "Test auto-scaling under increased traffic",
+        "Run disaster recovery drills",
+        "Review cost optimization",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99",
+    "errors": 0,
+    "monthlyCost": 90,
+    "wafrScore": 56,
+    "warnings": 1,
+  },
+  "teamReqs": {
+    "minDevs": 1,
+    "roles": [
+      "Full-stack Developer",
+    ],
+    "skills": [
+      "AWS fundamentals",
+      "Infrastructure automation basics",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > serverless (ko) 1`] = `
+{
+  "complexity": {
+    "factors": [],
+    "level": "쉬움",
+    "score": 1,
+  },
+  "headline": "서버리스(서버 관리 불필요) 기반 웹/API 서비스",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "API 연결 관리",
+      "role": "REST/HTTP API",
+    },
+    {
+      "icon": "⚙️",
+      "name": "서버리스 함수 (Lambda)",
+      "role": "ARM/Graviton2, 512MB~3GB",
+    },
+    {
+      "icon": "🗄️",
+      "name": "키-값 NoSQL DB (DynamoDB)",
+      "role": "Single-AZ, On-Demand/Provisioned",
+    },
+    {
+      "icon": "🗄️",
+      "name": "DynamoDB PITR + Backup",
+      "role": "Point-in-Time Recovery (35일) + AWS Backup 정책",
+    },
+    {
+      "icon": "🗄️",
+      "name": "S3",
+      "role": "퍼블릭(정적) + 프라이빗(데이터)",
+    },
+    {
+      "icon": "🚀",
+      "name": "DNS/도메인 관리",
+      "role": "기본 A레코드",
+    },
+    {
+      "icon": "🚀",
+      "name": "AWS Certificate Manager (ACM)",
+      "role": "ALB·CloudFront TLS 인증서 자동 발급·갱신",
+    },
+    {
+      "icon": "🔄",
+      "name": "IaC 미적용",
+      "role": "전체 인프라 코드화",
+    },
+  ],
+  "nextSteps": [
+    "인프라 자동화 도구 도입하기 — 서버/네트워크를 코드로 관리하면 실수가 줄고 반복 작업이 없어집니다",
+    "서버리스 함수와 API 연결 설정하기 — 요청이 올 때만 실행되어 비용이 절약됩니다",
+    "자동 배포 파이프라인 구축하기 — 코드 변경 시 개발→테스트→운영 환경으로 자동 배포됩니다",
+    "시스템 모니터링 및 알람 설정하기 — 장애 발생 시 즉시 알림을 받을 수 있습니다",
+    "보안 체크리스트 검토하기 — 계정별 최소 권한만 부여하고 보안 설정을 확인합니다",
+  ],
+  "oneLiner": "빠른 검증을 위한 최소 비용 구성",
+  "rolloutPath": [
+    {
+      "duration": "2–4주",
+      "phase": "1단계: 기반 구축",
+      "tasks": [
+        "네트워크 환경 생성 (서버들이 통신할 기본 환경)",
+        "데이터베이스 생성",
+        "자동 배포 환경 설정",
+      ],
+    },
+    {
+      "duration": "1–2주",
+      "phase": "2단계: MVP 배포",
+      "tasks": [
+        "서버리스 함수 배포",
+        "도메인 연결 및 보안 접속(HTTPS) 적용",
+        "시스템 상태 모니터링 기본 설정",
+      ],
+    },
+    {
+      "duration": "2–4주",
+      "phase": "3단계: 안정화",
+      "tasks": [
+        "접속자 증가 시 자동 확장 테스트",
+        "장애 발생 시 복구 훈련",
+        "비용 최적화 검토",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99",
+    "errors": 0,
+    "monthlyCost": 90,
+    "wafrScore": 56,
+    "warnings": 1,
+  },
+  "teamReqs": {
+    "minDevs": 1,
+    "roles": [
+      "풀스택 개발자",
+    ],
+    "skills": [
+      "AWS 기본 사용법",
+      "인프라 자동화 입문",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > ticketing (en) 1`] = `
+{
+  "complexity": {
+    "factors": [],
+    "level": "Easy",
+    "score": 1,
+  },
+  "headline": "Ticketing/Reservation service powered by ECS Fargate (managed containers)",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "ALB (Application Load Balancer)",
+      "role": "Public subnet, TLS termination",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Authentication (Cognito)",
+      "role": "User Pool + Identity Pool",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Container Image Registry",
+      "role": "Private container image registry",
+    },
+    {
+      "icon": "⚙️",
+      "name": "Container Runtime (Fargate)",
+      "role": "Private subnet, 2AZ",
+    },
+    {
+      "icon": "⚙️",
+      "name": "EC2 Auto Scaling",
+      "role": "Graviton instances recommended",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Aurora PostgreSQL",
+      "role": "Multi-AZ, auto failover ~30s, isolated subnet",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS Backup",
+      "role": "Backup retention 35 days, cross-region copy",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Key-Value NoSQL DB (DynamoDB)",
+      "role": "Global Table available, auto failover ~30s, On-Demand/Provisioned",
+    },
+  ],
+  "nextSteps": [
+    "Write base network configuration with Terraform — sets up the foundational environment for service communication",
+    "Set up container runtime and deploy first service — package your app and deploy it to the cloud",
+    "Build a CI/CD pipeline — code changes are automatically deployed through dev, test, and production",
+    "Set up system monitoring and alerting — receive immediate notifications when incidents occur",
+    "Review the security checklist — apply least-privilege access per account and verify security settings",
+  ],
+  "oneLiner": "Configuration balancing growth and stability",
+  "rolloutPath": [
+    {
+      "duration": "3–4 weeks",
+      "phase": "Phase 1: Infrastructure Foundation",
+      "tasks": [
+        "Manage infrastructure as code (eliminate manual configuration)",
+        "Configure multi-AZ setup (automatic failover on outage)",
+        "Separate environments (dev/staging/production)",
+      ],
+    },
+    {
+      "duration": "2–3 weeks",
+      "phase": "Phase 2: Service Deployment",
+      "tasks": [
+        "Build app deployment and runtime environment",
+        "Add caching for frequently accessed data (performance boost)",
+        "Configure CDN for global low-latency responses",
+      ],
+    },
+    {
+      "duration": "2–4 weeks",
+      "phase": "Phase 3: Operations Maturity",
+      "tasks": [
+        "Analyze costs and evaluate reserved/savings plans",
+        "Set up automated security auditing",
+        "Run load tests and tune auto-scaling",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99.9",
+    "errors": 0,
+    "monthlyCost": 941,
+    "wafrScore": 78,
+    "warnings": 0,
+  },
+  "teamReqs": {
+    "minDevs": 1,
+    "roles": [
+      "Full-stack Developer",
+    ],
+    "skills": [
+      "AWS fundamentals",
+      "Infrastructure automation basics",
+    ],
+  },
+  "warnings": [],
+}
+`;
+
+exports[`generateSummary snapshots > ticketing (ko) 1`] = `
+{
+  "complexity": {
+    "factors": [],
+    "level": "쉬움",
+    "score": 1,
+  },
+  "headline": "ECS Fargate(관리형 컨테이너) 기반 티켓팅/예약 서비스",
+  "keyServices": [
+    {
+      "icon": "⚙️",
+      "name": "ALB (Application Load Balancer)",
+      "role": "퍼블릭 서브넷, TLS 종료",
+    },
+    {
+      "icon": "⚙️",
+      "name": "로그인/인증 (Cognito)",
+      "role": "User Pool + Identity Pool",
+    },
+    {
+      "icon": "⚙️",
+      "name": "컨테이너 이미지 저장소",
+      "role": "프라이빗 컨테이너 이미지 레지스트리",
+    },
+    {
+      "icon": "⚙️",
+      "name": "컨테이너 실행 (Fargate)",
+      "role": "프라이빗 서브넷, 2AZ",
+    },
+    {
+      "icon": "⚙️",
+      "name": "EC2 Auto Scaling",
+      "role": "Graviton 인스턴스 권장",
+    },
+    {
+      "icon": "🗄️",
+      "name": "Aurora PostgreSQL",
+      "role": "Multi-AZ, 자동 페일오버 ~30초, 격리 서브넷",
+    },
+    {
+      "icon": "🗄️",
+      "name": "AWS Backup",
+      "role": "백업 보존 35일, 크로스 리전 복사",
+    },
+    {
+      "icon": "🗄️",
+      "name": "키-값 NoSQL DB (DynamoDB)",
+      "role": "Global Table 가능, 자동 페일오버 ~30초, On-Demand/Provisioned",
+    },
+  ],
+  "nextSteps": [
+    "Terraform으로 기본 네트워크 구성 코드 작성하기 — 서버들이 통신할 기본 환경을 만듭니다",
+    "컨테이너 실행 환경 만들고 첫 서비스 배포하기 — 앱을 패키징해서 클라우드에 올립니다",
+    "자동 배포 파이프라인 구축하기 — 코드 변경 시 개발→테스트→운영 환경으로 자동 배포됩니다",
+    "시스템 모니터링 및 알람 설정하기 — 장애 발생 시 즉시 알림을 받을 수 있습니다",
+    "보안 체크리스트 검토하기 — 계정별 최소 권한만 부여하고 보안 설정을 확인합니다",
+  ],
+  "oneLiner": "사용자 확보와 안정성을 동시에 잡는 구성",
+  "rolloutPath": [
+    {
+      "duration": "3–4주",
+      "phase": "1단계: 인프라 기반",
+      "tasks": [
+        "인프라를 코드로 관리하기 (수동 설정 제거)",
+        "다중 가용 영역 구성 (장애 시 자동 전환)",
+        "환경 분리 (개발/테스트/운영)",
+      ],
+    },
+    {
+      "duration": "2–3주",
+      "phase": "2단계: 서비스 배포",
+      "tasks": [
+        "앱 배포 및 실행 환경 구축",
+        "자주 쓰는 데이터 캐시 추가 (속도 향상)",
+        "전 세계 빠른 응답을 위한 CDN 설정",
+      ],
+    },
+    {
+      "duration": "2–4주",
+      "phase": "3단계: 운영 고도화",
+      "tasks": [
+        "비용 분석 및 장기 할인 요금제 검토",
+        "보안 자동 감사 설정",
+        "부하 테스트 및 자동 확장 조정",
+      ],
+    },
+  ],
+  "stats": {
+    "availability": "99.9",
+    "errors": 0,
+    "monthlyCost": 941,
+    "wafrScore": 78,
+    "warnings": 0,
+  },
+  "teamReqs": {
+    "minDevs": 1,
+    "roles": [
+      "풀스택 개발자",
+    ],
+    "skills": [
+      "AWS 기본 사용법",
+      "인프라 자동화 입문",
+    ],
+  },
+  "warnings": [],
+}
+`;

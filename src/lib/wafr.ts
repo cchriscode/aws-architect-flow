@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { WizardState, WafrResult, WafrItem } from "@/lib/types";
+import { toArray, azToNum } from "@/lib/shared";
 
 /** rec is only included when earnedPts < maxPts */
 function I(q: string, maxPts: number, earnedPts: number, rec?: string): WafrItem {
@@ -409,10 +410,10 @@ const dicts: Record<"ko" | "en", WafrStrings> = { ko, en };
 export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko"): WafrResult {
   const t = dicts[lang];
 
-  const types    = state.workload?.type || [];
+  const types    = toArray(state.workload?.type);
   const az       = state.network?.az_count;
   const dbHa     = state.data?.db_ha;
-  const cert     = state.compliance?.cert || [];
+  const cert     = toArray(state.compliance?.cert);
   const encr     = state.compliance?.encryption;
   const netIso   = state.compliance?.network_iso;
   const orchest  = state.compute?.orchestration;
@@ -439,17 +440,16 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
   const account  = state.network?.account_structure;
   const natStrat = state.network?.nat_strategy;
   const subnet   = state.network?.subnet_tier;
-  const auth     = state.integration?.auth || [];
-  const authArr  = Array.isArray(auth) ? auth : [auth];
-  const hasCritCert = cert.includes("pci") || cert.includes("hipaa") || cert.includes("sox");
+  const authArr  = toArray(state.integration?.auth);
+  const hasCritCert = cert.some(c => ["pci", "hipaa", "sox"].includes(c));
   const dataS    = state.workload?.data_sensitivity;
 
   const isEks = orchest === "eks";
   const isServerless = archP === "serverless";
-  const scalingArr = Array.isArray(scaling) ? scaling : (scaling ? [scaling] : []);
+  const scalingArr = toArray(scaling);
   const isTx = state.workload?.business_model === "transaction" || types.includes("ecommerce") || types.includes("ticketing") || types.includes("realtime");
-  const dbArr = Array.isArray(state.data?.primary_db) ? state.data.primary_db : (state.data?.primary_db ? [state.data.primary_db] : []);
-  const azNum = az === "3az" ? 3 : az === "1az" ? 1 : 2;
+  const dbArr = toArray(state.data?.primary_db);
+  const azNum = azToNum(az);
 
   // Workload context for conditional scoring
   const growthStage = state.workload?.growth_stage;

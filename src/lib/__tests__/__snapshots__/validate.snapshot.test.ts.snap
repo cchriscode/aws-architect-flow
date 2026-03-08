@@ -1,0 +1,119 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`validateState snapshots > b2b_saas (en) 1`] = `[]`;
+
+exports[`validateState snapshots > b2b_saas (ko) 1`] = `[]`;
+
+exports[`validateState snapshots > compliance (en) 1`] = `
+[
+  {
+    "message": "At DAU 100K+, Fargate is 20-30% more expensive than EC2 On-Demand. Consider EC2+RI.",
+    "phases": [
+      "compute",
+      "cost",
+    ],
+    "severity": "warn",
+    "title": "Fargate + large-scale service cost inefficiency",
+  },
+]
+`;
+
+exports[`validateState snapshots > compliance (ko) 1`] = `
+[
+  {
+    "message": "DAU 10만+ 에서 Fargate는 EC2 On-Demand 대비 20~30% 비쌈. EC2+RI 검토.",
+    "phases": [
+      "compute",
+      "cost",
+    ],
+    "severity": "warn",
+    "title": "Fargate + 대규모 서비스 비용 비효율",
+  },
+]
+`;
+
+exports[`validateState snapshots > data_pipeline (en) 1`] = `[]`;
+
+exports[`validateState snapshots > data_pipeline (ko) 1`] = `[]`;
+
+exports[`validateState snapshots > ecommerce_mvp (en) 1`] = `[]`;
+
+exports[`validateState snapshots > ecommerce_mvp (ko) 1`] = `[]`;
+
+exports[`validateState snapshots > eks_full (en) 1`] = `
+[
+  {
+    "message": "At DAU 100K+, DynamoDB On-Demand can cost 5-10x vs Provisioned. Review capacity mode and consider Provisioned + Auto Scaling.",
+    "phases": [
+      "data",
+      "cost",
+    ],
+    "severity": "warn",
+    "title": "DynamoDB capacity planning needed at scale",
+  },
+]
+`;
+
+exports[`validateState snapshots > eks_full (ko) 1`] = `
+[
+  {
+    "message": "DAU 10만+ DynamoDB는 On-Demand 사용 시 Provisioned 대비 5~10배 비용 가능. 용량 모드 확인 및 Provisioned + Auto Scaling 검토 권장.",
+    "phases": [
+      "data",
+      "cost",
+    ],
+    "severity": "warn",
+    "title": "대규모 DynamoDB 용량 계획 필요",
+  },
+]
+`;
+
+exports[`validateState snapshots > generic_web_api (en) 1`] = `[]`;
+
+exports[`validateState snapshots > generic_web_api (ko) 1`] = `[]`;
+
+exports[`validateState snapshots > internal_tool (en) 1`] = `[]`;
+
+exports[`validateState snapshots > internal_tool (ko) 1`] = `[]`;
+
+exports[`validateState snapshots > iot_platform (en) 1`] = `[]`;
+
+exports[`validateState snapshots > iot_platform (ko) 1`] = `[]`;
+
+exports[`validateState snapshots > minimal (en) 1`] = `[]`;
+
+exports[`validateState snapshots > minimal (ko) 1`] = `[]`;
+
+exports[`validateState snapshots > realtime_chat (en) 1`] = `[]`;
+
+exports[`validateState snapshots > realtime_chat (ko) 1`] = `[]`;
+
+exports[`validateState snapshots > serverless (en) 1`] = `
+[
+  {
+    "message": "Unprotected against SQL injection, XSS, and bot attacks. At minimum, enable basic WAF.",
+    "phases": [
+      "edge",
+    ],
+    "severity": "warn",
+    "title": "Public-facing service without WAF",
+  },
+]
+`;
+
+exports[`validateState snapshots > serverless (ko) 1`] = `
+[
+  {
+    "message": "SQL 인젝션·XSS·Bot 공격 무방비. 기본 WAF라도 적용 권장.",
+    "phases": [
+      "edge",
+    ],
+    "severity": "warn",
+    "title": "외부 공개 서비스에 WAF 없음",
+  },
+]
+`;
+
+exports[`validateState snapshots > ticketing (en) 1`] = `[]`;
+
+exports[`validateState snapshots > ticketing (ko) 1`] = `[]`;

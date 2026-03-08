@@ -1,0 +1,4441 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateSecurityGroups snapshots > b2b_saas (en) 1`] = `
+{
+  "code": "# Terraform -- Full Security Group chain
+
+# CloudFront Managed Prefix List lookup
+data "aws_ec2_managed_prefix_list" "cloudfront" {
+  name = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (ID varies by region, verify with describe-managed-prefix-lists)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTPS from CloudFront"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (ID varies by region, verify with describe-managed-prefix-lists)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 8080
+    to_port         = 9090
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Application Security Group
+resource "aws_security_group" "app" {
+  name_prefix = "app-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Application Security Group"
+
+  ingress {
+    from_port       = 8080
+    to_port         = 8080
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+    description     = "ALB to App"
+  }
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Via VPC Endpoint (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+  egress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.db.id]
+    description     = "Application to DB"
+  }
+  egress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.cache.id]
+    description     = "Application to Redis"
+  }
+}
+
+# ── DB Security Group
+resource "aws_security_group" "db" {
+  name_prefix = "db-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Database SG -- no internet, app/lambda only"
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "From app only"
+  }
+  # No outbound -- DB only responds (stateful, no explicit allow needed)
+}
+
+# ── Cache Security Group
+resource "aws_security_group" "cache" {
+  name_prefix = "cache-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ElastiCache SG -- app only"
+
+  ingress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "Redis from app only"
+  }
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "Internet -> ALB inbound. CloudFront IP or 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "CloudFront Managed Prefix List (com.amazonaws.global.cloudfront.origin-facing) - HTTPS traffic",
+          "port": "443",
+        },
+        {
+          "from": "CloudFront Managed Prefix List - HTTP (redirect to 443)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "8080-9090",
+          "to": "eks_node_sg (forward to app servers)",
+        },
+      ],
+    },
+    {
+      "color": "#059669",
+      "desc": "ALB -> app server. App -> DB/cache outbound",
+      "id": "app_sg",
+      "inbound": [
+        {
+          "from": "alb_sg (ALB to app)",
+          "port": "1025-65535",
+        },
+        {
+          "from": "eks_control_plane_sg (EKS Control Plane -> API webhook/admission (443))",
+          "port": "443",
+        },
+        {
+          "from": "eks_control_plane_sg (EKS Control Plane -> node metrics)",
+          "port": "10250",
+        },
+      ],
+      "name": "EKS Node Security Group",
+      "outbound": [
+        {
+          "port": "5432",
+          "to": "db_sg (PostgreSQL/Aurora PG)",
+        },
+        {
+          "port": "6379",
+          "to": "cache_sg (ElastiCache Redis)",
+        },
+        {
+          "port": "443",
+          "to": "search_sg (OpenSearch HTTPS)",
+        },
+        {
+          "port": "443",
+          "to": "443 (VPC Endpoints - Secrets Manager, ECR, CloudWatch)",
+        },
+      ],
+    },
+    {
+      "color": "#dc2626",
+      "desc": "DB accessible from app/Lambda only. Internet access fully blocked",
+      "id": "db_sg",
+      "inbound": [
+        {
+          "from": "app_sg (allow access from app servers only)",
+          "port": "5432",
+        },
+      ],
+      "name": "Database Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#7c3aed",
+      "desc": "Redis accessible from app only. Never expose directly",
+      "id": "cache_sg",
+      "inbound": [
+        {
+          "from": "app_sg (allow from app servers only)",
+          "port": "6379",
+        },
+      ],
+      "name": "ElastiCache Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#0891b2",
+      "desc": "Search engine. HTTPS access from app only",
+      "id": "search_sg",
+      "inbound": [
+        {
+          "from": "app_sg (HTTPS from app only)",
+          "port": "443",
+        },
+        {
+          "from": "app_sg (OpenSearch Dashboard management)",
+          "port": "443",
+        },
+      ],
+      "name": "OpenSearch Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#374151",
+      "desc": "Admin access only. Allow office IP only",
+      "id": "bastion_sg",
+      "inbound": [
+        {
+          "from": "Office static IP/32 (must restrict to specific IP) - SSH/SSM admin access",
+          "port": "22",
+        },
+      ],
+      "name": "Bastion / VPN Endpoint Security Group",
+      "outbound": [
+        {
+          "port": "22",
+          "to": "app_sg (app server SSH when needed)",
+        },
+        {
+          "port": "5432",
+          "to": "db_sg (DB direct query for emergencies)",
+        },
+      ],
+    },
+    {
+      "color": "#1d4ed8",
+      "desc": "EKS managed SG. Do not modify directly",
+      "id": "eks_control_plane_sg",
+      "inbound": [
+        {
+          "from": "app_sg (node group) - kubectl API access",
+          "port": "443",
+        },
+      ],
+      "name": "EKS Control Plane Security Group",
+      "outbound": [
+        {
+          "port": "1025-65535",
+          "to": "app_sg (node group) - kubelet + pods (10250+)",
+        },
+        {
+          "port": "443",
+          "to": "app_sg (node group) - API server HTTPS",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > b2b_saas (ko) 1`] = `
+{
+  "code": "# Terraform -- Security Group 전체 체인
+
+# CloudFront Managed Prefix List 조회
+data "aws_ec2_managed_prefix_list" "cloudfront" {
+  name = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (리전별 ID 상이, describe-managed-prefix-lists로 확인)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTPS from CloudFront"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (리전별 ID 상이, describe-managed-prefix-lists로 확인)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 8080
+    to_port         = 9090
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Application Security Group
+resource "aws_security_group" "app" {
+  name_prefix = "app-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Application Security Group"
+
+  ingress {
+    from_port       = 8080
+    to_port         = 8080
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+    description     = "ALB to App"
+  }
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # VPC Endpoint 경유 (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+  egress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.db.id]
+    description     = "Application to DB"
+  }
+  egress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.cache.id]
+    description     = "Application to Redis"
+  }
+}
+
+# ── DB Security Group
+resource "aws_security_group" "db" {
+  name_prefix = "db-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Database SG -- no internet, app/lambda only"
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "From app only"
+  }
+  # 아웃바운드 없음 -- DB는 응답만 (stateful이므로 별도 허용 불필요)
+}
+
+# ── Cache Security Group
+resource "aws_security_group" "cache" {
+  name_prefix = "cache-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ElastiCache SG -- app only"
+
+  ingress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "Redis from app only"
+  }
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "인터넷 → ALB 인바운드. CloudFront IP 또는 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "CloudFront Managed Prefix List (com.amazonaws.global.cloudfront.origin-facing) - HTTPS 트래픽",
+          "port": "443",
+        },
+        {
+          "from": "CloudFront Managed Prefix List - HTTP (→443 리다이렉트)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "8080-9090",
+          "to": "eks_node_sg (앱 서버로 전달)",
+        },
+      ],
+    },
+    {
+      "color": "#059669",
+      "desc": "ALB → 앱 서버. 앱 → DB/캐시 아웃바운드",
+      "id": "app_sg",
+      "inbound": [
+        {
+          "from": "alb_sg (ALB에서 앱으로)",
+          "port": "1025-65535",
+        },
+        {
+          "from": "eks_control_plane_sg (EKS Control Plane → API webhook/admission (443))",
+          "port": "443",
+        },
+        {
+          "from": "eks_control_plane_sg (EKS Control Plane → 노드 메트릭)",
+          "port": "10250",
+        },
+      ],
+      "name": "EKS Node Security Group",
+      "outbound": [
+        {
+          "port": "5432",
+          "to": "db_sg (PostgreSQL/Aurora PG)",
+        },
+        {
+          "port": "6379",
+          "to": "cache_sg (ElastiCache Redis)",
+        },
+        {
+          "port": "443",
+          "to": "search_sg (OpenSearch HTTPS)",
+        },
+        {
+          "port": "443",
+          "to": "443 (VPC Endpoint - Secrets Manager, ECR, CloudWatch)",
+        },
+      ],
+    },
+    {
+      "color": "#dc2626",
+      "desc": "DB는 앱/Lambda에서만 접근. 인터넷 접근 완전 차단",
+      "id": "db_sg",
+      "inbound": [
+        {
+          "from": "app_sg (앱 서버에서만 접근 허용)",
+          "port": "5432",
+        },
+      ],
+      "name": "Database Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#7c3aed",
+      "desc": "Redis는 앱에서만 접근. 직접 노출 금지",
+      "id": "cache_sg",
+      "inbound": [
+        {
+          "from": "app_sg (앱 서버에서만 허용)",
+          "port": "6379",
+        },
+      ],
+      "name": "ElastiCache Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#0891b2",
+      "desc": "검색 엔진. 앱에서만 HTTPS로 접근",
+      "id": "search_sg",
+      "inbound": [
+        {
+          "from": "app_sg (HTTPS 앱에서만)",
+          "port": "443",
+        },
+        {
+          "from": "app_sg (OpenSearch Dashboard 관리)",
+          "port": "443",
+        },
+      ],
+      "name": "OpenSearch Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#374151",
+      "desc": "관리자 접근 전용. 사무실 IP만 허용",
+      "id": "bastion_sg",
+      "inbound": [
+        {
+          "from": "사무실 고정 IP/32 (반드시 특정 IP로 제한) - SSH/SSM 관리자 접근",
+          "port": "22",
+        },
+      ],
+      "name": "Bastion / VPN Endpoint Security Group",
+      "outbound": [
+        {
+          "port": "22",
+          "to": "app_sg (앱 서버 SSH 필요시)",
+        },
+        {
+          "port": "5432",
+          "to": "db_sg (DB 직접 쿼리 비상시)",
+        },
+      ],
+    },
+    {
+      "color": "#1d4ed8",
+      "desc": "EKS 관리형 SG. 직접 수정 금지",
+      "id": "eks_control_plane_sg",
+      "inbound": [
+        {
+          "from": "app_sg (노드 그룹) - kubectl API 접근",
+          "port": "443",
+        },
+      ],
+      "name": "EKS Control Plane Security Group",
+      "outbound": [
+        {
+          "port": "1025-65535",
+          "to": "app_sg (노드 그룹) - kubelet + pods (10250+)",
+        },
+        {
+          "port": "443",
+          "to": "app_sg (노드 그룹) - API server HTTPS",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > compliance (en) 1`] = `
+{
+  "code": "# Terraform -- Full Security Group chain
+
+# CloudFront Managed Prefix List lookup
+data "aws_ec2_managed_prefix_list" "cloudfront" {
+  name = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (ID varies by region, verify with describe-managed-prefix-lists)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTPS from CloudFront"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (ID varies by region, verify with describe-managed-prefix-lists)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Application Security Group
+resource "aws_security_group" "app" {
+  name_prefix = "app-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Application Security Group"
+
+  ingress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+    description     = "ALB to App"
+  }
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Via VPC Endpoint (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+  egress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.db.id]
+    description     = "Application to DB"
+  }
+  egress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.cache.id]
+    description     = "Application to Redis"
+  }
+}
+
+# ── DB Security Group
+resource "aws_security_group" "db" {
+  name_prefix = "db-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Database SG -- no internet, app/lambda only"
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "From app only"
+  }
+  # No outbound -- DB only responds (stateful, no explicit allow needed)
+}
+
+# ── Cache Security Group
+resource "aws_security_group" "cache" {
+  name_prefix = "cache-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ElastiCache SG -- app only"
+
+  ingress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "Redis from app only"
+  }
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "Internet -> ALB inbound. CloudFront IP or 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "CloudFront Managed Prefix List (com.amazonaws.global.cloudfront.origin-facing) - HTTPS traffic",
+          "port": "443",
+        },
+        {
+          "from": "CloudFront Managed Prefix List - HTTP (redirect to 443)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "3000",
+          "to": "app_sg (forward to app servers)",
+        },
+      ],
+    },
+    {
+      "color": "#059669",
+      "desc": "ALB -> app server. App -> DB/cache outbound",
+      "id": "app_sg",
+      "inbound": [
+        {
+          "from": "alb_sg (ALB to app)",
+          "port": "3000",
+        },
+      ],
+      "name": "App Security Group",
+      "outbound": [
+        {
+          "port": "5432",
+          "to": "db_sg (PostgreSQL/Aurora PG)",
+        },
+        {
+          "port": "6379",
+          "to": "cache_sg (ElastiCache Redis)",
+        },
+        {
+          "port": "443",
+          "to": "search_sg (OpenSearch HTTPS)",
+        },
+        {
+          "port": "443",
+          "to": "443 (VPC Endpoints - Secrets Manager, ECR, CloudWatch)",
+        },
+      ],
+    },
+    {
+      "color": "#dc2626",
+      "desc": "DB accessible from app/Lambda only. Internet access fully blocked",
+      "id": "db_sg",
+      "inbound": [
+        {
+          "from": "app_sg (allow access from app servers only)",
+          "port": "5432",
+        },
+        {
+          "from": "bastion_sg (additional access from bastion admin only)",
+          "port": "5432",
+        },
+      ],
+      "name": "Database Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#7c3aed",
+      "desc": "Redis accessible from app only. Never expose directly",
+      "id": "cache_sg",
+      "inbound": [
+        {
+          "from": "app_sg (allow from app servers only)",
+          "port": "6379",
+        },
+      ],
+      "name": "ElastiCache Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#0891b2",
+      "desc": "Search engine. HTTPS access from app only",
+      "id": "search_sg",
+      "inbound": [
+        {
+          "from": "app_sg (HTTPS from app only)",
+          "port": "443",
+        },
+        {
+          "from": "bastion_sg (OpenSearch Dashboard management)",
+          "port": "443",
+        },
+      ],
+      "name": "OpenSearch Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#374151",
+      "desc": "Admin access only. Allow office IP only",
+      "id": "bastion_sg",
+      "inbound": [
+        {
+          "from": "Office static IP/32 (must restrict to specific IP) - SSH/SSM admin access",
+          "port": "22",
+        },
+      ],
+      "name": "Bastion / VPN Endpoint Security Group",
+      "outbound": [
+        {
+          "port": "22",
+          "to": "app_sg (app server SSH when needed)",
+        },
+        {
+          "port": "5432",
+          "to": "db_sg (DB direct query for emergencies)",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > compliance (ko) 1`] = `
+{
+  "code": "# Terraform -- Security Group 전체 체인
+
+# CloudFront Managed Prefix List 조회
+data "aws_ec2_managed_prefix_list" "cloudfront" {
+  name = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (리전별 ID 상이, describe-managed-prefix-lists로 확인)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTPS from CloudFront"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (리전별 ID 상이, describe-managed-prefix-lists로 확인)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Application Security Group
+resource "aws_security_group" "app" {
+  name_prefix = "app-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Application Security Group"
+
+  ingress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+    description     = "ALB to App"
+  }
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # VPC Endpoint 경유 (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+  egress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.db.id]
+    description     = "Application to DB"
+  }
+  egress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.cache.id]
+    description     = "Application to Redis"
+  }
+}
+
+# ── DB Security Group
+resource "aws_security_group" "db" {
+  name_prefix = "db-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Database SG -- no internet, app/lambda only"
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "From app only"
+  }
+  # 아웃바운드 없음 -- DB는 응답만 (stateful이므로 별도 허용 불필요)
+}
+
+# ── Cache Security Group
+resource "aws_security_group" "cache" {
+  name_prefix = "cache-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ElastiCache SG -- app only"
+
+  ingress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "Redis from app only"
+  }
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "인터넷 → ALB 인바운드. CloudFront IP 또는 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "CloudFront Managed Prefix List (com.amazonaws.global.cloudfront.origin-facing) - HTTPS 트래픽",
+          "port": "443",
+        },
+        {
+          "from": "CloudFront Managed Prefix List - HTTP (→443 리다이렉트)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "3000",
+          "to": "app_sg (앱 서버로 전달)",
+        },
+      ],
+    },
+    {
+      "color": "#059669",
+      "desc": "ALB → 앱 서버. 앱 → DB/캐시 아웃바운드",
+      "id": "app_sg",
+      "inbound": [
+        {
+          "from": "alb_sg (ALB에서 앱으로)",
+          "port": "3000",
+        },
+      ],
+      "name": "App Security Group",
+      "outbound": [
+        {
+          "port": "5432",
+          "to": "db_sg (PostgreSQL/Aurora PG)",
+        },
+        {
+          "port": "6379",
+          "to": "cache_sg (ElastiCache Redis)",
+        },
+        {
+          "port": "443",
+          "to": "search_sg (OpenSearch HTTPS)",
+        },
+        {
+          "port": "443",
+          "to": "443 (VPC Endpoint - Secrets Manager, ECR, CloudWatch)",
+        },
+      ],
+    },
+    {
+      "color": "#dc2626",
+      "desc": "DB는 앱/Lambda에서만 접근. 인터넷 접근 완전 차단",
+      "id": "db_sg",
+      "inbound": [
+        {
+          "from": "app_sg (앱 서버에서만 접근 허용)",
+          "port": "5432",
+        },
+        {
+          "from": "bastion_sg (Bastion 관리자 접근에서만 추가 허용)",
+          "port": "5432",
+        },
+      ],
+      "name": "Database Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#7c3aed",
+      "desc": "Redis는 앱에서만 접근. 직접 노출 금지",
+      "id": "cache_sg",
+      "inbound": [
+        {
+          "from": "app_sg (앱 서버에서만 허용)",
+          "port": "6379",
+        },
+      ],
+      "name": "ElastiCache Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#0891b2",
+      "desc": "검색 엔진. 앱에서만 HTTPS로 접근",
+      "id": "search_sg",
+      "inbound": [
+        {
+          "from": "app_sg (HTTPS 앱에서만)",
+          "port": "443",
+        },
+        {
+          "from": "bastion_sg (OpenSearch Dashboard 관리)",
+          "port": "443",
+        },
+      ],
+      "name": "OpenSearch Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#374151",
+      "desc": "관리자 접근 전용. 사무실 IP만 허용",
+      "id": "bastion_sg",
+      "inbound": [
+        {
+          "from": "사무실 고정 IP/32 (반드시 특정 IP로 제한) - SSH/SSM 관리자 접근",
+          "port": "22",
+        },
+      ],
+      "name": "Bastion / VPN Endpoint Security Group",
+      "outbound": [
+        {
+          "port": "22",
+          "to": "app_sg (앱 서버 SSH 필요시)",
+        },
+        {
+          "port": "5432",
+          "to": "db_sg (DB 직접 쿼리 비상시)",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > data_pipeline (en) 1`] = `
+{
+  "code": "# Terraform -- Full Security Group chain
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTPS from internet"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 8000
+    to_port         = 8000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.lambda.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Lambda Security Group
+resource "aws_security_group" "lambda" {
+  name_prefix = "lambda-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Lambda Security Group"
+
+  # Lambda: no inbound rules (Lambda only communicates outbound)
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Via VPC Endpoint (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "Internet -> ALB inbound. CloudFront IP or 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "0.0.0.0/0 (HTTPS traffic)",
+          "port": "443",
+        },
+        {
+          "from": "0.0.0.0/0 (HTTP -> 443 redirect)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "8000",
+          "to": "app_sg (forward to app servers)",
+        },
+      ],
+    },
+    {
+      "color": "#f59e0b",
+      "desc": "Required when Lambda is placed in VPC. No inbound (Lambda has no external listener)",
+      "id": "lambda_sg",
+      "inbound": [],
+      "name": "Lambda Security Group",
+      "outbound": [
+        {
+          "port": "443",
+          "to": "0.0.0.0/0 VPC Endpoint (Secrets Manager, DynamoDB, S3)",
+        },
+      ],
+    },
+    {
+      "color": "#0891b2",
+      "desc": "Search engine. HTTPS access from app only",
+      "id": "search_sg",
+      "inbound": [
+        {
+          "from": "lambda_sg (HTTPS from app only)",
+          "port": "443",
+        },
+        {
+          "from": "app_sg (OpenSearch Dashboard management)",
+          "port": "443",
+        },
+      ],
+      "name": "OpenSearch Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#374151",
+      "desc": "Admin access only. Allow office IP only",
+      "id": "bastion_sg",
+      "inbound": [
+        {
+          "from": "Office static IP/32 (must restrict to specific IP) - SSH/SSM admin access",
+          "port": "22",
+        },
+      ],
+      "name": "Bastion / VPN Endpoint Security Group",
+      "outbound": [
+        {
+          "port": "22",
+          "to": "app_sg (app server SSH when needed)",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > data_pipeline (ko) 1`] = `
+{
+  "code": "# Terraform -- Security Group 전체 체인
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTPS from internet"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 8000
+    to_port         = 8000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.lambda.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Lambda Security Group
+resource "aws_security_group" "lambda" {
+  name_prefix = "lambda-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Lambda Security Group"
+
+  # Lambda: 인바운드 없음 (Lambda는 항상 아웃바운드로만 통신)
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # VPC Endpoint 경유 (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "인터넷 → ALB 인바운드. CloudFront IP 또는 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "0.0.0.0/0 (HTTPS 트래픽)",
+          "port": "443",
+        },
+        {
+          "from": "0.0.0.0/0 (HTTP → 443 리다이렉트)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "8000",
+          "to": "app_sg (앱 서버로 전달)",
+        },
+      ],
+    },
+    {
+      "color": "#f59e0b",
+      "desc": "Lambda VPC 배치 시 필요. 인바운드 없음(Lambda는 외부 호출 없음)",
+      "id": "lambda_sg",
+      "inbound": [],
+      "name": "Lambda Security Group",
+      "outbound": [
+        {
+          "port": "443",
+          "to": "0.0.0.0/0 VPC Endpoint (Secrets Manager, DynamoDB, S3)",
+        },
+      ],
+    },
+    {
+      "color": "#0891b2",
+      "desc": "검색 엔진. 앱에서만 HTTPS로 접근",
+      "id": "search_sg",
+      "inbound": [
+        {
+          "from": "lambda_sg (HTTPS 앱에서만)",
+          "port": "443",
+        },
+        {
+          "from": "app_sg (OpenSearch Dashboard 관리)",
+          "port": "443",
+        },
+      ],
+      "name": "OpenSearch Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#374151",
+      "desc": "관리자 접근 전용. 사무실 IP만 허용",
+      "id": "bastion_sg",
+      "inbound": [
+        {
+          "from": "사무실 고정 IP/32 (반드시 특정 IP로 제한) - SSH/SSM 관리자 접근",
+          "port": "22",
+        },
+      ],
+      "name": "Bastion / VPN Endpoint Security Group",
+      "outbound": [
+        {
+          "port": "22",
+          "to": "app_sg (앱 서버 SSH 필요시)",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > ecommerce_mvp (en) 1`] = `
+{
+  "code": "# Terraform -- Full Security Group chain
+
+# CloudFront Managed Prefix List lookup
+data "aws_ec2_managed_prefix_list" "cloudfront" {
+  name = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (ID varies by region, verify with describe-managed-prefix-lists)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTPS from CloudFront"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (ID varies by region, verify with describe-managed-prefix-lists)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Application Security Group
+resource "aws_security_group" "app" {
+  name_prefix = "app-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Application Security Group"
+
+  ingress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+    description     = "ALB to App"
+  }
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Via VPC Endpoint (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+  egress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.db.id]
+    description     = "Application to DB"
+  }
+  egress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.cache.id]
+    description     = "Application to Redis"
+  }
+}
+
+# ── DB Security Group
+resource "aws_security_group" "db" {
+  name_prefix = "db-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Database SG -- no internet, app/lambda only"
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "From app only"
+  }
+  # No outbound -- DB only responds (stateful, no explicit allow needed)
+}
+
+# ── Cache Security Group
+resource "aws_security_group" "cache" {
+  name_prefix = "cache-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ElastiCache SG -- app only"
+
+  ingress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "Redis from app only"
+  }
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "Internet -> ALB inbound. CloudFront IP or 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "CloudFront Managed Prefix List (com.amazonaws.global.cloudfront.origin-facing) - HTTPS traffic",
+          "port": "443",
+        },
+        {
+          "from": "CloudFront Managed Prefix List - HTTP (redirect to 443)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "3000",
+          "to": "app_sg (forward to app servers)",
+        },
+      ],
+    },
+    {
+      "color": "#059669",
+      "desc": "ALB -> app server. App -> DB/cache outbound",
+      "id": "app_sg",
+      "inbound": [
+        {
+          "from": "alb_sg (ALB to app)",
+          "port": "3000",
+        },
+      ],
+      "name": "App Security Group",
+      "outbound": [
+        {
+          "port": "5432",
+          "to": "db_sg (PostgreSQL/Aurora PG)",
+        },
+        {
+          "port": "6379",
+          "to": "cache_sg (ElastiCache Redis)",
+        },
+        {
+          "port": "443",
+          "to": "443 (VPC Endpoints - Secrets Manager, ECR, CloudWatch)",
+        },
+      ],
+    },
+    {
+      "color": "#dc2626",
+      "desc": "DB accessible from app/Lambda only. Internet access fully blocked",
+      "id": "db_sg",
+      "inbound": [
+        {
+          "from": "app_sg (allow access from app servers only)",
+          "port": "5432",
+        },
+      ],
+      "name": "Database Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#7c3aed",
+      "desc": "Redis accessible from app only. Never expose directly",
+      "id": "cache_sg",
+      "inbound": [
+        {
+          "from": "app_sg (allow from app servers only)",
+          "port": "6379",
+        },
+      ],
+      "name": "ElastiCache Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#374151",
+      "desc": "Admin access only. Allow office IP only",
+      "id": "bastion_sg",
+      "inbound": [
+        {
+          "from": "Office static IP/32 (must restrict to specific IP) - SSH/SSM admin access",
+          "port": "22",
+        },
+      ],
+      "name": "Bastion / VPN Endpoint Security Group",
+      "outbound": [
+        {
+          "port": "22",
+          "to": "app_sg (app server SSH when needed)",
+        },
+        {
+          "port": "5432",
+          "to": "db_sg (DB direct query for emergencies)",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > ecommerce_mvp (ko) 1`] = `
+{
+  "code": "# Terraform -- Security Group 전체 체인
+
+# CloudFront Managed Prefix List 조회
+data "aws_ec2_managed_prefix_list" "cloudfront" {
+  name = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (리전별 ID 상이, describe-managed-prefix-lists로 확인)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTPS from CloudFront"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (리전별 ID 상이, describe-managed-prefix-lists로 확인)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Application Security Group
+resource "aws_security_group" "app" {
+  name_prefix = "app-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Application Security Group"
+
+  ingress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+    description     = "ALB to App"
+  }
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # VPC Endpoint 경유 (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+  egress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.db.id]
+    description     = "Application to DB"
+  }
+  egress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.cache.id]
+    description     = "Application to Redis"
+  }
+}
+
+# ── DB Security Group
+resource "aws_security_group" "db" {
+  name_prefix = "db-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Database SG -- no internet, app/lambda only"
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "From app only"
+  }
+  # 아웃바운드 없음 -- DB는 응답만 (stateful이므로 별도 허용 불필요)
+}
+
+# ── Cache Security Group
+resource "aws_security_group" "cache" {
+  name_prefix = "cache-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ElastiCache SG -- app only"
+
+  ingress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "Redis from app only"
+  }
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "인터넷 → ALB 인바운드. CloudFront IP 또는 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "CloudFront Managed Prefix List (com.amazonaws.global.cloudfront.origin-facing) - HTTPS 트래픽",
+          "port": "443",
+        },
+        {
+          "from": "CloudFront Managed Prefix List - HTTP (→443 리다이렉트)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "3000",
+          "to": "app_sg (앱 서버로 전달)",
+        },
+      ],
+    },
+    {
+      "color": "#059669",
+      "desc": "ALB → 앱 서버. 앱 → DB/캐시 아웃바운드",
+      "id": "app_sg",
+      "inbound": [
+        {
+          "from": "alb_sg (ALB에서 앱으로)",
+          "port": "3000",
+        },
+      ],
+      "name": "App Security Group",
+      "outbound": [
+        {
+          "port": "5432",
+          "to": "db_sg (PostgreSQL/Aurora PG)",
+        },
+        {
+          "port": "6379",
+          "to": "cache_sg (ElastiCache Redis)",
+        },
+        {
+          "port": "443",
+          "to": "443 (VPC Endpoint - Secrets Manager, ECR, CloudWatch)",
+        },
+      ],
+    },
+    {
+      "color": "#dc2626",
+      "desc": "DB는 앱/Lambda에서만 접근. 인터넷 접근 완전 차단",
+      "id": "db_sg",
+      "inbound": [
+        {
+          "from": "app_sg (앱 서버에서만 접근 허용)",
+          "port": "5432",
+        },
+      ],
+      "name": "Database Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#7c3aed",
+      "desc": "Redis는 앱에서만 접근. 직접 노출 금지",
+      "id": "cache_sg",
+      "inbound": [
+        {
+          "from": "app_sg (앱 서버에서만 허용)",
+          "port": "6379",
+        },
+      ],
+      "name": "ElastiCache Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#374151",
+      "desc": "관리자 접근 전용. 사무실 IP만 허용",
+      "id": "bastion_sg",
+      "inbound": [
+        {
+          "from": "사무실 고정 IP/32 (반드시 특정 IP로 제한) - SSH/SSM 관리자 접근",
+          "port": "22",
+        },
+      ],
+      "name": "Bastion / VPN Endpoint Security Group",
+      "outbound": [
+        {
+          "port": "22",
+          "to": "app_sg (앱 서버 SSH 필요시)",
+        },
+        {
+          "port": "5432",
+          "to": "db_sg (DB 직접 쿼리 비상시)",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > eks_full (en) 1`] = `
+{
+  "code": "# Terraform -- Full Security Group chain
+
+# CloudFront Managed Prefix List lookup
+data "aws_ec2_managed_prefix_list" "cloudfront" {
+  name = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (ID varies by region, verify with describe-managed-prefix-lists)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTPS from CloudFront"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (ID varies by region, verify with describe-managed-prefix-lists)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 8080
+    to_port         = 9090
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Application Security Group
+resource "aws_security_group" "app" {
+  name_prefix = "app-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Application Security Group"
+
+  ingress {
+    from_port       = 8080
+    to_port         = 8080
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+    description     = "ALB to App"
+  }
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Via VPC Endpoint (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+  egress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.db.id]
+    description     = "Application to DB"
+  }
+  egress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.cache.id]
+    description     = "Application to Redis"
+  }
+}
+
+# ── DB Security Group
+resource "aws_security_group" "db" {
+  name_prefix = "db-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Database SG -- no internet, app/lambda only"
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "From app only"
+  }
+  # No outbound -- DB only responds (stateful, no explicit allow needed)
+}
+
+# ── Cache Security Group
+resource "aws_security_group" "cache" {
+  name_prefix = "cache-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ElastiCache SG -- app only"
+
+  ingress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "Redis from app only"
+  }
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "Internet -> ALB inbound. CloudFront IP or 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "CloudFront Managed Prefix List (com.amazonaws.global.cloudfront.origin-facing) - HTTPS traffic",
+          "port": "443",
+        },
+        {
+          "from": "CloudFront Managed Prefix List - HTTP (redirect to 443)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "8080-9090",
+          "to": "eks_node_sg (forward to app servers)",
+        },
+      ],
+    },
+    {
+      "color": "#059669",
+      "desc": "ALB -> app server. App -> DB/cache outbound",
+      "id": "app_sg",
+      "inbound": [
+        {
+          "from": "alb_sg (ALB to app)",
+          "port": "1025-65535",
+        },
+        {
+          "from": "eks_control_plane_sg (EKS Control Plane -> API webhook/admission (443))",
+          "port": "443",
+        },
+        {
+          "from": "eks_control_plane_sg (EKS Control Plane -> node metrics)",
+          "port": "10250",
+        },
+      ],
+      "name": "EKS Node Security Group",
+      "outbound": [
+        {
+          "port": "5432",
+          "to": "db_sg (PostgreSQL/Aurora PG)",
+        },
+        {
+          "port": "6379",
+          "to": "cache_sg (ElastiCache Redis)",
+        },
+        {
+          "port": "443",
+          "to": "search_sg (OpenSearch HTTPS)",
+        },
+        {
+          "port": "443",
+          "to": "443 (VPC Endpoints - Secrets Manager, ECR, CloudWatch)",
+        },
+      ],
+    },
+    {
+      "color": "#dc2626",
+      "desc": "DB accessible from app/Lambda only. Internet access fully blocked",
+      "id": "db_sg",
+      "inbound": [
+        {
+          "from": "app_sg (allow access from app servers only)",
+          "port": "5432",
+        },
+        {
+          "from": "bastion_sg (additional access from bastion admin only)",
+          "port": "5432",
+        },
+      ],
+      "name": "Database Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#7c3aed",
+      "desc": "Redis accessible from app only. Never expose directly",
+      "id": "cache_sg",
+      "inbound": [
+        {
+          "from": "app_sg (allow from app servers only)",
+          "port": "6379",
+        },
+      ],
+      "name": "ElastiCache Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#0891b2",
+      "desc": "Search engine. HTTPS access from app only",
+      "id": "search_sg",
+      "inbound": [
+        {
+          "from": "app_sg (HTTPS from app only)",
+          "port": "443",
+        },
+        {
+          "from": "bastion_sg (OpenSearch Dashboard management)",
+          "port": "443",
+        },
+      ],
+      "name": "OpenSearch Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#374151",
+      "desc": "Admin access only. Allow office IP only",
+      "id": "bastion_sg",
+      "inbound": [
+        {
+          "from": "Office static IP/32 (must restrict to specific IP) - SSH/SSM admin access",
+          "port": "22",
+        },
+      ],
+      "name": "Bastion / VPN Endpoint Security Group",
+      "outbound": [
+        {
+          "port": "22",
+          "to": "app_sg (app server SSH when needed)",
+        },
+        {
+          "port": "5432",
+          "to": "db_sg (DB direct query for emergencies)",
+        },
+      ],
+    },
+    {
+      "color": "#1d4ed8",
+      "desc": "EKS managed SG. Do not modify directly",
+      "id": "eks_control_plane_sg",
+      "inbound": [
+        {
+          "from": "app_sg (node group) - kubectl API access",
+          "port": "443",
+        },
+      ],
+      "name": "EKS Control Plane Security Group",
+      "outbound": [
+        {
+          "port": "1025-65535",
+          "to": "app_sg (node group) - kubelet + pods (10250+)",
+        },
+        {
+          "port": "443",
+          "to": "app_sg (node group) - API server HTTPS",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > eks_full (ko) 1`] = `
+{
+  "code": "# Terraform -- Security Group 전체 체인
+
+# CloudFront Managed Prefix List 조회
+data "aws_ec2_managed_prefix_list" "cloudfront" {
+  name = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (리전별 ID 상이, describe-managed-prefix-lists로 확인)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTPS from CloudFront"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (리전별 ID 상이, describe-managed-prefix-lists로 확인)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 8080
+    to_port         = 9090
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Application Security Group
+resource "aws_security_group" "app" {
+  name_prefix = "app-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Application Security Group"
+
+  ingress {
+    from_port       = 8080
+    to_port         = 8080
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+    description     = "ALB to App"
+  }
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # VPC Endpoint 경유 (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+  egress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.db.id]
+    description     = "Application to DB"
+  }
+  egress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.cache.id]
+    description     = "Application to Redis"
+  }
+}
+
+# ── DB Security Group
+resource "aws_security_group" "db" {
+  name_prefix = "db-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Database SG -- no internet, app/lambda only"
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "From app only"
+  }
+  # 아웃바운드 없음 -- DB는 응답만 (stateful이므로 별도 허용 불필요)
+}
+
+# ── Cache Security Group
+resource "aws_security_group" "cache" {
+  name_prefix = "cache-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ElastiCache SG -- app only"
+
+  ingress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "Redis from app only"
+  }
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "인터넷 → ALB 인바운드. CloudFront IP 또는 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "CloudFront Managed Prefix List (com.amazonaws.global.cloudfront.origin-facing) - HTTPS 트래픽",
+          "port": "443",
+        },
+        {
+          "from": "CloudFront Managed Prefix List - HTTP (→443 리다이렉트)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "8080-9090",
+          "to": "eks_node_sg (앱 서버로 전달)",
+        },
+      ],
+    },
+    {
+      "color": "#059669",
+      "desc": "ALB → 앱 서버. 앱 → DB/캐시 아웃바운드",
+      "id": "app_sg",
+      "inbound": [
+        {
+          "from": "alb_sg (ALB에서 앱으로)",
+          "port": "1025-65535",
+        },
+        {
+          "from": "eks_control_plane_sg (EKS Control Plane → API webhook/admission (443))",
+          "port": "443",
+        },
+        {
+          "from": "eks_control_plane_sg (EKS Control Plane → 노드 메트릭)",
+          "port": "10250",
+        },
+      ],
+      "name": "EKS Node Security Group",
+      "outbound": [
+        {
+          "port": "5432",
+          "to": "db_sg (PostgreSQL/Aurora PG)",
+        },
+        {
+          "port": "6379",
+          "to": "cache_sg (ElastiCache Redis)",
+        },
+        {
+          "port": "443",
+          "to": "search_sg (OpenSearch HTTPS)",
+        },
+        {
+          "port": "443",
+          "to": "443 (VPC Endpoint - Secrets Manager, ECR, CloudWatch)",
+        },
+      ],
+    },
+    {
+      "color": "#dc2626",
+      "desc": "DB는 앱/Lambda에서만 접근. 인터넷 접근 완전 차단",
+      "id": "db_sg",
+      "inbound": [
+        {
+          "from": "app_sg (앱 서버에서만 접근 허용)",
+          "port": "5432",
+        },
+        {
+          "from": "bastion_sg (Bastion 관리자 접근에서만 추가 허용)",
+          "port": "5432",
+        },
+      ],
+      "name": "Database Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#7c3aed",
+      "desc": "Redis는 앱에서만 접근. 직접 노출 금지",
+      "id": "cache_sg",
+      "inbound": [
+        {
+          "from": "app_sg (앱 서버에서만 허용)",
+          "port": "6379",
+        },
+      ],
+      "name": "ElastiCache Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#0891b2",
+      "desc": "검색 엔진. 앱에서만 HTTPS로 접근",
+      "id": "search_sg",
+      "inbound": [
+        {
+          "from": "app_sg (HTTPS 앱에서만)",
+          "port": "443",
+        },
+        {
+          "from": "bastion_sg (OpenSearch Dashboard 관리)",
+          "port": "443",
+        },
+      ],
+      "name": "OpenSearch Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#374151",
+      "desc": "관리자 접근 전용. 사무실 IP만 허용",
+      "id": "bastion_sg",
+      "inbound": [
+        {
+          "from": "사무실 고정 IP/32 (반드시 특정 IP로 제한) - SSH/SSM 관리자 접근",
+          "port": "22",
+        },
+      ],
+      "name": "Bastion / VPN Endpoint Security Group",
+      "outbound": [
+        {
+          "port": "22",
+          "to": "app_sg (앱 서버 SSH 필요시)",
+        },
+        {
+          "port": "5432",
+          "to": "db_sg (DB 직접 쿼리 비상시)",
+        },
+      ],
+    },
+    {
+      "color": "#1d4ed8",
+      "desc": "EKS 관리형 SG. 직접 수정 금지",
+      "id": "eks_control_plane_sg",
+      "inbound": [
+        {
+          "from": "app_sg (노드 그룹) - kubectl API 접근",
+          "port": "443",
+        },
+      ],
+      "name": "EKS Control Plane Security Group",
+      "outbound": [
+        {
+          "port": "1025-65535",
+          "to": "app_sg (노드 그룹) - kubelet + pods (10250+)",
+        },
+        {
+          "port": "443",
+          "to": "app_sg (노드 그룹) - API server HTTPS",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > generic_web_api (en) 1`] = `
+{
+  "code": "# Terraform -- Full Security Group chain
+
+# CloudFront Managed Prefix List lookup
+data "aws_ec2_managed_prefix_list" "cloudfront" {
+  name = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (ID varies by region, verify with describe-managed-prefix-lists)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTPS from CloudFront"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (ID varies by region, verify with describe-managed-prefix-lists)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Application Security Group
+resource "aws_security_group" "app" {
+  name_prefix = "app-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Application Security Group"
+
+  ingress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+    description     = "ALB to App"
+  }
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Via VPC Endpoint (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+  egress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.db.id]
+    description     = "Application to DB"
+  }
+}
+
+# ── DB Security Group
+resource "aws_security_group" "db" {
+  name_prefix = "db-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Database SG -- no internet, app/lambda only"
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "From app only"
+  }
+  # No outbound -- DB only responds (stateful, no explicit allow needed)
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "Internet -> ALB inbound. CloudFront IP or 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "CloudFront Managed Prefix List (com.amazonaws.global.cloudfront.origin-facing) - HTTPS traffic",
+          "port": "443",
+        },
+        {
+          "from": "CloudFront Managed Prefix List - HTTP (redirect to 443)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "3000",
+          "to": "app_sg (forward to app servers)",
+        },
+      ],
+    },
+    {
+      "color": "#059669",
+      "desc": "ALB -> app server. App -> DB/cache outbound",
+      "id": "app_sg",
+      "inbound": [
+        {
+          "from": "alb_sg (ALB to app)",
+          "port": "3000",
+        },
+      ],
+      "name": "App Security Group",
+      "outbound": [
+        {
+          "port": "5432",
+          "to": "db_sg (PostgreSQL/Aurora PG)",
+        },
+        {
+          "port": "443",
+          "to": "443 (VPC Endpoints - Secrets Manager, ECR, CloudWatch)",
+        },
+      ],
+    },
+    {
+      "color": "#dc2626",
+      "desc": "DB accessible from app/Lambda only. Internet access fully blocked",
+      "id": "db_sg",
+      "inbound": [
+        {
+          "from": "app_sg (allow access from app servers only)",
+          "port": "5432",
+        },
+      ],
+      "name": "Database Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#374151",
+      "desc": "Admin access only. Allow office IP only",
+      "id": "bastion_sg",
+      "inbound": [
+        {
+          "from": "Office static IP/32 (must restrict to specific IP) - SSH/SSM admin access",
+          "port": "22",
+        },
+      ],
+      "name": "Bastion / VPN Endpoint Security Group",
+      "outbound": [
+        {
+          "port": "22",
+          "to": "app_sg (app server SSH when needed)",
+        },
+        {
+          "port": "5432",
+          "to": "db_sg (DB direct query for emergencies)",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > generic_web_api (ko) 1`] = `
+{
+  "code": "# Terraform -- Security Group 전체 체인
+
+# CloudFront Managed Prefix List 조회
+data "aws_ec2_managed_prefix_list" "cloudfront" {
+  name = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (리전별 ID 상이, describe-managed-prefix-lists로 확인)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTPS from CloudFront"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (리전별 ID 상이, describe-managed-prefix-lists로 확인)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Application Security Group
+resource "aws_security_group" "app" {
+  name_prefix = "app-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Application Security Group"
+
+  ingress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+    description     = "ALB to App"
+  }
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # VPC Endpoint 경유 (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+  egress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.db.id]
+    description     = "Application to DB"
+  }
+}
+
+# ── DB Security Group
+resource "aws_security_group" "db" {
+  name_prefix = "db-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Database SG -- no internet, app/lambda only"
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "From app only"
+  }
+  # 아웃바운드 없음 -- DB는 응답만 (stateful이므로 별도 허용 불필요)
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "인터넷 → ALB 인바운드. CloudFront IP 또는 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "CloudFront Managed Prefix List (com.amazonaws.global.cloudfront.origin-facing) - HTTPS 트래픽",
+          "port": "443",
+        },
+        {
+          "from": "CloudFront Managed Prefix List - HTTP (→443 리다이렉트)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "3000",
+          "to": "app_sg (앱 서버로 전달)",
+        },
+      ],
+    },
+    {
+      "color": "#059669",
+      "desc": "ALB → 앱 서버. 앱 → DB/캐시 아웃바운드",
+      "id": "app_sg",
+      "inbound": [
+        {
+          "from": "alb_sg (ALB에서 앱으로)",
+          "port": "3000",
+        },
+      ],
+      "name": "App Security Group",
+      "outbound": [
+        {
+          "port": "5432",
+          "to": "db_sg (PostgreSQL/Aurora PG)",
+        },
+        {
+          "port": "443",
+          "to": "443 (VPC Endpoint - Secrets Manager, ECR, CloudWatch)",
+        },
+      ],
+    },
+    {
+      "color": "#dc2626",
+      "desc": "DB는 앱/Lambda에서만 접근. 인터넷 접근 완전 차단",
+      "id": "db_sg",
+      "inbound": [
+        {
+          "from": "app_sg (앱 서버에서만 접근 허용)",
+          "port": "5432",
+        },
+      ],
+      "name": "Database Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#374151",
+      "desc": "관리자 접근 전용. 사무실 IP만 허용",
+      "id": "bastion_sg",
+      "inbound": [
+        {
+          "from": "사무실 고정 IP/32 (반드시 특정 IP로 제한) - SSH/SSM 관리자 접근",
+          "port": "22",
+        },
+      ],
+      "name": "Bastion / VPN Endpoint Security Group",
+      "outbound": [
+        {
+          "port": "22",
+          "to": "app_sg (앱 서버 SSH 필요시)",
+        },
+        {
+          "port": "5432",
+          "to": "db_sg (DB 직접 쿼리 비상시)",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > internal_tool (en) 1`] = `
+{
+  "code": "# Terraform -- Full Security Group chain
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTPS from internet"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 8000
+    to_port         = 8000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.lambda.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Lambda Security Group
+resource "aws_security_group" "lambda" {
+  name_prefix = "lambda-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Lambda Security Group"
+
+  # Lambda: no inbound rules (Lambda only communicates outbound)
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Via VPC Endpoint (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+  egress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.db.id]
+    description     = "Lambda to DB"
+  }
+}
+
+# ── DB Security Group
+resource "aws_security_group" "db" {
+  name_prefix = "db-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Database SG -- no internet, app/lambda only"
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.lambda.id]
+    description     = "From app only"
+  }
+  # No outbound -- DB only responds (stateful, no explicit allow needed)
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "Internet -> ALB inbound. CloudFront IP or 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "0.0.0.0/0 (HTTPS traffic)",
+          "port": "443",
+        },
+        {
+          "from": "0.0.0.0/0 (HTTP -> 443 redirect)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "8000",
+          "to": "app_sg (forward to app servers)",
+        },
+      ],
+    },
+    {
+      "color": "#f59e0b",
+      "desc": "Required when Lambda is placed in VPC. No inbound (Lambda has no external listener)",
+      "id": "lambda_sg",
+      "inbound": [],
+      "name": "Lambda Security Group",
+      "outbound": [
+        {
+          "port": "5432",
+          "to": "db_sg (Aurora PG)",
+        },
+        {
+          "port": "443",
+          "to": "0.0.0.0/0 VPC Endpoint (Secrets Manager, DynamoDB, S3)",
+        },
+      ],
+    },
+    {
+      "color": "#dc2626",
+      "desc": "DB accessible from app/Lambda only. Internet access fully blocked",
+      "id": "db_sg",
+      "inbound": [
+        {
+          "from": "lambda_sg (allow access from app servers only)",
+          "port": "5432",
+        },
+      ],
+      "name": "Database Security Group",
+      "outbound": [],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > internal_tool (ko) 1`] = `
+{
+  "code": "# Terraform -- Security Group 전체 체인
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTPS from internet"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 8000
+    to_port         = 8000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.lambda.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Lambda Security Group
+resource "aws_security_group" "lambda" {
+  name_prefix = "lambda-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Lambda Security Group"
+
+  # Lambda: 인바운드 없음 (Lambda는 항상 아웃바운드로만 통신)
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # VPC Endpoint 경유 (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+  egress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.db.id]
+    description     = "Lambda to DB"
+  }
+}
+
+# ── DB Security Group
+resource "aws_security_group" "db" {
+  name_prefix = "db-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Database SG -- no internet, app/lambda only"
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.lambda.id]
+    description     = "From app only"
+  }
+  # 아웃바운드 없음 -- DB는 응답만 (stateful이므로 별도 허용 불필요)
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "인터넷 → ALB 인바운드. CloudFront IP 또는 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "0.0.0.0/0 (HTTPS 트래픽)",
+          "port": "443",
+        },
+        {
+          "from": "0.0.0.0/0 (HTTP → 443 리다이렉트)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "8000",
+          "to": "app_sg (앱 서버로 전달)",
+        },
+      ],
+    },
+    {
+      "color": "#f59e0b",
+      "desc": "Lambda VPC 배치 시 필요. 인바운드 없음(Lambda는 외부 호출 없음)",
+      "id": "lambda_sg",
+      "inbound": [],
+      "name": "Lambda Security Group",
+      "outbound": [
+        {
+          "port": "5432",
+          "to": "db_sg (Aurora PG)",
+        },
+        {
+          "port": "443",
+          "to": "0.0.0.0/0 VPC Endpoint (Secrets Manager, DynamoDB, S3)",
+        },
+      ],
+    },
+    {
+      "color": "#dc2626",
+      "desc": "DB는 앱/Lambda에서만 접근. 인터넷 접근 완전 차단",
+      "id": "db_sg",
+      "inbound": [
+        {
+          "from": "lambda_sg (앱 서버에서만 접근 허용)",
+          "port": "5432",
+        },
+      ],
+      "name": "Database Security Group",
+      "outbound": [],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > iot_platform (en) 1`] = `
+{
+  "code": "# Terraform -- Full Security Group chain
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTPS from internet"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 8000
+    to_port         = 8000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Application Security Group
+resource "aws_security_group" "app" {
+  name_prefix = "app-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Application Security Group"
+
+  ingress {
+    from_port       = 8000
+    to_port         = 8000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+    description     = "ALB to App"
+  }
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Via VPC Endpoint (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+  egress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.cache.id]
+    description     = "Application to Redis"
+  }
+}
+
+# ── Cache Security Group
+resource "aws_security_group" "cache" {
+  name_prefix = "cache-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ElastiCache SG -- app only"
+
+  ingress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "Redis from app only"
+  }
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "Internet -> ALB inbound. CloudFront IP or 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "0.0.0.0/0 (HTTPS traffic)",
+          "port": "443",
+        },
+        {
+          "from": "0.0.0.0/0 (HTTP -> 443 redirect)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "8000",
+          "to": "app_sg (forward to app servers)",
+        },
+      ],
+    },
+    {
+      "color": "#059669",
+      "desc": "ALB -> app server. App -> DB/cache outbound",
+      "id": "app_sg",
+      "inbound": [
+        {
+          "from": "alb_sg (ALB to app)",
+          "port": "8000",
+        },
+      ],
+      "name": "App Security Group",
+      "outbound": [
+        {
+          "port": "6379",
+          "to": "cache_sg (ElastiCache Redis)",
+        },
+        {
+          "port": "443",
+          "to": "search_sg (OpenSearch HTTPS)",
+        },
+        {
+          "port": "443",
+          "to": "443 (VPC Endpoints - Secrets Manager, ECR, CloudWatch)",
+        },
+      ],
+    },
+    {
+      "color": "#7c3aed",
+      "desc": "Redis accessible from app only. Never expose directly",
+      "id": "cache_sg",
+      "inbound": [
+        {
+          "from": "app_sg (allow from app servers only)",
+          "port": "6379",
+        },
+      ],
+      "name": "ElastiCache Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#0891b2",
+      "desc": "Search engine. HTTPS access from app only",
+      "id": "search_sg",
+      "inbound": [
+        {
+          "from": "app_sg (HTTPS from app only)",
+          "port": "443",
+        },
+        {
+          "from": "app_sg (OpenSearch Dashboard management)",
+          "port": "443",
+        },
+      ],
+      "name": "OpenSearch Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#374151",
+      "desc": "Admin access only. Allow office IP only",
+      "id": "bastion_sg",
+      "inbound": [
+        {
+          "from": "Office static IP/32 (must restrict to specific IP) - SSH/SSM admin access",
+          "port": "22",
+        },
+      ],
+      "name": "Bastion / VPN Endpoint Security Group",
+      "outbound": [
+        {
+          "port": "22",
+          "to": "app_sg (app server SSH when needed)",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > iot_platform (ko) 1`] = `
+{
+  "code": "# Terraform -- Security Group 전체 체인
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTPS from internet"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 8000
+    to_port         = 8000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Application Security Group
+resource "aws_security_group" "app" {
+  name_prefix = "app-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Application Security Group"
+
+  ingress {
+    from_port       = 8000
+    to_port         = 8000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+    description     = "ALB to App"
+  }
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # VPC Endpoint 경유 (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+  egress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.cache.id]
+    description     = "Application to Redis"
+  }
+}
+
+# ── Cache Security Group
+resource "aws_security_group" "cache" {
+  name_prefix = "cache-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ElastiCache SG -- app only"
+
+  ingress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "Redis from app only"
+  }
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "인터넷 → ALB 인바운드. CloudFront IP 또는 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "0.0.0.0/0 (HTTPS 트래픽)",
+          "port": "443",
+        },
+        {
+          "from": "0.0.0.0/0 (HTTP → 443 리다이렉트)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "8000",
+          "to": "app_sg (앱 서버로 전달)",
+        },
+      ],
+    },
+    {
+      "color": "#059669",
+      "desc": "ALB → 앱 서버. 앱 → DB/캐시 아웃바운드",
+      "id": "app_sg",
+      "inbound": [
+        {
+          "from": "alb_sg (ALB에서 앱으로)",
+          "port": "8000",
+        },
+      ],
+      "name": "App Security Group",
+      "outbound": [
+        {
+          "port": "6379",
+          "to": "cache_sg (ElastiCache Redis)",
+        },
+        {
+          "port": "443",
+          "to": "search_sg (OpenSearch HTTPS)",
+        },
+        {
+          "port": "443",
+          "to": "443 (VPC Endpoint - Secrets Manager, ECR, CloudWatch)",
+        },
+      ],
+    },
+    {
+      "color": "#7c3aed",
+      "desc": "Redis는 앱에서만 접근. 직접 노출 금지",
+      "id": "cache_sg",
+      "inbound": [
+        {
+          "from": "app_sg (앱 서버에서만 허용)",
+          "port": "6379",
+        },
+      ],
+      "name": "ElastiCache Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#0891b2",
+      "desc": "검색 엔진. 앱에서만 HTTPS로 접근",
+      "id": "search_sg",
+      "inbound": [
+        {
+          "from": "app_sg (HTTPS 앱에서만)",
+          "port": "443",
+        },
+        {
+          "from": "app_sg (OpenSearch Dashboard 관리)",
+          "port": "443",
+        },
+      ],
+      "name": "OpenSearch Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#374151",
+      "desc": "관리자 접근 전용. 사무실 IP만 허용",
+      "id": "bastion_sg",
+      "inbound": [
+        {
+          "from": "사무실 고정 IP/32 (반드시 특정 IP로 제한) - SSH/SSM 관리자 접근",
+          "port": "22",
+        },
+      ],
+      "name": "Bastion / VPN Endpoint Security Group",
+      "outbound": [
+        {
+          "port": "22",
+          "to": "app_sg (앱 서버 SSH 필요시)",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > minimal (en) 1`] = `
+{
+  "code": "# Terraform -- Full Security Group chain
+
+# CloudFront Managed Prefix List lookup
+data "aws_ec2_managed_prefix_list" "cloudfront" {
+  name = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (ID varies by region, verify with describe-managed-prefix-lists)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTPS from CloudFront"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (ID varies by region, verify with describe-managed-prefix-lists)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Application Security Group
+resource "aws_security_group" "app" {
+  name_prefix = "app-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Application Security Group"
+
+  ingress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+    description     = "ALB to App"
+  }
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Via VPC Endpoint (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "Internet -> ALB inbound. CloudFront IP or 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "CloudFront Managed Prefix List (com.amazonaws.global.cloudfront.origin-facing) - HTTPS traffic",
+          "port": "443",
+        },
+        {
+          "from": "CloudFront Managed Prefix List - HTTP (redirect to 443)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "3000",
+          "to": "app_sg (forward to app servers)",
+        },
+      ],
+    },
+    {
+      "color": "#059669",
+      "desc": "ALB -> app server. App -> DB/cache outbound",
+      "id": "app_sg",
+      "inbound": [
+        {
+          "from": "alb_sg (ALB to app)",
+          "port": "3000",
+        },
+      ],
+      "name": "App Security Group",
+      "outbound": [
+        {
+          "port": "443",
+          "to": "443 (VPC Endpoints - Secrets Manager, ECR, CloudWatch)",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > minimal (ko) 1`] = `
+{
+  "code": "# Terraform -- Security Group 전체 체인
+
+# CloudFront Managed Prefix List 조회
+data "aws_ec2_managed_prefix_list" "cloudfront" {
+  name = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (리전별 ID 상이, describe-managed-prefix-lists로 확인)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTPS from CloudFront"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (리전별 ID 상이, describe-managed-prefix-lists로 확인)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Application Security Group
+resource "aws_security_group" "app" {
+  name_prefix = "app-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Application Security Group"
+
+  ingress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+    description     = "ALB to App"
+  }
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # VPC Endpoint 경유 (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "인터넷 → ALB 인바운드. CloudFront IP 또는 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "CloudFront Managed Prefix List (com.amazonaws.global.cloudfront.origin-facing) - HTTPS 트래픽",
+          "port": "443",
+        },
+        {
+          "from": "CloudFront Managed Prefix List - HTTP (→443 리다이렉트)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "3000",
+          "to": "app_sg (앱 서버로 전달)",
+        },
+      ],
+    },
+    {
+      "color": "#059669",
+      "desc": "ALB → 앱 서버. 앱 → DB/캐시 아웃바운드",
+      "id": "app_sg",
+      "inbound": [
+        {
+          "from": "alb_sg (ALB에서 앱으로)",
+          "port": "3000",
+        },
+      ],
+      "name": "App Security Group",
+      "outbound": [
+        {
+          "port": "443",
+          "to": "443 (VPC Endpoint - Secrets Manager, ECR, CloudWatch)",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > realtime_chat (en) 1`] = `
+{
+  "code": "# Terraform -- Full Security Group chain
+
+# CloudFront Managed Prefix List lookup
+data "aws_ec2_managed_prefix_list" "cloudfront" {
+  name = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (ID varies by region, verify with describe-managed-prefix-lists)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTPS from CloudFront"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (ID varies by region, verify with describe-managed-prefix-lists)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Application Security Group
+resource "aws_security_group" "app" {
+  name_prefix = "app-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Application Security Group"
+
+  ingress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+    description     = "ALB to App"
+  }
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Via VPC Endpoint (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+  egress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.db.id]
+    description     = "Application to DB"
+  }
+  egress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.cache.id]
+    description     = "Application to Redis"
+  }
+}
+
+# ── DB Security Group
+resource "aws_security_group" "db" {
+  name_prefix = "db-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Database SG -- no internet, app/lambda only"
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "From app only"
+  }
+  # No outbound -- DB only responds (stateful, no explicit allow needed)
+}
+
+# ── Cache Security Group
+resource "aws_security_group" "cache" {
+  name_prefix = "cache-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ElastiCache SG -- app only"
+
+  ingress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "Redis from app only"
+  }
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "Internet -> ALB inbound. CloudFront IP or 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "CloudFront Managed Prefix List (com.amazonaws.global.cloudfront.origin-facing) - HTTPS traffic",
+          "port": "443",
+        },
+        {
+          "from": "CloudFront Managed Prefix List - HTTP (redirect to 443)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "3000",
+          "to": "app_sg (forward to app servers)",
+        },
+      ],
+    },
+    {
+      "color": "#059669",
+      "desc": "ALB -> app server. App -> DB/cache outbound",
+      "id": "app_sg",
+      "inbound": [
+        {
+          "from": "alb_sg (ALB to app)",
+          "port": "3000",
+        },
+      ],
+      "name": "App Security Group",
+      "outbound": [
+        {
+          "port": "5432",
+          "to": "db_sg (PostgreSQL/Aurora PG)",
+        },
+        {
+          "port": "6379",
+          "to": "cache_sg (ElastiCache Redis)",
+        },
+        {
+          "port": "443",
+          "to": "search_sg (OpenSearch HTTPS)",
+        },
+        {
+          "port": "443",
+          "to": "443 (VPC Endpoints - Secrets Manager, ECR, CloudWatch)",
+        },
+      ],
+    },
+    {
+      "color": "#dc2626",
+      "desc": "DB accessible from app/Lambda only. Internet access fully blocked",
+      "id": "db_sg",
+      "inbound": [
+        {
+          "from": "app_sg (allow access from app servers only)",
+          "port": "5432",
+        },
+      ],
+      "name": "Database Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#7c3aed",
+      "desc": "Redis accessible from app only. Never expose directly",
+      "id": "cache_sg",
+      "inbound": [
+        {
+          "from": "app_sg (allow from app servers only)",
+          "port": "6379",
+        },
+      ],
+      "name": "ElastiCache Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#0891b2",
+      "desc": "Search engine. HTTPS access from app only",
+      "id": "search_sg",
+      "inbound": [
+        {
+          "from": "app_sg (HTTPS from app only)",
+          "port": "443",
+        },
+        {
+          "from": "app_sg (OpenSearch Dashboard management)",
+          "port": "443",
+        },
+      ],
+      "name": "OpenSearch Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#374151",
+      "desc": "Admin access only. Allow office IP only",
+      "id": "bastion_sg",
+      "inbound": [
+        {
+          "from": "Office static IP/32 (must restrict to specific IP) - SSH/SSM admin access",
+          "port": "22",
+        },
+      ],
+      "name": "Bastion / VPN Endpoint Security Group",
+      "outbound": [
+        {
+          "port": "22",
+          "to": "app_sg (app server SSH when needed)",
+        },
+        {
+          "port": "5432",
+          "to": "db_sg (DB direct query for emergencies)",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > realtime_chat (ko) 1`] = `
+{
+  "code": "# Terraform -- Security Group 전체 체인
+
+# CloudFront Managed Prefix List 조회
+data "aws_ec2_managed_prefix_list" "cloudfront" {
+  name = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (리전별 ID 상이, describe-managed-prefix-lists로 확인)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTPS from CloudFront"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (리전별 ID 상이, describe-managed-prefix-lists로 확인)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Application Security Group
+resource "aws_security_group" "app" {
+  name_prefix = "app-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Application Security Group"
+
+  ingress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+    description     = "ALB to App"
+  }
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # VPC Endpoint 경유 (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+  egress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.db.id]
+    description     = "Application to DB"
+  }
+  egress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.cache.id]
+    description     = "Application to Redis"
+  }
+}
+
+# ── DB Security Group
+resource "aws_security_group" "db" {
+  name_prefix = "db-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Database SG -- no internet, app/lambda only"
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "From app only"
+  }
+  # 아웃바운드 없음 -- DB는 응답만 (stateful이므로 별도 허용 불필요)
+}
+
+# ── Cache Security Group
+resource "aws_security_group" "cache" {
+  name_prefix = "cache-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ElastiCache SG -- app only"
+
+  ingress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "Redis from app only"
+  }
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "인터넷 → ALB 인바운드. CloudFront IP 또는 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "CloudFront Managed Prefix List (com.amazonaws.global.cloudfront.origin-facing) - HTTPS 트래픽",
+          "port": "443",
+        },
+        {
+          "from": "CloudFront Managed Prefix List - HTTP (→443 리다이렉트)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "3000",
+          "to": "app_sg (앱 서버로 전달)",
+        },
+      ],
+    },
+    {
+      "color": "#059669",
+      "desc": "ALB → 앱 서버. 앱 → DB/캐시 아웃바운드",
+      "id": "app_sg",
+      "inbound": [
+        {
+          "from": "alb_sg (ALB에서 앱으로)",
+          "port": "3000",
+        },
+      ],
+      "name": "App Security Group",
+      "outbound": [
+        {
+          "port": "5432",
+          "to": "db_sg (PostgreSQL/Aurora PG)",
+        },
+        {
+          "port": "6379",
+          "to": "cache_sg (ElastiCache Redis)",
+        },
+        {
+          "port": "443",
+          "to": "search_sg (OpenSearch HTTPS)",
+        },
+        {
+          "port": "443",
+          "to": "443 (VPC Endpoint - Secrets Manager, ECR, CloudWatch)",
+        },
+      ],
+    },
+    {
+      "color": "#dc2626",
+      "desc": "DB는 앱/Lambda에서만 접근. 인터넷 접근 완전 차단",
+      "id": "db_sg",
+      "inbound": [
+        {
+          "from": "app_sg (앱 서버에서만 접근 허용)",
+          "port": "5432",
+        },
+      ],
+      "name": "Database Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#7c3aed",
+      "desc": "Redis는 앱에서만 접근. 직접 노출 금지",
+      "id": "cache_sg",
+      "inbound": [
+        {
+          "from": "app_sg (앱 서버에서만 허용)",
+          "port": "6379",
+        },
+      ],
+      "name": "ElastiCache Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#0891b2",
+      "desc": "검색 엔진. 앱에서만 HTTPS로 접근",
+      "id": "search_sg",
+      "inbound": [
+        {
+          "from": "app_sg (HTTPS 앱에서만)",
+          "port": "443",
+        },
+        {
+          "from": "app_sg (OpenSearch Dashboard 관리)",
+          "port": "443",
+        },
+      ],
+      "name": "OpenSearch Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#374151",
+      "desc": "관리자 접근 전용. 사무실 IP만 허용",
+      "id": "bastion_sg",
+      "inbound": [
+        {
+          "from": "사무실 고정 IP/32 (반드시 특정 IP로 제한) - SSH/SSM 관리자 접근",
+          "port": "22",
+        },
+      ],
+      "name": "Bastion / VPN Endpoint Security Group",
+      "outbound": [
+        {
+          "port": "22",
+          "to": "app_sg (앱 서버 SSH 필요시)",
+        },
+        {
+          "port": "5432",
+          "to": "db_sg (DB 직접 쿼리 비상시)",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > serverless (en) 1`] = `
+{
+  "code": "# Terraform -- Full Security Group chain
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTPS from internet"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.lambda.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Lambda Security Group
+resource "aws_security_group" "lambda" {
+  name_prefix = "lambda-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Lambda Security Group"
+
+  # Lambda: no inbound rules (Lambda only communicates outbound)
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Via VPC Endpoint (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "Internet -> ALB inbound. CloudFront IP or 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "0.0.0.0/0 (HTTPS traffic)",
+          "port": "443",
+        },
+        {
+          "from": "0.0.0.0/0 (HTTP -> 443 redirect)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "3000",
+          "to": "app_sg (forward to app servers)",
+        },
+      ],
+    },
+    {
+      "color": "#f59e0b",
+      "desc": "Required when Lambda is placed in VPC. No inbound (Lambda has no external listener)",
+      "id": "lambda_sg",
+      "inbound": [],
+      "name": "Lambda Security Group",
+      "outbound": [
+        {
+          "port": "443",
+          "to": "0.0.0.0/0 VPC Endpoint (Secrets Manager, DynamoDB, S3)",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > serverless (ko) 1`] = `
+{
+  "code": "# Terraform -- Security Group 전체 체인
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTPS from internet"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.lambda.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Lambda Security Group
+resource "aws_security_group" "lambda" {
+  name_prefix = "lambda-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Lambda Security Group"
+
+  # Lambda: 인바운드 없음 (Lambda는 항상 아웃바운드로만 통신)
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # VPC Endpoint 경유 (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "인터넷 → ALB 인바운드. CloudFront IP 또는 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "0.0.0.0/0 (HTTPS 트래픽)",
+          "port": "443",
+        },
+        {
+          "from": "0.0.0.0/0 (HTTP → 443 리다이렉트)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "3000",
+          "to": "app_sg (앱 서버로 전달)",
+        },
+      ],
+    },
+    {
+      "color": "#f59e0b",
+      "desc": "Lambda VPC 배치 시 필요. 인바운드 없음(Lambda는 외부 호출 없음)",
+      "id": "lambda_sg",
+      "inbound": [],
+      "name": "Lambda Security Group",
+      "outbound": [
+        {
+          "port": "443",
+          "to": "0.0.0.0/0 VPC Endpoint (Secrets Manager, DynamoDB, S3)",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > ticketing (en) 1`] = `
+{
+  "code": "# Terraform -- Full Security Group chain
+
+# CloudFront Managed Prefix List lookup
+data "aws_ec2_managed_prefix_list" "cloudfront" {
+  name = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (ID varies by region, verify with describe-managed-prefix-lists)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTPS from CloudFront"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (ID varies by region, verify with describe-managed-prefix-lists)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Application Security Group
+resource "aws_security_group" "app" {
+  name_prefix = "app-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Application Security Group"
+
+  ingress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+    description     = "ALB to App"
+  }
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Via VPC Endpoint (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+  egress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.db.id]
+    description     = "Application to DB"
+  }
+  egress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.cache.id]
+    description     = "Application to Redis"
+  }
+}
+
+# ── DB Security Group
+resource "aws_security_group" "db" {
+  name_prefix = "db-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Database SG -- no internet, app/lambda only"
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "From app only"
+  }
+  # No outbound -- DB only responds (stateful, no explicit allow needed)
+}
+
+# ── Cache Security Group
+resource "aws_security_group" "cache" {
+  name_prefix = "cache-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ElastiCache SG -- app only"
+
+  ingress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "Redis from app only"
+  }
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "Internet -> ALB inbound. CloudFront IP or 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "CloudFront Managed Prefix List (com.amazonaws.global.cloudfront.origin-facing) - HTTPS traffic",
+          "port": "443",
+        },
+        {
+          "from": "CloudFront Managed Prefix List - HTTP (redirect to 443)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "3000",
+          "to": "app_sg (forward to app servers)",
+        },
+      ],
+    },
+    {
+      "color": "#059669",
+      "desc": "ALB -> app server. App -> DB/cache outbound",
+      "id": "app_sg",
+      "inbound": [
+        {
+          "from": "alb_sg (ALB to app)",
+          "port": "3000",
+        },
+      ],
+      "name": "App Security Group",
+      "outbound": [
+        {
+          "port": "5432",
+          "to": "db_sg (PostgreSQL/Aurora PG)",
+        },
+        {
+          "port": "6379",
+          "to": "cache_sg (ElastiCache Redis)",
+        },
+        {
+          "port": "443",
+          "to": "443 (VPC Endpoints - Secrets Manager, ECR, CloudWatch)",
+        },
+      ],
+    },
+    {
+      "color": "#dc2626",
+      "desc": "DB accessible from app/Lambda only. Internet access fully blocked",
+      "id": "db_sg",
+      "inbound": [
+        {
+          "from": "app_sg (allow access from app servers only)",
+          "port": "5432",
+        },
+      ],
+      "name": "Database Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#7c3aed",
+      "desc": "Redis accessible from app only. Never expose directly",
+      "id": "cache_sg",
+      "inbound": [
+        {
+          "from": "app_sg (allow from app servers only)",
+          "port": "6379",
+        },
+      ],
+      "name": "ElastiCache Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#374151",
+      "desc": "Admin access only. Allow office IP only",
+      "id": "bastion_sg",
+      "inbound": [
+        {
+          "from": "Office static IP/32 (must restrict to specific IP) - SSH/SSM admin access",
+          "port": "22",
+        },
+      ],
+      "name": "Bastion / VPN Endpoint Security Group",
+      "outbound": [
+        {
+          "port": "22",
+          "to": "app_sg (app server SSH when needed)",
+        },
+        {
+          "port": "5432",
+          "to": "db_sg (DB direct query for emergencies)",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;
+
+exports[`generateSecurityGroups snapshots > ticketing (ko) 1`] = `
+{
+  "code": "# Terraform -- Security Group 전체 체인
+
+# CloudFront Managed Prefix List 조회
+data "aws_ec2_managed_prefix_list" "cloudfront" {
+  name = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
+# ── ALB Security Group
+resource "aws_security_group" "alb" {
+  name_prefix = "alb-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ALB Security Group"
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (리전별 ID 상이, describe-managed-prefix-lists로 확인)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTPS from CloudFront"
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    # CloudFront Managed Prefix List (리전별 ID 상이, describe-managed-prefix-lists로 확인)
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    description = "HTTP (redirect to HTTPS)"
+  }
+  egress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "ALB to App"
+  }
+}
+
+# ── Application Security Group
+resource "aws_security_group" "app" {
+  name_prefix = "app-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Application Security Group"
+
+  ingress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+    description     = "ALB to App"
+  }
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # VPC Endpoint 경유 (Secrets Manager, ECR, CloudWatch)
+    description = "AWS services via VPC Endpoint"
+  }
+  egress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.db.id]
+    description     = "Application to DB"
+  }
+  egress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.cache.id]
+    description     = "Application to Redis"
+  }
+}
+
+# ── DB Security Group
+resource "aws_security_group" "db" {
+  name_prefix = "db-"
+  vpc_id      = module.vpc.vpc_id
+  description = "Database SG -- no internet, app/lambda only"
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "From app only"
+  }
+  # 아웃바운드 없음 -- DB는 응답만 (stateful이므로 별도 허용 불필요)
+}
+
+# ── Cache Security Group
+resource "aws_security_group" "cache" {
+  name_prefix = "cache-"
+  vpc_id      = module.vpc.vpc_id
+  description = "ElastiCache SG -- app only"
+
+  ingress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+    description     = "Redis from app only"
+  }
+}
+",
+  "groups": [
+    {
+      "color": "#2563eb",
+      "desc": "인터넷 → ALB 인바운드. CloudFront IP 또는 0.0.0.0/0",
+      "id": "alb_sg",
+      "inbound": [
+        {
+          "from": "CloudFront Managed Prefix List (com.amazonaws.global.cloudfront.origin-facing) - HTTPS 트래픽",
+          "port": "443",
+        },
+        {
+          "from": "CloudFront Managed Prefix List - HTTP (→443 리다이렉트)",
+          "port": "80",
+        },
+      ],
+      "name": "ALB Security Group",
+      "outbound": [
+        {
+          "port": "3000",
+          "to": "app_sg (앱 서버로 전달)",
+        },
+      ],
+    },
+    {
+      "color": "#059669",
+      "desc": "ALB → 앱 서버. 앱 → DB/캐시 아웃바운드",
+      "id": "app_sg",
+      "inbound": [
+        {
+          "from": "alb_sg (ALB에서 앱으로)",
+          "port": "3000",
+        },
+      ],
+      "name": "App Security Group",
+      "outbound": [
+        {
+          "port": "5432",
+          "to": "db_sg (PostgreSQL/Aurora PG)",
+        },
+        {
+          "port": "6379",
+          "to": "cache_sg (ElastiCache Redis)",
+        },
+        {
+          "port": "443",
+          "to": "443 (VPC Endpoint - Secrets Manager, ECR, CloudWatch)",
+        },
+      ],
+    },
+    {
+      "color": "#dc2626",
+      "desc": "DB는 앱/Lambda에서만 접근. 인터넷 접근 완전 차단",
+      "id": "db_sg",
+      "inbound": [
+        {
+          "from": "app_sg (앱 서버에서만 접근 허용)",
+          "port": "5432",
+        },
+      ],
+      "name": "Database Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#7c3aed",
+      "desc": "Redis는 앱에서만 접근. 직접 노출 금지",
+      "id": "cache_sg",
+      "inbound": [
+        {
+          "from": "app_sg (앱 서버에서만 허용)",
+          "port": "6379",
+        },
+      ],
+      "name": "ElastiCache Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#374151",
+      "desc": "관리자 접근 전용. 사무실 IP만 허용",
+      "id": "bastion_sg",
+      "inbound": [
+        {
+          "from": "사무실 고정 IP/32 (반드시 특정 IP로 제한) - SSH/SSM 관리자 접근",
+          "port": "22",
+        },
+      ],
+      "name": "Bastion / VPN Endpoint Security Group",
+      "outbound": [
+        {
+          "port": "22",
+          "to": "app_sg (앱 서버 SSH 필요시)",
+        },
+        {
+          "port": "5432",
+          "to": "db_sg (DB 직접 쿼리 비상시)",
+        },
+      ],
+    },
+  ],
+  "iac": "terraform",
+}
+`;

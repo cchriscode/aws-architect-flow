@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { WizardState, ValidationIssue } from "@/lib/types";
+import { toArray, azToNum } from "@/lib/shared";
 
 export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
@@ -147,7 +148,7 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
   const types     = state.workload?.type || [];
   const avail     = state.slo?.availability;
   const az        = state.network?.az_count;
-  const azNum     = az === "3az" ? 3 : az === "1az" ? 1 : 2;
+  const azNum     = azToNum(az);
   const subnet    = state.network?.subnet_tier;
   const netIso    = state.compliance?.network_iso;
   const cert      = state.compliance?.cert || [];
@@ -342,7 +343,7 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     W(_.canaryRealtime.t, _.canaryRealtime.m, ["cicd","workload"]);
 
   // -- IoT --
-  const queueArr = Array.isArray(queueT) ? queueT : (queueT ? [queueT] : []);
+  const queueArr = toArray(queueT);
   if (types.includes("iot") && rps === "ultra" && queueArr.includes("sqs"))
     W(_.iotSqs.t, _.iotSqs.m, ["integration"]);
   if (types.includes("iot") && netIso && !["strict","private"].includes(netIso))

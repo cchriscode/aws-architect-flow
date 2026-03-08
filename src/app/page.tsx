@@ -24,6 +24,7 @@ import { WafrView } from "@/components/result/WafrView";
 import { CodeView } from "@/components/result/CodeView";
 import { StateSummary } from "@/components/result/StateSummary";
 import { SummaryView } from "@/components/result/SummaryView";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 import { validateState } from "@/lib/validate";
 import { wellArchitectedScore } from "@/lib/wafr";
@@ -84,7 +85,8 @@ export default function Home() {
         setShareMsg(t.header.linkCopied);
         setTimeout(() => setShareMsg(""), 2500);
       });
-    } catch {
+    } catch (e) {
+      console.warn('[page] Failed to copy share link:', e);
       setShareMsg(t.header.copyFailed);
     }
   }
@@ -120,7 +122,8 @@ export default function Home() {
             completedPhases: data.completedPhases || [],
           });
         }
-      } catch {
+      } catch (e) {
+        console.warn('[page] Failed to import JSON:', e);
         alert(t.header.invalidJSON);
       }
     };
@@ -174,12 +177,12 @@ export default function Home() {
       const total = cl.totalItems;
       const pct = total > 0 ? Math.round((done / total) * 100) : 0;
       checklistLabel = t.result.tabs.checklistPct(pct);
-    } catch {}
+    } catch (e) { console.warn('[page] Failed to compute checklist label:', e); }
 
     let codeLabel = t.result.tabs.code;
     try {
       codeLabel = t.result.tabs.codeCnt(generateCodeSnippets(allPhaseState).length);
-    } catch {}
+    } catch (e) { console.warn('[page] Failed to compute code label:', e); }
 
     return [
       { id: "summary", label: t.result.tabs.summary },
@@ -312,6 +315,7 @@ export default function Home() {
 
       {showResult && arch ? (
         /* RESULT VIEW */
+        <ErrorBoundary>
         <div className="mx-auto max-w-[1400px] px-7 py-6">
           {/* Completion banner */}
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border-[1.5px] border-emerald-200 bg-emerald-50 px-5 py-4">
@@ -428,6 +432,7 @@ export default function Home() {
             <CodeView state={allPhaseState} />
           ) : null}
         </div>
+        </ErrorBoundary>
       ) : (
         /* QUESTION VIEW */
         <div className="mx-auto max-w-[1400px] px-7 py-6">
