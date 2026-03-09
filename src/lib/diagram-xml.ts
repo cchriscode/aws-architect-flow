@@ -55,6 +55,7 @@ const SHAPE_CATALOG: [string, ShapeInfo][] = [
   ["nlb",            { shape: "mxgraph.aws4.network_load_balancer",      fillColor: "#8C4FFF", zone: "public", label: "NLB" }],
 
   // ── Private App Subnet (compute) ──
+  ["app runner",     { shape: "mxgraph.aws4.ecs_service",                fillColor: "#ED7100", zone: "region", label: "App Runner" }],
   ["ecs fargate",    { shape: "mxgraph.aws4.ecs_service",                fillColor: "#ED7100", zone: "app", label: "ECS Fargate" }],
   ["fargate",        { shape: "mxgraph.aws4.ecs_service",                fillColor: "#ED7100", zone: "app", label: "ECS Fargate" }],
   ["eks",            { shape: "mxgraph.aws4.eks",  fillColor: "#ED7100", zone: "app", label: "EKS" }],
@@ -74,9 +75,13 @@ const SHAPE_CATALOG: [string, ShapeInfo][] = [
   ["aurora",         { shape: "mxgraph.aws4.aurora",                     fillColor: "#C925D1", zone: "data", label: "Aurora" }],
   ["rds postgresql", { shape: "mxgraph.aws4.rds_postgresql_instance",    fillColor: "#C925D1", zone: "data", label: "RDS PG" }],
   ["rds mysql",      { shape: "mxgraph.aws4.rds_mysql_instance",         fillColor: "#C925D1", zone: "data", label: "RDS MySQL" }],
+  ["documentdb",     { shape: "mxgraph.aws4.documentdb_with_mongodb_compatibility", fillColor: "#C925D1", zone: "data", label: "DocumentDB" }],
+  ["neptune",        { shape: "mxgraph.aws4.neptune",                    fillColor: "#C925D1", zone: "data", label: "Neptune" }],
+  ["memorydb",       { shape: "mxgraph.aws4.elasticache_for_redis",      fillColor: "#C925D1", zone: "data", label: "MemoryDB" }],
   ["opensearch",     { shape: "mxgraph.aws4.elasticsearch_service",      fillColor: "#C925D1", zone: "data", label: "OpenSearch" }],
 
   // ── Private Data Subnet (VPC-bound messaging/storage) ──
+  ["amazon mq",      { shape: "mxgraph.aws4.mq",                         fillColor: "#E7157B", zone: "data", label: "Amazon MQ" }],
   ["msk",            { shape: "mxgraph.aws4.managed_streaming_for_kafka", fillColor: "#E7157B", zone: "data", label: "MSK Kafka" }],
   ["efs",            { shape: "mxgraph.aws4.elastic_file_system",        fillColor: "#7AA116", zone: "data", label: "EFS" }],
   ["ebs",            { shape: "mxgraph.aws4.elastic_block_store",        fillColor: "#7AA116", zone: "data", label: "EBS" }],
@@ -119,6 +124,9 @@ const SHAPE_CATALOG: [string, ShapeInfo][] = [
   ["iot core",       { shape: "mxgraph.aws4.iot_core",                   fillColor: "#7AA116", zone: "region", label: "IoT Core" }],
   ["iot greengrass", { shape: "mxgraph.aws4.iot_greengrass",              fillColor: "#7AA116", zone: "region", label: "Greengrass" }],
   ["sagemaker",      { shape: "mxgraph.aws4.sagemaker",                  fillColor: "#1B660F", zone: "region", label: "SageMaker" }],
+  ["bedrock",        { shape: "mxgraph.aws4.sagemaker",                  fillColor: "#1B660F", zone: "region", label: "Bedrock" }],
+  ["quicksight",     { shape: "mxgraph.aws4.quicksight",                 fillColor: "#8C4FFF", zone: "region", label: "QuickSight" }],
+  ["vpc lattice",    { shape: "mxgraph.aws4.app_mesh",                   fillColor: "#8C4FFF", zone: "region", label: "VPC Lattice" }],
   ["privatelink",    { shape: "mxgraph.aws4.endpoints",                  fillColor: "#8C4FFF", zone: "region", label: "PrivateLink" }],
 
   // ── Region: DR ──
