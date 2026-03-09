@@ -278,6 +278,7 @@ export interface Dict {
     badgeAws: string;
     badgeGeneral: string;
     badgeK8s: string;
+    badgeDocker: string;
     groups: Record<string, string>;
     placements: Record<string, string>;
   };

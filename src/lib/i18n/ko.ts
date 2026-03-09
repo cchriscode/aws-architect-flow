@@ -352,6 +352,7 @@ export const ko: Dict = {
     badgeAws: "AWS",
     badgeGeneral: "공통",
     badgeK8s: "K8s",
+    badgeDocker: "Docker",
     groups: {
       networking: "네트워킹 기초",
       traffic: "트래픽 진입",

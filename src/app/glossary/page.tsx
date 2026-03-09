@@ -13,6 +13,7 @@ const BADGE_STYLES: Record<string, string> = {
   aws: "bg-orange-100 text-orange-700",
   general: "bg-gray-100 text-gray-600",
   k8s: "bg-blue-100 text-blue-700",
+  docker: "bg-sky-100 text-sky-700",
 };
 
 const PLACEMENT_COLORS: Record<string, string> = {
@@ -25,7 +26,7 @@ const PLACEMENT_COLORS: Record<string, string> = {
   concept: "bg-slate-100 text-slate-600",
 };
 
-type BadgeFilter = "all" | "aws" | "general" | "k8s";
+type BadgeFilter = "all" | "aws" | "general" | "k8s" | "docker";
 
 export default function GlossaryPage() {
   const t = useDict();
@@ -62,6 +63,7 @@ export default function GlossaryPage() {
       aws: t.glossary.badgeAws,
       general: t.glossary.badgeGeneral,
       k8s: t.glossary.badgeK8s,
+      docker: t.glossary.badgeDocker,
     };
     return labels[b];
   };
@@ -91,7 +93,7 @@ export default function GlossaryPage() {
 
         {/* Badge filter */}
         <div className="mt-3 flex gap-2">
-          {(["all", "aws", "general", "k8s"] as BadgeFilter[]).map((b) => (
+          {(["all", "aws", "general", "k8s", "docker"] as BadgeFilter[]).map((b) => (
             <button
               key={b}
               onClick={() => setBadgeFilter(b)}

@@ -357,6 +357,7 @@ export const en: Dict = {
     badgeAws: "AWS",
     badgeGeneral: "General",
     badgeK8s: "K8s",
+    badgeDocker: "Docker",
     groups: {
       networking: "Networking Basics",
       traffic: "Traffic Ingress",

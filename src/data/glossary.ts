@@ -21,7 +21,7 @@ export interface GlossaryTerm {
   id: string;
   name: string;
   group: GlossaryGroup;
-  badge: "aws" | "general" | "k8s";
+  badge: "aws" | "general" | "k8s" | "docker";
   desc: { ko: string; en: string };
   placement: PlacementZone;
   placementNote?: { ko: string; en: string };
@@ -400,7 +400,7 @@ export const GLOSSARY: GlossaryTerm[] = [
     id: "docker",
     name: "Docker",
     group: "container",
-    badge: "general",
+    badge: "docker",
     desc: {
       ko: "애플리케이션과 모든 의존성을 패키징하는 컨테이너 기술. 어디서든 동일하게 실행.",
       en: "Container technology that packages apps with all dependencies. Runs identically anywhere.",
@@ -416,7 +416,7 @@ export const GLOSSARY: GlossaryTerm[] = [
     id: "container",
     name: "Container",
     group: "container",
-    badge: "general",
+    badge: "docker",
     desc: {
       ko: "Docker 이미지를 실행한 인스턴스. 가볍고 빠르게 시작하며, 호스트 OS를 공유.",
       en: "A running instance of a Docker image. Lightweight, fast to start, shares host OS.",
@@ -432,7 +432,7 @@ export const GLOSSARY: GlossaryTerm[] = [
     id: "docker-image",
     name: "Docker Image",
     group: "container",
-    badge: "general",
+    badge: "docker",
     desc: {
       ko: "컨테이너를 만들기 위한 읽기 전용 템플릿. Dockerfile로 빌드하며, ECR 등 레지스트리에 저장.",
       en: "Read-only template for creating containers. Built from a Dockerfile and stored in registries like ECR.",
@@ -448,7 +448,7 @@ export const GLOSSARY: GlossaryTerm[] = [
     id: "dockerfile",
     name: "Dockerfile",
     group: "container",
-    badge: "general",
+    badge: "docker",
     desc: {
       ko: "Docker 이미지를 만드는 설정 파일. OS, 의존성, 실행 명령 등을 순서대로 정의.",
       en: "Configuration file for building Docker images. Defines OS, dependencies, and run commands in order.",
@@ -464,7 +464,7 @@ export const GLOSSARY: GlossaryTerm[] = [
     id: "multi-stage-build",
     name: "Multi-stage Build",
     group: "container",
-    badge: "general",
+    badge: "docker",
     desc: {
       ko: "Dockerfile을 여러 단계로 나누어 최종 이미지 크기를 줄이는 기법. 빌드 도구는 버리고 실행 파일만 복사.",
       en: "Technique splitting Dockerfile into stages to minimize final image size. Discards build tools, copies only binaries.",
@@ -480,7 +480,7 @@ export const GLOSSARY: GlossaryTerm[] = [
     id: "docker-compose",
     name: "Docker Compose",
     group: "container",
-    badge: "general",
+    badge: "docker",
     desc: {
       ko: "여러 컨테이너를 YAML 파일 하나로 정의·실행하는 도구. 로컬 개발 환경 구성에 주로 사용.",
       en: "Tool to define and run multiple containers with a single YAML file. Mainly used for local development setup.",
@@ -496,7 +496,7 @@ export const GLOSSARY: GlossaryTerm[] = [
     id: "container-registry",
     name: "Container Registry",
     group: "container",
-    badge: "general",
+    badge: "docker",
     desc: {
       ko: "Docker 이미지를 저장·배포하는 저장소. Docker Hub, ECR, GitHub Container Registry 등.",
       en: "Repository for storing and distributing Docker images. Docker Hub, ECR, GitHub Container Registry, etc.",
@@ -1631,6 +1631,54 @@ export const GLOSSARY: GlossaryTerm[] = [
     },
   },
   {
+    id: "documentdb",
+    name: "DocumentDB",
+    group: "data",
+    badge: "aws",
+    desc: {
+      ko: "MongoDB 호환 문서형 데이터베이스. 기존 MongoDB 코드를 거의 변경 없이 AWS 관리형으로 이전 가능.",
+      en: "MongoDB-compatible document database. Migrate existing MongoDB code to AWS managed service with minimal changes.",
+    },
+    placement: "vpc-isolated",
+    related: ["dynamodb", "rds", "dms"],
+    analogy: {
+      ko: "MongoDB 전용 관리인. 기존 MongoDB 집(코드)을 그대로 옮겨와서 AWS가 관리해줌",
+      en: "A MongoDB-specific property manager. Moves your existing MongoDB house (code) as-is and AWS manages it",
+    },
+  },
+  {
+    id: "neptune",
+    name: "Neptune",
+    group: "data",
+    badge: "aws",
+    desc: {
+      ko: "그래프 데이터베이스. 소셜 네트워크, 추천 엔진, 사기 탐지 등 관계 중심 데이터 분석에 최적화.",
+      en: "Graph database. Optimized for relationship-centric data analysis like social networks, recommendation engines, and fraud detection.",
+    },
+    placement: "vpc-isolated",
+    related: ["dynamodb", "rds", "opensearch"],
+    analogy: {
+      ko: "인맥 지도. 사람(노드)과 관계(엣지)를 따라가며 '친구의 친구'를 빠르게 찾아냄",
+      en: "A connections map. Follows people (nodes) and relationships (edges) to quickly find 'friends of friends'",
+    },
+  },
+  {
+    id: "memorydb",
+    name: "MemoryDB for Redis",
+    group: "data",
+    badge: "aws",
+    desc: {
+      ko: "내구성을 보장하는 Redis 호환 인메모리 DB. ElastiCache와 달리 트랜잭션 로그로 데이터가 영구 보존됨.",
+      en: "Durable Redis-compatible in-memory DB. Unlike ElastiCache, data is permanently preserved via transaction logs.",
+    },
+    placement: "vpc-isolated",
+    related: ["elasticache", "dynamodb", "rds"],
+    analogy: {
+      ko: "금고가 달린 메모장. 빠르게 읽고 쓸 수 있으면서(Redis) 내용이 절대 사라지지 않음(내구성)",
+      en: "A notepad with a vault. Read/write quickly (Redis) while contents never disappear (durability)",
+    },
+  },
+  {
     id: "timestream",
     name: "Timestream",
     group: "data",
@@ -1776,6 +1824,38 @@ export const GLOSSARY: GlossaryTerm[] = [
     analogy: {
       ko: "민감 정보 탐지견. 창고(S3)를 돌아다니며 숨겨진 개인정보를 찾아냄",
       en: "A sensitive data sniffer dog. Roams the warehouse (S3) finding hidden personal information",
+    },
+  },
+  {
+    id: "iam-access-analyzer",
+    name: "IAM Access Analyzer",
+    group: "security",
+    badge: "aws",
+    desc: {
+      ko: "외부에서 접근 가능한 리소스를 자동으로 탐지. S3 버킷, IAM 역할 등의 의도치 않은 공개 노출을 찾아냄.",
+      en: "Automatically detects externally accessible resources. Finds unintended public exposure of S3 buckets, IAM roles, etc.",
+    },
+    placement: "account-level",
+    related: ["iam", "s3", "security-hub"],
+    analogy: {
+      ko: "건물 출입문 점검관. 잠기지 않은 문(공개 리소스)을 자동으로 찾아서 알려줌",
+      en: "A building door inspector. Automatically finds unlocked doors (public resources) and alerts you",
+    },
+  },
+  {
+    id: "audit-manager",
+    name: "AWS Audit Manager",
+    group: "security",
+    badge: "aws",
+    desc: {
+      ko: "규정 준수 감사를 자동화하는 서비스. PCI DSS, HIPAA, SOX 등의 프레임워크에 대한 증거를 자동 수집.",
+      en: "Automates compliance auditing. Auto-collects evidence for frameworks like PCI DSS, HIPAA, and SOX.",
+    },
+    placement: "account-level",
+    related: ["aws-config", "security-hub", "cloudtrail"],
+    analogy: {
+      ko: "자동 감사 비서. 감사 서류(증거)를 자동으로 모아서 규정별 폴더에 정리해줌",
+      en: "An auto-audit assistant. Automatically collects audit documents (evidence) and organizes them by regulation",
     },
   },
   {
@@ -2121,6 +2201,22 @@ export const GLOSSARY: GlossaryTerm[] = [
     },
   },
   {
+    id: "bedrock",
+    name: "Amazon Bedrock",
+    group: "data",
+    badge: "aws",
+    desc: {
+      ko: "서버리스 생성형 AI 서비스. Claude, Llama 등 파운데이션 모델을 API로 호출. Knowledge Base로 RAG 구성 가능.",
+      en: "Serverless generative AI service. Call foundation models (Claude, Llama, etc.) via API. Build RAG with Knowledge Base.",
+    },
+    placement: "regional-managed",
+    related: ["sagemaker", "s3", "opensearch"],
+    analogy: {
+      ko: "AI 전문가 파견 서비스. 필요할 때만 전문가(모델)를 불러서 질문하고 비용을 지불",
+      en: "An AI expert dispatch service. Call an expert (model) only when needed, ask questions, and pay per use",
+    },
+  },
+  {
     id: "sagemaker",
     name: "SageMaker",
     group: "compute",
@@ -2198,6 +2294,38 @@ export const GLOSSARY: GlossaryTerm[] = [
     analogy: {
       ko: "회사 내선번호부. 부서 이름(서비스명)으로 전화번호(IP)를 자동 조회",
       en: "An office phone directory. Auto-looks up phone numbers (IPs) by department name (service name)",
+    },
+  },
+  {
+    id: "amazon-mq",
+    name: "Amazon MQ",
+    group: "integration",
+    badge: "aws",
+    desc: {
+      ko: "ActiveMQ/RabbitMQ 관리형 메시지 브로커. 온프레미스 MQ를 코드 변경 없이 AWS로 마이그레이션할 때 사용.",
+      en: "Managed ActiveMQ/RabbitMQ message broker. Used to migrate on-premises MQ to AWS without code changes.",
+    },
+    placement: "vpc-private",
+    related: ["sqs", "sns", "msk"],
+    analogy: {
+      ko: "기존 우체국 이사 서비스. 기존 우편 시스템(MQ)을 그대로 옮겨서 AWS가 운영해줌",
+      en: "A post office relocation service. Moves your existing mail system (MQ) as-is and AWS operates it",
+    },
+  },
+  {
+    id: "vpc-lattice",
+    name: "VPC Lattice",
+    group: "integration",
+    badge: "aws",
+    desc: {
+      ko: "VPC 간, 계정 간 서비스 통신을 AWS가 관리하는 네트워킹 서비스. App Mesh보다 단순하고 IAM 인증 기반.",
+      en: "AWS-managed cross-VPC, cross-account service networking. Simpler than App Mesh with IAM-based auth.",
+    },
+    placement: "regional-managed",
+    related: ["app-mesh", "alb", "cloud-map"],
+    analogy: {
+      ko: "건물 간 내부 전용선. 서로 다른 건물(VPC)의 부서(서비스)가 AWS 전용선으로 안전하게 통신",
+      en: "A private line between buildings. Departments (services) in different buildings (VPCs) communicate securely via AWS private lines",
     },
   },
   {
