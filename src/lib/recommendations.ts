@@ -277,6 +277,8 @@ export function getRecommendations(
     R("compute","arch_pattern","hybrid",t("✨ IoT/데이터 파이프라인 권장","✨ Recommended for IoT/data pipelines"),t("API 서버는 컨테이너, 이벤트/배치 처리는 Lambda. 역할에 맞는 컴퓨팅 선택","Containers for API servers, Lambda for event/batch processing. Choose compute that fits the role"));
   if (isLarge && isMature && !isIoT)
     R("compute","arch_pattern","vm",t("✨ 고성능/특수 워크로드","✨ High-performance/specialized workloads"),t("ML 추론, 게임 서버처럼 GPU나 특수 인스턴스가 필요한 경우에 한해 선택","Choose only when GPU or specialized instances are needed, like ML inference or game servers"));
+  if (isMVP || (exp === "beginner" && !isXL))
+    R("compute","arch_pattern","app_runner",t("⭐ MVP+입문자 최적","⭐ Best for MVP+beginners"),t("가장 빠르게 컨테이너 서비스 시작. VPC 설정 불필요, 자동 TLS·스케일링","Fastest way to start a container service. No VPC setup needed, auto TLS and scaling"));
 
   if (begOrSolo || ops === "managed" || (!isLarge && !isEks))
     R("compute","orchestration","ecs",t("⭐ 소~중형 서비스 표준","⭐ Standard for small-to-mid services"),t("ECS Fargate: K8s 없이 컨테이너 운영. EKS 대비 운영 부담 50% 절감. AWS 권장","ECS Fargate: Run containers without K8s. 50% less operational burden vs EKS. AWS recommended"));
@@ -326,6 +328,12 @@ export function getRecommendations(
     R("data","primary_db","dynamodb",t("⭐ 고성능/IoT 필수","⭐ Required for high-performance/IoT"),t("초당 수만 건 읽기/쓰기 + 자동 확장. 티켓팅 재고 원자적 처리에 최적의 선택","Tens of thousands of reads/writes per second + Auto Scaling. Optimal for atomic ticket inventory processing"));
   if (isInternal && !isTx)
     R("data","primary_db","none",t("✨ 서버리스 데이터 없음 옵션","✨ Serverless no-data option"),t("DynamoDB On-Demand 또는 S3 + Athena로 DB 관리 없이 운영 가능","Operate without DB management using DynamoDB On-Demand or S3 + Athena"));
+  if (types.includes("saas") || types.includes("ecommerce"))
+    R("data","primary_db","documentdb",t("✨ MongoDB 마이그레이션","✨ MongoDB migration"),t("기존 MongoDB 코드를 변경 없이 AWS 관리형으로 전환. MongoDB 5.0 호환","Migrate existing MongoDB code to AWS managed without changes. MongoDB 5.0 compatible"));
+  if (types.includes("saas") || types.includes("ecommerce"))
+    R("data","primary_db","neptune",t("✨ 관계 중심 데이터","✨ Relationship-centric data"),t("소셜 네트워크, 사기 탐지, 추천 엔진. 데이터 간 관계 탐색에 최적화","Social networks, fraud detection, recommendation engines. Optimized for exploring data relationships"));
+  if (types.includes("iot") || types.includes("data"))
+    R("data","primary_db","timestream",t("✨ 시계열 특화","✨ Time-series specialized"),t("IoT 센서, 서버 메트릭, 금융 시계열 데이터에 최적화. 서버리스로 관리 부담 없음","Optimized for IoT sensors, server metrics, financial time-series. Serverless with no management burden"));
 
   if (isMVP && !hasCritCert)
     R("data","db_ha","single_az",t("✨ MVP 비용 절감","✨ MVP cost savings"),t("MVP 단계 Single-AZ로 비용 절감. 출시 후 Multi-AZ 전환을 로드맵에 포함하세요","Save costs with Single-AZ during MVP phase. Include Multi-AZ migration in your post-launch roadmap"));
@@ -346,6 +354,14 @@ export function getRecommendations(
     R("data","cache","dax",t("✨ DynamoDB 전용 캐시","✨ DynamoDB-dedicated cache"),t("DAX: DynamoDB 읽기 지연 ms→μs. 코드 변경 없이 SDK만 교체. DynamoDB 단독 사용 시 최적","DAX: DynamoDB read latency from ms to us. Just swap the SDK, no code changes. Optimal when using DynamoDB exclusively"));
   if (isFlash || (isTick && isUltraRPS))
     R("data","cache","both",t("⭐ 극한 동시성 필수","⭐ Required for extreme concurrency"),t("DynamoDB DAX + ElastiCache 동시 사용. 재고 선점(Redis) + 상세 조회(DAX)","DynamoDB DAX + ElastiCache simultaneous use. Inventory preemption (Redis) + detail lookups (DAX)"));
+  if (types.includes("ecommerce") || types.includes("ticketing"))
+    R("data","cache","memorydb",t("✨ 내구성 필수","✨ Durability required"),t("캐시 데이터 손실이 비즈니스에 치명적일 때. ElastiCache보다 ~20% 비싸지만 데이터 무손실","When cache data loss is business-critical. ~20% more than ElastiCache but zero data loss"));
+
+  // IoT Core recommendations
+  if (isIoT && iotD === "consumer_iot")
+    R("data","primary_db","dynamodb",t("⭐ IoT 디바이스 상태 저장","⭐ IoT device state storage"),t("DynamoDB는 디바이스 상태 저장에 최적입니다. TTL로 오래된 상태를 자동 삭제하세요","DynamoDB is optimal for device state storage. Use TTL to auto-delete old states"));
+  if (isIoT)
+    R("integration","queue_type","kinesis",t("⭐ IoT 실시간 스트리밍","⭐ IoT real-time streaming"),t("Kinesis로 디바이스 데이터를 실시간 수집·분석하세요. SQS보다 순서 보장이 강합니다","Collect and analyze device data in real-time with Kinesis. Stronger ordering guarantees than SQS"));
 
   if (!isData && !isIoT && !isEcom)
     R("data","storage","none",t("✨ 파일 저장 불필요","✨ File storage unnecessary"),t("DB만으로 충분. 추후 이미지/파일 업로드 추가 시 S3를 붙이면 됩니다","DB alone is sufficient. Just attach S3 when image/file uploads are needed later"));
@@ -368,6 +384,8 @@ export function getRecommendations(
     R("data","search","opensearch",t("⭐ 로그/이벤트 분석 필수","⭐ Required for log/event analytics"),t("로그 집계·패턴 분석·실시간 대시보드. CloudWatch Logs Insights 대비 복잡 쿼리 성능 우수","Log aggregation, pattern analysis, real-time dashboards. Superior complex query performance vs CloudWatch Logs Insights"));
   if (isSaaS && isMedPlus)
     R("data","search","opensearch",t("⭐ SaaS 검색/감사 권장","⭐ Recommended for SaaS search/audit"),t("테넌트별 데이터 검색·감사 로그 분석. Kibana 대시보드로 운영 모니터링 통합","Per-tenant data search and audit log analysis. Unified operations monitoring with Kibana dashboards"));
+  if (types.includes("data"))
+    R("workload","data_detail","ai_genai",t("✨ 생성형 AI 기반","✨ Generative AI based"),t("LLM 활용 서비스에 최적. Amazon Bedrock으로 Claude, Llama 등 모델 API 호출","Optimal for LLM-powered services. Call Claude, Llama models via Amazon Bedrock API"));
 
   // ── DATA: cost-aware recommendations ──────────────────────────
   if (isCostFirst)
@@ -404,6 +422,7 @@ export function getRecommendations(
     R("integration","queue_type","kinesis",t("⭐ 스트리밍 필수","⭐ Required for streaming"),t("초당 수만 IoT 메시지·클릭스트림 처리. 최대 365일 리텐션으로 재처리 가능","Process tens of thousands of IoT messages/clickstreams per second. Up to 365-day retention for reprocessing"));
   if (isXL && (isSaaS || isData))
     R("integration","queue_type","msk",t("✨ 대규모 Kafka 표준","✨ Large-scale Kafka standard"),t("MSK: 하루 수백억 이벤트. Schema Registry 강제로 데이터 계약 보장","MSK: Billions of events per day. Schema Registry enforcement guarantees data contracts"));
+  R("integration","queue_type","amazon_mq",t("✨ 온프레미스 MQ 마이그레이션","✨ On-premises MQ migration"),t("기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장","Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects"));
 
   if (!isIoT && !isUltraRPS && exp !== "beginner")
     R("integration","api_type","alb",t("⭐ 대부분 서비스 기본","⭐ Default for most services"),t("ALB만으로 충분합니다. API Gateway는 불필요한 비용과 복잡도를 추가합니다","ALB alone is sufficient. API Gateway adds unnecessary cost and complexity"));
@@ -544,6 +563,8 @@ export function getRecommendations(
     R("platform","service_mesh","aws_app_mesh",t("✨ AWS 관리형 메시 권장","✨ AWS managed mesh recommended"),t("App Mesh: Istio보다 운영 단순. AWS X-Ray 통합으로 서비스 간 추적 가능","App Mesh: Simpler operations than Istio. Service-to-service tracing with AWS X-Ray integration"));
   if (isXL && exp === "senior" && teamSize === "large")
     R("platform","service_mesh","istio",t("✨ 완전한 서비스 메시 필요 시","✨ When full service mesh is needed"),t("mTLS 자동화 + 세밀한 트래픽 제어. 운영 팀 숙련도 필수. 학습 비용 높음","Automated mTLS + fine-grained traffic control. Operations team proficiency required. High learning cost"));
+  if (!isEks || exp !== "senior")
+    R("platform","service_mesh","vpc_lattice",t("⭐ 최신 서비스 메시","⭐ Latest service mesh"),t("App Mesh(2026 EOL) 대체. 모든 컴퓨트(ECS/EKS/Lambda)에서 사용 가능. 입문자도 가능","App Mesh (2026 EOL) replacement. Works with all compute (ECS/EKS/Lambda). Beginner-friendly"));
 
   if (begOrSolo || isSmall)
     R("platform","gitops","none",t("✨ 소규모 EKS 불필요","✨ Unnecessary for small EKS"),t("GitHub Actions + kubectl apply로 충분. GitOps 도입 전 기본기 먼저","GitHub Actions + kubectl apply is sufficient. Master the basics before adopting GitOps"));

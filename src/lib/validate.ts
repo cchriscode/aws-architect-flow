@@ -75,6 +75,30 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     iotNetworkIso:      { t: "IoT 디바이스 네트워크 격리 미설정", m: "IoT 디바이스 데이터는 private/strict 네트워크 격리 권장. 기본 네트워크는 디바이스 데이터 유출 위험." },
     mlPipelineServerless:{ t: "ML 파이프라인 + 서버리스 조합 주의", m: "ML 학습 워크로드는 서버리스보다 컨테이너/EC2 권장. Lambda 15분 타임아웃으로 장시간 학습 불가." },
     globalDynamoSingle:  { t: "글로벌 + DynamoDB + 단일 리전", m: "글로벌 사용자 + DynamoDB 조합 시 Global Tables(DR/Active) 권장. 단일 리전은 해외 사용자 지연시간 문제." },
+    appMeshEol:          { t: "App Mesh 2026년 9월 지원 종료", m: "AWS App Mesh는 2026년 9월 지원 종료 예정입니다. VPC Lattice 또는 ECS Service Connect로 마이그레이션을 계획하세요." },
+    codepipelineCodecommit: { t: "CodeCommit 신규 리포지토리 생성 불가", m: "AWS CodeCommit은 신규 리포지토리 생성이 불가합니다. GitHub 또는 GitLab을 소스 리포지토리로 사용하세요." },
+    mskBeginner:         { t: "MSK(Kafka) + 초급 팀 위험", m: "Kafka 운영은 브로커/파티션/리밸런싱 깊은 이해가 필요합니다. 초급 팀은 SQS 또는 Kinesis부터 시작 권장." },
+    mskSmallDau:         { t: "MSK + 소규모 서비스 비용 초과", m: "MSK 최소 3브로커 필수로 소규모 서비스에는 비용 대비 효과가 낮습니다. SQS/SNS가 더 적합합니다." },
+    stepFuncHighFreq:    { t: "Step Functions Standard + 고빈도 호출", m: "Standard 워크플로는 전환당 과금으로 초당 수천 건은 비용 폭발. Express 워크플로를 검토하세요." },
+    daxServerless:       { t: "DAX + 서버리스 VPC 연결 필요", m: "DAX는 VPC 내에서만 접근 가능. Lambda에서 DAX 사용 시 VPC 배치 + 서브넷 그룹 설정이 필요합니다." },
+    efsSingleAz:         { t: "EFS + 단일 AZ 데이터 손실 위험", m: "EFS One Zone은 AZ 장애 시 데이터 손실 가능. 운영 환경에서는 EFS Standard(Multi-AZ) 권장." },
+    cognitoSelfmgd:      { t: "Cognito + 자체 인증 서버 중복", m: "Cognito와 자체 인증 서버를 동시에 사용하면 관리 포인트가 증가합니다. 역할을 명확히 분리하세요." },
+    batchServerless:     { t: "AWS Batch + 서버리스 아키텍처", m: "Batch 작업이 가볍다면 Lambda로 충분합니다. 대용량 배치만 AWS Batch(Fargate 런타임)를 사용하세요." },
+    documentdbBeginner:  { t: "DocumentDB + 초급 팀 주의", m: "DocumentDB 클러스터 관리(파라미터 그룹, 커넥션 풀링)에 대한 이해가 필요합니다." },
+    documentdbServerless:{ t: "DocumentDB + 서버리스 커넥션 관리", m: "Lambda에서 DocumentDB 접근 시 커넥션 풀 고갈 주의. 커넥션 재사용 또는 Proxy 패턴을 적용하세요." },
+    neptuneBeginner:     { t: "Neptune + 초급 팀 위험", m: "Gremlin 또는 SPARQL 쿼리 언어 학습이 필요합니다. 관계형 DB 경험만으로는 운영이 어렵습니다." },
+    timestreamAlone:     { t: "Timestream 단독 사용 주의", m: "Timestream은 시계열 데이터 전용입니다. 일반 트랜잭션 데이터는 별도 RDB가 필요합니다." },
+    memorydbCacheOnly:   { t: "MemoryDB는 캐시 전용이면 과잉", m: "캐시 전용이면 ElastiCache Redis가 더 적합하고 ~20% 저렴합니다. MemoryDB는 주 DB 역할 시 사용하세요." },
+    mqBeginner:          { t: "Amazon MQ + 초급 팀 위험", m: "브로커 관리(Active/Standby, 큐 설정) 이해가 필요합니다. 초급 팀은 SQS/SNS 권장." },
+    mqNewProject:        { t: "Amazon MQ + 신규 프로젝트", m: "신규 프로젝트는 AWS 네이티브 SQS/SNS가 더 적합합니다. Amazon MQ는 기존 MQ 마이그레이션용입니다." },
+    appRunnerRealtime:   { t: "App Runner + 실시간(WebSocket) 미지원", m: "App Runner는 WebSocket을 지원하지 않습니다. 실시간 서비스는 ECS/EKS를 사용하세요." },
+    latticePlusAppMesh:  { t: "VPC Lattice + App Mesh 동시 선택", m: "VPC Lattice와 App Mesh는 역할이 중복됩니다. VPC Lattice(최신)로 통일을 권장합니다." },
+    bedrockVpcEndpoint:  { t: "Bedrock + 민감 데이터 시 VPC 엔드포인트 필수", m: "민감 데이터를 Bedrock에 전송할 경우 VPC 엔드포인트를 통해 프라이빗 연결을 사용하세요." },
+    springBootLambda:    { t: "Spring Boot + Lambda 조합 비효율", m: "Spring Boot(JVM)는 콜드스타트 3~10초로 Lambda와 궁합이 나쁩니다. 컨테이너(ECS/EKS)를 사용하세요." },
+    eksFargateDaemonset: { t: "EKS Fargate + Prometheus DaemonSet 불가", m: "Fargate는 DaemonSet을 지원하지 않습니다. Prometheus Agent 모드 또는 CloudWatch Container Insights를 사용하세요." },
+    multiRegionMvp:      { t: "멀티 리전 + MVP 단계 과잉", m: "MVP 단계에서 멀티 리전은 비용 대비 효과가 낮습니다. 단일 리전 + Multi-AZ로 시작하세요." },
+    highAvailSolo:       { t: "99.99% 가용성 + 1인 팀 비현실", m: "99.99% 달성에는 온콜 로테이션, 자동 복구, 멀티 리전이 필요합니다. 1인 팀에는 99.9%가 현실적입니다." },
+    canaryFlash:         { t: "카나리 배포 + 선착순 이벤트 주의", m: "선착순 이벤트 중 카나리 배포는 일부 사용자에게 다른 버전이 노출됩니다. 이벤트 전후 배포를 분리하세요." },
   } : {
     availAz:            { t: "99.99% availability + single AZ impossible", m: "Single AZ means full outage on AZ failure. At least 2 AZs required for 99.99% (3 AZs recommended)." },
     highAvailAz:        { t: "High availability target conflicts with single AZ", m: "99.95%+ availability cannot be achieved without Multi-AZ." },
@@ -143,6 +167,30 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     iotNetworkIso:      { t: "IoT device network isolation not configured", m: "Private/strict network isolation recommended for IoT device data. Default network risks device data exposure." },
     mlPipelineServerless:{ t: "ML pipeline + serverless combination caveat", m: "Containers/EC2 recommended over serverless for ML training workloads. Lambda 15-minute timeout prevents long-running training." },
     globalDynamoSingle:  { t: "Global + DynamoDB + single region", m: "Global Tables (DR/Active) recommended for global users + DynamoDB. Single region causes latency issues for overseas users." },
+    appMeshEol:          { t: "App Mesh EOL September 2026", m: "AWS App Mesh is scheduled for end of support in September 2026. Plan migration to VPC Lattice or ECS Service Connect." },
+    codepipelineCodecommit: { t: "CodeCommit no longer accepts new repositories", m: "AWS CodeCommit no longer allows new repository creation. Use GitHub or GitLab as your source repository." },
+    mskBeginner:         { t: "MSK (Kafka) + beginner team risk", m: "Kafka operations require deep understanding of brokers, partitions, and rebalancing. Beginner teams should start with SQS or Kinesis." },
+    mskSmallDau:         { t: "MSK + small service cost excess", m: "MSK requires minimum 3 brokers, making it cost-ineffective for small services. SQS/SNS is more suitable." },
+    stepFuncHighFreq:    { t: "Step Functions Standard + high-frequency calls", m: "Standard workflows charge per state transition; thousands per second will explode costs. Consider Express workflows." },
+    daxServerless:       { t: "DAX + serverless VPC connectivity required", m: "DAX is only accessible within a VPC. Lambda accessing DAX requires VPC placement + subnet group configuration." },
+    efsSingleAz:         { t: "EFS + single AZ data loss risk", m: "EFS One Zone risks data loss on AZ failure. Use EFS Standard (Multi-AZ) for production environments." },
+    cognitoSelfmgd:      { t: "Cognito + self-managed auth overlap", m: "Using both Cognito and self-managed auth increases management overhead. Clearly separate their roles." },
+    batchServerless:     { t: "AWS Batch + serverless architecture", m: "For lightweight batch jobs, Lambda is sufficient. Use AWS Batch (Fargate runtime) only for large-scale batch processing." },
+    documentdbBeginner:  { t: "DocumentDB + beginner team caution", m: "DocumentDB cluster management (parameter groups, connection pooling) requires understanding." },
+    documentdbServerless:{ t: "DocumentDB + serverless connection management", m: "When accessing DocumentDB from Lambda, beware of connection pool exhaustion. Apply connection reuse or proxy patterns." },
+    neptuneBeginner:     { t: "Neptune + beginner team risk", m: "Gremlin or SPARQL query language learning is required. Relational DB experience alone is insufficient for operations." },
+    timestreamAlone:     { t: "Timestream standalone usage caution", m: "Timestream is for time-series data only. General transactional data needs a separate relational DB." },
+    memorydbCacheOnly:   { t: "MemoryDB is overkill for cache-only", m: "For cache-only use, ElastiCache Redis is more suitable and ~20% cheaper. Use MemoryDB when it serves as a primary DB." },
+    mqBeginner:          { t: "Amazon MQ + beginner team risk", m: "Understanding broker management (Active/Standby, queue configuration) is required. Beginner teams should use SQS/SNS." },
+    mqNewProject:        { t: "Amazon MQ + new project", m: "For new projects, AWS-native SQS/SNS is more suitable. Amazon MQ is designed for migrating existing MQ systems." },
+    appRunnerRealtime:   { t: "App Runner + realtime (WebSocket) unsupported", m: "App Runner does not support WebSocket. Use ECS/EKS for real-time services." },
+    latticePlusAppMesh:  { t: "VPC Lattice + App Mesh dual selection", m: "VPC Lattice and App Mesh have overlapping roles. Recommend consolidating to VPC Lattice (latest)." },
+    bedrockVpcEndpoint:  { t: "Bedrock + sensitive data requires VPC endpoint", m: "When sending sensitive data to Bedrock, use VPC endpoints for private connectivity." },
+    springBootLambda:    { t: "Spring Boot + Lambda inefficient combination", m: "Spring Boot (JVM) has 3-10s cold starts, making it a poor fit for Lambda. Use containers (ECS/EKS) instead." },
+    eksFargateDaemonset: { t: "EKS Fargate + Prometheus DaemonSet impossible", m: "Fargate does not support DaemonSets. Use Prometheus Agent mode or CloudWatch Container Insights." },
+    multiRegionMvp:      { t: "Multi-region + MVP stage overkill", m: "Multi-region is cost-ineffective at MVP stage. Start with single region + Multi-AZ." },
+    highAvailSolo:       { t: "99.99% availability + solo team unrealistic", m: "Achieving 99.99% requires on-call rotation, automated recovery, and multi-region. 99.9% is realistic for solo teams." },
+    canaryFlash:         { t: "Canary deploy + flash sale caution", m: "Canary deployment during flash sales exposes some users to different versions. Separate deployments from events." },
   };
 
   const types     = state.workload?.type || [];
@@ -171,6 +219,7 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
   const teamSize  = state.team?.team_size;
   const opsModel  = state.team?.ops_model;
   const iac       = state.cicd?.iac;
+  const pipeline  = state.cicd?.pipeline;
   const deploy    = state.cicd?.deploy_strategy;
   const envCnt    = state.cicd?.env_count;
   const waf       = state.edge?.waf;
@@ -380,6 +429,97 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
   // -- 글로벌 서비스 + 단일 리전 + CDN 없음 --
   if ((state.workload?.user_type || []).includes("global") && region === "single" && (!cdn || cdn === "no"))
     E(_.globalSingleNoCdn.t, _.globalSingleNoCdn.m, ["edge","slo"]);
+
+  // -- App Mesh EOL --
+  if (meshType === "aws_app_mesh")
+    W(_.appMeshEol.t, _.appMeshEol.m, ["platform"]);
+
+  // -- CodeCommit deprecation --
+  if (pipeline === "codepipeline")
+    W(_.codepipelineCodecommit.t, _.codepipelineCodecommit.m, ["cicd"]);
+
+  // -- MSK (Phase 3) --
+  if (queueArr.includes("msk") && exp === "beginner")
+    W(_.mskBeginner.t, _.mskBeginner.m, ["integration","team"]);
+  if (queueArr.includes("msk") && (dau === "tiny" || dau === "small"))
+    W(_.mskSmallDau.t, _.mskSmallDau.m, ["integration","cost"]);
+
+  // -- Step Functions --
+  const batchArr = toArray(state.integration?.batch_workflow);
+  if (batchArr.includes("step_functions") && rps === "ultra")
+    W(_.stepFuncHighFreq.t, _.stepFuncHighFreq.m, ["integration","cost"]);
+
+  // -- DAX + Serverless --
+  if ((cache === "dax" || cache === "both") && isServerless)
+    W(_.daxServerless.t, _.daxServerless.m, ["data","compute"]);
+
+  // -- EFS + Single AZ --
+  if (storArr.includes("efs") && az === "1az")
+    W(_.efsSingleAz.t, _.efsSingleAz.m, ["data","network"]);
+
+  // -- Cognito + selfmgd overlap --
+  if (authArr.includes("cognito") && authArr.includes("selfmgd"))
+    W(_.cognitoSelfmgd.t, _.cognitoSelfmgd.m, ["integration"]);
+
+  // -- AWS Batch + serverless --
+  if (batchArr.includes("aws_batch") && isServerless)
+    W(_.batchServerless.t, _.batchServerless.m, ["integration","compute"]);
+
+  // -- DocumentDB (Phase 4) --
+  if (dbArr.includes("documentdb") && exp === "beginner")
+    W(_.documentdbBeginner.t, _.documentdbBeginner.m, ["data","team"]);
+  if (dbArr.includes("documentdb") && isServerless)
+    W(_.documentdbServerless.t, _.documentdbServerless.m, ["data","compute"]);
+
+  // -- Neptune --
+  if (dbArr.includes("neptune") && exp === "beginner")
+    W(_.neptuneBeginner.t, _.neptuneBeginner.m, ["data","team"]);
+
+  // -- Timestream --
+  if (dbArr.includes("timestream") && dbArr.length === 1)
+    W(_.timestreamAlone.t, _.timestreamAlone.m, ["data"]);
+
+  // -- MemoryDB --
+  if (cache === "memorydb" && !dbArr.includes("memorydb"))
+    W(_.memorydbCacheOnly.t, _.memorydbCacheOnly.m, ["data"]);
+
+  // -- Amazon MQ --
+  if (queueArr.includes("amazon_mq") && exp === "beginner")
+    W(_.mqBeginner.t, _.mqBeginner.m, ["integration","team"]);
+  if (queueArr.includes("amazon_mq") && stage === "mvp")
+    W(_.mqNewProject.t, _.mqNewProject.m, ["integration"]);
+
+  // -- App Runner --
+  if (archP === "app_runner" && types.includes("realtime"))
+    E(_.appRunnerRealtime.t, _.appRunnerRealtime.m, ["compute","workload"]);
+
+  // -- VPC Lattice + App Mesh --
+  if (meshType === "vpc_lattice" && state.platform?.service_mesh === "aws_app_mesh")
+    W(_.latticePlusAppMesh.t, _.latticePlusAppMesh.m, ["platform"]);
+
+  // -- Bedrock + sensitive data --
+  if (state.workload?.data_detail === "ai_genai" && dataS === "critical")
+    W(_.bedrockVpcEndpoint.t, _.bedrockVpcEndpoint.m, ["workload","compliance"]);
+
+  // -- Spring Boot + Lambda (Phase 5) --
+  if (state.team?.language === "spring_boot" && isServerless)
+    E(_.springBootLambda.t, _.springBootLambda.m, ["compute","team"]);
+
+  // -- EKS Fargate + Prometheus DaemonSet --
+  if (nodeType === "fargate" && monitor === "prometheus_grafana" && isEks)
+    W(_.eksFargateDaemonset.t, _.eksFargateDaemonset.m, ["compute","platform"]);
+
+  // -- Multi-region + MVP --
+  if (region === "active" && stage === "mvp")
+    W(_.multiRegionMvp.t, _.multiRegionMvp.m, ["slo","workload"]);
+
+  // -- 99.99% + solo --
+  if (avail === "99.99" && teamSize === "solo")
+    W(_.highAvailSolo.t, _.highAvailSolo.m, ["slo","team"]);
+
+  // -- Canary + flash sale --
+  if (deploy === "canary" && state.workload?.ticketing_detail === "flash")
+    W(_.canaryFlash.t, _.canaryFlash.m, ["cicd","workload"]);
 
   return issues;
 }

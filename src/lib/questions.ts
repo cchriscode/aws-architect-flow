@@ -130,6 +130,7 @@ export function buildPhaseQuestions(
           {v:"ml_pipeline",      l:"ML / AI 파이프라인",   d:"학습 데이터 수집·전처리·모델 학습. S3 데이터 레이크 + SageMaker가 중심입니다."},
           {v:"bi_dashboard",     l:"BI 대시보드 / 경영 리포트",d:"KPI, 매출 집계. Redshift + QuickSight로 일 단위 배치 집계가 일반적입니다."},
           {v:"stream_analytics", l:"실시간 스트림 분석",   d:"사기 탐지, 실시간 집계. Managed Apache Flink(구 Kinesis Analytics) 또는 MSK + Flink로 ms 단위 처리합니다."},
+          {v:"ai_genai",         l:"생성형 AI / RAG 파이프라인", d:"LLM 기반 챗봇, 문서 검색, 코드 생성 등. Amazon Bedrock으로 Claude, Llama 등 모델을 사용합니다. 토큰 기반 과금입니다."},
         ]
       }] : []),
       {
@@ -343,7 +344,8 @@ export function buildPhaseQuestions(
         help:"보안 인증은 선택이 아니라 사업 가능 조건일 수 있습니다. 모르겠으면 법무/컴플라이언스 담당자에게 확인하세요. 없으면 '없음'을 선택하세요.",
         multi:true, opts:[
           {v:"none",   l:"특별히 없음",         d:"일반적인 웹 서비스. 기본 보안만 갖추면 됩니다."},
-          {v:"isms",   l:"ISMS / ISMS-P",       d:"국내 정보보호 인증. 금융·공공기관과 계약하거나 일정 규모 이상이면 필요한 경우가 많습니다."},
+          {v:"isms",   l:"ISMS — 정보보호 관리체계",  d:"일정 규모 이상 사업자 의무 인증. 정보보호 관리체계 수립·운영을 검증합니다."},
+          {v:"isms_p", l:"ISMS-P — 정보보호 + 개인정보보호", d:"개인정보를 수집하는 서비스에 필요. ISMS에 개인정보 처리 단계별 보호 요구사항이 추가됩니다."},
           {v:"gdpr",   l:"GDPR",               d:"유럽 사용자가 있는 서비스라면 반드시 준수해야 합니다. 위반 시 엄청난 과징금이 부과됩니다."},
           {v:"pci",    l:"PCI-DSS",            d:"신용카드 정보를 직접 처리하는 서비스라면 필수입니다. PG사를 쓰면 일부 면제될 수 있습니다."},
           {v:"hipaa",  l:"HIPAA",              d:"미국 사용자의 의료/건강 정보를 다루는 서비스에 필요합니다."},
@@ -475,6 +477,7 @@ export function buildPhaseQuestions(
           opts:[
             {v:"serverless",l:"서버리스 — AWS가 서버를 알아서 관리",      d:"코드만 올리면 AWS가 요청에 맞게 자동으로 실행합니다. 서버를 신경 쓸 필요가 없고 쓴 만큼만 돈을 냅니다. 소규모·이벤트성 처리에 최적입니다."},
             {v:"container", l:"컨테이너 — 가볍고 유연한 실행 단위",        d:"도커(Docker) 컨테이너를 AWS에서 실행합니다. 현재 가장 대중적인 방식입니다. 서버 관리 부담이 적으면서도 유연합니다."},
+            {v:"app_runner",l:"App Runner — 가장 단순한 컨테이너 (MVP 최적)", d:"Docker 이미지만 제공하면 빌드·배포·스케일링·TLS 모두 자동입니다. VPC 설정 불필요. WebSocket 미지원, VPC 제어 제한이 있습니다."},
             {v:"vm",l:"VM(가상 서버) — 직접 서버를 빌려 관리",d:"EC2라는 가상 서버를 직접 임대합니다. 세밀한 제어가 가능하지만 OS 패치, 설정, 모니터링을 직접 해야 합니다."},
             {v:"hybrid",    l:"혼합 — 서비스마다 다른 방식 적용",          d:"API는 컨테이너, 알림은 서버리스처럼 특성에 맞게 섞어 씁니다. 복잡하지만 비용과 성능 모두를 최적화할 수 있습니다."},
           ]
@@ -538,6 +541,7 @@ export function buildPhaseQuestions(
     case "data": {
       const isCritical = state.workload?.data_sensitivity === "critical";
       const isHighAvail = state.slo?.availability === "99.99" || state.slo?.availability === "99.95";
+      const wlTypes: string[] = (state.workload as Record<string, unknown>)?.type as string[] || [];
       return localizeAll(lang, p, [
         {
           id:"primary_db",
@@ -549,6 +553,13 @@ export function buildPhaseQuestions(
             {v:"rds_pg",      l:"RDS PostgreSQL — 표준 PostgreSQL",         d:"PostgreSQL을 그대로 씁니다. 소·중규모 서비스에 충분하고 Aurora보다 저렴합니다."},
             {v:"rds_mysql",   l:"RDS MySQL — 표준 MySQL",                   d:"MySQL을 그대로 씁니다. 가장 널리 쓰이는 조합입니다."},
             {v:"dynamodb",    l:"DynamoDB — 무제한 확장 NoSQL",             d:"유연한 구조의 데이터를 초고속으로 처리합니다. 단순 조회·저장이 많고 관계가 복잡하지 않은 데이터에 적합합니다."},
+            {v:"documentdb",  l:"DocumentDB — MongoDB 호환 문서형 DB",     d:"기존 MongoDB 코드를 그대로 사용합니다. JSON 문서 데이터를 저장하며 관계형보다 유연한 스키마를 제공합니다."},
+            ...(["saas","ecommerce","data"].some(t => wlTypes.includes(t)) ? [
+              {v:"neptune",   l:"Neptune — 그래프 데이터베이스",            d:"소셜 네트워크, 사기 탐지, 추천 엔진에 최적화됩니다. 데이터 간 관계를 탐색하는 쿼리에 강합니다. Gremlin/SPARQL 쿼리 언어를 사용합니다."},
+            ] : []),
+            ...(["iot","data"].some(t => wlTypes.includes(t)) ? [
+              {v:"timestream", l:"Timestream — 시계열 데이터 전용 DB",      d:"IoT 센서, 서버 메트릭, 금융 시계열 데이터에 최적화됩니다. 시간 기반 집계·이상 탐지 쿼리가 매우 빠릅니다. 서버리스로 관리 부담이 없습니다."},
+            ] : []),
             {v:"none",        l:"DB 없음 — 파일(S3)만 사용",               d:"정적 웹사이트, 파일 저장 서비스처럼 별도 DB가 필요 없는 서비스입니다."},
           ]
         },
@@ -573,6 +584,7 @@ export function buildPhaseQuestions(
           opts:[
             {v:"no",   l:"캐시 없음 — DB에서 직접 조회",               d:"데이터 양이 적거나 조회 빈도가 낮은 서비스. 단순하고 관리 포인트가 없습니다."},
             {v:"redis",l:"Redis 캐시 — 빠른 임시 저장소",               d:"세션 관리, 로그인 상태 유지, 좌석 임시 잠금, 초당 요청 제한 등에 활용합니다. 속도가 매우 빠릅니다."},
+            {v:"memorydb",l:"MemoryDB — 내구성 보장 Redis (기본 DB 가능)", d:"ElastiCache Redis와 달리 트랜잭션 로그로 데이터 영구 보존. 캐시가 아닌 주 DB로 사용 가능합니다. ~20% 더 비쌉니다."},
             ...(Array.isArray(state.data?.primary_db) && state.data.primary_db.includes("dynamodb") ? [
               {v:"dax",  l:"DAX — DynamoDB 전용 캐시",                  d:"DynamoDB 앞에 붙이는 캐시입니다. DAX SDK로 엔드포인트만 변경하면 응답 속도를 마이크로초 수준으로 높입니다."},
               {v:"both", l:"Redis + DAX 모두 사용",                    d:"복잡한 캐싱이 필요한 대규모 서비스. 두 가지 캐시를 역할별로 활용합니다."},
@@ -639,6 +651,7 @@ export function buildPhaseQuestions(
             {v:"eventbridge",l:"EventBridge — 이벤트를 규칙에 따라 자동 분류 전달",d:"'VIP 주문이면 A팀에, 일반 주문이면 B팀에 전달'처럼 조건부 라우팅이 가능합니다. 스케줄 작업(매일 오전 9시 실행)에도 씁니다."},
             {v:"kinesis",l:"Kinesis — 실시간 대용량 스트리밍",d:"초당 수만 건의 로그, 클릭 이벤트, 센서 데이터를 실시간으로 처리합니다. 나중에 다시 처리(리플레이)도 가능합니다."},
             {v:"msk",l:"MSK (Kafka) — 초고처리량, 기존 Kafka 연동",d:"이미 Kafka를 쓰고 있거나 초당 수십만 건 이상을 처리해야 하는 경우입니다. 운영 복잡도가 높습니다."},
+            {v:"amazon_mq",l:"Amazon MQ — ActiveMQ/RabbitMQ 관리형",d:"기존 온프레미스 MQ를 그대로 마이그레이션할 때 사용합니다. AMQP/MQTT/STOMP 프로토콜 지원. 신규 프로젝트면 SQS를 권장합니다."},
           ]
         },
         {
@@ -829,6 +842,7 @@ export function buildPhaseQuestions(
           help:"서비스 메시는 모든 서비스 간 트래픽을 가로채서 mTLS 암호화, 서킷브레이커, 트래픽 미러링 등을 자동으로 처리합니다. 강력하지만 운영 복잡도가 크게 높아집니다.",
           multi:false, opts:[
             {v:"none",             l:"없음 — 서비스 메시 미사용 (대부분 팀에 충분)", d:"서비스 간 보안이 덜 중요하거나 팀이 운영 복잡도를 감당하기 어려운 경우입니다. Security Group으로 기본 격리는 됩니다."},
+            {v:"vpc_lattice",      l:"VPC Lattice — AWS 네이티브 서비스 간 통신 (최신, 권장)", d:"VPC 간, 계정 간 서비스 통신을 AWS가 관리합니다. App Mesh보다 단순하고 ECS/EKS/Lambda 모두 지원합니다. App Mesh의 대체재입니다."},
             {v:"aws_app_mesh",     l:"AWS App Mesh (AWS 관리형, 설정 단순, 2026년 지원 종료 예정)",           d:"Envoy 프록시를 AWS가 관리해줍니다. 설정이 Istio보다 단순합니다. AWS X-Ray, CloudWatch와 자동 통합됩니다."},
             {v:"istio",          l:"Istio (업계 표준, 가장 강력)",                    d:"가장 많이 쓰이는 서비스 메시입니다. mTLS, 서킷브레이커, 카나리 배포, 트래픽 미러링을 세밀하게 제어합니다. 러닝 커브가 높고 리소스를 많이 씁니다."},
           ]

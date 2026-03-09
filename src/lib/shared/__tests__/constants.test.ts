@@ -15,7 +15,7 @@ describe("constants", () => {
   });
 
   it("FARGATE_COMMITMENT_DISCOUNT has correct values", () => {
-    expect(FARGATE_COMMITMENT_DISCOUNT["3yr"]).toBe(0.48);
+    expect(FARGATE_COMMITMENT_DISCOUNT["3yr"]).toBe(0.60);
     expect(FARGATE_COMMITMENT_DISCOUNT["1yr"]).toBe(0.78);
     expect(FARGATE_COMMITMENT_DISCOUNT.none).toBe(1.0);
   });

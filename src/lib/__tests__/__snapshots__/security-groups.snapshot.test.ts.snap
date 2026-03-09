@@ -1831,6 +1831,10 @@ resource "aws_security_group" "cache" {
           "port": "443",
           "to": "443 (VPC Endpoints - Secrets Manager, ECR, CloudWatch)",
         },
+        {
+          "port": "2049",
+          "to": "efs_sg (EFS NFS)",
+        },
       ],
     },
     {
@@ -1878,6 +1882,19 @@ resource "aws_security_group" "cache" {
         },
       ],
       "name": "OpenSearch Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#16a34a",
+      "desc": "EFS mount targets. NFS access from app only",
+      "id": "efs_sg",
+      "inbound": [
+        {
+          "from": "app_sg (NFS mount)",
+          "port": "2049",
+        },
+      ],
+      "name": "EFS Security Group",
       "outbound": [],
     },
     {
@@ -2096,6 +2113,10 @@ resource "aws_security_group" "cache" {
           "port": "443",
           "to": "443 (VPC Endpoint - Secrets Manager, ECR, CloudWatch)",
         },
+        {
+          "port": "2049",
+          "to": "efs_sg (EFS NFS)",
+        },
       ],
     },
     {
@@ -2143,6 +2164,19 @@ resource "aws_security_group" "cache" {
         },
       ],
       "name": "OpenSearch Security Group",
+      "outbound": [],
+    },
+    {
+      "color": "#16a34a",
+      "desc": "EFS 마운트 타겟. 앱에서만 NFS 접근",
+      "id": "efs_sg",
+      "inbound": [
+        {
+          "from": "app_sg (NFS 마운트)",
+          "port": "2049",
+        },
+      ],
+      "name": "EFS Security Group",
       "outbound": [],
     },
     {

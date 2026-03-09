@@ -153,9 +153,10 @@ exports[`wellArchitectedScore snapshots > b2b_saas (en) 1`] = `
           "rec": "DB Single-AZ is never recommended for production services",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 7,
           "maxPts": 8,
           "q": "Is a caching layer in place?",
+          "rec": "Use ElastiCache to enable cache-first serving during DB failures",
         },
         {
           "earnedPts": 5,
@@ -190,7 +191,7 @@ exports[`wellArchitectedScore snapshots > b2b_saas (en) 1`] = `
           "q": "Can you roll back immediately with safe deployments?",
         },
       ],
-      "score": 83,
+      "score": 82,
     },
     "sec": {
       "items": [
@@ -201,9 +202,10 @@ exports[`wellArchitectedScore snapshots > b2b_saas (en) 1`] = `
           "rec": "Elevate encryption by using CMK with CloudTrail key auditing",
         },
         {
-          "earnedPts": 18,
+          "earnedPts": 16,
           "maxPts": 18,
           "q": "Is network layer isolation implemented?",
+          "rec": "Move databases to private subnets isolated from public access",
         },
         {
           "earnedPts": 10,
@@ -249,7 +251,7 @@ exports[`wellArchitectedScore snapshots > b2b_saas (en) 1`] = `
           "rec": "Strengthen data protection with security certifications such as PCI/HIPAA",
         },
       ],
-      "score": 84,
+      "score": 82,
     },
     "sus": {
       "items": [
@@ -287,13 +289,13 @@ exports[`wellArchitectedScore snapshots > b2b_saas (en) 1`] = `
           "rec": "EC2 Graviton (ARM) instances offer 60% energy efficiency improvement over Intel",
         },
         {
-          "earnedPts": 3,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "Are log/storage retention policies optimized?",
           "rec": "Improve resource efficiency with CloudWatch log retention optimization + S3 Glacier archiving",
         },
       ],
-      "score": 87,
+      "score": 89,
     },
   },
 }
@@ -452,9 +454,10 @@ exports[`wellArchitectedScore snapshots > b2b_saas (ko) 1`] = `
           "rec": "DB Single-AZ는 운영 서비스에 절대 권장하지 않습니다",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 7,
           "maxPts": 8,
           "q": "캐싱 계층이 존재합니까?",
+          "rec": "ElastiCache로 DB 장애 시 캐시 우선 서비스 가능하게 하세요",
         },
         {
           "earnedPts": 5,
@@ -489,7 +492,7 @@ exports[`wellArchitectedScore snapshots > b2b_saas (ko) 1`] = `
           "q": "안전한 배포로 즉각 롤백이 가능합니까?",
         },
       ],
-      "score": 83,
+      "score": 82,
     },
     "sec": {
       "items": [
@@ -500,9 +503,10 @@ exports[`wellArchitectedScore snapshots > b2b_saas (ko) 1`] = `
           "rec": "CMK + CloudTrail 키 감사로 암호화 수준을 높이세요",
         },
         {
-          "earnedPts": 18,
+          "earnedPts": 16,
           "maxPts": 18,
           "q": "네트워크 계층 격리가 구현되어 있습니까?",
+          "rec": "DB를 퍼블릭에서 분리된 프라이빗 서브넷으로 이동하세요",
         },
         {
           "earnedPts": 10,
@@ -548,7 +552,7 @@ exports[`wellArchitectedScore snapshots > b2b_saas (ko) 1`] = `
           "rec": "PCI/HIPAA 등 보안 인증으로 데이터 보호 체계를 강화하세요",
         },
       ],
-      "score": 84,
+      "score": 82,
     },
     "sus": {
       "items": [
@@ -586,13 +590,13 @@ exports[`wellArchitectedScore snapshots > b2b_saas (ko) 1`] = `
           "rec": "EC2 Graviton(ARM) 인스턴스로 Intel 대비 60% 에너지 효율 향상",
         },
         {
-          "earnedPts": 3,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "로그/스토리지 보존 정책이 최적화되어 있습니까?",
           "rec": "CloudWatch 로그 보존 기간 최적화 + S3 Glacier 아카이브로 자원 효율 개선",
         },
       ],
-      "score": 87,
+      "score": 89,
     },
   },
 }
@@ -600,7 +604,7 @@ exports[`wellArchitectedScore snapshots > b2b_saas (ko) 1`] = `
 
 exports[`wellArchitectedScore snapshots > compliance (en) 1`] = `
 {
-  "overall": 83,
+  "overall": 82,
   "pillars": {
     "cost": {
       "items": [
@@ -752,9 +756,10 @@ exports[`wellArchitectedScore snapshots > compliance (en) 1`] = `
           "rec": "DB Single-AZ is never recommended for production services",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 7,
           "maxPts": 8,
           "q": "Is a caching layer in place?",
+          "rec": "Use ElastiCache to enable cache-first serving during DB failures",
         },
         {
           "earnedPts": 12,
@@ -788,7 +793,7 @@ exports[`wellArchitectedScore snapshots > compliance (en) 1`] = `
           "q": "Can you roll back immediately with safe deployments?",
         },
       ],
-      "score": 91,
+      "score": 89,
     },
     "sec": {
       "items": [
@@ -798,9 +803,10 @@ exports[`wellArchitectedScore snapshots > compliance (en) 1`] = `
           "q": "Is encryption at rest (KMS) applied?",
         },
         {
-          "earnedPts": 18,
+          "earnedPts": 16,
           "maxPts": 18,
           "q": "Is network layer isolation implemented?",
+          "rec": "Move databases to private subnets isolated from public access",
         },
         {
           "earnedPts": 14,
@@ -845,7 +851,7 @@ exports[`wellArchitectedScore snapshots > compliance (en) 1`] = `
           "q": "Is a security compliance framework applied?",
         },
       ],
-      "score": 96,
+      "score": 94,
     },
     "sus": {
       "items": [
@@ -885,13 +891,13 @@ exports[`wellArchitectedScore snapshots > compliance (en) 1`] = `
           "rec": "EC2 Graviton (ARM) instances offer 60% energy efficiency improvement over Intel",
         },
         {
-          "earnedPts": 3,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "Are log/storage retention policies optimized?",
           "rec": "Improve resource efficiency with CloudWatch log retention optimization + S3 Glacier archiving",
         },
       ],
-      "score": 62,
+      "score": 64,
     },
   },
 }
@@ -899,7 +905,7 @@ exports[`wellArchitectedScore snapshots > compliance (en) 1`] = `
 
 exports[`wellArchitectedScore snapshots > compliance (ko) 1`] = `
 {
-  "overall": 83,
+  "overall": 82,
   "pillars": {
     "cost": {
       "items": [
@@ -1051,9 +1057,10 @@ exports[`wellArchitectedScore snapshots > compliance (ko) 1`] = `
           "rec": "DB Single-AZ는 운영 서비스에 절대 권장하지 않습니다",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 7,
           "maxPts": 8,
           "q": "캐싱 계층이 존재합니까?",
+          "rec": "ElastiCache로 DB 장애 시 캐시 우선 서비스 가능하게 하세요",
         },
         {
           "earnedPts": 12,
@@ -1087,7 +1094,7 @@ exports[`wellArchitectedScore snapshots > compliance (ko) 1`] = `
           "q": "안전한 배포로 즉각 롤백이 가능합니까?",
         },
       ],
-      "score": 91,
+      "score": 89,
     },
     "sec": {
       "items": [
@@ -1097,9 +1104,10 @@ exports[`wellArchitectedScore snapshots > compliance (ko) 1`] = `
           "q": "저장 데이터 암호화(KMS)가 적용되어 있습니까?",
         },
         {
-          "earnedPts": 18,
+          "earnedPts": 16,
           "maxPts": 18,
           "q": "네트워크 계층 격리가 구현되어 있습니까?",
+          "rec": "DB를 퍼블릭에서 분리된 프라이빗 서브넷으로 이동하세요",
         },
         {
           "earnedPts": 14,
@@ -1144,7 +1152,7 @@ exports[`wellArchitectedScore snapshots > compliance (ko) 1`] = `
           "q": "보안 컴플라이언스 체계가 적용되어 있습니까?",
         },
       ],
-      "score": 96,
+      "score": 94,
     },
     "sus": {
       "items": [
@@ -1184,13 +1192,13 @@ exports[`wellArchitectedScore snapshots > compliance (ko) 1`] = `
           "rec": "EC2 Graviton(ARM) 인스턴스로 Intel 대비 60% 에너지 효율 향상",
         },
         {
-          "earnedPts": 3,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "로그/스토리지 보존 정책이 최적화되어 있습니까?",
           "rec": "CloudWatch 로그 보존 기간 최적화 + S3 Glacier 아카이브로 자원 효율 개선",
         },
       ],
-      "score": 62,
+      "score": 64,
     },
   },
 }
@@ -1198,7 +1206,7 @@ exports[`wellArchitectedScore snapshots > compliance (ko) 1`] = `
 
 exports[`wellArchitectedScore snapshots > data_pipeline (en) 1`] = `
 {
-  "overall": 78,
+  "overall": 77,
   "pillars": {
     "cost": {
       "items": [
@@ -1376,9 +1384,10 @@ exports[`wellArchitectedScore snapshots > data_pipeline (en) 1`] = `
           "rec": "Elevate encryption by using CMK with CloudTrail key auditing",
         },
         {
-          "earnedPts": 18,
+          "earnedPts": 16,
           "maxPts": 18,
           "q": "Is network layer isolation implemented?",
+          "rec": "Move databases to private subnets isolated from public access",
         },
         {
           "earnedPts": 3,
@@ -1419,7 +1428,7 @@ exports[`wellArchitectedScore snapshots > data_pipeline (en) 1`] = `
           "rec": "Strengthen data protection with security certifications such as PCI/HIPAA",
         },
       ],
-      "score": 68,
+      "score": 65,
     },
     "sus": {
       "items": [
@@ -1444,12 +1453,13 @@ exports[`wellArchitectedScore snapshots > data_pipeline (en) 1`] = `
           "q": "Are you improving energy efficiency with Graviton (ARM) or serverless?",
         },
         {
-          "earnedPts": 6,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "Are log/storage retention policies optimized?",
+          "rec": "Improve resource efficiency with CloudWatch log retention optimization + S3 Glacier archiving",
         },
       ],
-      "score": 100,
+      "score": 98,
     },
   },
 }
@@ -1457,7 +1467,7 @@ exports[`wellArchitectedScore snapshots > data_pipeline (en) 1`] = `
 
 exports[`wellArchitectedScore snapshots > data_pipeline (ko) 1`] = `
 {
-  "overall": 78,
+  "overall": 77,
   "pillars": {
     "cost": {
       "items": [
@@ -1635,9 +1645,10 @@ exports[`wellArchitectedScore snapshots > data_pipeline (ko) 1`] = `
           "rec": "CMK + CloudTrail 키 감사로 암호화 수준을 높이세요",
         },
         {
-          "earnedPts": 18,
+          "earnedPts": 16,
           "maxPts": 18,
           "q": "네트워크 계층 격리가 구현되어 있습니까?",
+          "rec": "DB를 퍼블릭에서 분리된 프라이빗 서브넷으로 이동하세요",
         },
         {
           "earnedPts": 3,
@@ -1678,7 +1689,7 @@ exports[`wellArchitectedScore snapshots > data_pipeline (ko) 1`] = `
           "rec": "PCI/HIPAA 등 보안 인증으로 데이터 보호 체계를 강화하세요",
         },
       ],
-      "score": 68,
+      "score": 65,
     },
     "sus": {
       "items": [
@@ -1703,12 +1714,13 @@ exports[`wellArchitectedScore snapshots > data_pipeline (ko) 1`] = `
           "q": "Graviton(ARM) 또는 서버리스로 에너지 효율을 높입니까?",
         },
         {
-          "earnedPts": 6,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "로그/스토리지 보존 정책이 최적화되어 있습니까?",
+          "rec": "CloudWatch 로그 보존 기간 최적화 + S3 Glacier 아카이브로 자원 효율 개선",
         },
       ],
-      "score": 100,
+      "score": 98,
     },
   },
 }
@@ -1871,9 +1883,10 @@ exports[`wellArchitectedScore snapshots > ecommerce_mvp (en) 1`] = `
           "rec": "Add Read Replicas to distribute read load and improve failover speed",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 7,
           "maxPts": 8,
           "q": "Is a caching layer in place?",
+          "rec": "Use ElastiCache to enable cache-first serving during DB failures",
         },
         {
           "earnedPts": 5,
@@ -1907,7 +1920,7 @@ exports[`wellArchitectedScore snapshots > ecommerce_mvp (en) 1`] = `
           "q": "Can you roll back immediately with safe deployments?",
         },
       ],
-      "score": 74,
+      "score": 73,
     },
     "sec": {
       "items": [
@@ -1917,9 +1930,10 @@ exports[`wellArchitectedScore snapshots > ecommerce_mvp (en) 1`] = `
           "q": "Is encryption at rest (KMS) applied?",
         },
         {
-          "earnedPts": 18,
+          "earnedPts": 16,
           "maxPts": 18,
           "q": "Is network layer isolation implemented?",
+          "rec": "Move databases to private subnets isolated from public access",
         },
         {
           "earnedPts": 14,
@@ -1965,7 +1979,7 @@ exports[`wellArchitectedScore snapshots > ecommerce_mvp (en) 1`] = `
           "rec": "Strengthen data protection with security certifications such as PCI/HIPAA",
         },
       ],
-      "score": 94,
+      "score": 92,
     },
     "sus": {
       "items": [
@@ -2005,13 +2019,13 @@ exports[`wellArchitectedScore snapshots > ecommerce_mvp (en) 1`] = `
           "rec": "EC2 Graviton (ARM) instances offer 60% energy efficiency improvement over Intel",
         },
         {
-          "earnedPts": 3,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "Are log/storage retention policies optimized?",
           "rec": "Improve resource efficiency with CloudWatch log retention optimization + S3 Glacier archiving",
         },
       ],
-      "score": 63,
+      "score": 66,
     },
   },
 }
@@ -2174,9 +2188,10 @@ exports[`wellArchitectedScore snapshots > ecommerce_mvp (ko) 1`] = `
           "rec": "Read Replica 추가로 읽기 부하 분산과 페일오버 속도를 개선하세요",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 7,
           "maxPts": 8,
           "q": "캐싱 계층이 존재합니까?",
+          "rec": "ElastiCache로 DB 장애 시 캐시 우선 서비스 가능하게 하세요",
         },
         {
           "earnedPts": 5,
@@ -2210,7 +2225,7 @@ exports[`wellArchitectedScore snapshots > ecommerce_mvp (ko) 1`] = `
           "q": "안전한 배포로 즉각 롤백이 가능합니까?",
         },
       ],
-      "score": 74,
+      "score": 73,
     },
     "sec": {
       "items": [
@@ -2220,9 +2235,10 @@ exports[`wellArchitectedScore snapshots > ecommerce_mvp (ko) 1`] = `
           "q": "저장 데이터 암호화(KMS)가 적용되어 있습니까?",
         },
         {
-          "earnedPts": 18,
+          "earnedPts": 16,
           "maxPts": 18,
           "q": "네트워크 계층 격리가 구현되어 있습니까?",
+          "rec": "DB를 퍼블릭에서 분리된 프라이빗 서브넷으로 이동하세요",
         },
         {
           "earnedPts": 14,
@@ -2268,7 +2284,7 @@ exports[`wellArchitectedScore snapshots > ecommerce_mvp (ko) 1`] = `
           "rec": "PCI/HIPAA 등 보안 인증으로 데이터 보호 체계를 강화하세요",
         },
       ],
-      "score": 94,
+      "score": 92,
     },
     "sus": {
       "items": [
@@ -2308,13 +2324,13 @@ exports[`wellArchitectedScore snapshots > ecommerce_mvp (ko) 1`] = `
           "rec": "EC2 Graviton(ARM) 인스턴스로 Intel 대비 60% 에너지 효율 향상",
         },
         {
-          "earnedPts": 3,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "로그/스토리지 보존 정책이 최적화되어 있습니까?",
           "rec": "CloudWatch 로그 보존 기간 최적화 + S3 Glacier 아카이브로 자원 효율 개선",
         },
       ],
-      "score": 63,
+      "score": 66,
     },
   },
 }
@@ -2469,9 +2485,10 @@ exports[`wellArchitectedScore snapshots > eks_full (en) 1`] = `
           "q": "Is database high availability configured?",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 7,
           "maxPts": 8,
           "q": "Is a caching layer in place?",
+          "rec": "Use ElastiCache to enable cache-first serving during DB failures",
         },
         {
           "earnedPts": 18,
@@ -2509,7 +2526,7 @@ exports[`wellArchitectedScore snapshots > eks_full (en) 1`] = `
           "q": "Can you roll back immediately with safe deployments?",
         },
       ],
-      "score": 100,
+      "score": 99,
     },
     "sec": {
       "items": [
@@ -2519,9 +2536,10 @@ exports[`wellArchitectedScore snapshots > eks_full (en) 1`] = `
           "q": "Is encryption at rest (KMS) applied?",
         },
         {
-          "earnedPts": 18,
+          "earnedPts": 16,
           "maxPts": 18,
           "q": "Is network layer isolation implemented?",
+          "rec": "Move databases to private subnets isolated from public access",
         },
         {
           "earnedPts": 16,
@@ -2564,7 +2582,7 @@ exports[`wellArchitectedScore snapshots > eks_full (en) 1`] = `
           "q": "Is a security compliance framework applied?",
         },
       ],
-      "score": 100,
+      "score": 98,
     },
     "sus": {
       "items": [
@@ -2602,13 +2620,13 @@ exports[`wellArchitectedScore snapshots > eks_full (en) 1`] = `
           "rec": "EC2 Graviton (ARM) instances offer 60% energy efficiency improvement over Intel",
         },
         {
-          "earnedPts": 3,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "Are log/storage retention policies optimized?",
           "rec": "Improve resource efficiency with CloudWatch log retention optimization + S3 Glacier archiving",
         },
       ],
-      "score": 87,
+      "score": 89,
     },
   },
 }
@@ -2763,9 +2781,10 @@ exports[`wellArchitectedScore snapshots > eks_full (ko) 1`] = `
           "q": "데이터베이스 고가용성이 설정되어 있습니까?",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 7,
           "maxPts": 8,
           "q": "캐싱 계층이 존재합니까?",
+          "rec": "ElastiCache로 DB 장애 시 캐시 우선 서비스 가능하게 하세요",
         },
         {
           "earnedPts": 18,
@@ -2803,7 +2822,7 @@ exports[`wellArchitectedScore snapshots > eks_full (ko) 1`] = `
           "q": "안전한 배포로 즉각 롤백이 가능합니까?",
         },
       ],
-      "score": 100,
+      "score": 99,
     },
     "sec": {
       "items": [
@@ -2813,9 +2832,10 @@ exports[`wellArchitectedScore snapshots > eks_full (ko) 1`] = `
           "q": "저장 데이터 암호화(KMS)가 적용되어 있습니까?",
         },
         {
-          "earnedPts": 18,
+          "earnedPts": 16,
           "maxPts": 18,
           "q": "네트워크 계층 격리가 구현되어 있습니까?",
+          "rec": "DB를 퍼블릭에서 분리된 프라이빗 서브넷으로 이동하세요",
         },
         {
           "earnedPts": 16,
@@ -2858,7 +2878,7 @@ exports[`wellArchitectedScore snapshots > eks_full (ko) 1`] = `
           "q": "보안 컴플라이언스 체계가 적용되어 있습니까?",
         },
       ],
-      "score": 100,
+      "score": 98,
     },
     "sus": {
       "items": [
@@ -2896,13 +2916,13 @@ exports[`wellArchitectedScore snapshots > eks_full (ko) 1`] = `
           "rec": "EC2 Graviton(ARM) 인스턴스로 Intel 대비 60% 에너지 효율 향상",
         },
         {
-          "earnedPts": 3,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "로그/스토리지 보존 정책이 최적화되어 있습니까?",
           "rec": "CloudWatch 로그 보존 기간 최적화 + S3 Glacier 아카이브로 자원 효율 개선",
         },
       ],
-      "score": 87,
+      "score": 89,
     },
   },
 }
@@ -3115,9 +3135,10 @@ exports[`wellArchitectedScore snapshots > generic_web_api (en) 1`] = `
           "rec": "Elevate encryption by using CMK with CloudTrail key auditing",
         },
         {
-          "earnedPts": 18,
+          "earnedPts": 16,
           "maxPts": 18,
           "q": "Is network layer isolation implemented?",
+          "rec": "Move databases to private subnets isolated from public access",
         },
         {
           "earnedPts": 10,
@@ -3164,7 +3185,7 @@ exports[`wellArchitectedScore snapshots > generic_web_api (en) 1`] = `
           "rec": "Strengthen data protection with security certifications such as PCI/HIPAA",
         },
       ],
-      "score": 82,
+      "score": 80,
     },
     "sus": {
       "items": [
@@ -3204,13 +3225,13 @@ exports[`wellArchitectedScore snapshots > generic_web_api (en) 1`] = `
           "rec": "EC2 Graviton (ARM) instances offer 60% energy efficiency improvement over Intel",
         },
         {
-          "earnedPts": 3,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "Are log/storage retention policies optimized?",
           "rec": "Improve resource efficiency with CloudWatch log retention optimization + S3 Glacier archiving",
         },
       ],
-      "score": 58,
+      "score": 60,
     },
   },
 }
@@ -3423,9 +3444,10 @@ exports[`wellArchitectedScore snapshots > generic_web_api (ko) 1`] = `
           "rec": "CMK + CloudTrail 키 감사로 암호화 수준을 높이세요",
         },
         {
-          "earnedPts": 18,
+          "earnedPts": 16,
           "maxPts": 18,
           "q": "네트워크 계층 격리가 구현되어 있습니까?",
+          "rec": "DB를 퍼블릭에서 분리된 프라이빗 서브넷으로 이동하세요",
         },
         {
           "earnedPts": 10,
@@ -3472,7 +3494,7 @@ exports[`wellArchitectedScore snapshots > generic_web_api (ko) 1`] = `
           "rec": "PCI/HIPAA 등 보안 인증으로 데이터 보호 체계를 강화하세요",
         },
       ],
-      "score": 82,
+      "score": 80,
     },
     "sus": {
       "items": [
@@ -3512,13 +3534,13 @@ exports[`wellArchitectedScore snapshots > generic_web_api (ko) 1`] = `
           "rec": "EC2 Graviton(ARM) 인스턴스로 Intel 대비 60% 에너지 효율 향상",
         },
         {
-          "earnedPts": 3,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "로그/스토리지 보존 정책이 최적화되어 있습니까?",
           "rec": "CloudWatch 로그 보존 기간 최적화 + S3 Glacier 아카이브로 자원 효율 개선",
         },
       ],
-      "score": 58,
+      "score": 60,
     },
   },
 }
@@ -3773,12 +3795,13 @@ exports[`wellArchitectedScore snapshots > internal_tool (en) 1`] = `
           "q": "Are you improving energy efficiency with Graviton (ARM) or serverless?",
         },
         {
-          "earnedPts": 6,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "Are log/storage retention policies optimized?",
+          "rec": "Improve resource efficiency with CloudWatch log retention optimization + S3 Glacier archiving",
         },
       ],
-      "score": 100,
+      "score": 98,
     },
   },
 }
@@ -4033,12 +4056,13 @@ exports[`wellArchitectedScore snapshots > internal_tool (ko) 1`] = `
           "q": "Graviton(ARM) 또는 서버리스로 에너지 효율을 높입니까?",
         },
         {
-          "earnedPts": 6,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "로그/스토리지 보존 정책이 최적화되어 있습니까?",
+          "rec": "CloudWatch 로그 보존 기간 최적화 + S3 Glacier 아카이브로 자원 효율 개선",
         },
       ],
-      "score": 100,
+      "score": 98,
     },
   },
 }
@@ -4191,9 +4215,10 @@ exports[`wellArchitectedScore snapshots > iot_platform (en) 1`] = `
           "rec": "Add Read Replicas to distribute read load and improve failover speed",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 7,
           "maxPts": 8,
           "q": "Is a caching layer in place?",
+          "rec": "Use ElastiCache to enable cache-first serving during DB failures",
         },
         {
           "earnedPts": 5,
@@ -4233,7 +4258,7 @@ exports[`wellArchitectedScore snapshots > iot_platform (en) 1`] = `
           "rec": "Ensure immediate rollback capability with Blue/Green or Canary deployments",
         },
       ],
-      "score": 70,
+      "score": 69,
     },
     "sec": {
       "items": [
@@ -4244,9 +4269,10 @@ exports[`wellArchitectedScore snapshots > iot_platform (en) 1`] = `
           "rec": "Elevate encryption by using CMK with CloudTrail key auditing",
         },
         {
-          "earnedPts": 18,
+          "earnedPts": 16,
           "maxPts": 18,
           "q": "Is network layer isolation implemented?",
+          "rec": "Move databases to private subnets isolated from public access",
         },
         {
           "earnedPts": 10,
@@ -4293,7 +4319,7 @@ exports[`wellArchitectedScore snapshots > iot_platform (en) 1`] = `
           "rec": "Strengthen data protection with security certifications such as PCI/HIPAA",
         },
       ],
-      "score": 82,
+      "score": 80,
     },
     "sus": {
       "items": [
@@ -4327,13 +4353,13 @@ exports[`wellArchitectedScore snapshots > iot_platform (en) 1`] = `
           "rec": "EC2 Graviton (ARM) instances offer 60% energy efficiency improvement over Intel",
         },
         {
-          "earnedPts": 3,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "Are log/storage retention policies optimized?",
           "rec": "Improve resource efficiency with CloudWatch log retention optimization + S3 Glacier archiving",
         },
       ],
-      "score": 81,
+      "score": 83,
     },
   },
 }
@@ -4486,9 +4512,10 @@ exports[`wellArchitectedScore snapshots > iot_platform (ko) 1`] = `
           "rec": "Read Replica 추가로 읽기 부하 분산과 페일오버 속도를 개선하세요",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 7,
           "maxPts": 8,
           "q": "캐싱 계층이 존재합니까?",
+          "rec": "ElastiCache로 DB 장애 시 캐시 우선 서비스 가능하게 하세요",
         },
         {
           "earnedPts": 5,
@@ -4528,7 +4555,7 @@ exports[`wellArchitectedScore snapshots > iot_platform (ko) 1`] = `
           "rec": "Blue/Green 또는 Canary 배포로 장애 시 즉각 롤백 능력을 확보하세요",
         },
       ],
-      "score": 70,
+      "score": 69,
     },
     "sec": {
       "items": [
@@ -4539,9 +4566,10 @@ exports[`wellArchitectedScore snapshots > iot_platform (ko) 1`] = `
           "rec": "CMK + CloudTrail 키 감사로 암호화 수준을 높이세요",
         },
         {
-          "earnedPts": 18,
+          "earnedPts": 16,
           "maxPts": 18,
           "q": "네트워크 계층 격리가 구현되어 있습니까?",
+          "rec": "DB를 퍼블릭에서 분리된 프라이빗 서브넷으로 이동하세요",
         },
         {
           "earnedPts": 10,
@@ -4588,7 +4616,7 @@ exports[`wellArchitectedScore snapshots > iot_platform (ko) 1`] = `
           "rec": "PCI/HIPAA 등 보안 인증으로 데이터 보호 체계를 강화하세요",
         },
       ],
-      "score": 82,
+      "score": 80,
     },
     "sus": {
       "items": [
@@ -4622,13 +4650,13 @@ exports[`wellArchitectedScore snapshots > iot_platform (ko) 1`] = `
           "rec": "EC2 Graviton(ARM) 인스턴스로 Intel 대비 60% 에너지 효율 향상",
         },
         {
-          "earnedPts": 3,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "로그/스토리지 보존 정책이 최적화되어 있습니까?",
           "rec": "CloudWatch 로그 보존 기간 최적화 + S3 Glacier 아카이브로 자원 효율 개선",
         },
       ],
-      "score": 81,
+      "score": 83,
     },
   },
 }
@@ -5427,9 +5455,10 @@ exports[`wellArchitectedScore snapshots > realtime_chat (en) 1`] = `
           "rec": "Add Read Replicas to distribute read load and improve failover speed",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 7,
           "maxPts": 8,
           "q": "Is a caching layer in place?",
+          "rec": "Use ElastiCache to enable cache-first serving during DB failures",
         },
         {
           "earnedPts": 5,
@@ -5468,7 +5497,7 @@ exports[`wellArchitectedScore snapshots > realtime_chat (en) 1`] = `
           "q": "Can you roll back immediately with safe deployments?",
         },
       ],
-      "score": 75,
+      "score": 74,
     },
     "sec": {
       "items": [
@@ -5479,9 +5508,10 @@ exports[`wellArchitectedScore snapshots > realtime_chat (en) 1`] = `
           "rec": "Elevate encryption by using CMK with CloudTrail key auditing",
         },
         {
-          "earnedPts": 18,
+          "earnedPts": 16,
           "maxPts": 18,
           "q": "Is network layer isolation implemented?",
+          "rec": "Move databases to private subnets isolated from public access",
         },
         {
           "earnedPts": 10,
@@ -5528,7 +5558,7 @@ exports[`wellArchitectedScore snapshots > realtime_chat (en) 1`] = `
           "rec": "Strengthen data protection with security certifications such as PCI/HIPAA",
         },
       ],
-      "score": 82,
+      "score": 80,
     },
     "sus": {
       "items": [
@@ -5568,13 +5598,13 @@ exports[`wellArchitectedScore snapshots > realtime_chat (en) 1`] = `
           "rec": "EC2 Graviton (ARM) instances offer 60% energy efficiency improvement over Intel",
         },
         {
-          "earnedPts": 3,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "Are log/storage retention policies optimized?",
           "rec": "Improve resource efficiency with CloudWatch log retention optimization + S3 Glacier archiving",
         },
       ],
-      "score": 62,
+      "score": 64,
     },
   },
 }
@@ -5737,9 +5767,10 @@ exports[`wellArchitectedScore snapshots > realtime_chat (ko) 1`] = `
           "rec": "Read Replica 추가로 읽기 부하 분산과 페일오버 속도를 개선하세요",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 7,
           "maxPts": 8,
           "q": "캐싱 계층이 존재합니까?",
+          "rec": "ElastiCache로 DB 장애 시 캐시 우선 서비스 가능하게 하세요",
         },
         {
           "earnedPts": 5,
@@ -5778,7 +5809,7 @@ exports[`wellArchitectedScore snapshots > realtime_chat (ko) 1`] = `
           "q": "안전한 배포로 즉각 롤백이 가능합니까?",
         },
       ],
-      "score": 75,
+      "score": 74,
     },
     "sec": {
       "items": [
@@ -5789,9 +5820,10 @@ exports[`wellArchitectedScore snapshots > realtime_chat (ko) 1`] = `
           "rec": "CMK + CloudTrail 키 감사로 암호화 수준을 높이세요",
         },
         {
-          "earnedPts": 18,
+          "earnedPts": 16,
           "maxPts": 18,
           "q": "네트워크 계층 격리가 구현되어 있습니까?",
+          "rec": "DB를 퍼블릭에서 분리된 프라이빗 서브넷으로 이동하세요",
         },
         {
           "earnedPts": 10,
@@ -5838,7 +5870,7 @@ exports[`wellArchitectedScore snapshots > realtime_chat (ko) 1`] = `
           "rec": "PCI/HIPAA 등 보안 인증으로 데이터 보호 체계를 강화하세요",
         },
       ],
-      "score": 82,
+      "score": 80,
     },
     "sus": {
       "items": [
@@ -5878,13 +5910,13 @@ exports[`wellArchitectedScore snapshots > realtime_chat (ko) 1`] = `
           "rec": "EC2 Graviton(ARM) 인스턴스로 Intel 대비 60% 에너지 효율 향상",
         },
         {
-          "earnedPts": 3,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "로그/스토리지 보존 정책이 최적화되어 있습니까?",
           "rec": "CloudWatch 로그 보존 기간 최적화 + S3 Glacier 아카이브로 자원 효율 개선",
         },
       ],
-      "score": 62,
+      "score": 64,
     },
   },
 }
@@ -6184,12 +6216,13 @@ exports[`wellArchitectedScore snapshots > serverless (en) 1`] = `
           "q": "Are you improving energy efficiency with Graviton (ARM) or serverless?",
         },
         {
-          "earnedPts": 6,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "Are log/storage retention policies optimized?",
+          "rec": "Improve resource efficiency with CloudWatch log retention optimization + S3 Glacier archiving",
         },
       ],
-      "score": 83,
+      "score": 82,
     },
   },
 }
@@ -6489,12 +6522,13 @@ exports[`wellArchitectedScore snapshots > serverless (ko) 1`] = `
           "q": "Graviton(ARM) 또는 서버리스로 에너지 효율을 높입니까?",
         },
         {
-          "earnedPts": 6,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "로그/스토리지 보존 정책이 최적화되어 있습니까?",
+          "rec": "CloudWatch 로그 보존 기간 최적화 + S3 Glacier 아카이브로 자원 효율 개선",
         },
       ],
-      "score": 83,
+      "score": 82,
     },
   },
 }
@@ -6656,9 +6690,10 @@ exports[`wellArchitectedScore snapshots > ticketing (en) 1`] = `
           "rec": "Add Read Replicas to distribute read load and improve failover speed",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 7,
           "maxPts": 8,
           "q": "Is a caching layer in place?",
+          "rec": "Use ElastiCache to enable cache-first serving during DB failures",
         },
         {
           "earnedPts": 5,
@@ -6697,7 +6732,7 @@ exports[`wellArchitectedScore snapshots > ticketing (en) 1`] = `
           "q": "Can you roll back immediately with safe deployments?",
         },
       ],
-      "score": 75,
+      "score": 74,
     },
     "sec": {
       "items": [
@@ -6707,9 +6742,10 @@ exports[`wellArchitectedScore snapshots > ticketing (en) 1`] = `
           "q": "Is encryption at rest (KMS) applied?",
         },
         {
-          "earnedPts": 18,
+          "earnedPts": 16,
           "maxPts": 18,
           "q": "Is network layer isolation implemented?",
+          "rec": "Move databases to private subnets isolated from public access",
         },
         {
           "earnedPts": 14,
@@ -6755,7 +6791,7 @@ exports[`wellArchitectedScore snapshots > ticketing (en) 1`] = `
           "rec": "Strengthen data protection with security certifications such as PCI/HIPAA",
         },
       ],
-      "score": 94,
+      "score": 92,
     },
     "sus": {
       "items": [
@@ -6794,13 +6830,13 @@ exports[`wellArchitectedScore snapshots > ticketing (en) 1`] = `
           "rec": "EC2 Graviton (ARM) instances offer 60% energy efficiency improvement over Intel",
         },
         {
-          "earnedPts": 3,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "Are log/storage retention policies optimized?",
           "rec": "Improve resource efficiency with CloudWatch log retention optimization + S3 Glacier archiving",
         },
       ],
-      "score": 68,
+      "score": 70,
     },
   },
 }
@@ -6962,9 +6998,10 @@ exports[`wellArchitectedScore snapshots > ticketing (ko) 1`] = `
           "rec": "Read Replica 추가로 읽기 부하 분산과 페일오버 속도를 개선하세요",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 7,
           "maxPts": 8,
           "q": "캐싱 계층이 존재합니까?",
+          "rec": "ElastiCache로 DB 장애 시 캐시 우선 서비스 가능하게 하세요",
         },
         {
           "earnedPts": 5,
@@ -7003,7 +7040,7 @@ exports[`wellArchitectedScore snapshots > ticketing (ko) 1`] = `
           "q": "안전한 배포로 즉각 롤백이 가능합니까?",
         },
       ],
-      "score": 75,
+      "score": 74,
     },
     "sec": {
       "items": [
@@ -7013,9 +7050,10 @@ exports[`wellArchitectedScore snapshots > ticketing (ko) 1`] = `
           "q": "저장 데이터 암호화(KMS)가 적용되어 있습니까?",
         },
         {
-          "earnedPts": 18,
+          "earnedPts": 16,
           "maxPts": 18,
           "q": "네트워크 계층 격리가 구현되어 있습니까?",
+          "rec": "DB를 퍼블릭에서 분리된 프라이빗 서브넷으로 이동하세요",
         },
         {
           "earnedPts": 14,
@@ -7061,7 +7099,7 @@ exports[`wellArchitectedScore snapshots > ticketing (ko) 1`] = `
           "rec": "PCI/HIPAA 등 보안 인증으로 데이터 보호 체계를 강화하세요",
         },
       ],
-      "score": 94,
+      "score": 92,
     },
     "sus": {
       "items": [
@@ -7100,13 +7138,13 @@ exports[`wellArchitectedScore snapshots > ticketing (ko) 1`] = `
           "rec": "EC2 Graviton(ARM) 인스턴스로 Intel 대비 60% 에너지 효율 향상",
         },
         {
-          "earnedPts": 3,
+          "earnedPts": 5,
           "maxPts": 6,
           "q": "로그/스토리지 보존 정책이 최적화되어 있습니까?",
           "rec": "CloudWatch 로그 보존 기간 최적화 + S3 Glacier 아카이브로 자원 효율 개선",
         },
       ],
-      "score": 68,
+      "score": 70,
     },
   },
 }

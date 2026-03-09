@@ -194,6 +194,10 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
     }
   }
 
+  if(s.compute?.arch_pattern === "app_runner") {
+    computeServices.push({ name:"App Runner", detail:lang==="ko"?"완전관리형 컨테이너, 자동 빌드·배포·스케일링":"Fully managed containers, auto build/deploy/scaling", reason:lang==="ko"?"VPC 설정 불필요, MVP에 최적":"No VPC setup needed, optimal for MVP", cost:lang==="ko"?"vCPU $0.064/시간 + 메모리 $0.007/GB/시간":"vCPU $0.064/hr + memory $0.007/GB/hr", opt:lang==="ko"?"WebSocket 미지원. VPC Connector로 RDS 접근 가능":"No WebSocket support. RDS access via VPC Connector" });
+  }
+
   layers.push({
     id:"compute", label:t("comp.label"), icon:"⚙️", color:"#059669", bg:"#ecfdf5",
     services: computeServices,
@@ -262,6 +266,8 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
       platformSvcs.push({ name:lang==="ko"?"Kiali (Istio 대시보드)":"Kiali (Istio Dashboard)", detail:lang==="ko"?"서비스 토폴로지 시각화·트래픽 흐름 실시간":"Service topology visualization, real-time traffic flow", reason:lang==="ko"?"MSA 복잡성 가시화, 장애 지점 즉시 파악":"Visualize MSA complexity, instantly identify failure points", cost:t("net.vpc.cost"), opt:lang==="ko"?"Jaeger 트레이싱과 연동 필수":"Jaeger tracing integration required" });
     } else if(mesh === "aws_app_mesh") {
       platformSvcs.push({ name:"AWS App Mesh", detail:lang==="ko"?"Envoy 프록시 AWS 관리형, Virtual Service/Node":"AWS-managed Envoy proxy, Virtual Service/Node", reason:lang==="ko"?"X-Ray·CloudWatch 자동 통합, 설정 단순":"Auto X-Ray/CloudWatch integration, simple config", cost:lang==="ko"?"무료 (Envoy 리소스 비용)":"Free (Envoy resource costs)", opt:lang==="ko"?"Virtual Gateway로 외부 트래픽 메시 진입점 설정":"Set mesh entry point for external traffic with Virtual Gateway" });
+    } else if(mesh === "vpc_lattice") {
+      platformSvcs.push({ name:"VPC Lattice", detail:lang==="ko"?"AWS 관리형 서비스 네트워킹, IAM 인증":"AWS-managed service networking, IAM auth", reason:lang==="ko"?"크로스 VPC/계정 서비스 통신, App Mesh 대체":"Cross-VPC/account service communication, App Mesh replacement", cost:lang==="ko"?"요청당 $0.025/10만 + 데이터 $0.025/GB":"$0.025/100K requests + $0.025/GB data", opt:lang==="ko"?"Auth Policy로 서비스별 IAM 인증. ECS/EKS/Lambda 모두 지원":"IAM auth per service via Auth Policy. Supports ECS/EKS/Lambda" });
     }
 
     // GitOps
@@ -466,7 +472,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
     : effectiveDbHa === "global" ? (lang==="ko"?"Global Database, 크로스 리전 복제":"Global Database, cross-region replication")
     : "Single-AZ";
 
-  const DB_NAMES: Record<string, string> = { aurora_pg:"Aurora PostgreSQL", aurora_mysql:"Aurora MySQL", rds_pg:"RDS PostgreSQL", rds_mysql:"RDS MySQL", dynamodb:"DynamoDB" };
+  const DB_NAMES: Record<string, string> = { aurora_pg:"Aurora PostgreSQL", aurora_mysql:"Aurora MySQL", rds_pg:"RDS PostgreSQL", rds_mysql:"RDS MySQL", dynamodb:"DynamoDB", documentdb:"DocumentDB", neptune:"Neptune", timestream:"Timestream" };
   const isTrafficSteady = trafficPats.includes("steady") || trafficPats.includes("business");
 
   for(const dbId of primaryDbs) {
@@ -488,6 +494,12 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
       dbOpt = s.cost?.commitment !== "none"
         ? (lang==="ko" ? `RI ${s.cost.commitment === "3yr" ? "3년 최대 66%" : "1년 최대 40%"} 절약. 백업 보존 기간 ${isCritical ? "35일" : "7일"} 설정 필수` : `RI ${s.cost.commitment === "3yr" ? "3yr up to 66%" : "1yr up to 40%"} savings. Backup retention ${isCritical ? "35 days" : "7 days"} required`)
         : (lang==="ko" ? `백업 보존 기간 ${isCritical ? "35일" : "7일"} 설정. 안정화 후 RI 전환` : `Set backup retention to ${isCritical ? "35 days" : "7 days"}. Switch to RI after stabilization`);
+    } else if(dbId === "documentdb") {
+      dbOpt = lang==="ko"?"MongoDB 5.0 호환. DMS로 마이그레이션 가능. 연결 문자열만 변경":"MongoDB 5.0 compatible. Migration via DMS. Just change connection string";
+    } else if(dbId === "neptune") {
+      dbOpt = lang==="ko"?"Gremlin 또는 SPARQL 쿼리 엔진. openCypher도 지원":"Gremlin or SPARQL query engine. openCypher also supported";
+    } else if(dbId === "timestream") {
+      dbOpt = lang==="ko"?"서버리스. 메모리 스토어(최근) → 마그네틱 스토어(과거) 자동 계층화":"Serverless. Memory store (recent) -> Magnetic store (historical) auto-tiering";
     }
 
     // RDS doesn't support Global Database — downgrade to cross-region read replica
@@ -543,6 +555,15 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
         opt: lang==="ko"?"읽기 비중이 높은 테이블에만 적용. 쓰기는 DynamoDB 직접 통과":"Apply only to read-heavy tables. Writes pass directly to DynamoDB"
       });
     }
+    if(s.data.cache === "memorydb") {
+      dbServices.push({
+        name: "MemoryDB for Redis",
+        detail: `${isHighAvail ? "Cluster Mode, Multi-AZ" : "Cluster Mode"}, ${lang==="ko"?"내구성 보장":"Durable"}`,
+        reason: lang==="ko"?"ElastiCache + 데이터 영구 보존. 캐시 겸 주 DB로 사용 가능":"ElastiCache + durable data. Can serve as both cache and primary DB",
+        cost: lang==="ko"?"cache.r7g.large: ~$120/월 (ElastiCache 대비 ~20% 추가)":"cache.r7g.large: ~$120/mo (~20% premium over ElastiCache)",
+        opt: lang==="ko"?"트랜잭션 로그로 장애 시 데이터 무손실. ACL로 접근 제어":"Zero data loss via transaction log. Access control via ACL"
+      });
+    }
   }
   if(hasSearch) {
     dbServices.push({ name:"OpenSearch Service", detail:lang==="ko"?"Multi-AZ 배포":"Multi-AZ deployment", reason:lang==="ko"?"풀텍스트 검색, 로그 분석":"Full-text search, log analysis", cost:lang==="ko"?"t3.small: ~$30/월":"t3.small: ~$30/mo", opt:lang==="ko"?"UltraWarm/Cold Storage로 오래된 데이터 비용 절감":"Reduce old data costs with UltraWarm/Cold Storage" });
@@ -584,12 +605,19 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
     if(s.scale?.data_volume === "ptb" || s.scale?.data_volume === "tb") {
       dbServices.push({ name:"Amazon Redshift (Serverless)", detail:lang==="ko"?"클라우드 DW, 컬럼형 스토리지":"Cloud DW, columnar storage", reason:lang==="ko"?"대규모 집계 쿼리 고속 처리":"High-speed processing of large aggregate queries", cost:lang==="ko"?"사용 시간당 과금 (Serverless)":"Billed per usage hour (Serverless)", opt:lang==="ko"?"Redshift Spectrum으로 S3 데이터 직접 쿼리 (이동 없음)":"Query S3 data directly with Redshift Spectrum (no data movement)" });
     }
+    if(s.workload?.data_detail === "bi_dashboard") {
+      dbServices.push({ name:"Amazon QuickSight", detail:lang==="ko"?"서버리스 BI 대시보드, SPICE 인메모리 엔진":"Serverless BI dashboard, SPICE in-memory engine", reason:lang==="ko"?"Redshift·Athena·S3 데이터를 시각화하여 비즈니스 인사이트 제공":"Visualize Redshift/Athena/S3 data for business insights", cost:lang==="ko"?"작성자 $24/월, 리더 세션당 $0.30":"Author $24/mo, Reader $0.30/session", opt:lang==="ko"?"Q(자연어 질의)로 비기술 사용자도 분석 가능. 임베디드 대시보드로 앱 내 시각화":"Non-technical users can analyze with Q (natural language). Embedded dashboards for in-app visualization" });
+    }
     if(s.workload?.data_detail === "ml_pipeline") {
       dbServices.push({ name:"Amazon SageMaker", detail:lang==="ko"?"ML 모델 학습·배포·추론 플랫폼":"ML model training, deployment, and inference platform", reason:lang==="ko"?"데이터 전처리→학습→배포 파이프라인 통합 관리":"Integrated management of data preprocessing -> training -> deployment pipeline", cost:lang==="ko"?"ml.m5.xlarge 기준 ~$0.23/시간 (학습)":"~$0.23/hr based on ml.m5.xlarge (training)", opt:lang==="ko"?"SageMaker Serverless Inference로 유휴 비용 제거. Spot Training으로 학습 비용 최대 90% 절감":"Eliminate idle costs with SageMaker Serverless Inference. Up to 90% training cost savings with Spot Training" });
     }
     if(s.workload?.data_detail === "stream_analytics" && (hasSearch || s.data?.storage?.includes("s3"))) {
       dbServices.push({ name:"Amazon Kinesis Data Firehose", detail:lang==="ko"?"스트림 → S3/OpenSearch 자동 전송":"Stream -> S3/OpenSearch auto delivery", reason:lang==="ko"?"Kinesis Data Streams 데이터를 변환·압축 후 목적지로 자동 적재":"Auto-load Kinesis Data Streams data to destination after transform/compress", cost:lang==="ko"?"$0.029/GB (수집 기준)":"$0.029/GB (ingestion)", opt:lang==="ko"?"동적 파티셔닝으로 S3 쿼리 비용 절감. 버퍼 크기/시간 조정으로 비용·지연 트레이드오프 최적화":"Reduce S3 query costs with dynamic partitioning. Optimize cost/latency trade-off by adjusting buffer size/time" });
     }
+  }
+
+  if(types.includes("data") && s.workload?.data_detail === "ai_genai") {
+    dbServices.push({ name:"Amazon Bedrock", detail:lang==="ko"?"서버리스 FM API (Claude, Llama 등)":"Serverless FM API (Claude, Llama, etc.)", reason:lang==="ko"?"생성형 AI 추론, RAG, 에이전트":"Generative AI inference, RAG, agents", cost:lang==="ko"?"입력 $3/100만 토큰, 출력 $15/100만 토큰 (Sonnet 기준)":"Input $3/1M tokens, Output $15/1M tokens (Sonnet)", opt:lang==="ko"?"Knowledge Base로 RAG 자동 구성. Guardrails로 유해 콘텐츠 필터링":"Auto RAG with Knowledge Base. Harmful content filtering with Guardrails" });
   }
 
   if(dbServices.length > 0) {
@@ -627,6 +655,9 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
     }
     if(s.integration.queue_type.includes("msk")) {
       msgServices.push({ name:"MSK (Managed Kafka)", detail:lang==="ko"?"브로커 3대, Multi-AZ":"3 brokers, Multi-AZ", reason:lang==="ko"?"기존 Kafka 호환, 초고처리량":"Kafka compatible, ultra-high throughput", cost:lang==="ko"?"kafka.m5.large: ~$153/월/브로커":"kafka.m5.large: ~$153/mo/broker", opt:lang==="ko"?"MSK Serverless로 관리 부담 제거 + Tiered Storage":"Remove management burden with MSK Serverless + Tiered Storage" });
+    }
+    if(s.integration.queue_type.includes("amazon_mq")) {
+      msgServices.push({ name:"Amazon MQ", detail:lang==="ko"?"ActiveMQ/RabbitMQ Active/Standby":"ActiveMQ/RabbitMQ Active/Standby", reason:lang==="ko"?"기존 JMS/AMQP 마이그레이션, 프로토콜 호환":"Legacy JMS/AMQP migration, protocol compatibility", cost:lang==="ko"?"mq.m5.large: ~$100/월/브로커":"mq.m5.large: ~$100/mo/broker", opt:lang==="ko"?"신규 프로젝트는 SQS/SNS 권장. MQ는 마이그레이션 전용":"SQS/SNS recommended for new projects. MQ for migration only" });
     }
     layers.push({
       id:"messaging", label:lang==="ko"?"메시징/통합":"Messaging/Integration", icon:"📨", color:"#d97706", bg:"#fffbeb",

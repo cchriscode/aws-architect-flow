@@ -30,6 +30,14 @@ const dict = {
     apiGatewayDesc: "HTTP API 기준",
     alb: "ALB (Application Load Balancer)",
     albDesc: "LCU 기준",
+    nlb: "NLB (Network Load Balancer)",
+    nlbDesc: "NLCU 기준",
+    stepFunctions: "Step Functions",
+    stepFunctionsDesc: "Standard $25/100만 전환, Express $1/100만",
+    awsBatch: "AWS Batch 컴퓨트",
+    awsBatchDesc: "Batch 무료, Fargate/EC2 실행 비용",
+    ecsScheduled: "ECS Scheduled Task",
+    ecsScheduledDesc: "Fargate 실행 시간 기준",
 
     // Database items
     auroraServerless: "Aurora Serverless v2",
@@ -47,6 +55,8 @@ const dict = {
     opensearchDesc: (azNum: number) => `r6g.large × ${azNum}`,
     rdsProxy: "RDS Proxy",
     rdsProxyDesc: "Lambda→RDS 커넥션 풀링 (DB 비용의 ~15%)",
+    dax: "DAX (DynamoDB Accelerator)",
+    daxDesc: (azNum: number) => `dax.r5.large × ${azNum} 노드`,
 
     // Network items
     natGateway: (count: number) => `NAT Gateway (${count}개)`,
@@ -83,6 +93,8 @@ const dict = {
     kinesisDesc: "샤드 시간 + 데이터 처리",
     eventbridge: "EventBridge",
     eventbridgeDesc: "이벤트 건당 $1/1M",
+    msk: "MSK (Managed Kafka)",
+    mskDesc: "kafka.m5.large × 3 브로커",
 
     // Operations items
     cloudwatch: "CloudWatch (로그+메트릭+알람)",
@@ -97,6 +109,40 @@ const dict = {
     kmsDesc: "키 사용 건당 + 월 $1/키",
     controlTower: "Control Tower + AWS Config (조직)",
     controlTowerDesc: "전체 계정 감사",
+    cognito: "Cognito User Pool",
+    cognitoDesc: "첫 50K MAU 무료, 이후 $0.0055/MAU",
+    iotCore: "IoT Core",
+    iotCoreDesc: "디바이스 연결 + 메시지 $1/1M",
+    ecr: "ECR (컨테이너 레지스트리)",
+    ecrDesc: "$0.10/GB/월 이미지 저장 + 스캔",
+    documentdb: "DocumentDB",
+    documentdbDesc: "db.r6g.large 클러스터",
+    neptune: "Neptune",
+    neptuneDesc: "db.r6g.large 그래프 DB",
+    timestream: "Timestream",
+    timestreamDesc: "서버리스 시계열 DB (쓰기+쿼리)",
+    memorydb: "MemoryDB for Redis",
+    memorydbDesc: (azNum: number) => `db.r7g.large × ${azNum} 노드`,
+    amazonMq: "Amazon MQ",
+    amazonMqDesc: "mq.m5.large Active/Standby",
+    appRunner: "App Runner",
+    appRunnerDesc: "vCPU 시간 + 메모리 기준",
+    vpcLattice: "VPC Lattice",
+    vpcLatticeDesc: "요청당 + 데이터 전송 과금",
+    bedrock: "Amazon Bedrock",
+    bedrockDesc: "토큰 기반 과금 (입력+출력)",
+    athena: "Athena",
+    athenaDesc: "스캔 데이터 $5/TB",
+    redshiftServerless: "Redshift Serverless",
+    redshiftServerlessDesc: "RPU 시간당 과금, 유휴 시 무과금",
+    glue: "AWS Glue",
+    glueDesc: "DPU 시간 $0.44/시간",
+    quicksight: "QuickSight",
+    quicksightDesc: "Author $24/월, Reader $0.30/세션",
+    inspector: "Inspector",
+    inspectorDesc: "인스턴스당 $0.01/시간",
+    macie: "Macie",
+    macieDesc: "첫 1GB 무료, 이후 $1/GB",
 
     // Multi-Region items
     replicaRegion: "복제 리전 인프라",
@@ -130,6 +176,14 @@ const dict = {
     apiGatewayDesc: "Based on HTTP API",
     alb: "ALB (Application Load Balancer)",
     albDesc: "Based on LCU",
+    nlb: "NLB (Network Load Balancer)",
+    nlbDesc: "Based on NLCU",
+    stepFunctions: "Step Functions",
+    stepFunctionsDesc: "Standard $25/1M transitions, Express $1/1M",
+    awsBatch: "AWS Batch Compute",
+    awsBatchDesc: "Batch free, Fargate/EC2 execution cost only",
+    ecsScheduled: "ECS Scheduled Task",
+    ecsScheduledDesc: "Based on Fargate execution time",
 
     // Database items
     auroraServerless: "Aurora Serverless v2",
@@ -147,6 +201,8 @@ const dict = {
     opensearchDesc: (azNum: number) => `r6g.large × ${azNum}`,
     rdsProxy: "RDS Proxy",
     rdsProxyDesc: "Lambda-to-RDS connection pooling (~15% of DB cost)",
+    dax: "DAX (DynamoDB Accelerator)",
+    daxDesc: (azNum: number) => `dax.r5.large × ${azNum} nodes`,
 
     // Network items
     natGateway: (count: number) => `NAT Gateway (${count})`,
@@ -183,6 +239,8 @@ const dict = {
     kinesisDesc: "Shard hours + data processing",
     eventbridge: "EventBridge",
     eventbridgeDesc: "$1/1M events",
+    msk: "MSK (Managed Kafka)",
+    mskDesc: "kafka.m5.large × 3 brokers",
 
     // Operations items
     cloudwatch: "CloudWatch (Logs + Metrics + Alarms)",
@@ -197,6 +255,40 @@ const dict = {
     kmsDesc: "Per key usage + $1/key/mo",
     controlTower: "Control Tower + AWS Config (Organization)",
     controlTowerDesc: "Full account auditing",
+    cognito: "Cognito User Pool",
+    cognitoDesc: "First 50K MAU free, then $0.0055/MAU",
+    iotCore: "IoT Core",
+    iotCoreDesc: "Device connections + messages $1/1M",
+    ecr: "ECR (Container Registry)",
+    ecrDesc: "$0.10/GB/mo image storage + scanning",
+    documentdb: "DocumentDB",
+    documentdbDesc: "db.r6g.large cluster",
+    neptune: "Neptune",
+    neptuneDesc: "db.r6g.large graph DB",
+    timestream: "Timestream",
+    timestreamDesc: "Serverless time-series DB (writes+queries)",
+    memorydb: "MemoryDB for Redis",
+    memorydbDesc: (azNum: number) => `db.r7g.large × ${azNum} nodes`,
+    amazonMq: "Amazon MQ",
+    amazonMqDesc: "mq.m5.large Active/Standby",
+    appRunner: "App Runner",
+    appRunnerDesc: "vCPU hours + memory based",
+    vpcLattice: "VPC Lattice",
+    vpcLatticeDesc: "Per-request + data transfer billing",
+    bedrock: "Amazon Bedrock",
+    bedrockDesc: "Token-based billing (input+output)",
+    athena: "Athena",
+    athenaDesc: "Scanned data $5/TB",
+    redshiftServerless: "Redshift Serverless",
+    redshiftServerlessDesc: "Per-RPU hour billing, zero cost when idle",
+    glue: "AWS Glue",
+    glueDesc: "DPU hour $0.44/hr",
+    quicksight: "QuickSight",
+    quicksightDesc: "Author $24/mo, Reader $0.30/session",
+    inspector: "Inspector",
+    inspectorDesc: "$0.01/instance/hr",
+    macie: "Macie",
+    macieDesc: "First 1GB free, then $1/GB",
 
     // Multi-Region items
     replicaRegion: "Replica Region Infrastructure",
@@ -240,6 +332,9 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
   const syncMode = state.integration?.sync_async;
   const nodeP    = state.platform?.node_provisioner;
   const gitops   = state.platform?.gitops;
+  const apiType  = state.integration?.api_type;
+  const batchArr = toArray(state.integration?.batch_workflow).filter((v: string) => v !== "none");
+  const authArr  = toArray(state.integration?.auth);
 
   const isEks       = orchest === "eks";
   const isEcs       = !isEks && archP !== "serverless";
@@ -292,15 +387,36 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
     I(t.compute, t.lambda, t.lambdaDesc, 0, lambdaBase);
     I(t.compute, t.apiGateway, t.apiGatewayDesc, isXL ? 50 : isLarge ? 20 : 5, isXL ? 150 : isLarge ? 60 : 20);
   }
-  if (!isServerless) {
+  if (!isServerless && apiType !== "nlb") {
     I(t.compute, t.alb, t.albDesc, isXL ? 150 : isLarge ? 60 : 20, isXL ? 400 : isLarge ? 150 : 50);
+  }
+  if (apiType === "nlb") {
+    I(t.compute, t.nlb, t.nlbDesc, isXL ? 100 : isLarge ? 40 : 15, isXL ? 300 : isLarge ? 100 : 40);
   }
   if (types.includes("iot") && state.workload?.iot_detail === "industrial") {
     const greenDevices = isXL ? 500 : isLarge ? 100 : 20;
     I(t.compute, lang === "ko" ? "IoT Greengrass" : "IoT Greengrass", lang === "ko" ? `코어 디바이스 ${greenDevices}대 기준` : `Based on ${greenDevices} core devices`, Math.round(greenDevices * 0.16), Math.round(greenDevices * 0.16 * 1.5));
   }
+  if (types.includes("iot")) {
+    const iotDevices = isXL ? 10000 : isLarge ? 1000 : 100;
+    I(t.compute, t.iotCore, t.iotCoreDesc, Math.round(iotDevices * 0.001), Math.round(iotDevices * 0.005));
+  }
   if (types.includes("data") && state.workload?.data_detail === "ml_pipeline") {
     I(t.compute, "Amazon SageMaker", lang === "ko" ? "ml.m5.xlarge 노트북 + 학습 인스턴스" : "ml.m5.xlarge notebook + training instances", 138, 276);
+  }
+  if (batchArr.includes("step_functions")) {
+    I(t.compute, t.stepFunctions, t.stepFunctionsDesc, isXL ? 50 : isLarge ? 25 : 5, isXL ? 200 : isLarge ? 80 : 20);
+  }
+  if (batchArr.includes("aws_batch")) {
+    const batchBase = isXL ? 300 : isLarge ? 150 : 50;
+    I(t.compute, t.awsBatch, t.awsBatchDesc, Math.round(batchBase * Math.min(commitDiscount, spot !== "no" ? spotDiscount : 1)), Math.round(batchBase * commitDiscount));
+  }
+  if (batchArr.includes("ecs_scheduled")) {
+    I(t.compute, t.ecsScheduled, t.ecsScheduledDesc, isXL ? 30 : isLarge ? 15 : 5, isXL ? 100 : isLarge ? 50 : 15);
+  }
+  if (archP === "app_runner") {
+    const arBase = isXL ? 200 : isLarge ? 100 : 30;
+    I(t.compute, t.appRunner, t.appRunnerDesc, arBase, Math.round(arBase * 2.5));
   }
 
   // -- Database
@@ -335,6 +451,28 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
   if (isServerless && (hasAurora || hasRds)) {
     const rdsProxyBase = hasAurora ? (isXL ? 50 : isLarge ? 25 : 8) : (isXL ? 40 : isLarge ? 20 : 6);
     I(t.database, t.rdsProxy, t.rdsProxyDesc, rdsProxyBase, Math.round(rdsProxyBase * 1.5));
+  }
+  if (cache === "dax" || cache === "both") {
+    const daxBase = isXL ? 300 : isLarge ? 150 : 80;
+    I(t.database, t.dax, t.daxDesc(azNum), Math.round(daxBase * commitDiscount), Math.round(daxBase * 1.2 * commitDiscount));
+  }
+  if (dbArr.includes("documentdb")) {
+    const docdbBase = isXL ? 500 : isLarge ? 250 : 150;
+    I(t.database, t.documentdb, t.documentdbDesc,
+      Math.round(docdbBase * commitDiscount), Math.round(docdbBase * 1.2 * commitDiscount));
+  }
+  if (dbArr.includes("neptune")) {
+    const neptuneBase = isXL ? 500 : isLarge ? 250 : 200;
+    I(t.database, t.neptune, t.neptuneDesc,
+      Math.round(neptuneBase * commitDiscount), Math.round(neptuneBase * 1.2 * commitDiscount));
+  }
+  if (dbArr.includes("timestream")) {
+    I(t.database, t.timestream, t.timestreamDesc, isXL ? 100 : isLarge ? 40 : 10, isXL ? 500 : isLarge ? 200 : 50);
+  }
+  if (cache === "memorydb") {
+    const memdbBase = isXL ? 480 : isLarge ? 240 : isMedium ? 144 : 96;
+    I(t.database, t.memorydb, t.memorydbDesc(azNum),
+      Math.round(memdbBase * commitDiscount), Math.round(memdbBase * 1.2 * commitDiscount));
   }
 
   // -- Network
@@ -385,6 +523,15 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
   if (types.includes("data") && state.workload?.data_detail === "stream_analytics") {
     I(t.messaging, "Kinesis Data Firehose", lang === "ko" ? "$0.029/GB 수집 기준" : "$0.029/GB ingestion based", 30, isXL ? 150 : isLarge ? 80 : 40);
   }
+  if (queueArr.includes("msk")) {
+    I(t.messaging, t.msk, t.mskDesc, isXL ? 1500 : isLarge ? 600 : 150, isXL ? 3000 : isLarge ? 1500 : 450);
+  }
+  if (queueArr.includes("amazon_mq")) {
+    I(t.messaging, t.amazonMq, t.amazonMqDesc, isXL ? 800 : isLarge ? 400 : 100, isXL ? 1500 : isLarge ? 800 : 300);
+  }
+  if (state.platform?.service_mesh === "vpc_lattice") {
+    I(t.messaging, t.vpcLattice, t.vpcLatticeDesc, isXL ? 50 : isLarge ? 20 : 5, isXL ? 200 : isLarge ? 80 : 20);
+  }
 
   // -- Operations / Security
   I(t.operations, t.cloudwatch, t.cloudwatchDesc, isXL ? 50 : isLarge ? 25 : 10, isXL ? 200 : isLarge ? 80 : 30);
@@ -401,6 +548,33 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
   }
   if (account === "org") {
     I(t.operations, t.controlTower, t.controlTowerDesc, 30, 80);
+  }
+  if (authArr.includes("cognito")) {
+    const mau = isXL ? 100000 : isLarge ? 50000 : 10000;
+    const cognitoCost = mau <= 50000 ? 0 : Math.round((mau - 50000) * 0.0055);
+    I(t.operations, t.cognito, t.cognitoDesc, 0, cognitoCost);
+  }
+  if (isEks || isEcs) {
+    I(t.operations, t.ecr, t.ecrDesc, 1, isXL ? 20 : isLarge ? 10 : 5);
+  }
+  if (types.includes("data") && state.workload?.data_detail === "ai_genai") {
+    I(t.operations, t.bedrock, t.bedrockDesc, isXL ? 500 : isLarge ? 200 : 50, isXL ? 3000 : isLarge ? 1000 : 200);
+  }
+  // Analytics services
+  if (types.includes("data") && (state.workload?.data_detail === "log_analytics" || state.workload?.data_detail === "bi_dashboard")) {
+    I(t.operations, t.athena, t.athenaDesc, isXL ? 50 : isLarge ? 20 : 5, isXL ? 300 : isLarge ? 100 : 20);
+    I(t.operations, t.glue, t.glueDesc, isXL ? 100 : isLarge ? 40 : 10, isXL ? 400 : isLarge ? 150 : 30);
+  }
+  if (types.includes("data") && state.workload?.data_detail === "bi_dashboard") {
+    I(t.operations, t.redshiftServerless, t.redshiftServerlessDesc, isXL ? 200 : isLarge ? 80 : 20, isXL ? 800 : isLarge ? 300 : 80);
+    I(t.operations, t.quicksight, t.quicksightDesc, 24, isXL ? 500 : isLarge ? 200 : 50);
+  }
+  // Security services
+  if (hasCritCert || hasPersonalData) {
+    I(t.operations, t.inspector, t.inspectorDesc, 10, isXL ? 80 : isLarge ? 40 : 15);
+  }
+  if (cert.includes("isms_p") || cert.includes("pci") || (hasPersonalData && storArr.includes("s3"))) {
+    I(t.operations, t.macie, t.macieDesc, 0, isXL ? 100 : isLarge ? 30 : 5);
   }
 
   // -- Multi-Region

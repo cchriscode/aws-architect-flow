@@ -222,8 +222,17 @@ export function generateSecurityGroups(
     ) {
       appOutbound.push({ port: "3306", to: "db_sg (MySQL/Aurora MySQL)" });
     }
+    if (dbArr.includes("documentdb")) {
+      appOutbound.push({ port: "27017", to: "db_sg (DocumentDB)" });
+    }
+    if (dbArr.includes("neptune")) {
+      appOutbound.push({ port: "8182", to: "db_sg (Neptune)" });
+    }
     if (cache === "redis" || cache === "both") {
       appOutbound.push({ port: "6379", to: "cache_sg (ElastiCache Redis)" });
+    }
+    if (cache === "memorydb") {
+      appOutbound.push({ port: "6379", to: "cache_sg (MemoryDB Redis)" });
     }
     if (search === "opensearch") {
       appOutbound.push({ port: "443", to: "search_sg (OpenSearch HTTPS)" });
@@ -264,8 +273,17 @@ export function generateSecurityGroups(
     if (dbArr.some((d) => d.includes("mysql"))) {
       lambdaOutbound.push({ port: "3306", to: "db_sg (Aurora MySQL)" });
     }
+    if (dbArr.includes("documentdb")) {
+      lambdaOutbound.push({ port: "27017", to: "db_sg (DocumentDB)" });
+    }
+    if (dbArr.includes("neptune")) {
+      lambdaOutbound.push({ port: "8182", to: "db_sg (Neptune)" });
+    }
     if (cache === "redis" || cache === "both") {
       lambdaOutbound.push({ port: "6379", to: "cache_sg (ElastiCache)" });
+    }
+    if (cache === "memorydb") {
+      lambdaOutbound.push({ port: "6379", to: "cache_sg (MemoryDB)" });
     }
     lambdaOutbound.push({
       port: "443",
@@ -286,20 +304,38 @@ export function generateSecurityGroups(
   const hasRdbms = dbArr.some((d) =>
     ["aurora_mysql", "aurora_pg", "rds_mysql", "rds_pg"].includes(d)
   );
-  if (hasRdbms) {
-    const dbPort = dbArr.some((d) => d.includes("pg")) ? "5432" : "3306";
-    const dbInbound: { port: string; from: string }[] = [
-      {
-        port: dbPort,
-        from: isServerless
-          ? `lambda_sg (${_.db_in_app})`
-          : `app_sg (${_.db_in_app})`,
-      },
-    ];
-    if (hasCritCert) {
+  const hasDocumentDb = dbArr.includes("documentdb");
+  const hasNeptune = dbArr.includes("neptune");
+  const hasAnyDbSg = hasRdbms || hasDocumentDb || hasNeptune;
+
+  if (hasAnyDbSg) {
+    const dbInbound: { port: string; from: string }[] = [];
+    const srcSg = isServerless ? "lambda_sg" : "app_sg";
+    const srcLabel = isServerless ? _.db_in_app : _.db_in_app;
+
+    if (hasRdbms) {
+      const dbPort = dbArr.some((d) => d.includes("pg")) ? "5432" : "3306";
       dbInbound.push({
         port: dbPort,
-        from: _.db_in_bastion,
+        from: `${srcSg} (${srcLabel})`,
+      });
+      if (hasCritCert) {
+        dbInbound.push({
+          port: dbPort,
+          from: _.db_in_bastion,
+        });
+      }
+    }
+    if (hasDocumentDb) {
+      dbInbound.push({
+        port: "27017",
+        from: `${srcSg} (DocumentDB - ${srcLabel})`,
+      });
+    }
+    if (hasNeptune) {
+      dbInbound.push({
+        port: "8182",
+        from: `${srcSg} (Neptune - ${srcLabel})`,
       });
     }
 
@@ -314,11 +350,15 @@ export function generateSecurityGroups(
   }
 
   // ── Cache Security Group ────────────────────────────────────────────
-  if (cache === "redis" || cache === "both") {
+  if (cache === "redis" || cache === "both" || cache === "memorydb") {
+    const cacheName = cache === "memorydb" ? "MemoryDB Security Group" : "ElastiCache Security Group";
+    const cacheDesc = cache === "memorydb"
+      ? (lang === "ko" ? "MemoryDB는 앱에서만 접근. 직접 노출 금지" : "MemoryDB accessible from app only. Never expose directly")
+      : _.cache_desc;
     groups.push({
       id: "cache_sg",
-      name: "ElastiCache Security Group",
-      desc: _.cache_desc,
+      name: cacheName,
+      desc: cacheDesc,
       color: "#7c3aed",
       inbound: [
         {
@@ -355,6 +395,120 @@ export function generateSecurityGroups(
       ],
       outbound: [],
     });
+  }
+
+  // ── MSK Security Group ─────────────────────────────────────────────
+  const queueArr = toArrayFiltered(state.integration?.queue_type);
+  if (queueArr.includes("msk")) {
+    groups.push({
+      id: "msk_sg",
+      name: "MSK Security Group",
+      desc: lang === "ko" ? "Kafka 브로커. 앱에서만 TLS 접근" : "Kafka brokers. TLS access from app only",
+      color: "#ea580c",
+      inbound: [
+        {
+          port: "9094",
+          from: isServerless
+            ? `lambda_sg (${lang === "ko" ? "Kafka TLS 접근" : "Kafka TLS access"})`
+            : `app_sg (${lang === "ko" ? "Kafka TLS 접근" : "Kafka TLS access"})`,
+        },
+      ],
+      outbound: [],
+    });
+    // Add MSK outbound to app_sg
+    if (!isServerless) {
+      const appSg = groups.find(g => g.id === "app_sg");
+      if (appSg) appSg.outbound.push({ port: "9094", to: "msk_sg (Kafka TLS)" });
+    } else {
+      const lambdaSg = groups.find(g => g.id === "lambda_sg");
+      if (lambdaSg) lambdaSg.outbound.push({ port: "9094", to: "msk_sg (Kafka TLS)" });
+    }
+  }
+
+  // ── Amazon MQ Security Group ──────────────────────────────────────
+  if (queueArr.includes("amazon_mq")) {
+    groups.push({
+      id: "mq_sg",
+      name: "Amazon MQ Security Group",
+      desc: lang === "ko" ? "Amazon MQ 브로커. 앱에서만 AMQP TLS 접근" : "Amazon MQ brokers. AMQP TLS access from app only",
+      color: "#ea580c",
+      inbound: [
+        {
+          port: "5671",
+          from: isServerless
+            ? `lambda_sg (${lang === "ko" ? "AMQP TLS 접근" : "AMQP TLS access"})`
+            : `app_sg (${lang === "ko" ? "AMQP TLS 접근" : "AMQP TLS access"})`,
+        },
+      ],
+      outbound: [],
+    });
+    // Add MQ outbound to app_sg / lambda_sg
+    if (!isServerless) {
+      const appSg = groups.find(g => g.id === "app_sg");
+      if (appSg) appSg.outbound.push({ port: "5671", to: "mq_sg (AMQP TLS)" });
+    } else {
+      const lambdaSg = groups.find(g => g.id === "lambda_sg");
+      if (lambdaSg) lambdaSg.outbound.push({ port: "5671", to: "mq_sg (AMQP TLS)" });
+    }
+  }
+
+  // ── Services without SGs ────────────────────────────────────────────
+  // App Runner: AWS managed networking (no SG needed)
+  // VPC Lattice: AWS managed data plane (no SG needed)
+  // Timestream: Serverless HTTPS API (no SG needed)
+  // Bedrock: Serverless API (no SG needed)
+
+  // ── DAX Security Group ────────────────────────────────────────────
+  if (cache === "dax" || cache === "both") {
+    groups.push({
+      id: "dax_sg",
+      name: "DAX Security Group",
+      desc: lang === "ko" ? "DynamoDB Accelerator. 앱에서만 접근" : "DynamoDB Accelerator. App access only",
+      color: "#7c3aed",
+      inbound: [
+        {
+          port: "8111",
+          from: isServerless
+            ? `lambda_sg (${lang === "ko" ? "DAX 클러스터 접근" : "DAX cluster access"})`
+            : `app_sg (${lang === "ko" ? "DAX 클러스터 접근" : "DAX cluster access"})`,
+        },
+      ],
+      outbound: [],
+    });
+    if (!isServerless) {
+      const appSg = groups.find(g => g.id === "app_sg");
+      if (appSg) appSg.outbound.push({ port: "8111", to: "dax_sg (DAX)" });
+    } else {
+      const lambdaSg = groups.find(g => g.id === "lambda_sg");
+      if (lambdaSg) lambdaSg.outbound.push({ port: "8111", to: "dax_sg (DAX)" });
+    }
+  }
+
+  // ── EFS Security Group ────────────────────────────────────────────
+  const storArr = toArrayFiltered(state.data?.storage);
+  if (storArr.includes("efs")) {
+    groups.push({
+      id: "efs_sg",
+      name: "EFS Security Group",
+      desc: lang === "ko" ? "EFS 마운트 타겟. 앱에서만 NFS 접근" : "EFS mount targets. NFS access from app only",
+      color: "#16a34a",
+      inbound: [
+        {
+          port: "2049",
+          from: isServerless
+            ? `lambda_sg (${lang === "ko" ? "NFS 마운트" : "NFS mount"})`
+            : `app_sg (${lang === "ko" ? "NFS 마운트" : "NFS mount"})`,
+        },
+      ],
+      outbound: [],
+    });
+    if (!isServerless) {
+      const appSg = groups.find(g => g.id === "app_sg");
+      if (appSg) appSg.outbound.push({ port: "2049", to: "efs_sg (EFS NFS)" });
+    } else {
+      const lambdaSg = groups.find(g => g.id === "lambda_sg");
+      if (lambdaSg) lambdaSg.outbound.push({ port: "2049", to: "efs_sg (EFS NFS)" });
+    }
   }
 
   // ── Bastion / VPN Endpoint SG (compliance / 3-tier) ─────────────────
@@ -531,25 +685,49 @@ const lambdaSg = new ec2.SecurityGroup(this, 'LambdaSg', {
 `;
   }
 
-  if (hasRdbms) {
+  const hasDocumentDb = dbArr.includes("documentdb");
+  const hasNeptune = dbArr.includes("neptune");
+  const hasAnyDbSg = hasRdbms || hasDocumentDb || hasNeptune;
+
+  if (hasAnyDbSg) {
     code += `
 // DB Security Group
 const dbSg = new ec2.SecurityGroup(this, 'DbSg', {
   vpc, description: 'Database Security Group - No internet access', allowAllOutbound: false,
 });
-dbSg.addIngressRule(
+`;
+    if (hasRdbms) {
+      code += `dbSg.addIngressRule(
   ec2.Peer.securityGroupId(${appSgRef}.securityGroupId),
   ec2.Port.tcp(${dbPort}),
   'App to DB only'
 );
 `;
+    }
+    if (hasDocumentDb) {
+      code += `dbSg.addIngressRule(
+  ec2.Peer.securityGroupId(${appSgRef}.securityGroupId),
+  ec2.Port.tcp(27017),
+  'App to DocumentDB only'
+);
+`;
+    }
+    if (hasNeptune) {
+      code += `dbSg.addIngressRule(
+  ec2.Peer.securityGroupId(${appSgRef}.securityGroupId),
+  ec2.Port.tcp(8182),
+  'App to Neptune only'
+);
+`;
+    }
   }
 
-  if (cache === "redis" || cache === "both") {
+  if (cache === "redis" || cache === "both" || cache === "memorydb") {
+    const cacheLabel = cache === "memorydb" ? "MemoryDB" : "ElastiCache";
     code += `
 // Cache Security Group
 const cacheSg = new ec2.SecurityGroup(this, 'CacheSg', {
-  vpc, description: 'ElastiCache Security Group', allowAllOutbound: false,
+  vpc, description: '${cacheLabel} Security Group', allowAllOutbound: false,
 });
 cacheSg.addIngressRule(
   ec2.Peer.securityGroupId(${appSgRef}.securityGroupId),
@@ -561,11 +739,22 @@ ${appSgRef}.addEgressRule(ec2.Peer.securityGroupId(cacheSg.securityGroupId), ec2
 `;
   }
 
-  if (hasRdbms) {
+  if (hasAnyDbSg) {
     code += `
 // ${_.db_outbound}
-${appSgRef}.addEgressRule(ec2.Peer.securityGroupId(dbSg.securityGroupId), ec2.Port.tcp(${dbPort}), 'App to DB');
 `;
+    if (hasRdbms) {
+      code += `${appSgRef}.addEgressRule(ec2.Peer.securityGroupId(dbSg.securityGroupId), ec2.Port.tcp(${dbPort}), 'App to DB');
+`;
+    }
+    if (hasDocumentDb) {
+      code += `${appSgRef}.addEgressRule(ec2.Peer.securityGroupId(dbSg.securityGroupId), ec2.Port.tcp(27017), 'App to DocumentDB');
+`;
+    }
+    if (hasNeptune) {
+      code += `${appSgRef}.addEgressRule(ec2.Peer.securityGroupId(dbSg.securityGroupId), ec2.Port.tcp(8182), 'App to Neptune');
+`;
+    }
   }
 
   return code;
@@ -706,6 +895,10 @@ resource "aws_security_group" "${appOrLambda}" {
   }
 `;
 
+  const hasDocumentDb = dbArr.includes("documentdb");
+  const hasNeptune = dbArr.includes("neptune");
+  const hasAnyDbSg = hasRdbms || hasDocumentDb || hasNeptune;
+
   if (hasRdbms) {
     code += `  egress {
     from_port       = ${dbPort}
@@ -716,8 +909,28 @@ resource "aws_security_group" "${appOrLambda}" {
   }
 `;
   }
+  if (hasDocumentDb) {
+    code += `  egress {
+    from_port       = 27017
+    to_port         = 27017
+    protocol        = "tcp"
+    security_groups = [aws_security_group.db.id]
+    description     = "${appOrLambdaLabel} to DocumentDB"
+  }
+`;
+  }
+  if (hasNeptune) {
+    code += `  egress {
+    from_port       = 8182
+    to_port         = 8182
+    protocol        = "tcp"
+    security_groups = [aws_security_group.db.id]
+    description     = "${appOrLambdaLabel} to Neptune"
+  }
+`;
+  }
 
-  if (cache === "redis" || cache === "both") {
+  if (cache === "redis" || cache === "both" || cache === "memorydb") {
     code += `  egress {
     from_port       = 6379
     to_port         = 6379
@@ -731,14 +944,16 @@ resource "aws_security_group" "${appOrLambda}" {
   code += `}
 `;
 
-  if (hasRdbms) {
+  if (hasAnyDbSg) {
     code += `
 # ── DB Security Group
 resource "aws_security_group" "db" {
   name_prefix = "db-"
   vpc_id      = module.vpc.vpc_id
   description = "Database SG -- no internet, app/lambda only"
-
+`;
+    if (hasRdbms) {
+      code += `
   ingress {
     from_port       = ${dbPort}
     to_port         = ${dbPort}
@@ -746,18 +961,43 @@ resource "aws_security_group" "db" {
     security_groups = [aws_security_group.${appOrLambda}.id]
     description     = "From app only"
   }
-  # ${_.db_no_outbound}
+`;
+    }
+    if (hasDocumentDb) {
+      code += `
+  ingress {
+    from_port       = 27017
+    to_port         = 27017
+    protocol        = "tcp"
+    security_groups = [aws_security_group.${appOrLambda}.id]
+    description     = "DocumentDB from app only"
+  }
+`;
+    }
+    if (hasNeptune) {
+      code += `
+  ingress {
+    from_port       = 8182
+    to_port         = 8182
+    protocol        = "tcp"
+    security_groups = [aws_security_group.${appOrLambda}.id]
+    description     = "Neptune from app only"
+  }
+`;
+    }
+    code += `  # ${_.db_no_outbound}
 }
 `;
   }
 
-  if (cache === "redis" || cache === "both") {
+  if (cache === "redis" || cache === "both" || cache === "memorydb") {
+    const cacheLabel = cache === "memorydb" ? "MemoryDB" : "ElastiCache";
     code += `
 # ── Cache Security Group
 resource "aws_security_group" "cache" {
   name_prefix = "cache-"
   vpc_id      = module.vpc.vpc_id
-  description = "ElastiCache SG -- app only"
+  description = "${cacheLabel} SG -- app only"
 
   ingress {
     from_port       = 6379

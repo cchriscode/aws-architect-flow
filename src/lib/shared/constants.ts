@@ -2,7 +2,7 @@
 export const COMMITMENT_DISCOUNT = { "3yr": 0.34, "1yr": 0.65, none: 1.0 } as const;
 
 /** Fargate-specific commitment discount rates */
-export const FARGATE_COMMITMENT_DISCOUNT = { "3yr": 0.48, "1yr": 0.78, none: 1.0 } as const;
+export const FARGATE_COMMITMENT_DISCOUNT = { "3yr": 0.60, "1yr": 0.78, none: 1.0 } as const;
 
 /** Spot instance discount rates */
 export const SPOT_DISCOUNT = { heavy: 0.30, partial: 0.70, no: 1.0 } as const;

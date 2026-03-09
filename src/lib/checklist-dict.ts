@@ -561,6 +561,98 @@ export const dict: Record<string, Record<Lang, string>> = {
     ko: "한글 형태소 분석기(nori) 플러그인 설정. 샤드 수 = 노드 수 × 3 이하",
     en: "Configure Korean morphological analyzer (nori) plugin. Shards <= nodes x 3",
   },
+  // DAX
+  p4_dax_subnet: {
+    ko: "DAX 서브넷 그룹 생성",
+    en: "Create DAX subnet group",
+  },
+  p4_dax_subnet_d: {
+    ko: "프라이빗 서브넷 선택. DAX 보안 그룹(포트 8111) 연결",
+    en: "Select private subnets. Attach DAX security group (port 8111)",
+  },
+  p4_dax_cluster: {
+    ko: "DAX 클러스터 생성",
+    en: "Create DAX cluster",
+  },
+  p4_dax_cluster_d: {
+    ko: "dax.r5.large × AZ수 노드. DynamoDB SDK를 DAX SDK로 교체. 엔드포인트 확인",
+    en: "dax.r5.large × AZ count nodes. Replace DynamoDB SDK with DAX SDK. Verify endpoint",
+  },
+  // EFS
+  p4_efs_fs: {
+    ko: "EFS 파일 시스템 생성",
+    en: "Create EFS file system",
+  },
+  p4_efs_fs_d: {
+    ko: "General Purpose 성능 모드. 버스팅 스루풋 모드. 암호화=Yes",
+    en: "General Purpose performance mode. Bursting throughput mode. Encryption=Yes",
+  },
+  p4_efs_mount: {
+    ko: (n: number) => `EFS 마운트 타겟 ${n}개 생성 (AZ별)`,
+    en: (n: number) => `Create ${n} EFS mount targets (per AZ)`,
+  } as any,
+  p4_efs_mount_d: {
+    ko: "프라이빗 서브넷 배치. EFS 보안 그룹(포트 2049) 연결",
+    en: "Place in private subnets. Attach EFS security group (port 2049)",
+  },
+  // Phase 4 — DocumentDB
+  p4_docdb_cluster: { ko: "DocumentDB 클러스터 생성", en: "Create DocumentDB cluster" },
+  p4_docdb_cluster_d: { ko: "인스턴스 클래스 선택, 서브넷 그룹 설정, 파라미터 그룹 구성. MongoDB 5.0 호환 엔진", en: "Select instance class, configure subnet group and parameter group. MongoDB 5.0 compatible engine" },
+  p4_docdb_driver: { ko: "MongoDB 드라이버 연결 문자열 설정", en: "Configure MongoDB driver connection string" },
+  p4_docdb_driver_d: { ko: "기존 MongoDB 코드의 연결 문자열만 DocumentDB 엔드포인트로 변경. TLS 활성화 필수", en: "Change connection string in existing MongoDB code to DocumentDB endpoint. TLS required" },
+  // Phase 4 — Neptune
+  p4_neptune_cluster: { ko: "Neptune 클러스터 생성", en: "Create Neptune cluster" },
+  p4_neptune_cluster_d: { ko: "인스턴스 클래스 선택, 서브넷 그룹 설정. Gremlin 또는 SPARQL 엔드포인트 확인", en: "Select instance class, configure subnet group. Verify Gremlin or SPARQL endpoint" },
+  p4_neptune_loader: { ko: "데이터 로딩 (벌크 로더 또는 API)", en: "Data loading (bulk loader or API)" },
+  p4_neptune_loader_d: { ko: "CSV/JSON 파일을 S3에 업로드 후 Neptune Bulk Loader API로 초기 데이터 적재", en: "Upload CSV/JSON files to S3 then load initial data via Neptune Bulk Loader API" },
+  // Phase 4 — Timestream
+  p4_timestream_db: { ko: "Timestream 데이터베이스 생성", en: "Create Timestream database" },
+  p4_timestream_db_d: { ko: "데이터베이스 + 테이블 생성. 메모리 스토어(1~24시간) / 마그네틱 스토어(1일~수년) 보존 정책 설정", en: "Create database + table. Set retention: memory store (1-24hrs) / magnetic store (1 day to years)" },
+  // Phase 4 — MemoryDB
+  p4_memorydb_cluster: { ko: "MemoryDB 클러스터 생성", en: "Create MemoryDB cluster" },
+  p4_memorydb_cluster_d: { ko: "노드 타입 선택, 샤드 수 결정, ACL 사용자 설정, TLS 활성화", en: "Select node type, determine shard count, configure ACL users, enable TLS" },
+  // Phase 4 — Amazon MQ
+  p7_mq_broker: { ko: "Amazon MQ 브로커 생성", en: "Create Amazon MQ broker" },
+  p7_mq_broker_d: { ko: "ActiveMQ 또는 RabbitMQ 엔진 선택. Active/Standby 배포 타입으로 HA 구성", en: "Select ActiveMQ or RabbitMQ engine. Active/Standby deployment type for HA" },
+  p7_mq_queue: { ko: "큐/토픽 설정 및 접근 제어", en: "Configure queues/topics and access control" },
+  p7_mq_queue_d: { ko: "큐/토픽 생성, 사용자/그룹별 접근 권한 설정. DLQ 구성 필수", en: "Create queues/topics, set per-user/group access permissions. DLQ configuration required" },
+  // Phase 4 — App Runner
+  p3_apprunner_svc: { ko: "App Runner 서비스 생성", en: "Create App Runner service" },
+  p3_apprunner_svc_d: { ko: "ECR 이미지 또는 GitHub 소스 연결. 자동 배포 구성, 인스턴스 CPU/메모리 설정", en: "Connect ECR image or GitHub source. Configure auto-deploy, set instance CPU/memory" },
+  p3_apprunner_domain: { ko: "커스텀 도메인 + VPC Connector 설정", en: "Configure custom domain + VPC Connector" },
+  p3_apprunner_domain_d: { ko: "커스텀 도메인 연결, RDS 등 프라이빗 리소스 접근 시 VPC Connector 생성", en: "Link custom domain, create VPC Connector for accessing private resources like RDS" },
+  // Phase 4 — VPC Lattice
+  p8_lattice_network: { ko: "VPC Lattice 서비스 네트워크 생성", en: "Create VPC Lattice service network" },
+  p8_lattice_network_d: { ko: "서비스 네트워크 생성 후 VPC 연결. IAM 인증 정책 설정", en: "Create service network then associate VPCs. Configure IAM auth policy" },
+  p8_lattice_service: { ko: "서비스 정의 + 타겟 그룹 등록", en: "Define services + register target groups" },
+  p8_lattice_service_d: { ko: "각 서비스를 VPC Lattice 서비스로 등록하고 ECS/EKS/Lambda 타겟 그룹 연결", en: "Register each service as VPC Lattice service and link ECS/EKS/Lambda target groups" },
+  // Phase 4 — Bedrock
+  p4_bedrock_access: { ko: "Bedrock 모델 접근 권한 요청", en: "Request Bedrock model access" },
+  p4_bedrock_access_d: { ko: "사용할 FM 모델(Claude, Llama 등) 접근 권한 요청. 리전별로 사용 가능한 모델 확인", en: "Request access to FM models (Claude, Llama, etc.). Check available models per region" },
+  p4_bedrock_kb: { ko: "Knowledge Base 데이터 소스 구성", en: "Configure Knowledge Base data source" },
+  p4_bedrock_kb_d: { ko: "S3 버킷의 문서를 데이터 소스로 연결. 벡터 DB(OpenSearch Serverless) 자동 생성", en: "Connect S3 bucket documents as data source. Vector DB (OpenSearch Serverless) auto-created" },
+  // Phase 5 — Analytics
+  p5_athena: { ko: "Athena 쿼리 환경 구성", en: "Configure Athena query environment" },
+  p5_athena_d: { ko: "Workgroup 생성, 쿼리 결과 S3 버킷 지정. Parquet/ORC + 파티셔닝으로 비용 최적화", en: "Create Workgroup, specify query result S3 bucket. Optimize costs with Parquet/ORC + partitioning" },
+  p5_redshift: { ko: "Redshift Serverless 네임스페이스 설정", en: "Configure Redshift Serverless namespace" },
+  p5_redshift_d: { ko: "네임스페이스 + Workgroup 생성. RPU 최소/최대 설정. IAM 역할로 S3 접근 권한 부여", en: "Create namespace + Workgroup. Set RPU min/max. Grant S3 access via IAM role" },
+  p5_glue: { ko: "Glue Crawler + ETL Job 구성", en: "Configure Glue Crawler + ETL Job" },
+  p5_glue_d: { ko: "Crawler로 데이터 소스 스키마 자동 추출. ETL Job으로 S3→Redshift 또는 S3→S3 변환 파이프라인 생성", en: "Auto-extract data source schema with Crawler. Create S3->Redshift or S3->S3 transform pipeline with ETL Job" },
+  p5_quicksight: { ko: "QuickSight 계정 및 데이터 소스 연결", en: "Set up QuickSight account and data sources" },
+  p5_quicksight_d: { ko: "QuickSight Enterprise 가입. SPICE 데이터세트 생성, Redshift/Athena/S3 데이터 소스 연결", en: "Sign up for QuickSight Enterprise. Create SPICE datasets, connect Redshift/Athena/S3 data sources" },
+  p5_firehose: { ko: "Data Firehose 전송 스트림 생성", en: "Create Data Firehose delivery stream" },
+  p5_firehose_d: { ko: "소스(Kinesis/직접 PUT) → 대상(S3/Redshift/OpenSearch) 설정. 버퍼 크기·간격 조정", en: "Configure source (Kinesis/direct PUT) -> destination (S3/Redshift/OpenSearch). Adjust buffer size and interval" },
+  // Phase 5 — Security services
+  p9_guardduty: { ko: "GuardDuty 활성화 (모든 계정)", en: "Enable GuardDuty (all accounts)" },
+  p9_guardduty_d: { ko: "계정 전체 GuardDuty 활성화. Malware Protection·Runtime Monitoring 옵션 켜기. Security Hub 통합 확인", en: "Enable GuardDuty across all accounts. Enable Malware Protection and Runtime Monitoring options. Verify Security Hub integration" },
+  p9_inspector: { ko: "Inspector 활성화 및 스캔 구성", en: "Enable Inspector and configure scans" },
+  p9_inspector_d: { ko: "EC2, ECR, Lambda 스캔 모두 활성화. Security Hub 통합 확인. ECR 이미지 푸시 시 자동 스캔", en: "Enable EC2, ECR, Lambda scanning. Verify Security Hub integration. Auto-scan on ECR image push" },
+  p9_macie: { ko: "Macie 활성화 및 민감 데이터 검색 작업 생성", en: "Enable Macie and create sensitive data discovery job" },
+  p9_macie_d: { ko: "S3 버킷 전체 스캔 작업 생성. 정기 스케줄(주 1회) 설정. 민감 데이터 발견 시 알림 구성", en: "Create full S3 bucket scan job. Set periodic schedule (weekly). Configure alerts on sensitive data discovery" },
+  p9_iam_analyzer: { ko: "IAM Access Analyzer 활성화", en: "Enable IAM Access Analyzer" },
+  p9_iam_analyzer_d: { ko: "계정 레벨 분석기 생성 (무료). 외부 접근 가능 리소스 정기 검토 프로세스 수립", en: "Create account-level analyzer (free). Establish regular review process for externally accessible resources" },
+  p9_audit_manager: { ko: "Audit Manager 평가 생성", en: "Create Audit Manager assessment" },
+  p9_audit_manager_d: { ko: "규정 준수 프레임워크(ISMS/PCI DSS) 선택. 증적 자동 수집 활성화. 감사 보고서 생성 주기 설정", en: "Select compliance framework (ISMS/PCI DSS). Enable auto evidence collection. Set audit report generation schedule" },
 
   // ── Phase 5 items ──
   p5_ecr: {
@@ -666,6 +758,15 @@ export const dict: Record<string, Record<Lang, string>> = {
   p5_ecs_alb_d: {
     ko: "HTTPS 리스너(443). HTTP→HTTPS 리다이렉트. 헬스체크 경로 설정(/health)",
     en: "HTTPS listener (443). HTTP->HTTPS redirect. Set health check path (/health)",
+  },
+  // NLB
+  p5_nlb: {
+    ko: "NLB + Target Group 생성 (TCP/TLS)",
+    en: "Create NLB + Target Group (TCP/TLS)",
+  },
+  p5_nlb_d: {
+    ko: "TCP 리스너. Target Group 헬스체크(TCP). Cross-zone 로드밸런싱 확인",
+    en: "TCP listener. Target Group health check (TCP). Verify cross-zone load balancing",
   },
   p5_ecs_service: {
     ko: "ECS Service 생성",
@@ -890,6 +991,83 @@ export const dict: Record<string, Record<Lang, string>> = {
   p7_iot_rule_d: {
     ko: "Kinesis/DynamoDB/Lambda 타겟 연결. SQL 필터로 불필요 데이터 제거",
     en: "Connect Kinesis/DynamoDB/Lambda targets. Filter unnecessary data with SQL",
+  },
+  // MSK
+  p7_msk_cluster: {
+    ko: "MSK 클러스터 생성",
+    en: "Create MSK cluster",
+  },
+  p7_msk_cluster_d: {
+    ko: "kafka.m5.large × 3 브로커. KRaft 모드. 프라이빗 서브넷 배치. TLS 암호화=Yes",
+    en: "kafka.m5.large × 3 brokers. KRaft mode. Place in private subnets. TLS encryption=Yes",
+  },
+  p7_msk_topic: {
+    ko: "MSK 토픽 파티션 설계",
+    en: "Design MSK topic partitions",
+  },
+  p7_msk_topic_d: {
+    ko: "파티션 수 = max(컨슈머 수, 예상 처리량/파티션 처리량). 리텐션 기간 결정",
+    en: "Partitions = max(consumer count, expected throughput/partition throughput). Decide retention period",
+  },
+  p7_msk_iam: {
+    ko: "MSK IAM 인증 설정",
+    en: "Configure MSK IAM authentication",
+  },
+  p7_msk_iam_d: {
+    ko: "IAM 기반 인증 활성화. 프로듀서/컨슈머별 최소 권한 정책 생성",
+    en: "Enable IAM-based authentication. Create least-privilege policies per producer/consumer",
+  },
+  // Step Functions
+  p7_sfn_workflow: {
+    ko: "Step Functions 워크플로 생성",
+    en: "Create Step Functions workflow",
+  },
+  p7_sfn_workflow_d: {
+    ko: "Standard(장기 실행) vs Express(고빈도 단기) 타입 결정. ASL 정의 작성",
+    en: "Decide type: Standard (long-running) vs Express (high-frequency short). Write ASL definition",
+  },
+  p7_sfn_role: {
+    ko: "Step Functions 실행 역할 생성",
+    en: "Create Step Functions execution role",
+  },
+  p7_sfn_role_d: {
+    ko: "호출 대상 서비스(Lambda/ECS/SQS)별 최소 권한. CloudWatch Logs 쓰기 권한 포함",
+    en: "Least privilege per target service (Lambda/ECS/SQS). Include CloudWatch Logs write permission",
+  },
+  // EventBridge Scheduler
+  p7_eb_scheduler: {
+    ko: "EventBridge Scheduler 규칙 생성",
+    en: "Create EventBridge Scheduler rules",
+  },
+  p7_eb_scheduler_d: {
+    ko: "cron 또는 rate 표현식 설정. 타겟(Lambda/Step Functions) 연결. 재시도 정책 설정",
+    en: "Set cron or rate expression. Connect target (Lambda/Step Functions). Configure retry policy",
+  },
+  // ECS Scheduled Task
+  p7_ecs_scheduled: {
+    ko: "ECS 스케줄 태스크 생성",
+    en: "Create ECS scheduled task",
+  },
+  p7_ecs_scheduled_d: {
+    ko: "EventBridge 규칙 → ECS RunTask. Task Definition 지정. 서브넷/SG 설정",
+    en: "EventBridge rule -> ECS RunTask. Specify Task Definition. Configure subnet/SG",
+  },
+  // AWS Batch
+  p7_batch_env: {
+    ko: "AWS Batch 컴퓨팅 환경 생성",
+    en: "Create AWS Batch compute environment",
+  },
+  p7_batch_env_d: {
+    ko: "Fargate 또는 EC2 관리형. vCPU 최대 한도 설정. 프라이빗 서브넷 배치",
+    en: "Fargate or EC2 managed. Set max vCPU limit. Place in private subnets",
+  },
+  p7_batch_queue: {
+    ko: "AWS Batch 작업 큐 및 Job Definition 생성",
+    en: "Create AWS Batch job queue and Job Definition",
+  },
+  p7_batch_queue_d: {
+    ko: "큐 우선순위 설정. Job Definition에 vCPU/메모리/재시도 횟수 지정",
+    en: "Set queue priority. Specify vCPU/memory/retry count in Job Definition",
   },
 
   // ── Phase 8 items ──

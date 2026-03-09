@@ -166,4 +166,13 @@ export const T: Record<string, [string, string]> = {
   "comp.i.biz":["🕐 업무시간 패턴: Scheduled Scaling으로 야간/주말 인스턴스 감소 → 비용 30~50% 절감","Business hours pattern: reduce instances at night/weekends with Scheduled Scaling for 30-50% savings"],
   "comp.i.ultra":["🚀 초당 10,000+ RPS: ALB 미리 워밍 요청(AWS 지원팀), Connection Draining 타임아웃 최적화, ECS 최소 Task 수 50+ 유지","10,000+ RPS: pre-warm ALB (AWS support), optimize Connection Draining timeout, maintain 50+ minimum ECS Tasks"],
   "comp.i.high":["📈 초당 1,000~10,000 RPS: Auto Scaling 쿨다운 시간을 60초로 단축, 예상 피크 30분 전 사전 Scaling 이벤트 등록","1,000-10,000 RPS: shorten Auto Scaling cooldown to 60s, register pre-scaling events 30min before expected peak"],
+  // --- Phase 4: New Services ---
+  "db.docdb.detail":["MongoDB 호환 문서형 DB","MongoDB-compatible document DB"],
+  "db.neptune.detail":["그래프 쿼리 엔진 (Gremlin/SPARQL)","Graph query engine (Gremlin/SPARQL)"],
+  "db.timestream.detail":["시계열 전용 서버리스 DB","Serverless time-series DB"],
+  "cache.memorydb.detail":["내구성 보장 Redis","Durable Redis"],
+  "msg.mq.detail":["ActiveMQ/RabbitMQ 관리형","Managed ActiveMQ/RabbitMQ"],
+  "comp.apprunner.detail":["완전관리형 컨테이너 서비스","Fully managed container service"],
+  "mesh.lattice.detail":["애플리케이션 레이어 서비스 네트워킹","Application-layer service networking"],
+  "ai.bedrock.detail":["관리형 생성형 AI 서비스","Managed generative AI service"],
 };

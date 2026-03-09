@@ -30,6 +30,9 @@ const ADVANCED_OPTIONS: Record<string, AdvancedOption> = {
   cfn:              { minExp: "mid", message: "CloudFormation YAML\uC740 \uC7A5\uD669\uD574\uC9C0\uAE30 \uC27D\uC2B5\uB2C8\uB2E4. Terraform\uC774 \uD559\uC2B5 \uC790\uB8CC\uAC00 \uB354 \uB9CE\uC2B5\uB2C8\uB2E4." },
   opensearch:       { minExp: "mid", message: "OpenSearch \uD074\uB7EC\uC2A4\uD130 \uAD00\uB9AC/\uC778\uB371\uC2F1 \uACBD\uD5D8\uC774 \uD544\uC694\uD569\uB2C8\uB2E4. DB \uAC80\uC0C9\uC73C\uB85C \uCDA9\uBD84\uD55C\uC9C0 \uBA3C\uC800 \uD655\uC778\uD558\uC138\uC694." },
   kinesis:          { minExp: "mid", message: "\uC2E4\uC2DC\uAC04 \uC2A4\uD2B8\uB9BC \uCC98\uB9AC\uB294 \uC0E4\uB4DC \uAD00\uB9AC \uACBD\uD5D8\uC774 \uD544\uC694\uD569\uB2C8\uB2E4. SQS\uAC00 \uB354 \uC27D\uC2B5\uB2C8\uB2E4." },
+  documentdb:       { minExp: "mid", message: "DocumentDB 클러스터 관리와 MongoDB 쿼리 최적화 경험이 필요합니다. 단순 CRUD만 필요하면 DynamoDB가 더 쉽습니다." },
+  neptune:          { minExp: "mid", message: "Gremlin 또는 SPARQL 쿼리 언어 학습이 필요합니다. 단순 관계 데이터는 RDS JOIN으로 충분합니다." },
+  amazon_mq:        { minExp: "mid", message: "브로커 관리와 JMS/AMQP 프로토콜 이해가 필요합니다. 신규 프로젝트는 SQS/SNS가 더 쉽습니다." },
 };
 
 // Context-aware warnings (shown regardless of team level)
@@ -98,6 +101,12 @@ const CONTEXT_WARNINGS: Record<string, ContextWarning> = {
     },
     level: "caution",
     message: "Blue/Green은 배포 시 2배 리소스가 필요합니다. Rolling이 무료 대안입니다.",
+  },
+  // App Mesh - EOL Sept 2026
+  aws_app_mesh: {
+    check: () => true,
+    level: "warning",
+    message: "AWS App Mesh는 2026년 9월 지원 종료 예정입니다. VPC Lattice 또는 ECS Service Connect로 마이그레이션을 계획하세요.",
   },
   // Network - private is very restrictive
   private: {

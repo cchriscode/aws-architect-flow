@@ -94,6 +94,14 @@ exports[`getRecommendations snapshots > b2b_saas (en) 1`] = `
     "badge": "⭐ Standard for SaaS/B2B",
     "reason": "Tenant data isolation with PostgreSQL Row-Level Security. Flexible schema with JSON support",
   },
+  "data.primary_db.documentdb": {
+    "badge": "✨ MongoDB migration",
+    "reason": "Migrate existing MongoDB code to AWS managed without changes. MongoDB 5.0 compatible",
+  },
+  "data.primary_db.neptune": {
+    "badge": "✨ Relationship-centric data",
+    "reason": "Social networks, fraud detection, recommendation engines. Optimized for exploring data relationships",
+  },
   "data.primary_db.rds_mysql": {
     "badge": "⚠️ Aurora recommended for high availability",
     "reason": "Aurora MySQL recommended for 99.95%+ availability targets. Faster failover than RDS MySQL + up to 15 Read Replicas",
@@ -149,6 +157,10 @@ exports[`getRecommendations snapshots > b2b_saas (en) 1`] = `
   "integration.batch_workflow.none": {
     "badge": "✨ Batch unnecessary",
     "reason": "Real-time processing alone is sufficient. Add EventBridge Scheduler when settlement/reports are needed later",
+  },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ On-premises MQ migration",
+    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
   },
   "integration.queue_type.eventbridge": {
     "badge": "✨ Recommended for event routing",
@@ -407,6 +419,14 @@ exports[`getRecommendations snapshots > b2b_saas (ko) 1`] = `
     "badge": "⭐ SaaS/B2B 표준",
     "reason": "PostgreSQL Row-Level Security로 테넌트 데이터 격리. JSON 지원으로 유연한 스키마",
   },
+  "data.primary_db.documentdb": {
+    "badge": "✨ MongoDB 마이그레이션",
+    "reason": "기존 MongoDB 코드를 변경 없이 AWS 관리형으로 전환. MongoDB 5.0 호환",
+  },
+  "data.primary_db.neptune": {
+    "badge": "✨ 관계 중심 데이터",
+    "reason": "소셜 네트워크, 사기 탐지, 추천 엔진. 데이터 간 관계 탐색에 최적화",
+  },
   "data.primary_db.rds_mysql": {
     "badge": "⚠️ 고가용성 시 Aurora 권장",
     "reason": "99.95%+ 가용성 목표 시 Aurora MySQL 권장. RDS MySQL 대비 빠른 장애조치 + 최대 15 Read Replica 지원",
@@ -462,6 +482,10 @@ exports[`getRecommendations snapshots > b2b_saas (ko) 1`] = `
   "integration.batch_workflow.none": {
     "badge": "✨ 배치 불필요",
     "reason": "실시간 처리만으로 충분. 추후 정산·리포트 필요 시 EventBridge Scheduler 추가",
+  },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ 온프레미스 MQ 마이그레이션",
+    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
   },
   "integration.queue_type.eventbridge": {
     "badge": "✨ 이벤트 라우팅 권장",
@@ -720,6 +744,10 @@ exports[`getRecommendations snapshots > compliance (en) 1`] = `
     "badge": "⭐ Required for transactional/realtime services",
     "reason": "No Spot for payment/ticketing/chat servers. Server interruption causes transaction loss",
   },
+  "data.cache.memorydb": {
+    "badge": "✨ Durability required",
+    "reason": "When cache data loss is business-critical. ~20% more than ElastiCache but zero data loss",
+  },
   "data.cache.redis": {
     "badge": "⭐ Required for mid-to-large services",
     "reason": "ElastiCache Redis: 70% DB load reduction. Industry standard for session, product, and cart caching",
@@ -731,6 +759,14 @@ exports[`getRecommendations snapshots > compliance (en) 1`] = `
   "data.primary_db.aurora_mysql": {
     "badge": "⭐ Standard for e-commerce/general services",
     "reason": "Orders, payments, members: Aurora MySQL Serverless v2. Based on AWS e-commerce reference architecture",
+  },
+  "data.primary_db.documentdb": {
+    "badge": "✨ MongoDB migration",
+    "reason": "Migrate existing MongoDB code to AWS managed without changes. MongoDB 5.0 compatible",
+  },
+  "data.primary_db.neptune": {
+    "badge": "✨ Relationship-centric data",
+    "reason": "Social networks, fraud detection, recommendation engines. Optimized for exploring data relationships",
   },
   "data.primary_db.rds_mysql": {
     "badge": "⚠️ Aurora recommended for high availability",
@@ -783,6 +819,10 @@ exports[`getRecommendations snapshots > compliance (en) 1`] = `
   "integration.batch_workflow.step_functions": {
     "badge": "✨ Complex workflows",
     "reason": "Complex state management for order-payment-inventory-shipping. Visual workflows + automated retries",
+  },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ On-premises MQ migration",
+    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
   },
   "integration.queue_type.sns": {
     "badge": "✨ Standard for multi-system notifications",
@@ -887,6 +927,10 @@ exports[`getRecommendations snapshots > compliance (en) 1`] = `
   "platform.service_mesh.none": {
     "badge": "⭐ Sufficient for most EKS services",
     "reason": "Network Policy + mTLS is sufficient without Service Mesh. Minimize operational complexity",
+  },
+  "platform.service_mesh.vpc_lattice": {
+    "badge": "⭐ Latest service mesh",
+    "reason": "App Mesh (2026 EOL) replacement. Works with all compute (ECS/EKS/Lambda). Beginner-friendly",
   },
   "scale.data_volume.gb": {
     "badge": "✨ Ideal for general services",
@@ -1053,6 +1097,10 @@ exports[`getRecommendations snapshots > compliance (ko) 1`] = `
     "badge": "⭐ 거래/실시간 서비스 필수",
     "reason": "결제·티켓팅·채팅 서버 Spot 사용 금지. 서버 중단 시 트랜잭션 손실 발생",
   },
+  "data.cache.memorydb": {
+    "badge": "✨ 내구성 필수",
+    "reason": "캐시 데이터 손실이 비즈니스에 치명적일 때. ElastiCache보다 ~20% 비싸지만 데이터 무손실",
+  },
   "data.cache.redis": {
     "badge": "⭐ 중대형 서비스 필수",
     "reason": "ElastiCache Redis: DB 부하 70% 절감. 세션·상품·장바구니 캐시의 업계 표준",
@@ -1064,6 +1112,14 @@ exports[`getRecommendations snapshots > compliance (ko) 1`] = `
   "data.primary_db.aurora_mysql": {
     "badge": "⭐ 이커머스/일반 서비스 표준",
     "reason": "주문·결제·회원: Aurora MySQL Serverless v2. AWS 이커머스 레퍼런스 아키텍처 기준",
+  },
+  "data.primary_db.documentdb": {
+    "badge": "✨ MongoDB 마이그레이션",
+    "reason": "기존 MongoDB 코드를 변경 없이 AWS 관리형으로 전환. MongoDB 5.0 호환",
+  },
+  "data.primary_db.neptune": {
+    "badge": "✨ 관계 중심 데이터",
+    "reason": "소셜 네트워크, 사기 탐지, 추천 엔진. 데이터 간 관계 탐색에 최적화",
   },
   "data.primary_db.rds_mysql": {
     "badge": "⚠️ 고가용성 시 Aurora 권장",
@@ -1116,6 +1172,10 @@ exports[`getRecommendations snapshots > compliance (ko) 1`] = `
   "integration.batch_workflow.step_functions": {
     "badge": "✨ 복잡한 워크플로우",
     "reason": "주문-결제-재고-배송의 복잡한 상태 관리. 시각적 워크플로우 + 재시도 자동화",
+  },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ 온프레미스 MQ 마이그레이션",
+    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
   },
   "integration.queue_type.sns": {
     "badge": "✨ 멀티 시스템 알림 표준",
@@ -1220,6 +1280,10 @@ exports[`getRecommendations snapshots > compliance (ko) 1`] = `
   "platform.service_mesh.none": {
     "badge": "⭐ 대부분 EKS 서비스 충분",
     "reason": "Service Mesh 없이도 Network Policy + mTLS로 충분. 운영 복잡도 최소화",
+  },
+  "platform.service_mesh.vpc_lattice": {
+    "badge": "⭐ 최신 서비스 메시",
+    "reason": "App Mesh(2026 EOL) 대체. 모든 컴퓨트(ECS/EKS/Lambda)에서 사용 가능. 입문자도 가능",
   },
   "scale.data_volume.gb": {
     "badge": "✨ 일반 서비스 적정",
@@ -1402,6 +1466,10 @@ exports[`getRecommendations snapshots > data_pipeline (en) 1`] = `
     "badge": "✨ MVP PostgreSQL cost savings",
     "reason": "RDS PostgreSQL t4g.micro: ~$18/month in Seoul region. ~20% cheaper than Aurora PostgreSQL. Advanced features like JSONB and arrays available",
   },
+  "data.primary_db.timestream": {
+    "badge": "✨ Time-series specialized",
+    "reason": "Optimized for IoT sensors, server metrics, financial time-series. Serverless with no management burden",
+  },
   "data.search.no": {
     "badge": "✨ Search unnecessary",
     "reason": "DB index lookups are sufficient. LIKE queries are also viable under 1M records",
@@ -1441,6 +1509,10 @@ exports[`getRecommendations snapshots > data_pipeline (en) 1`] = `
   "integration.batch_workflow.aws_batch": {
     "badge": "⭐ Required for large-volume batch",
     "reason": "ML training, settlement, large data transformation: 70% cost savings with Spot + Auto Scaling",
+  },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ On-premises MQ migration",
+    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
   },
   "integration.queue_type.eventbridge": {
     "badge": "✨ Recommended for event routing",
@@ -1526,6 +1598,10 @@ exports[`getRecommendations snapshots > data_pipeline (en) 1`] = `
     "badge": "⭐ Sufficient for most EKS services",
     "reason": "Network Policy + mTLS is sufficient without Service Mesh. Minimize operational complexity",
   },
+  "platform.service_mesh.vpc_lattice": {
+    "badge": "⭐ Latest service mesh",
+    "reason": "App Mesh (2026 EOL) replacement. Works with all compute (ECS/EKS/Lambda). Beginner-friendly",
+  },
   "scale.data_volume.ptb": {
     "badge": "⭐ Large-scale data strategy needed",
     "reason": "S3 data lake + Athena analytics. Automate moving old data to Glacier",
@@ -1577,6 +1653,10 @@ exports[`getRecommendations snapshots > data_pipeline (en) 1`] = `
   "team.team_size.solo": {
     "badge": "✨ Optimal for solo MVP",
     "reason": "Lambda + Aurora Serverless + Cognito: A stack that runs with zero servers",
+  },
+  "workload.data_detail.ai_genai": {
+    "badge": "✨ Generative AI based",
+    "reason": "Optimal for LLM-powered services. Call Claude, Llama models via Amazon Bedrock API",
   },
 }
 `;
@@ -1691,6 +1771,10 @@ exports[`getRecommendations snapshots > data_pipeline (ko) 1`] = `
     "badge": "✨ MVP PostgreSQL 비용 절감",
     "reason": "RDS PostgreSQL t4g.micro: 서울 리전 월 약 $18. Aurora PG보다 약 20% 저렴. JSONB·배열 등 고급 기능 활용 가능",
   },
+  "data.primary_db.timestream": {
+    "badge": "✨ 시계열 특화",
+    "reason": "IoT 센서, 서버 메트릭, 금융 시계열 데이터에 최적화. 서버리스로 관리 부담 없음",
+  },
   "data.search.no": {
     "badge": "✨ 검색 불필요",
     "reason": "DB 인덱스 조회로 충분. 데이터 100만 건 미만이면 LIKE 쿼리도 가능",
@@ -1730,6 +1814,10 @@ exports[`getRecommendations snapshots > data_pipeline (ko) 1`] = `
   "integration.batch_workflow.aws_batch": {
     "badge": "⭐ 대용량 배치 필수",
     "reason": "ML 학습·정산·대용량 데이터 변환: Spot으로 70% 비용 절감 + 자동 확장",
+  },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ 온프레미스 MQ 마이그레이션",
+    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
   },
   "integration.queue_type.eventbridge": {
     "badge": "✨ 이벤트 라우팅 권장",
@@ -1815,6 +1903,10 @@ exports[`getRecommendations snapshots > data_pipeline (ko) 1`] = `
     "badge": "⭐ 대부분 EKS 서비스 충분",
     "reason": "Service Mesh 없이도 Network Policy + mTLS로 충분. 운영 복잡도 최소화",
   },
+  "platform.service_mesh.vpc_lattice": {
+    "badge": "⭐ 최신 서비스 메시",
+    "reason": "App Mesh(2026 EOL) 대체. 모든 컴퓨트(ECS/EKS/Lambda)에서 사용 가능. 입문자도 가능",
+  },
   "scale.data_volume.ptb": {
     "badge": "⭐ 대용량 전략 필요",
     "reason": "S3 데이터 레이크 + Athena 분석. Glacier로 오래된 데이터 이동 자동화 필수",
@@ -1866,6 +1958,10 @@ exports[`getRecommendations snapshots > data_pipeline (ko) 1`] = `
   "team.team_size.solo": {
     "badge": "✨ 1인 MVP 최적",
     "reason": "Lambda + Aurora Serverless + Cognito: 서버 0대 운영 가능한 스택",
+  },
+  "workload.data_detail.ai_genai": {
+    "badge": "✨ 생성형 AI 기반",
+    "reason": "LLM 활용 서비스에 최적. Amazon Bedrock으로 Claude, Llama 등 모델 API 호출",
   },
 }
 `;
@@ -1936,6 +2032,10 @@ exports[`getRecommendations snapshots > ecommerce_mvp (en) 1`] = `
     "badge": "⭐ Required for personal data services",
     "reason": "App+DB fully isolated in private subnets. No direct DB access from the internet",
   },
+  "compute.arch_pattern.app_runner": {
+    "badge": "⭐ Best for MVP+beginners",
+    "reason": "Fastest way to start a container service. No VPC setup needed, auto TLS and scaling",
+  },
   "compute.arch_pattern.container": {
     "badge": "⭐ Standard for most services",
     "reason": "Environment consistency with Docker containers. Zero server management with ECS Fargate. AWS recommended default",
@@ -1968,6 +2068,10 @@ exports[`getRecommendations snapshots > ecommerce_mvp (en) 1`] = `
     "badge": "⭐ Required for transactional/realtime services",
     "reason": "No Spot for payment/ticketing/chat servers. Server interruption causes transaction loss",
   },
+  "data.cache.memorydb": {
+    "badge": "✨ Durability required",
+    "reason": "When cache data loss is business-critical. ~20% more than ElastiCache but zero data loss",
+  },
   "data.cache.no": {
     "badge": "✨ Unnecessary for small scale",
     "reason": "Under 10K DAU, DB alone is sufficient without cache. Minimizing complexity takes priority",
@@ -1983,6 +2087,14 @@ exports[`getRecommendations snapshots > ecommerce_mvp (en) 1`] = `
   "data.primary_db.aurora_mysql": {
     "badge": "⭐ Standard for e-commerce/general services",
     "reason": "Orders, payments, members: Aurora MySQL Serverless v2. Based on AWS e-commerce reference architecture",
+  },
+  "data.primary_db.documentdb": {
+    "badge": "✨ MongoDB migration",
+    "reason": "Migrate existing MongoDB code to AWS managed without changes. MongoDB 5.0 compatible",
+  },
+  "data.primary_db.neptune": {
+    "badge": "✨ Relationship-centric data",
+    "reason": "Social networks, fraud detection, recommendation engines. Optimized for exploring data relationships",
   },
   "data.search.db_search": {
     "badge": "✨ Suitable for small-scale early stage",
@@ -2023,6 +2135,10 @@ exports[`getRecommendations snapshots > ecommerce_mvp (en) 1`] = `
   "integration.batch_workflow.ecs_scheduled": {
     "badge": "✨ Post-event batch",
     "reason": "Run settlement and statistics aggregation as ECS Tasks after events. Reuse ECS cluster",
+  },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ On-premises MQ migration",
+    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
   },
   "integration.queue_type.sqs": {
     "badge": "⭐ Standard for order/payment processing",
@@ -2103,6 +2219,10 @@ exports[`getRecommendations snapshots > ecommerce_mvp (en) 1`] = `
   "platform.service_mesh.none": {
     "badge": "⭐ Sufficient for most EKS services",
     "reason": "Network Policy + mTLS is sufficient without Service Mesh. Minimize operational complexity",
+  },
+  "platform.service_mesh.vpc_lattice": {
+    "badge": "⭐ Latest service mesh",
+    "reason": "App Mesh (2026 EOL) replacement. Works with all compute (ECS/EKS/Lambda). Beginner-friendly",
   },
   "scale.data_volume.gb": {
     "badge": "✨ Ideal for general services",
@@ -2257,6 +2377,10 @@ exports[`getRecommendations snapshots > ecommerce_mvp (ko) 1`] = `
     "badge": "⭐ 개인정보 서비스 필수",
     "reason": "앱+DB 프라이빗 서브넷 완전 격리. 인터넷에서 DB 직접 접근 불가",
   },
+  "compute.arch_pattern.app_runner": {
+    "badge": "⭐ MVP+입문자 최적",
+    "reason": "가장 빠르게 컨테이너 서비스 시작. VPC 설정 불필요, 자동 TLS·스케일링",
+  },
   "compute.arch_pattern.container": {
     "badge": "⭐ 대부분 서비스 표준",
     "reason": "Docker 컨테이너로 환경 일관성. ECS Fargate로 서버 관리 제로. AWS 권장 기본",
@@ -2289,6 +2413,10 @@ exports[`getRecommendations snapshots > ecommerce_mvp (ko) 1`] = `
     "badge": "⭐ 거래/실시간 서비스 필수",
     "reason": "결제·티켓팅·채팅 서버 Spot 사용 금지. 서버 중단 시 트랜잭션 손실 발생",
   },
+  "data.cache.memorydb": {
+    "badge": "✨ 내구성 필수",
+    "reason": "캐시 데이터 손실이 비즈니스에 치명적일 때. ElastiCache보다 ~20% 비싸지만 데이터 무손실",
+  },
   "data.cache.no": {
     "badge": "✨ 소규모 불필요",
     "reason": "DAU 1만 미만은 캐시 없이 DB만으로 충분. 복잡도 최소화가 우선",
@@ -2304,6 +2432,14 @@ exports[`getRecommendations snapshots > ecommerce_mvp (ko) 1`] = `
   "data.primary_db.aurora_mysql": {
     "badge": "⭐ 이커머스/일반 서비스 표준",
     "reason": "주문·결제·회원: Aurora MySQL Serverless v2. AWS 이커머스 레퍼런스 아키텍처 기준",
+  },
+  "data.primary_db.documentdb": {
+    "badge": "✨ MongoDB 마이그레이션",
+    "reason": "기존 MongoDB 코드를 변경 없이 AWS 관리형으로 전환. MongoDB 5.0 호환",
+  },
+  "data.primary_db.neptune": {
+    "badge": "✨ 관계 중심 데이터",
+    "reason": "소셜 네트워크, 사기 탐지, 추천 엔진. 데이터 간 관계 탐색에 최적화",
   },
   "data.search.db_search": {
     "badge": "✨ 소규모 초기 적합",
@@ -2344,6 +2480,10 @@ exports[`getRecommendations snapshots > ecommerce_mvp (ko) 1`] = `
   "integration.batch_workflow.ecs_scheduled": {
     "badge": "✨ 이벤트 후 배치",
     "reason": "이벤트 종료 후 정산·통계 집계를 ECS Task로 실행. ECS 클러스터 재사용",
+  },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ 온프레미스 MQ 마이그레이션",
+    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
   },
   "integration.queue_type.sqs": {
     "badge": "⭐ 주문/결제 처리 표준",
@@ -2424,6 +2564,10 @@ exports[`getRecommendations snapshots > ecommerce_mvp (ko) 1`] = `
   "platform.service_mesh.none": {
     "badge": "⭐ 대부분 EKS 서비스 충분",
     "reason": "Service Mesh 없이도 Network Policy + mTLS로 충분. 운영 복잡도 최소화",
+  },
+  "platform.service_mesh.vpc_lattice": {
+    "badge": "⭐ 최신 서비스 메시",
+    "reason": "App Mesh(2026 EOL) 대체. 모든 컴퓨트(ECS/EKS/Lambda)에서 사용 가능. 입문자도 가능",
   },
   "scale.data_volume.gb": {
     "badge": "✨ 일반 서비스 적정",
@@ -2646,9 +2790,17 @@ exports[`getRecommendations snapshots > eks_full (en) 1`] = `
     "badge": "⭐ Standard for SaaS/B2B",
     "reason": "Tenant data isolation with PostgreSQL Row-Level Security. Flexible schema with JSON support",
   },
+  "data.primary_db.documentdb": {
+    "badge": "✨ MongoDB migration",
+    "reason": "Migrate existing MongoDB code to AWS managed without changes. MongoDB 5.0 compatible",
+  },
   "data.primary_db.dynamodb": {
     "badge": "⭐ Required for high-performance/IoT",
     "reason": "Tens of thousands of reads/writes per second + Auto Scaling. Optimal for atomic ticket inventory processing",
+  },
+  "data.primary_db.neptune": {
+    "badge": "✨ Relationship-centric data",
+    "reason": "Social networks, fraud detection, recommendation engines. Optimized for exploring data relationships",
   },
   "data.primary_db.rds_mysql": {
     "badge": "⚠️ Aurora recommended for high availability",
@@ -2717,6 +2869,10 @@ exports[`getRecommendations snapshots > eks_full (en) 1`] = `
   "integration.batch_workflow.none": {
     "badge": "✨ Batch unnecessary",
     "reason": "Real-time processing alone is sufficient. Add EventBridge Scheduler when settlement/reports are needed later",
+  },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ On-premises MQ migration",
+    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
   },
   "integration.queue_type.eventbridge": {
     "badge": "✨ Recommended for event routing",
@@ -3047,9 +3203,17 @@ exports[`getRecommendations snapshots > eks_full (ko) 1`] = `
     "badge": "⭐ SaaS/B2B 표준",
     "reason": "PostgreSQL Row-Level Security로 테넌트 데이터 격리. JSON 지원으로 유연한 스키마",
   },
+  "data.primary_db.documentdb": {
+    "badge": "✨ MongoDB 마이그레이션",
+    "reason": "기존 MongoDB 코드를 변경 없이 AWS 관리형으로 전환. MongoDB 5.0 호환",
+  },
   "data.primary_db.dynamodb": {
     "badge": "⭐ 고성능/IoT 필수",
     "reason": "초당 수만 건 읽기/쓰기 + 자동 확장. 티켓팅 재고 원자적 처리에 최적의 선택",
+  },
+  "data.primary_db.neptune": {
+    "badge": "✨ 관계 중심 데이터",
+    "reason": "소셜 네트워크, 사기 탐지, 추천 엔진. 데이터 간 관계 탐색에 최적화",
   },
   "data.primary_db.rds_mysql": {
     "badge": "⚠️ 고가용성 시 Aurora 권장",
@@ -3118,6 +3282,10 @@ exports[`getRecommendations snapshots > eks_full (ko) 1`] = `
   "integration.batch_workflow.none": {
     "badge": "✨ 배치 불필요",
     "reason": "실시간 처리만으로 충분. 추후 정산·리포트 필요 시 EventBridge Scheduler 추가",
+  },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ 온프레미스 MQ 마이그레이션",
+    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
   },
   "integration.queue_type.eventbridge": {
     "badge": "✨ 이벤트 라우팅 권장",
@@ -3368,6 +3536,10 @@ exports[`getRecommendations snapshots > generic_web_api (en) 1`] = `
     "badge": "⭐ Required for personal data services",
     "reason": "App+DB fully isolated in private subnets. No direct DB access from the internet",
   },
+  "compute.arch_pattern.app_runner": {
+    "badge": "⭐ Best for MVP+beginners",
+    "reason": "Fastest way to start a container service. No VPC setup needed, auto TLS and scaling",
+  },
   "compute.arch_pattern.container": {
     "badge": "⭐ Standard for most services",
     "reason": "Environment consistency with Docker containers. Zero server management with ECS Fargate. AWS recommended default",
@@ -3460,6 +3632,10 @@ exports[`getRecommendations snapshots > generic_web_api (en) 1`] = `
     "badge": "✨ Batch unnecessary",
     "reason": "Real-time processing alone is sufficient. Add EventBridge Scheduler when settlement/reports are needed later",
   },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ On-premises MQ migration",
+    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
+  },
   "network.account_structure.single": {
     "badge": "✨ Ideal for small scale",
     "reason": "Start with single account + per-environment namespaces. Migrate to multi-account as team grows",
@@ -3535,6 +3711,10 @@ exports[`getRecommendations snapshots > generic_web_api (en) 1`] = `
   "platform.service_mesh.none": {
     "badge": "⭐ Sufficient for most EKS services",
     "reason": "Network Policy + mTLS is sufficient without Service Mesh. Minimize operational complexity",
+  },
+  "platform.service_mesh.vpc_lattice": {
+    "badge": "⭐ Latest service mesh",
+    "reason": "App Mesh (2026 EOL) replacement. Works with all compute (ECS/EKS/Lambda). Beginner-friendly",
   },
   "scale.data_volume.gb": {
     "badge": "✨ Ideal for general services",
@@ -3649,6 +3829,10 @@ exports[`getRecommendations snapshots > generic_web_api (ko) 1`] = `
     "badge": "⭐ 개인정보 서비스 필수",
     "reason": "앱+DB 프라이빗 서브넷 완전 격리. 인터넷에서 DB 직접 접근 불가",
   },
+  "compute.arch_pattern.app_runner": {
+    "badge": "⭐ MVP+입문자 최적",
+    "reason": "가장 빠르게 컨테이너 서비스 시작. VPC 설정 불필요, 자동 TLS·스케일링",
+  },
   "compute.arch_pattern.container": {
     "badge": "⭐ 대부분 서비스 표준",
     "reason": "Docker 컨테이너로 환경 일관성. ECS Fargate로 서버 관리 제로. AWS 권장 기본",
@@ -3741,6 +3925,10 @@ exports[`getRecommendations snapshots > generic_web_api (ko) 1`] = `
     "badge": "✨ 배치 불필요",
     "reason": "실시간 처리만으로 충분. 추후 정산·리포트 필요 시 EventBridge Scheduler 추가",
   },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ 온프레미스 MQ 마이그레이션",
+    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
+  },
   "network.account_structure.single": {
     "badge": "✨ 소규모 적정",
     "reason": "단일 계정 + 환경별 네임스페이스로 시작. 팀 성장 후 멀티 계정으로 마이그레이션",
@@ -3816,6 +4004,10 @@ exports[`getRecommendations snapshots > generic_web_api (ko) 1`] = `
   "platform.service_mesh.none": {
     "badge": "⭐ 대부분 EKS 서비스 충분",
     "reason": "Service Mesh 없이도 Network Policy + mTLS로 충분. 운영 복잡도 최소화",
+  },
+  "platform.service_mesh.vpc_lattice": {
+    "badge": "⭐ 최신 서비스 메시",
+    "reason": "App Mesh(2026 EOL) 대체. 모든 컴퓨트(ECS/EKS/Lambda)에서 사용 가능. 입문자도 가능",
   },
   "scale.data_volume.gb": {
     "badge": "✨ 일반 서비스 적정",
@@ -3938,6 +4130,10 @@ exports[`getRecommendations snapshots > internal_tool (en) 1`] = `
     "badge": "✨ Ideal for internal tools",
     "reason": "Basic public+private separation. Security Groups for inter-server access control",
   },
+  "compute.arch_pattern.app_runner": {
+    "badge": "⭐ Best for MVP+beginners",
+    "reason": "Fastest way to start a container service. No VPC setup needed, auto TLS and scaling",
+  },
   "compute.arch_pattern.serverless": {
     "badge": "✨ Optimal for MVP/small scale",
     "reason": "Lambda + API GW: Zero servers. Deploy code and serve immediately. Zero cost with no traffic / Cost first + small scale: Lambda costs zero with no traffic. The cheapest starting point",
@@ -4022,6 +4218,10 @@ exports[`getRecommendations snapshots > internal_tool (en) 1`] = `
     "badge": "✨ Batch unnecessary",
     "reason": "Real-time processing alone is sufficient. Add EventBridge Scheduler when settlement/reports are needed later",
   },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ On-premises MQ migration",
+    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
+  },
   "integration.sync_async.sync_only": {
     "badge": "✨ Suitable for simple services",
     "reason": "Simple request-process-response structure. Fast development without async complexity",
@@ -4097,6 +4297,10 @@ exports[`getRecommendations snapshots > internal_tool (en) 1`] = `
   "platform.service_mesh.none": {
     "badge": "⭐ Sufficient for most EKS services",
     "reason": "Network Policy + mTLS is sufficient without Service Mesh. Minimize operational complexity",
+  },
+  "platform.service_mesh.vpc_lattice": {
+    "badge": "⭐ Latest service mesh",
+    "reason": "App Mesh (2026 EOL) replacement. Works with all compute (ECS/EKS/Lambda). Beginner-friendly",
   },
   "scale.data_volume.gb": {
     "badge": "✨ Ideal for general services",
@@ -4223,6 +4427,10 @@ exports[`getRecommendations snapshots > internal_tool (ko) 1`] = `
     "badge": "✨ 사내 도구 적정",
     "reason": "퍼블릭+프라이빗 기본 분리. Security Group으로 서버 간 접근 제어",
   },
+  "compute.arch_pattern.app_runner": {
+    "badge": "⭐ MVP+입문자 최적",
+    "reason": "가장 빠르게 컨테이너 서비스 시작. VPC 설정 불필요, 자동 TLS·스케일링",
+  },
   "compute.arch_pattern.serverless": {
     "badge": "✨ MVP/소규모 최적",
     "reason": "Lambda + API GW: 서버 0대. 코드만 올리면 바로 서비스. 트래픽 없으면 비용 0 / 비용 우선 + 소규모: Lambda는 트래픽 없을 때 비용 0. 가장 저렴한 시작점",
@@ -4307,6 +4515,10 @@ exports[`getRecommendations snapshots > internal_tool (ko) 1`] = `
     "badge": "✨ 배치 불필요",
     "reason": "실시간 처리만으로 충분. 추후 정산·리포트 필요 시 EventBridge Scheduler 추가",
   },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ 온프레미스 MQ 마이그레이션",
+    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
+  },
   "integration.sync_async.sync_only": {
     "badge": "✨ 단순 서비스 적합",
     "reason": "요청-처리-응답의 단순 구조. 비동기의 복잡도 없이 빠른 개발 가능",
@@ -4382,6 +4594,10 @@ exports[`getRecommendations snapshots > internal_tool (ko) 1`] = `
   "platform.service_mesh.none": {
     "badge": "⭐ 대부분 EKS 서비스 충분",
     "reason": "Service Mesh 없이도 Network Policy + mTLS로 충분. 운영 복잡도 최소화",
+  },
+  "platform.service_mesh.vpc_lattice": {
+    "badge": "⭐ 최신 서비스 메시",
+    "reason": "App Mesh(2026 EOL) 대체. 모든 컴퓨트(ECS/EKS/Lambda)에서 사용 가능. 입문자도 가능",
   },
   "scale.data_volume.gb": {
     "badge": "✨ 일반 서비스 적정",
@@ -4544,6 +4760,10 @@ exports[`getRecommendations snapshots > iot_platform (en) 1`] = `
     "badge": "⭐ Required for high-performance/IoT",
     "reason": "Tens of thousands of reads/writes per second + Auto Scaling. Optimal for atomic ticket inventory processing",
   },
+  "data.primary_db.timestream": {
+    "badge": "✨ Time-series specialized",
+    "reason": "Optimized for IoT sensors, server metrics, financial time-series. Serverless with no management burden",
+  },
   "data.search.no": {
     "badge": "✨ Search unnecessary",
     "reason": "DB index lookups are sufficient. LIKE queries are also viable under 1M records",
@@ -4580,9 +4800,13 @@ exports[`getRecommendations snapshots > iot_platform (en) 1`] = `
     "badge": "✨ Batch unnecessary",
     "reason": "Real-time processing alone is sufficient. Add EventBridge Scheduler when settlement/reports are needed later",
   },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ On-premises MQ migration",
+    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
+  },
   "integration.queue_type.kinesis": {
-    "badge": "⭐ Required for streaming",
-    "reason": "Process tens of thousands of IoT messages/clickstreams per second. Up to 365-day retention for reprocessing",
+    "badge": "⭐ IoT real-time streaming",
+    "reason": "Collect and analyze device data in real-time with Kinesis. Stronger ordering guarantees than SQS / Process tens of thousands of IoT messages/clickstreams per second. Up to 365-day retention for reprocessing",
   },
   "integration.sync_async.async": {
     "badge": "⭐ Required for transactional/event services",
@@ -4667,6 +4891,10 @@ exports[`getRecommendations snapshots > iot_platform (en) 1`] = `
   "platform.service_mesh.none": {
     "badge": "⭐ Sufficient for most EKS services",
     "reason": "Network Policy + mTLS is sufficient without Service Mesh. Minimize operational complexity",
+  },
+  "platform.service_mesh.vpc_lattice": {
+    "badge": "⭐ Latest service mesh",
+    "reason": "App Mesh (2026 EOL) replacement. Works with all compute (ECS/EKS/Lambda). Beginner-friendly",
   },
   "scale.data_volume.ptb": {
     "badge": "⭐ Large-scale data strategy needed",
@@ -4817,6 +5045,10 @@ exports[`getRecommendations snapshots > iot_platform (ko) 1`] = `
     "badge": "⭐ 고성능/IoT 필수",
     "reason": "초당 수만 건 읽기/쓰기 + 자동 확장. 티켓팅 재고 원자적 처리에 최적의 선택",
   },
+  "data.primary_db.timestream": {
+    "badge": "✨ 시계열 특화",
+    "reason": "IoT 센서, 서버 메트릭, 금융 시계열 데이터에 최적화. 서버리스로 관리 부담 없음",
+  },
   "data.search.no": {
     "badge": "✨ 검색 불필요",
     "reason": "DB 인덱스 조회로 충분. 데이터 100만 건 미만이면 LIKE 쿼리도 가능",
@@ -4853,9 +5085,13 @@ exports[`getRecommendations snapshots > iot_platform (ko) 1`] = `
     "badge": "✨ 배치 불필요",
     "reason": "실시간 처리만으로 충분. 추후 정산·리포트 필요 시 EventBridge Scheduler 추가",
   },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ 온프레미스 MQ 마이그레이션",
+    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
+  },
   "integration.queue_type.kinesis": {
-    "badge": "⭐ 스트리밍 필수",
-    "reason": "초당 수만 IoT 메시지·클릭스트림 처리. 최대 365일 리텐션으로 재처리 가능",
+    "badge": "⭐ IoT 실시간 스트리밍",
+    "reason": "Kinesis로 디바이스 데이터를 실시간 수집·분석하세요. SQS보다 순서 보장이 강합니다 / 초당 수만 IoT 메시지·클릭스트림 처리. 최대 365일 리텐션으로 재처리 가능",
   },
   "integration.sync_async.async": {
     "badge": "⭐ 거래/이벤트 서비스 필수",
@@ -4940,6 +5176,10 @@ exports[`getRecommendations snapshots > iot_platform (ko) 1`] = `
   "platform.service_mesh.none": {
     "badge": "⭐ 대부분 EKS 서비스 충분",
     "reason": "Service Mesh 없이도 Network Policy + mTLS로 충분. 운영 복잡도 최소화",
+  },
+  "platform.service_mesh.vpc_lattice": {
+    "badge": "⭐ 최신 서비스 메시",
+    "reason": "App Mesh(2026 EOL) 대체. 모든 컴퓨트(ECS/EKS/Lambda)에서 사용 가능. 입문자도 가능",
   },
   "scale.data_volume.ptb": {
     "badge": "⭐ 대용량 전략 필요",
@@ -5098,6 +5338,10 @@ exports[`getRecommendations snapshots > minimal (en) 1`] = `
     "badge": "✨ Batch unnecessary",
     "reason": "Real-time processing alone is sufficient. Add EventBridge Scheduler when settlement/reports are needed later",
   },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ On-premises MQ migration",
+    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
+  },
   "network.account_structure.envs": {
     "badge": "⭐ Growth-stage standard",
     "reason": "Just separating the Prod account blocks dev mistakes from affecting production. AWS recommended baseline",
@@ -5169,6 +5413,10 @@ exports[`getRecommendations snapshots > minimal (en) 1`] = `
   "platform.service_mesh.none": {
     "badge": "⭐ Sufficient for most EKS services",
     "reason": "Network Policy + mTLS is sufficient without Service Mesh. Minimize operational complexity",
+  },
+  "platform.service_mesh.vpc_lattice": {
+    "badge": "⭐ Latest service mesh",
+    "reason": "App Mesh (2026 EOL) replacement. Works with all compute (ECS/EKS/Lambda). Beginner-friendly",
   },
   "scale.data_volume.gb": {
     "badge": "✨ Ideal for general services",
@@ -5311,6 +5559,10 @@ exports[`getRecommendations snapshots > minimal (ko) 1`] = `
     "badge": "✨ 배치 불필요",
     "reason": "실시간 처리만으로 충분. 추후 정산·리포트 필요 시 EventBridge Scheduler 추가",
   },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ 온프레미스 MQ 마이그레이션",
+    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
+  },
   "network.account_structure.envs": {
     "badge": "⭐ 성장기 표준",
     "reason": "Prod 계정 분리만으로도 개발 실수의 운영 영향을 차단합니다. AWS 권장 기본",
@@ -5382,6 +5634,10 @@ exports[`getRecommendations snapshots > minimal (ko) 1`] = `
   "platform.service_mesh.none": {
     "badge": "⭐ 대부분 EKS 서비스 충분",
     "reason": "Service Mesh 없이도 Network Policy + mTLS로 충분. 운영 복잡도 최소화",
+  },
+  "platform.service_mesh.vpc_lattice": {
+    "badge": "⭐ 최신 서비스 메시",
+    "reason": "App Mesh(2026 EOL) 대체. 모든 컴퓨트(ECS/EKS/Lambda)에서 사용 가능. 입문자도 가능",
   },
   "scale.data_volume.gb": {
     "badge": "✨ 일반 서비스 적정",
@@ -5544,6 +5800,10 @@ exports[`getRecommendations snapshots > realtime_chat (en) 1`] = `
     "badge": "✨ Batch unnecessary",
     "reason": "Real-time processing alone is sufficient. Add EventBridge Scheduler when settlement/reports are needed later",
   },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ On-premises MQ migration",
+    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
+  },
   "integration.queue_type.kinesis": {
     "badge": "⭐ Required for streaming",
     "reason": "Process tens of thousands of IoT messages/clickstreams per second. Up to 365-day retention for reprocessing",
@@ -5623,6 +5883,10 @@ exports[`getRecommendations snapshots > realtime_chat (en) 1`] = `
   "platform.service_mesh.none": {
     "badge": "⭐ Sufficient for most EKS services",
     "reason": "Network Policy + mTLS is sufficient without Service Mesh. Minimize operational complexity",
+  },
+  "platform.service_mesh.vpc_lattice": {
+    "badge": "⭐ Latest service mesh",
+    "reason": "App Mesh (2026 EOL) replacement. Works with all compute (ECS/EKS/Lambda). Beginner-friendly",
   },
   "scale.data_volume.gb": {
     "badge": "✨ Ideal for general services",
@@ -5801,6 +6065,10 @@ exports[`getRecommendations snapshots > realtime_chat (ko) 1`] = `
     "badge": "✨ 배치 불필요",
     "reason": "실시간 처리만으로 충분. 추후 정산·리포트 필요 시 EventBridge Scheduler 추가",
   },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ 온프레미스 MQ 마이그레이션",
+    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
+  },
   "integration.queue_type.kinesis": {
     "badge": "⭐ 스트리밍 필수",
     "reason": "초당 수만 IoT 메시지·클릭스트림 처리. 최대 365일 리텐션으로 재처리 가능",
@@ -5880,6 +6148,10 @@ exports[`getRecommendations snapshots > realtime_chat (ko) 1`] = `
   "platform.service_mesh.none": {
     "badge": "⭐ 대부분 EKS 서비스 충분",
     "reason": "Service Mesh 없이도 Network Policy + mTLS로 충분. 운영 복잡도 최소화",
+  },
+  "platform.service_mesh.vpc_lattice": {
+    "badge": "⭐ 최신 서비스 메시",
+    "reason": "App Mesh(2026 EOL) 대체. 모든 컴퓨트(ECS/EKS/Lambda)에서 사용 가능. 입문자도 가능",
   },
   "scale.data_volume.gb": {
     "badge": "✨ 일반 서비스 적정",
@@ -5986,6 +6258,10 @@ exports[`getRecommendations snapshots > serverless (en) 1`] = `
     "badge": "✨ Ideal for public data services",
     "reason": "HTTPS alone is sufficient. DB encryption can be enabled anytime at no additional cost",
   },
+  "compute.arch_pattern.app_runner": {
+    "badge": "⭐ Best for MVP+beginners",
+    "reason": "Fastest way to start a container service. No VPC setup needed, auto TLS and scaling",
+  },
   "compute.arch_pattern.container": {
     "badge": "⭐ Standard for most services",
     "reason": "Environment consistency with Docker containers. Zero server management with ECS Fargate. AWS recommended default",
@@ -6078,6 +6354,10 @@ exports[`getRecommendations snapshots > serverless (en) 1`] = `
     "badge": "✨ Batch unnecessary",
     "reason": "Real-time processing alone is sufficient. Add EventBridge Scheduler when settlement/reports are needed later",
   },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ On-premises MQ migration",
+    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
+  },
   "network.account_structure.single": {
     "badge": "✨ Ideal for small scale",
     "reason": "Start with single account + per-environment namespaces. Migrate to multi-account as team grows",
@@ -6153,6 +6433,10 @@ exports[`getRecommendations snapshots > serverless (en) 1`] = `
   "platform.service_mesh.none": {
     "badge": "⭐ Sufficient for most EKS services",
     "reason": "Network Policy + mTLS is sufficient without Service Mesh. Minimize operational complexity",
+  },
+  "platform.service_mesh.vpc_lattice": {
+    "badge": "⭐ Latest service mesh",
+    "reason": "App Mesh (2026 EOL) replacement. Works with all compute (ECS/EKS/Lambda). Beginner-friendly",
   },
   "scale.data_volume.gb": {
     "badge": "✨ Ideal for general services",
@@ -6267,6 +6551,10 @@ exports[`getRecommendations snapshots > serverless (ko) 1`] = `
     "badge": "✨ 공개 데이터 서비스 적정",
     "reason": "HTTPS만으로 충분. DB 암호화는 비용 추가 없이 언제든 켤 수 있습니다",
   },
+  "compute.arch_pattern.app_runner": {
+    "badge": "⭐ MVP+입문자 최적",
+    "reason": "가장 빠르게 컨테이너 서비스 시작. VPC 설정 불필요, 자동 TLS·스케일링",
+  },
   "compute.arch_pattern.container": {
     "badge": "⭐ 대부분 서비스 표준",
     "reason": "Docker 컨테이너로 환경 일관성. ECS Fargate로 서버 관리 제로. AWS 권장 기본",
@@ -6359,6 +6647,10 @@ exports[`getRecommendations snapshots > serverless (ko) 1`] = `
     "badge": "✨ 배치 불필요",
     "reason": "실시간 처리만으로 충분. 추후 정산·리포트 필요 시 EventBridge Scheduler 추가",
   },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ 온프레미스 MQ 마이그레이션",
+    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
+  },
   "network.account_structure.single": {
     "badge": "✨ 소규모 적정",
     "reason": "단일 계정 + 환경별 네임스페이스로 시작. 팀 성장 후 멀티 계정으로 마이그레이션",
@@ -6434,6 +6726,10 @@ exports[`getRecommendations snapshots > serverless (ko) 1`] = `
   "platform.service_mesh.none": {
     "badge": "⭐ 대부분 EKS 서비스 충분",
     "reason": "Service Mesh 없이도 Network Policy + mTLS로 충분. 운영 복잡도 최소화",
+  },
+  "platform.service_mesh.vpc_lattice": {
+    "badge": "⭐ 최신 서비스 메시",
+    "reason": "App Mesh(2026 EOL) 대체. 모든 컴퓨트(ECS/EKS/Lambda)에서 사용 가능. 입문자도 가능",
   },
   "scale.data_volume.gb": {
     "badge": "✨ 일반 서비스 적정",
@@ -6584,6 +6880,10 @@ exports[`getRecommendations snapshots > ticketing (en) 1`] = `
     "badge": "⭐ Required for extreme concurrency",
     "reason": "DynamoDB DAX + ElastiCache simultaneous use. Inventory preemption (Redis) + detail lookups (DAX)",
   },
+  "data.cache.memorydb": {
+    "badge": "✨ Durability required",
+    "reason": "When cache data loss is business-critical. ~20% more than ElastiCache but zero data loss",
+  },
   "data.cache.redis": {
     "badge": "⭐ Required for mid-to-large services",
     "reason": "ElastiCache Redis: 70% DB load reduction. Industry standard for session, product, and cart caching",
@@ -6635,6 +6935,10 @@ exports[`getRecommendations snapshots > ticketing (en) 1`] = `
   "integration.batch_workflow.none": {
     "badge": "✨ Batch unnecessary",
     "reason": "Real-time processing alone is sufficient. Add EventBridge Scheduler when settlement/reports are needed later",
+  },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ On-premises MQ migration",
+    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
   },
   "integration.queue_type.sqs": {
     "badge": "⭐ Standard for order/payment processing",
@@ -6723,6 +7027,10 @@ exports[`getRecommendations snapshots > ticketing (en) 1`] = `
   "platform.service_mesh.none": {
     "badge": "⭐ Sufficient for most EKS services",
     "reason": "Network Policy + mTLS is sufficient without Service Mesh. Minimize operational complexity",
+  },
+  "platform.service_mesh.vpc_lattice": {
+    "badge": "⭐ Latest service mesh",
+    "reason": "App Mesh (2026 EOL) replacement. Works with all compute (ECS/EKS/Lambda). Beginner-friendly",
   },
   "scale.data_volume.gb": {
     "badge": "✨ Ideal for general services",
@@ -6877,6 +7185,10 @@ exports[`getRecommendations snapshots > ticketing (ko) 1`] = `
     "badge": "⭐ 극한 동시성 필수",
     "reason": "DynamoDB DAX + ElastiCache 동시 사용. 재고 선점(Redis) + 상세 조회(DAX)",
   },
+  "data.cache.memorydb": {
+    "badge": "✨ 내구성 필수",
+    "reason": "캐시 데이터 손실이 비즈니스에 치명적일 때. ElastiCache보다 ~20% 비싸지만 데이터 무손실",
+  },
   "data.cache.redis": {
     "badge": "⭐ 중대형 서비스 필수",
     "reason": "ElastiCache Redis: DB 부하 70% 절감. 세션·상품·장바구니 캐시의 업계 표준",
@@ -6928,6 +7240,10 @@ exports[`getRecommendations snapshots > ticketing (ko) 1`] = `
   "integration.batch_workflow.none": {
     "badge": "✨ 배치 불필요",
     "reason": "실시간 처리만으로 충분. 추후 정산·리포트 필요 시 EventBridge Scheduler 추가",
+  },
+  "integration.queue_type.amazon_mq": {
+    "badge": "✨ 온프레미스 MQ 마이그레이션",
+    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
   },
   "integration.queue_type.sqs": {
     "badge": "⭐ 주문/결제 처리 표준",
@@ -7016,6 +7332,10 @@ exports[`getRecommendations snapshots > ticketing (ko) 1`] = `
   "platform.service_mesh.none": {
     "badge": "⭐ 대부분 EKS 서비스 충분",
     "reason": "Service Mesh 없이도 Network Policy + mTLS로 충분. 운영 복잡도 최소화",
+  },
+  "platform.service_mesh.vpc_lattice": {
+    "badge": "⭐ 최신 서비스 메시",
+    "reason": "App Mesh(2026 EOL) 대체. 모든 컴퓨트(ECS/EKS/Lambda)에서 사용 가능. 입문자도 가능",
   },
   "scale.data_volume.gb": {
     "badge": "✨ 일반 서비스 적정",

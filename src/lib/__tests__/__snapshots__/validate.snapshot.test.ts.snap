@@ -51,6 +51,15 @@ exports[`validateState snapshots > eks_full (en) 1`] = `
     "severity": "warn",
     "title": "DynamoDB capacity planning needed at scale",
   },
+  {
+    "message": "Standard workflows charge per state transition; thousands per second will explode costs. Consider Express workflows.",
+    "phases": [
+      "integration",
+      "cost",
+    ],
+    "severity": "warn",
+    "title": "Step Functions Standard + high-frequency calls",
+  },
 ]
 `;
 
@@ -64,6 +73,15 @@ exports[`validateState snapshots > eks_full (ko) 1`] = `
     ],
     "severity": "warn",
     "title": "대규모 DynamoDB 용량 계획 필요",
+  },
+  {
+    "message": "Standard 워크플로는 전환당 과금으로 초당 수천 건은 비용 폭발. Express 워크플로를 검토하세요.",
+    "phases": [
+      "integration",
+      "cost",
+    ],
+    "severity": "warn",
+    "title": "Step Functions Standard + 고빈도 호출",
   },
 ]
 `;

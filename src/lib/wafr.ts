@@ -444,9 +444,12 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
   const hasCritCert = cert.some(c => ["pci", "hipaa", "sox"].includes(c));
   const dataS    = state.workload?.data_sensitivity;
 
+  const storArr   = toArray(state.data?.storage);
   const isEks = orchest === "eks";
-  const isServerless = archP === "serverless";
+  const isServerless = archP === "serverless" || archP === "app_runner";
   const scalingArr = toArray(scaling);
+  const queueArr = toArray(state.integration?.queue_type);
+  const mesh     = state.platform?.service_mesh;
   const isTx = state.workload?.business_model === "transaction" || types.includes("ecommerce") || types.includes("ticketing") || types.includes("realtime");
   const dbArr = toArray(state.data?.primary_db);
   const azNum = azToNum(az);
@@ -490,7 +493,7 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
       account !== "single" ? 10 : 0,
       t.ops_multi_account_rec),
     I(t.ops_audit_q, 5,
-      hasCritCert || cert.includes("isms") ? 5 : 2,
+      hasCritCert || cert.includes("isms") || cert.includes("isms_p") ? 5 : 2,
       t.ops_audit_rec),
   ];
 
@@ -502,7 +505,7 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
         ? t.sec_encrypt_rec_standard
         : t.sec_encrypt_rec_other),
     I(t.sec_netiso_q, 18,
-      netIso === "strict" ? 18 : netIso === "private" ? 14 : 6,
+      netIso === "private" ? 18 : netIso === "strict" ? 16 : 6,
       t.sec_netiso_rec),
     // Skip WAF scoring for internal-only/data workloads with no WAF
     ...(isInternalOnly && (!waf || waf === "no") ? [] : [
@@ -560,7 +563,7 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
     // Skip cache scoring for low-traffic internal workloads
     ...(isLowTraffic && (!cache || cache === "no") ? [] : [
       I(t.rel_cache_q, 8,
-        cache && cache !== "no" ? 8 : 0,
+        cache === "memorydb" ? 8 : cache && cache !== "no" ? 7 : 0,
         t.rel_cache_rec),
     ]),
     I(t.rel_region_q, 18,
@@ -573,7 +576,7 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
     ] : [
       I(t.rel_aws_backup, 6, 6),
     ]),
-    ...(dbArr.includes("dynamodb")
+    ...(dbArr.includes("dynamodb") || dbArr.includes("timestream")
       ? [I(t.rel_dynamodb_repl, 5, 5)]
       : []),
     // Skip DNS failover scoring for internal-only workloads
@@ -699,8 +702,9 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
     I(t.sus_graviton_q, 12,
       isServerless ? 12 : (nodeType === "ec2_node" || nodeType === "mixed") ? 10 : nodeType === "fargate" ? 8 : 4,
       t.sus_graviton_rec),
+    // S3 사용 여부가 로그 아카이브 가능성의 더 적절한 프록시
     I(t.sus_log_q, 6,
-      (natStrat === "endpoint" || isServerless) ? 6 : 3,
+      storArr.includes("s3") ? 5 : isServerless ? 6 : 3,
       t.sus_log_rec),
   ];
 

@@ -93,7 +93,7 @@ exports[`generateSummary snapshots > b2b_saas (en) 1`] = `
   "stats": {
     "availability": "99.95",
     "errors": 0,
-    "monthlyCost": 1357,
+    "monthlyCost": 1388,
     "wafrScore": 85,
     "warnings": 0,
   },
@@ -206,7 +206,7 @@ exports[`generateSummary snapshots > b2b_saas (ko) 1`] = `
   "stats": {
     "availability": "99.95",
     "errors": 0,
-    "monthlyCost": 1357,
+    "monthlyCost": 1388,
     "wafrScore": 85,
     "warnings": 0,
   },
@@ -330,8 +330,8 @@ exports[`generateSummary snapshots > compliance (en) 1`] = `
   "stats": {
     "availability": "99.99",
     "errors": 0,
-    "monthlyCost": 3324,
-    "wafrScore": 83,
+    "monthlyCost": 3422,
+    "wafrScore": 82,
     "warnings": 1,
   },
   "teamReqs": {
@@ -456,8 +456,8 @@ exports[`generateSummary snapshots > compliance (ko) 1`] = `
   "stats": {
     "availability": "99.99",
     "errors": 0,
-    "monthlyCost": 3324,
-    "wafrScore": 83,
+    "monthlyCost": 3422,
+    "wafrScore": 82,
     "warnings": 1,
   },
   "teamReqs": {
@@ -568,8 +568,8 @@ exports[`generateSummary snapshots > data_pipeline (en) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 363,
-    "wafrScore": 78,
+    "monthlyCost": 408,
+    "wafrScore": 77,
     "warnings": 0,
   },
   "teamReqs": {
@@ -676,8 +676,8 @@ exports[`generateSummary snapshots > data_pipeline (ko) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 363,
-    "wafrScore": 78,
+    "monthlyCost": 408,
+    "wafrScore": 77,
     "warnings": 0,
   },
   "teamReqs": {
@@ -784,7 +784,7 @@ exports[`generateSummary snapshots > ecommerce_mvp (en) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 808,
+    "monthlyCost": 826,
     "wafrScore": 78,
     "warnings": 0,
   },
@@ -892,7 +892,7 @@ exports[`generateSummary snapshots > ecommerce_mvp (ko) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 808,
+    "monthlyCost": 826,
     "wafrScore": 78,
     "warnings": 0,
   },
@@ -1016,9 +1016,9 @@ exports[`generateSummary snapshots > eks_full (en) 1`] = `
   "stats": {
     "availability": "99.99",
     "errors": 0,
-    "monthlyCost": 10781,
+    "monthlyCost": 11012,
     "wafrScore": 91,
-    "warnings": 1,
+    "warnings": 2,
   },
   "teamReqs": {
     "minDevs": 8,
@@ -1147,9 +1147,9 @@ exports[`generateSummary snapshots > eks_full (ko) 1`] = `
   "stats": {
     "availability": "99.99",
     "errors": 0,
-    "monthlyCost": 10781,
+    "monthlyCost": 11012,
     "wafrScore": 91,
-    "warnings": 1,
+    "warnings": 2,
   },
   "teamReqs": {
     "minDevs": 8,
@@ -1262,7 +1262,7 @@ exports[`generateSummary snapshots > generic_web_api (en) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 732,
+    "monthlyCost": 750,
     "wafrScore": 69,
     "warnings": 0,
   },
@@ -1370,7 +1370,7 @@ exports[`generateSummary snapshots > generic_web_api (ko) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 732,
+    "monthlyCost": 750,
     "wafrScore": 69,
     "warnings": 0,
   },
@@ -1694,7 +1694,7 @@ exports[`generateSummary snapshots > iot_platform (en) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 910,
+    "monthlyCost": 941,
     "wafrScore": 77,
     "warnings": 0,
   },
@@ -1802,7 +1802,7 @@ exports[`generateSummary snapshots > iot_platform (ko) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 910,
+    "monthlyCost": 941,
     "wafrScore": 77,
     "warnings": 0,
   },
@@ -1910,7 +1910,7 @@ exports[`generateSummary snapshots > minimal (en) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 297,
+    "monthlyCost": 300,
     "wafrScore": 22,
     "warnings": 0,
   },
@@ -2018,7 +2018,7 @@ exports[`generateSummary snapshots > minimal (ko) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 297,
+    "monthlyCost": 300,
     "wafrScore": 22,
     "warnings": 0,
   },
@@ -2126,7 +2126,7 @@ exports[`generateSummary snapshots > realtime_chat (en) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 1180,
+    "monthlyCost": 1198,
     "wafrScore": 74,
     "warnings": 0,
   },
@@ -2234,7 +2234,7 @@ exports[`generateSummary snapshots > realtime_chat (ko) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 1180,
+    "monthlyCost": 1198,
     "wafrScore": 74,
     "warnings": 0,
   },
@@ -2558,7 +2558,7 @@ exports[`generateSummary snapshots > ticketing (en) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 941,
+    "monthlyCost": 959,
     "wafrScore": 78,
     "warnings": 0,
   },
@@ -2666,7 +2666,7 @@ exports[`generateSummary snapshots > ticketing (ko) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 941,
+    "monthlyCost": 959,
     "wafrScore": 78,
     "warnings": 0,
   },

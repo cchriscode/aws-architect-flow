@@ -36,6 +36,7 @@ export function generateChecklist(state: WizardState, lang: Lang = "ko") {
   const syncMode = state.integration?.sync_async;
   const queueArr = toArray(state.integration?.queue_type);
   const apiType  = state.integration?.api_type;
+  const batchArr = toArrayFiltered(state.integration?.batch_workflow);
   const gitops   = state.platform?.gitops;
   const nodeP    = state.platform?.node_provisioner;
   const secrets  = state.platform?.k8s_secrets;
@@ -138,6 +139,10 @@ export function generateChecklist(state: WizardState, lang: Lang = "ko") {
     p3.items.push(item(t("p3_ecs_exec_role", lang), t("p3_ecs_exec_role_d", lang)));
     p3.items.push(item(t("p3_ecs_task_role", lang), t("p3_ecs_task_role_d", lang)));
   }
+  if (archP === "app_runner") {
+    p3.items.push(item(t("p3_apprunner_svc", lang), t("p3_apprunner_svc_d", lang), true));
+    p3.items.push(item(t("p3_apprunner_domain", lang), t("p3_apprunner_domain_d", lang)));
+  }
   if (pipeline === "github" || pipeline === "gitlab") {
     p3.items.push(item(t("p3_cicd_oidc", lang), t("p3_cicd_oidc_d", lang)));
   }
@@ -183,15 +188,41 @@ export function generateChecklist(state: WizardState, lang: Lang = "ko") {
     p4.items.push(item(t("p4_elasticache_cluster", lang), t("p4_elasticache_cluster_d", lang, instanceType, azNum > 1)));
     p4.items.push(item(t("p4_redis_secrets", lang), t("p4_redis_secrets_d", lang)));
   }
+  if (cache === "dax" || cache === "both") {
+    p4.items.push(item(t("p4_dax_subnet", lang), t("p4_dax_subnet_d", lang)));
+    p4.items.push(item(t("p4_dax_cluster", lang), t("p4_dax_cluster_d", lang)));
+  }
   if (storArr.includes("s3")) {
     p4.items.push(item(t("p4_s3_bucket", lang), t("p4_s3_bucket_d", lang), true));
     p4.items.push(item(t("p4_s3_policy", lang), hasCritCert ? t("p4_s3_policy_strict_d", lang) : t("p4_s3_policy_default_d", lang)));
     p4.items.push(item(t("p4_s3_versioning", lang), t("p4_s3_versioning_d", lang)));
     p4.items.push(item(t("p4_s3_tiering", lang), t("p4_s3_tiering_d", lang)));
   }
+  if (storArr.includes("efs")) {
+    p4.items.push(item(t("p4_efs_fs", lang), t("p4_efs_fs_d", lang)));
+    p4.items.push(item(t("p4_efs_mount", lang), t("p4_efs_mount_d", lang, azNum)));
+  }
   if (search === "opensearch") {
     p4.items.push(item(t("p4_opensearch", lang), t("p4_opensearch_d", lang, azNum)));
     p4.items.push(item(t("p4_opensearch_index", lang), t("p4_opensearch_index_d", lang)));
+  }
+  if (dbArr.includes("documentdb")) {
+    p4.items.push(item(t("p4_docdb_cluster", lang), t("p4_docdb_cluster_d", lang), true));
+    p4.items.push(item(t("p4_docdb_driver", lang), t("p4_docdb_driver_d", lang)));
+  }
+  if (dbArr.includes("neptune")) {
+    p4.items.push(item(t("p4_neptune_cluster", lang), t("p4_neptune_cluster_d", lang), true));
+    p4.items.push(item(t("p4_neptune_loader", lang), t("p4_neptune_loader_d", lang)));
+  }
+  if (dbArr.includes("timestream")) {
+    p4.items.push(item(t("p4_timestream_db", lang), t("p4_timestream_db_d", lang), true));
+  }
+  if (cache === "memorydb") {
+    p4.items.push(item(t("p4_memorydb_cluster", lang), t("p4_memorydb_cluster_d", lang), true));
+  }
+  if (types.includes("data") && state.workload?.data_detail === "ai_genai") {
+    p4.items.push(item(t("p4_bedrock_access", lang), t("p4_bedrock_access_d", lang), true));
+    p4.items.push(item(t("p4_bedrock_kb", lang), t("p4_bedrock_kb_d", lang)));
   }
   phases.push(p4);
 
@@ -218,7 +249,11 @@ export function generateChecklist(state: WizardState, lang: Lang = "ko") {
     const mem = dau === "xlarge" ? 4096 : dau === "large" ? 2048 : 1024;
     p5.items.push(item(t("p5_ecs_cluster", lang), t("p5_ecs_cluster_d", lang), true));
     p5.items.push(item(t("p5_ecs_taskdef", lang), t("p5_ecs_taskdef_d", lang, cpu, mem), true));
-    p5.items.push(item(t("p5_ecs_alb", lang), t("p5_ecs_alb_d", lang)));
+    if (apiType === "nlb") {
+      p5.items.push(item(t("p5_nlb", lang), t("p5_nlb_d", lang)));
+    } else {
+      p5.items.push(item(t("p5_ecs_alb", lang), t("p5_ecs_alb_d", lang)));
+    }
     const deployStr = deploy === "bluegreen" ? t("p5_ecs_deploy_bg", lang) : t("p5_ecs_deploy_rolling", lang);
     p5.items.push(item(t("p5_ecs_service", lang), t("p5_ecs_service_d", lang, azNum, deployStr), true));
     p5.items.push(item(t("p5_ecs_autoscaling", lang), "CPU 70% Target Tracking. min=2 max=" + (dau === "xlarge" ? 50 : 20)));
@@ -226,6 +261,17 @@ export function generateChecklist(state: WizardState, lang: Lang = "ko") {
     p5.items.push(item(t("p5_lambda", lang), t("p5_lambda_d", lang), true));
     p5.items.push(item(t("p5_apigw", lang), t("p5_apigw_d", lang)));
     p5.items.push(item(t("p5_lambda_concurrency", lang), t("p5_lambda_concurrency_d", lang)));
+  }
+  if (types.includes("data") && (state.workload?.data_detail === "log_analytics" || state.workload?.data_detail === "bi_dashboard")) {
+    p5.items.push(item(t("p5_athena", lang), t("p5_athena_d", lang)));
+    p5.items.push(item(t("p5_glue", lang), t("p5_glue_d", lang)));
+  }
+  if (types.includes("data") && state.workload?.data_detail === "bi_dashboard") {
+    p5.items.push(item(t("p5_redshift", lang), t("p5_redshift_d", lang)));
+    p5.items.push(item(t("p5_quicksight", lang), t("p5_quicksight_d", lang)));
+  }
+  if (types.includes("data") && state.workload?.data_detail === "stream_analytics") {
+    p5.items.push(item(t("p5_firehose", lang), t("p5_firehose_d", lang)));
   }
   phases.push(p5);
 
@@ -278,9 +324,32 @@ export function generateChecklist(state: WizardState, lang: Lang = "ko") {
       p7.items.push(item(t("p7_eb_bus", lang), t("p7_eb_bus_d", lang)));
       p7.items.push(item(t("p7_eb_rule", lang), t("p7_eb_rule_d", lang)));
     }
+    if (queueArr.includes("msk")) {
+      p7.items.push(item(t("p7_msk_cluster", lang), t("p7_msk_cluster_d", lang), true));
+      p7.items.push(item(t("p7_msk_topic", lang), t("p7_msk_topic_d", lang)));
+      p7.items.push(item(t("p7_msk_iam", lang), t("p7_msk_iam_d", lang)));
+    }
+    if (queueArr.includes("amazon_mq")) {
+      p7.items.push(item(t("p7_mq_broker", lang), t("p7_mq_broker_d", lang), true));
+      p7.items.push(item(t("p7_mq_queue", lang), t("p7_mq_queue_d", lang)));
+    }
     if (types.includes("iot")) {
       p7.items.push(item(t("p7_iot", lang), t("p7_iot_d", lang), true));
       p7.items.push(item(t("p7_iot_rule", lang), t("p7_iot_rule_d", lang)));
+    }
+    if (batchArr.includes("step_functions")) {
+      p7.items.push(item(t("p7_sfn_workflow", lang), t("p7_sfn_workflow_d", lang)));
+      p7.items.push(item(t("p7_sfn_role", lang), t("p7_sfn_role_d", lang)));
+    }
+    if (batchArr.includes("eventbridge_sch")) {
+      p7.items.push(item(t("p7_eb_scheduler", lang), t("p7_eb_scheduler_d", lang)));
+    }
+    if (batchArr.includes("ecs_scheduled")) {
+      p7.items.push(item(t("p7_ecs_scheduled", lang), t("p7_ecs_scheduled_d", lang)));
+    }
+    if (batchArr.includes("aws_batch")) {
+      p7.items.push(item(t("p7_batch_env", lang), t("p7_batch_env_d", lang)));
+      p7.items.push(item(t("p7_batch_queue", lang), t("p7_batch_queue_d", lang)));
     }
     phases.push(p7);
   }
@@ -310,6 +379,10 @@ export function generateChecklist(state: WizardState, lang: Lang = "ko") {
   }
   const envLabel = envCnt === "four" ? "dev/stage/preprod/prod" : envCnt === "three" ? "dev/stage/prod" : "dev/prod";
   p8.items.push(item(t("p8_env_sep", lang, envLabel), t("p8_env_sep_d", lang), true));
+  if (state.platform?.service_mesh === "vpc_lattice") {
+    p8.items.push(item(t("p8_lattice_network", lang), t("p8_lattice_network_d", lang), true));
+    p8.items.push(item(t("p8_lattice_service", lang), t("p8_lattice_service_d", lang)));
+  }
   p8.items.push(item(t("p8_first_deploy", lang), t("p8_first_deploy_d", lang)));
   phases.push(p8);
 
@@ -337,6 +410,17 @@ export function generateChecklist(state: WizardState, lang: Lang = "ko") {
   if (hasCritCert) {
     p9.items.push(item(t("p9_ct_integrity", lang), t("p9_ct_integrity_d", lang), true));
     p9.items.push(item(t("p9_cost_anomaly", lang), t("p9_cost_anomaly_d", lang), true));
+  }
+  p9.items.push(item(t("p9_guardduty", lang), t("p9_guardduty_d", lang), true));
+  if (hasCritCert || hasPersonal) {
+    p9.items.push(item(t("p9_inspector", lang), t("p9_inspector_d", lang)));
+  }
+  if (cert.includes("isms_p") || cert.includes("pci") || hasPersonal) {
+    p9.items.push(item(t("p9_macie", lang), t("p9_macie_d", lang)));
+  }
+  p9.items.push(item(t("p9_iam_analyzer", lang), t("p9_iam_analyzer_d", lang)));
+  if (hasCritCert) {
+    p9.items.push(item(t("p9_audit_manager", lang), t("p9_audit_manager_d", lang)));
   }
   phases.push(p9);
 
