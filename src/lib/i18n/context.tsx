@@ -24,7 +24,13 @@ export function LangProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const saved = localStorage.getItem("archflow_lang") as Locale | null;
-    if (saved === "en" || saved === "ko") setLangState(saved);
+    if (saved === "en" || saved === "ko") {
+      setLangState(saved);
+    } else {
+      // Auto-detect: show English for non-Korean browsers
+      const browserLang = navigator.language || "";
+      if (!browserLang.startsWith("ko")) setLangState("en");
+    }
   }, []);
 
   useEffect(() => {

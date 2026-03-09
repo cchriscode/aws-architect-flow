@@ -55,3 +55,18 @@ model HistoryEntry {
   @@index([userId])
   @@map("history_entries")
 }
+
+model Share {
+  id              String   @id @default(uuid())
+  shortId         String   @unique @map("short_id")
+  state           Json
+  completedPhases Json     @map("completed_phases")
+  headline        String
+  monthlyCost     Float    @map("monthly_cost")
+  wafrScore       Float    @map("wafr_score")
+  serviceCount    Int      @map("service_count")
+  createdAt       DateTime @default(now()) @map("created_at")
+  expiresAt       DateTime @map("expires_at")
+
+  @@map("shares")
+}

@@ -143,6 +143,11 @@ export const ko: Dict = {
     { id: "generic_web_api", label: "범용 웹 API", desc: "일반 웹/앱 API 서버. 가장 보편적인 구성으로 빠르게 시작" },
     { id: "ticketing", label: "티켓팅/예약", desc: "콘서트·공연 예매, 선착순 이벤트. Redis+DynamoDB 동시성 제어, 순간 폭증 트래픽 대비" },
     { id: "iot_platform", label: "IoT 플랫폼", desc: "산업 센서·디바이스 데이터 수집·분석. Kinesis 스트리밍 + DynamoDB 시계열 저장" },
+    { id: "ai_ml_serving", label: "AI/ML 서빙", desc: "모델 추론 API 서빙. SageMaker 비동기 추론 + DynamoDB 메타데이터 + S3 모델 저장소" },
+    { id: "mobile_backend", label: "모바일 백엔드", desc: "모바일 앱 BaaS. Cognito 인증 + DynamoDB + S3 미디어 업로드 + 푸시 알림" },
+    { id: "media_streaming", label: "미디어/스트리밍", desc: "영상 업로드·트랜스코딩·HLS 스트리밍. MediaConvert + S3 + CloudFront 구성" },
+    { id: "multitenant_microservices", label: "멀티테넌트 MSA", desc: "대규모 EKS 마이크로서비스. Istio 서비스 메시 + 테넌트 격리 + ArgoCD GitOps" },
+    { id: "static_jamstack", label: "정적 웹 / JAMstack", desc: "S3 + CloudFront 정적 호스팅. Lambda 서버리스 API + DynamoDB. 최저 비용" },
   ],
   templateSelector: {
     title: "⚡ 빠른 시작 — 템플릿으로 바로 시작하기",
@@ -366,6 +371,23 @@ export const ko: Dict = {
       "account-level": "계정 수준",
       concept: "개념",
     },
+  },
+  hero: {
+    headline: "AWS 아키텍처, 쉽고 빠르게 설계하세요",
+    subheadline: "14단계 위자드로 VPC부터 Terraform 코드까지 한 번에 완성",
+    features: [
+      { icon: "1", title: "14단계 위자드", desc: "질문에 답하면 아키텍처 완성" },
+      { icon: "2", title: "비용 추정", desc: "월간 AWS 비용 자동 계산" },
+      { icon: "3", title: "WAFR 평가", desc: "Well-Architected 6대 원칙 점검" },
+      { icon: "4", title: "Terraform 코드", desc: "바로 쓸 수 있는 IaC 코드 생성" },
+    ],
+    cta: "설계 시작하기",
+  },
+  share: {
+    designYourOwn: "나만의 아키텍처 설계하기",
+    sharedDesign: "공유된 AWS 아키텍처",
+    perMonth: "/월",
+    services: "서비스",
   },
   diagram: {
     title: "📐 아키텍처 다이어그램",

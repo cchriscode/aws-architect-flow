@@ -148,6 +148,11 @@ export const en: Dict = {
     { id: "generic_web_api", label: "General Web API", desc: "Standard web/app API server. Most common setup for quick start" },
     { id: "ticketing", label: "Ticketing / Booking", desc: "Concert/event booking, first-come-first-served. Redis+DynamoDB concurrency control for traffic bursts" },
     { id: "iot_platform", label: "IoT Platform", desc: "Industrial sensor/device data collection & analysis. Kinesis streaming + DynamoDB time-series storage" },
+    { id: "ai_ml_serving", label: "AI/ML Serving", desc: "Model inference API. SageMaker async inference + DynamoDB metadata + S3 model artifacts" },
+    { id: "mobile_backend", label: "Mobile Backend", desc: "Mobile app BaaS. Cognito auth + DynamoDB + S3 media uploads + push notifications" },
+    { id: "media_streaming", label: "Media / Streaming", desc: "Video upload, transcoding, HLS streaming. MediaConvert + S3 + CloudFront delivery" },
+    { id: "multitenant_microservices", label: "Multi-Tenant MSA", desc: "Large-scale EKS microservices. Istio service mesh + tenant isolation + ArgoCD GitOps" },
+    { id: "static_jamstack", label: "Static / JAMstack", desc: "S3 + CloudFront static hosting. Lambda serverless API + DynamoDB. Lowest cost" },
   ],
   templateSelector: {
     title: "⚡ Quick Start — Start with a template",
@@ -371,6 +376,23 @@ export const en: Dict = {
       "account-level": "Account Level",
       concept: "Concept",
     },
+  },
+  hero: {
+    headline: "Design Your AWS Architecture, Fast",
+    subheadline: "From VPC to Terraform code in one 14-step wizard",
+    features: [
+      { icon: "1", title: "14-Step Wizard", desc: "Answer questions, get architecture" },
+      { icon: "2", title: "Cost Estimation", desc: "Automatic monthly AWS cost calc" },
+      { icon: "3", title: "WAFR Scoring", desc: "Well-Architected 6-pillar review" },
+      { icon: "4", title: "Terraform Code", desc: "Ready-to-use IaC code generation" },
+    ],
+    cta: "Start Designing",
+  },
+  share: {
+    designYourOwn: "Design Your Own Architecture",
+    sharedDesign: "Shared AWS Architecture",
+    perMonth: "/mo",
+    services: "services",
   },
   diagram: {
     title: "📐 Architecture Diagram",

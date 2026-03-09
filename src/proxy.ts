@@ -6,7 +6,7 @@ export default auth((req) => {
 
   // Public routes — accessible without login
   const publicPaths = ["/", "/login", "/privacy"];
-  if (pathname.startsWith("/api/auth") || publicPaths.includes(pathname)) {
+  if (pathname.startsWith("/api/auth") || pathname.startsWith("/share/") || pathname.startsWith("/api/share") || pathname.startsWith("/api/og/") || publicPaths.includes(pathname)) {
     return NextResponse.next();
   }
 

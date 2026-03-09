@@ -46,12 +46,14 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ko_KR",
     alternateLocale: "en_US",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "ArchFlow — AWS Architecture Design Guide" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "ArchFlow — AWS Architecture Design Guide",
     description:
       "Design AWS architecture with a 14-step wizard. Diagrams, Terraform code, cost estimation, and Well-Architected review — all free.",
+    images: ["/twitter-image"],
   },
   alternates: {
     languages: {

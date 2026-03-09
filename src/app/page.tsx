@@ -8,6 +8,7 @@ import { PHASES } from "@/data/phases";
 import { useDict, useLang } from "@/lib/i18n/context";
 
 import { Header } from "@/components/layout/Header";
+import { HeroSection } from "@/components/landing/HeroSection";
 import { ProgressBar } from "@/components/wizard/ProgressBar";
 import { PhaseHeader } from "@/components/wizard/PhaseHeader";
 import { QuestionCard } from "@/components/wizard/QuestionCard";
@@ -71,22 +72,28 @@ export default function Home() {
   const [shareMsg, setShareMsg] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [heroVisible, setHeroVisible] = useState(() => {
+    try { return localStorage.getItem("archflow_hero_dismissed") !== "1"; } catch { return true; }
+  });
 
   const infoDb = useMemo(() => getInfoDb(lang), [lang]);
 
-  function handleShareURL() {
+  async function handleShareURL() {
     try {
-      const json = JSON.stringify({
-        state: allPhaseState,
-        completedPhases: [...completedPhases],
+      const res = await fetch("/api/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          state: allPhaseState,
+          completedPhases: [...completedPhases],
+        }),
       });
-      const b64 = btoa(unescape(encodeURIComponent(json)));
-      const url =
-        window.location.origin + window.location.pathname + "?d=" + b64;
-      navigator.clipboard.writeText(url).then(() => {
-        setShareMsg(t.header.linkCopied);
-        setTimeout(() => setShareMsg(""), 2500);
-      });
+      if (!res.ok) throw new Error("Share API failed");
+      const { shortId } = await res.json();
+      const url = `${window.location.origin}/share/${shortId}`;
+      await navigator.clipboard.writeText(url);
+      setShareMsg(t.header.linkCopied);
+      setTimeout(() => setShareMsg(""), 2500);
     } catch (e) {
       console.warn('[page] Failed to copy share link:', e);
       setShareMsg(t.header.copyFailed);
@@ -233,6 +240,11 @@ export default function Home() {
       {/* Header */}
       <Header />
 
+      {/* Landing Hero — first visit, no saved data, not a share link */}
+      {heroVisible && completedPhases.size === 0 && !showResult && (
+        <HeroSection onStart={() => { setHeroVisible(false); localStorage.setItem("archflow_hero_dismissed", "1"); }} />
+      )}
+
       {/* Progress */}
       <ProgressBar
         phases={phasesWithLabels}
@@ -272,23 +284,8 @@ export default function Home() {
                   </div>
                 )}
               </div>
-              {/* Download JSON */}
-              <button
-                onClick={handleExportJSON}
-                className="hidden rounded-md border border-gray-200 bg-white px-3 py-1.5 text-[11px] font-medium text-gray-600 transition-colors hover:bg-gray-50 md:inline-flex"
-              >
-                {t.header.downloadJSON}
-              </button>
-              {/* Import */}
-              <label className="hidden cursor-pointer rounded-md border border-gray-200 bg-white px-3 py-1.5 text-[11px] font-medium text-gray-600 transition-colors hover:bg-gray-50 md:inline-flex">
-                {t.header.importFile}
-                <input
-                  type="file"
-                  accept=".json"
-                  className="hidden"
-                  onChange={handleImportFile}
-                />
-              </label>
+              {/* Download JSON — disabled */}
+              {/* Import — disabled */}
               {/* Share */}
               <div className="relative">
                 <button

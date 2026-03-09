@@ -281,6 +281,18 @@ export interface Dict {
     groups: Record<string, string>;
     placements: Record<string, string>;
   };
+  hero: {
+    headline: string;
+    subheadline: string;
+    features: { icon: string; title: string; desc: string }[];
+    cta: string;
+  };
+  share: {
+    designYourOwn: string;
+    sharedDesign: string;
+    perMonth: string;
+    services: string;
+  };
   diagram: {
     title: string;
     serviceCount: (n: number) => string;
