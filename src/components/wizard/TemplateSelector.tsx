@@ -118,7 +118,7 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
           {t.templateSelector.desc}
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-2.5">
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3">
         {t.templates.map((tmpl) => (
           <button
             key={tmpl.id}

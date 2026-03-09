@@ -93,7 +93,7 @@ export function ValidationView({ state, onEdit }: ValidationViewProps) {
   }
 
   return (
-    <div className="grid grid-cols-[1fr_280px] gap-5">
+    <div className="grid grid-cols-1 gap-5 md:grid-cols-[1fr_280px]">
       <div>
         {errors.length > 0 && (
           <div className="mb-5">

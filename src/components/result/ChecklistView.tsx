@@ -70,7 +70,7 @@ export function ChecklistView({ state }: ChecklistViewProps) {
   };
 
   return (
-    <div className="grid grid-cols-[220px_1fr] gap-5">
+    <div className="flex flex-col gap-5 md:grid md:grid-cols-[220px_1fr]">
       {/* Left sidebar */}
       <div>
         {/* Overall progress */}
@@ -122,7 +122,7 @@ export function ChecklistView({ state }: ChecklistViewProps) {
         </div>
 
         {/* Phase list */}
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+        <div className="flex overflow-x-auto gap-1.5 md:flex-col md:overflow-x-visible md:gap-0 overflow-hidden rounded-xl border border-gray-200 bg-white">
           {phases.map((phase) => {
             const phaseDone = phase.items.filter(
               (i: any) => checked[i.id]

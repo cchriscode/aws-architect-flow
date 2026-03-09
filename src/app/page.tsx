@@ -25,6 +25,7 @@ import { CodeView } from "@/components/result/CodeView";
 import { StateSummary } from "@/components/result/StateSummary";
 import { SummaryView } from "@/components/result/SummaryView";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { SlidePanel, SlidePanelTrigger } from "@/components/ui/slide-panel";
 
 import { validateState } from "@/lib/validate";
 import { wellArchitectedScore } from "@/lib/wafr";
@@ -69,6 +70,7 @@ export default function Home() {
   const [saveToast, setSaveToast] = useState("");
   const [shareMsg, setShareMsg] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const infoDb = useMemo(() => getInfoDb(lang), [lang]);
 
@@ -240,14 +242,14 @@ export default function Home() {
       />
 
       {/* Action toolbar */}
-      <div className="border-b border-indigo-100 bg-gradient-to-r from-indigo-50/80 to-white px-7 py-2.5">
+      <div className="border-b border-indigo-100 bg-gradient-to-r from-indigo-50/80 to-white px-3 py-2.5 md:px-7">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4">
-          <div className="flex items-center gap-1.5 text-[12px] text-indigo-500">
+          <div className="hidden items-center gap-1.5 text-[12px] text-indigo-500 md:flex">
             <span>💡</span>
             <span>{t.wizard.stepHint}</span>
           </div>
           {(completedPhases.size > 0 || showResult) && (
-            <div className="flex items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-1 md:gap-1.5">
               {/* Save */}
               <div className="relative">
                 <button
@@ -260,7 +262,7 @@ export default function Home() {
                     setSaveToast(t.result.saved);
                     setTimeout(() => setSaveToast(""), 2000);
                   }}
-                  className="rounded-md bg-emerald-600 px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-emerald-700"
+                  className="rounded-md bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 md:py-1.5 md:text-[11px]"
                 >
                   {t.result.saveBtn}
                 </button>
@@ -273,12 +275,12 @@ export default function Home() {
               {/* Download JSON */}
               <button
                 onClick={handleExportJSON}
-                className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-[11px] font-medium text-gray-600 transition-colors hover:bg-gray-50"
+                className="hidden rounded-md border border-gray-200 bg-white px-3 py-1.5 text-[11px] font-medium text-gray-600 transition-colors hover:bg-gray-50 md:inline-flex"
               >
                 {t.header.downloadJSON}
               </button>
               {/* Import */}
-              <label className="cursor-pointer rounded-md border border-gray-200 bg-white px-3 py-1.5 text-[11px] font-medium text-gray-600 transition-colors hover:bg-gray-50">
+              <label className="hidden cursor-pointer rounded-md border border-gray-200 bg-white px-3 py-1.5 text-[11px] font-medium text-gray-600 transition-colors hover:bg-gray-50 md:inline-flex">
                 {t.header.importFile}
                 <input
                   type="file"
@@ -291,7 +293,7 @@ export default function Home() {
               <div className="relative">
                 <button
                   onClick={handleShareURL}
-                  className="rounded-md border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-[11px] font-semibold text-indigo-600 transition-colors hover:bg-indigo-100"
+                  className="rounded-md border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-600 transition-colors hover:bg-indigo-100 md:py-1.5 md:text-[11px]"
                 >
                   {t.header.share}
                 </button>
@@ -304,7 +306,7 @@ export default function Home() {
               {/* Reset */}
               <button
                 onClick={() => { reset(); setActiveTab("summary"); }}
-                className="rounded-md bg-gray-800 px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-gray-900"
+                className="rounded-md bg-gray-800 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-gray-900 md:py-1.5 md:text-[11px]"
               >
                 {t.header.resetAll}
               </button>
@@ -316,9 +318,9 @@ export default function Home() {
       {showResult && arch ? (
         /* RESULT VIEW */
         <ErrorBoundary>
-        <div className="mx-auto max-w-[1400px] px-7 py-6">
+        <div className="mx-auto max-w-[1400px] px-3 py-4 md:px-7 md:py-6">
           {/* Completion banner */}
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border-[1.5px] border-emerald-200 bg-emerald-50 px-5 py-4">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border-[1.5px] border-emerald-200 bg-emerald-50 px-3 py-3 md:px-5 md:py-4">
             <div>
               <div className="mb-0.5 text-base font-bold text-emerald-600">
                 {t.result.completionTitle}
@@ -372,13 +374,13 @@ export default function Home() {
               </div>
             )}
             {/* Tab toggle */}
-            <div className="flex flex-wrap gap-1 rounded-[10px] bg-gray-100 p-1">
+            <div className="scrollbar-hide flex gap-1 overflow-x-auto rounded-[10px] bg-gray-100 p-1 md:flex-wrap">
               {resultTabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
-                    "whitespace-nowrap rounded-lg px-3.5 py-2 text-xs font-semibold transition-all",
+                    "shrink-0 whitespace-nowrap rounded-lg px-3.5 py-2 text-xs font-semibold transition-all",
                     activeTab === tab.id
                       ? "bg-white text-indigo-600 shadow-sm"
                       : "bg-transparent text-gray-500"
@@ -392,31 +394,37 @@ export default function Home() {
 
           {/* Tab content */}
           {activeTab === "summary" ? (
-            <div className="grid grid-cols-[1fr_280px] gap-5">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-[1fr_280px]">
               <SummaryView state={allPhaseState} arch={arch} />
-              <StateSummary
-                state={allPhaseState}
-                phases={phasesWithLabels}
-                onEdit={jumpTo}
-              />
+              <div className="hidden md:block">
+                <StateSummary
+                  state={allPhaseState}
+                  phases={phasesWithLabels}
+                  onEdit={jumpTo}
+                />
+              </div>
             </div>
           ) : activeTab === "cards" ? (
-            <div className="grid grid-cols-[1fr_280px] gap-5">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-[1fr_280px]">
               <ArchOutput arch={arch} />
-              <StateSummary
-                state={allPhaseState}
-                phases={phasesWithLabels}
-                onEdit={jumpTo}
-              />
+              <div className="hidden md:block">
+                <StateSummary
+                  state={allPhaseState}
+                  phases={phasesWithLabels}
+                  onEdit={jumpTo}
+                />
+              </div>
             </div>
           ) : activeTab === "diagram" ? (
-            <div className="grid grid-cols-[1fr_280px] gap-5">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-[1fr_280px]">
               <DiagramView arch={arch} state={allPhaseState} />
-              <StateSummary
-                state={allPhaseState}
-                phases={phasesWithLabels}
-                onEdit={jumpTo}
-              />
+              <div className="hidden md:block">
+                <StateSummary
+                  state={allPhaseState}
+                  phases={phasesWithLabels}
+                  onEdit={jumpTo}
+                />
+              </div>
             </div>
           ) : activeTab === "validate" ? (
             <ValidationView state={allPhaseState} onEdit={jumpTo} />
@@ -431,12 +439,22 @@ export default function Home() {
           ) : activeTab === "code" ? (
             <CodeView state={allPhaseState} />
           ) : null}
+
+          {/* Mobile SlidePanel for StateSummary (result view) */}
+          <SlidePanelTrigger onClick={() => setMobileSidebarOpen(true)} label={t.stateSummary.title} />
+          <SlidePanel open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen} title={t.stateSummary.title}>
+            <StateSummary
+              state={allPhaseState}
+              phases={phasesWithLabels}
+              onEdit={(id) => { setMobileSidebarOpen(false); jumpTo(id); }}
+            />
+          </SlidePanel>
         </div>
         </ErrorBoundary>
       ) : (
         /* QUESTION VIEW */
-        <div className="mx-auto max-w-[1400px] px-7 py-6">
-          <div className="grid grid-cols-[1fr_280px] gap-5">
+        <div className="mx-auto max-w-[1400px] px-3 py-4 md:px-7 md:py-6">
+          <div className="flex flex-col gap-4 md:grid md:grid-cols-[1fr_280px] md:gap-5">
             <div>
               {/* Phase header */}
               <PhaseHeader
@@ -635,13 +653,25 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Summary sidebar */}
+            {/* Summary sidebar — desktop */}
+            <div className="hidden md:block">
+              <StateSummary
+                state={allPhaseState}
+                phases={phasesWithLabels.filter((p) => completedPhases.has(p.id))}
+                onEdit={jumpTo}
+              />
+            </div>
+          </div>
+
+          {/* Mobile SlidePanel for wizard sidebar */}
+          <SlidePanelTrigger onClick={() => setMobileSidebarOpen(true)} label={t.stateSummary.title} />
+          <SlidePanel open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen} title={t.stateSummary.title}>
             <StateSummary
               state={allPhaseState}
               phases={phasesWithLabels.filter((p) => completedPhases.has(p.id))}
-              onEdit={jumpTo}
+              onEdit={(id) => { setMobileSidebarOpen(false); jumpTo(id); }}
             />
-          </div>
+          </SlidePanel>
         </div>
       )}
 

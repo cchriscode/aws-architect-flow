@@ -16,20 +16,20 @@ export function Header() {
   }, []);
 
   return (
-    <div className="flex items-center justify-between border-b border-gray-200 bg-white px-7 py-3.5">
+    <div className="flex items-center justify-between border-b border-gray-200 bg-white px-3 py-3.5 md:px-7">
       <div className="flex items-center gap-2.5">
         <Link href="/" className="flex items-center gap-2.5">
           <div className="h-2.5 w-2.5 rounded-full bg-indigo-600" />
-          <span className="text-base font-extrabold text-gray-900">
+          <span className="text-sm font-extrabold text-gray-900 md:text-base">
             ArchFlow
           </span>
-          <span className="text-xs text-gray-400">
+          <span className="hidden text-xs text-gray-400 md:inline">
             {t.header.subtitle}
           </span>
         </Link>
         <Link
           href="/history"
-          className="ml-2 flex items-center gap-1 rounded-lg border-[1.5px] border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
+          className="ml-2 hidden items-center gap-1 rounded-lg border-[1.5px] border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 md:flex"
         >
           {t.header.historyLink}
           {historyCount > 0 && (
@@ -40,7 +40,7 @@ export function Header() {
         </Link>
         <Link
           href="/glossary"
-          className="flex items-center gap-1 rounded-lg border-[1.5px] border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
+          className="hidden items-center gap-1 rounded-lg border-[1.5px] border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 md:flex"
         >
           {t.header.glossaryLink}
         </Link>
@@ -50,7 +50,7 @@ export function Header() {
         <div className="flex overflow-hidden rounded-md border border-gray-200">
           <button
             onClick={() => setLang("ko")}
-            className={`px-2 py-1 text-[11px] font-bold transition-colors ${
+            className={`px-2.5 py-1.5 text-xs font-bold transition-colors ${
               lang === "ko"
                 ? "bg-indigo-600 text-white"
                 : "bg-white text-gray-500 hover:bg-gray-50"
@@ -60,7 +60,7 @@ export function Header() {
           </button>
           <button
             onClick={() => setLang("en")}
-            className={`px-2 py-1 text-[11px] font-bold transition-colors ${
+            className={`px-2.5 py-1.5 text-xs font-bold transition-colors ${
               lang === "en"
                 ? "bg-indigo-600 text-white"
                 : "bg-white text-gray-500 hover:bg-gray-50"

@@ -90,7 +90,7 @@ export function WafrView({ state }: WafrViewProps) {
   };
 
   return (
-    <div className="grid grid-cols-[1fr_260px] gap-5">
+    <div className="grid grid-cols-1 gap-5 md:grid-cols-[1fr_260px]">
       {/* Main */}
       <div>
         {/* Overall score */}

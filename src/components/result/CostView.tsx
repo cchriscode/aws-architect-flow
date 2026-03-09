@@ -73,7 +73,7 @@ export function CostView({ state }: CostViewProps) {
     tips.push({ icon: "\uD83D\uDEE1\uFE0F", text: t.costView.tips.shield });
 
   return (
-    <div className="grid grid-cols-[1fr_280px] gap-5">
+    <div className="grid grid-cols-1 gap-5 md:grid-cols-[1fr_280px]">
       {/* Main */}
       <div>
         {/* Toggle */}

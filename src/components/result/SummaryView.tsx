@@ -73,7 +73,7 @@ export function SummaryView({ state, arch }: SummaryViewProps) {
         <div className="mb-3 text-sm font-bold text-gray-900">
           {t.summaryView.keyServices}
         </div>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {summary.keyServices.map((svc, i) => (
             <div
               key={i}

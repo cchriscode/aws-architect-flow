@@ -61,7 +61,7 @@ export function CodeView({ state }: CodeViewProps) {
     );
 
   return (
-    <div className="grid grid-cols-[220px_1fr] gap-5">
+    <div className="flex flex-col gap-5 md:grid md:grid-cols-[220px_1fr]">
       <div>
         <div className="mb-2.5 rounded-xl border border-gray-200 bg-white px-3.5 py-3">
           <div className="mb-1 text-[13px] font-bold text-gray-900">
@@ -169,7 +169,7 @@ export function CodeView({ state }: CodeViewProps) {
             </button>
           </div>
           <div className="flex-1 overflow-hidden bg-[#1e1e1e]">
-            <pre className="m-0 max-h-[520px] overflow-auto px-5 py-4 font-[JetBrains_Mono,Fira_Code,Consolas,monospace] text-[11.5px] leading-[1.75] text-gray-300">
+            <pre className="m-0 max-h-[520px] overflow-auto px-3 py-4 font-[JetBrains_Mono,Fira_Code,Consolas,monospace] text-[11.5px] leading-[1.75] text-gray-300 md:px-5">
               <code>{active.code}</code>
             </pre>
           </div>

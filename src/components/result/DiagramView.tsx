@@ -415,8 +415,8 @@ function DrawioPreview({ xml }: { xml: string }) {
   return (
     <iframe
       srcDoc={srcdoc}
-      className="w-full rounded-lg border border-gray-200 bg-gray-50"
-      style={{ height: "calc(100vh - 200px)", minHeight: "700px" }}
+      style={{ height: "calc(100vh - 200px)" }}
+      className="w-full min-h-[400px] rounded-lg border border-gray-200 bg-gray-50 md:min-h-[700px]"
       title="Architecture Diagram"
     />
   );
@@ -481,7 +481,7 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
         <span className="text-[11px] text-gray-500">
           {td.serviceCount(total)}
         </span>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex flex-wrap items-center gap-1.5 md:gap-2">
           <div className="flex rounded-md border border-gray-300 text-[11px] font-bold">
             <button
               onClick={() => setViewMode("card")}
@@ -514,7 +514,7 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
       {viewMode === "drawio" ? (
         <DrawioPreview xml={diagramXml} />
       ) : (
-      <div className="mx-auto max-w-[980px]">
+      <div className="mx-auto max-w-[980px] px-1 md:px-0">
         {/* Internet */}
         <div className="mb-1 text-center">
           <div className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-sky-200 bg-sky-50 px-7 py-2.5">
@@ -659,7 +659,7 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
         )}
 
         {/* Security + Monitoring 2-col */}
-        <div className="mt-2 grid grid-cols-2 gap-2">
+        <div className="mt-2 grid grid-cols-1 gap-2 md:grid-cols-2">
           {z.security.length > 0 && (
             <ZBand label={td.securityZone} color="#DC2626" bg="#FFF5F5">
               <SRow svcs={z.security} />
@@ -673,7 +673,7 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
         </div>
 
         {/* CI/CD + Cost 2-col */}
-        <div className="mt-2 grid grid-cols-2 gap-2">
+        <div className="mt-2 grid grid-cols-1 gap-2 md:grid-cols-2">
           {z.cicd.length > 0 && (
             <ZBand label={td.cicdZone} color="#0891B2" bg="#ECFEFF">
               <SRow svcs={z.cicd} />

@@ -74,7 +74,7 @@ export function SecurityGroupView({ state }: SecurityGroupViewProps) {
           </pre>
         </div>
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(340px,1fr))] gap-3">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3 md:grid-cols-[repeat(auto-fill,minmax(340px,1fr))]">
           {groups.map((sg) => (
             <div
               key={sg.id}

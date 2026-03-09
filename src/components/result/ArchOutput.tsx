@@ -4,6 +4,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { Architecture } from "@/lib/types";
 import { useDict } from "@/lib/i18n/context";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 function WAScore({ score }: { score: Record<string, number> }) {
   const t = useDict();
@@ -27,7 +28,7 @@ function WAScore({ score }: { score: Record<string, number> }) {
       <div className="mb-3.5 text-sm font-bold text-gray-900">
         {t.archOutput.waPillarTitle}
       </div>
-      <div className="grid grid-cols-3 gap-2.5">
+      <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3">
         {items.map((item) => {
           const v = score[item.k] || 0;
           return (
@@ -76,6 +77,7 @@ interface ArchOutputProps {
 
 export function ArchOutput({ arch }: ArchOutputProps) {
   const t = useDict();
+  const isMobile = useIsMobile();
   const [expand, setExpand] = useState<Record<string, boolean>>({});
   const toggle = (id: string) =>
     setExpand((e) => ({ ...e, [id]: !e[id] }));
@@ -114,9 +116,9 @@ export function ArchOutput({ arch }: ArchOutputProps) {
             </div>
           </div>
           {expand[layer.id] && (
-            <div className="px-5 pb-4">
-              {/* Header */}
-              <div className="grid grid-cols-[160px_1fr_1fr_100px_200px] gap-0 border-b border-gray-100 py-2 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+            <div className="px-3 pb-4 md:px-5">
+              {/* Header — desktop only */}
+              <div className="hidden md:grid grid-cols-[160px_1fr_1fr_100px_200px] gap-0 border-b border-gray-100 py-2 text-[10px] font-bold uppercase tracking-wider text-gray-400">
                 <span>{t.archOutput.colService}</span>
                 <span>{t.archOutput.colDetail}</span>
                 <span>{t.archOutput.colReason}</span>
@@ -125,26 +127,38 @@ export function ArchOutput({ arch }: ArchOutputProps) {
               </div>
               {layer.services.map((svc, i) =>
                 svc.reason !== undefined ? (
-                  <div
-                    key={i}
-                    className="grid grid-cols-[160px_1fr_1fr_100px_200px] items-start gap-0 border-b border-gray-50 py-2.5"
-                  >
-                    <div className="pr-2 text-xs font-bold text-gray-900">
-                      {svc.name}
+                  isMobile ? (
+                    <div key={i} className="rounded-lg border border-gray-100 p-3 mb-2">
+                      <div className="font-bold text-sm text-gray-900">{svc.name}</div>
+                      <div className="text-xs text-gray-500 mt-0.5">{svc.detail}</div>
+                      <div className="text-xs text-gray-700 mt-1">{svc.reason}</div>
+                      <div className="flex justify-between text-xs mt-1.5">
+                        <span className="text-amber-600">{svc.cost}</span>
+                        <span className="text-indigo-600 font-medium">{svc.opt}</span>
+                      </div>
                     </div>
-                    <div className="pr-2 text-[11px] text-gray-500">
-                      {svc.detail}
+                  ) : (
+                    <div
+                      key={i}
+                      className="grid grid-cols-[160px_1fr_1fr_100px_200px] items-start gap-0 border-b border-gray-50 py-2.5"
+                    >
+                      <div className="pr-2 text-xs font-bold text-gray-900">
+                        {svc.name}
+                      </div>
+                      <div className="pr-2 text-[11px] text-gray-500">
+                        {svc.detail}
+                      </div>
+                      <div className="pr-2 text-[11px] text-gray-700">
+                        {svc.reason}
+                      </div>
+                      <div className="text-center text-[10px] text-amber-600">
+                        {svc.cost}
+                      </div>
+                      <div className="text-[11px] font-medium text-indigo-600">
+                        {svc.opt}
+                      </div>
                     </div>
-                    <div className="pr-2 text-[11px] text-gray-700">
-                      {svc.reason}
-                    </div>
-                    <div className="text-center text-[10px] text-amber-600">
-                      {svc.cost}
-                    </div>
-                    <div className="text-[11px] font-medium text-indigo-600">
-                      {svc.opt}
-                    </div>
-                  </div>
+                  )
                 ) : (
                   <div
                     key={i}

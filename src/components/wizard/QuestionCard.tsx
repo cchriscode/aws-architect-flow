@@ -46,7 +46,7 @@ export function QuestionCard({
   }
 
   return (
-    <div className="mb-4 rounded-xl border border-gray-200 bg-white p-6">
+    <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4 md:p-6">
       <div className="mb-1.5 text-[15px] font-bold text-gray-900">
         {question.q}
       </div>
@@ -60,7 +60,7 @@ export function QuestionCard({
           {t.questionCard.helpToggle}
         </div>
       )}
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
         {question.opts.map((opt) => {
           const selected = isMulti ? vals.includes(opt.v) : value === opt.v;
           const infoKey = infoDb[opt.v]
@@ -98,7 +98,7 @@ export function QuestionCard({
               {/* Radio/Checkbox indicator */}
               <div
                 className={cn(
-                  "mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center transition-colors",
+                  "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center transition-colors md:h-[18px] md:w-[18px]",
                   isMulti ? "rounded" : "rounded-full",
                   selected ? "bg-indigo-600" : "bg-gray-300"
                 )}
@@ -179,7 +179,7 @@ export function QuestionCard({
                   }}
                   title={t.questionCard.moreInfo}
                   className={cn(
-                    "absolute right-2.5 top-2.5 z-[2] flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full border-[1.5px] font-serif text-[11px] font-extrabold leading-none transition-all hover:border-indigo-600 hover:bg-indigo-600 hover:text-white",
+                    "absolute right-2.5 top-2.5 z-[2] flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-[1.5px] font-serif text-[11px] font-extrabold leading-none transition-all hover:border-indigo-600 hover:bg-indigo-600 hover:text-white md:h-[22px] md:w-[22px]",
                     selected
                       ? "border-indigo-400 bg-indigo-100 text-indigo-600"
                       : "border-gray-300 bg-gray-100 text-gray-400"
