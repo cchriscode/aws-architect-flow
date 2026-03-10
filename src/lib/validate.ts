@@ -101,6 +101,7 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     canaryFlash:         { t: "카나리 배포 + 선착순 이벤트 주의", m: "선착순 이벤트 중 카나리 배포는 일부 사용자에게 다른 버전이 노출됩니다. 이벤트 전후 배포를 분리하세요." },
     noMonitoring:        { t: "모니터링 미설정", m: "CloudWatch, X-Ray 등 모니터링 도구가 선택되지 않았습니다. 프로덕션 환경에서는 모니터링이 필수입니다." },
     noBackupNonEks:      { t: "백업 전략 미설정", m: "DB 백업 외에 애플리케이션 상태·설정 백업 전략이 없습니다. AWS Backup 활용을 검토하세요." },
+    prodNoIac:           { t: "IaC 미설정 (프로덕션 권장)", m: "수동 콘솔 관리로는 환경 재현, 변경 추적, 장애 복구가 어렵습니다. Terraform 또는 CDK 도입을 권장합니다." },
   } : {
     availAz:            { t: "99.99% availability + single AZ impossible", m: "Single AZ means full outage on AZ failure. At least 2 AZs required for 99.99% (3 AZs recommended)." },
     highAvailAz:        { t: "High availability target conflicts with single AZ", m: "99.95%+ availability cannot be achieved without Multi-AZ." },
@@ -195,6 +196,7 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     canaryFlash:         { t: "Canary deploy + flash sale caution", m: "Canary deployment during flash sales exposes some users to different versions. Separate deployments from events." },
     noMonitoring:        { t: "No monitoring configured", m: "No monitoring tool selected (CloudWatch, X-Ray, etc.). Monitoring is essential for production environments." },
     noBackupNonEks:      { t: "No backup strategy configured", m: "No application state/configuration backup strategy beyond DB backups. Consider leveraging AWS Backup." },
+    prodNoIac:           { t: "No IaC configured (recommended for production)", m: "Manual console management makes environment reproduction, change tracking, and disaster recovery difficult. Consider adopting Terraform or CDK." },
   };
 
   const types     = state.workload?.type || [];
@@ -388,6 +390,9 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
   // -- CI/CD --
   if (isLarge && (!iac || iac === "none"))
     E(_.largeNoIac.t, _.largeNoIac.m, ["cicd"]);
+  if (!isLarge && !hasCritCert && avail !== "99.95" && avail !== "99.99"
+      && (!iac || iac === "none") && stage !== "mvp")
+    W(_.prodNoIac.t, _.prodNoIac.m, ["cicd"]);
   if ((avail === "99.95" || avail === "99.99") && region !== "single" && envCnt === "dev_prod")
     W(_.multiRegionEnv.t, _.multiRegionEnv.m, ["slo","cicd"]);
   // gitops is a platform-phase field, only settable when orchest === "eks"

@@ -1912,7 +1912,7 @@ exports[`generateSummary snapshots > minimal (en) 1`] = `
     "errors": 0,
     "monthlyCost": 300,
     "wafrScore": 22,
-    "warnings": 1,
+    "warnings": 2,
   },
   "teamReqs": {
     "minDevs": 1,
@@ -2020,7 +2020,7 @@ exports[`generateSummary snapshots > minimal (ko) 1`] = `
     "errors": 0,
     "monthlyCost": 300,
     "wafrScore": 22,
-    "warnings": 1,
+    "warnings": 2,
   },
   "teamReqs": {
     "minDevs": 1,

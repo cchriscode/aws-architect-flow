@@ -167,6 +167,14 @@ exports[`validateState snapshots > iot_platform (ko) 1`] = `
 exports[`validateState snapshots > minimal (en) 1`] = `
 [
   {
+    "message": "Manual console management makes environment reproduction, change tracking, and disaster recovery difficult. Consider adopting Terraform or CDK.",
+    "phases": [
+      "cicd",
+    ],
+    "severity": "warn",
+    "title": "No IaC configured (recommended for production)",
+  },
+  {
     "message": "No monitoring tool selected (CloudWatch, X-Ray, etc.). Monitoring is essential for production environments.",
     "phases": [
       "cicd",
@@ -179,6 +187,14 @@ exports[`validateState snapshots > minimal (en) 1`] = `
 
 exports[`validateState snapshots > minimal (ko) 1`] = `
 [
+  {
+    "message": "수동 콘솔 관리로는 환경 재현, 변경 추적, 장애 복구가 어렵습니다. Terraform 또는 CDK 도입을 권장합니다.",
+    "phases": [
+      "cicd",
+    ],
+    "severity": "warn",
+    "title": "IaC 미설정 (프로덕션 권장)",
+  },
   {
     "message": "CloudWatch, X-Ray 등 모니터링 도구가 선택되지 않았습니다. 프로덕션 환경에서는 모니터링이 필수입니다.",
     "phases": [
