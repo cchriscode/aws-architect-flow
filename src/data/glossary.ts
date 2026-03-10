@@ -58,8 +58,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     },
     related: ["subnet", "igw", "nat-gw", "sg"],
     analogy: {
-      ko: "아파트 단지. 외부에서 안 보이고 내부 구역이 나뉘어 있다",
-      en: "An apartment complex. Invisible from outside, divided into zones inside",
+      ko: "도시 전체를 둘러싼 성벽. 외부에서는 안이 보이지 않고, 내부는 구역(서브넷)으로 나뉘어 관리된다",
+      en: "A walled city. Invisible from outside, internally divided into districts (subnets) for organized management",
     },
   },
   {
@@ -78,8 +78,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     },
     related: ["vpc", "route-table", "nacl"],
     analogy: {
-      ko: "아파트 단지 안의 동(棟). 1동은 외부 출입 가능, 2동은 내부 전용",
-      en: "Buildings within a complex. Building 1 has public access, Building 2 is internal only",
+      ko: "도시 안의 구역. 상업구역(퍼블릭)은 외부 방문자가 올 수 있고, 주거구역(프라이빗)은 주민만 출입 가능",
+      en: "Districts within the city. The commercial zone (public) is open to visitors, while the residential zone (private) is residents-only",
     },
   },
   {
@@ -98,8 +98,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     },
     related: ["vpc", "subnet", "nat-gw"],
     analogy: {
-      ko: "아파트 단지 정문. 외부와 통하는 유일한 출입구",
-      en: "The main gate of the complex. The only entrance from outside",
+      ko: "도시 정문. 외부에서 도시로 들어오거나 나갈 수 있는 유일한 공식 출입구",
+      en: "The city's main gate. The only official entrance for entering or leaving the city",
     },
   },
   {
@@ -118,8 +118,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     },
     related: ["vpc", "subnet", "igw"],
     analogy: {
-      ko: "아파트 택배함. 안에서 밖으로 보내는 건 되지만, 밖에서 직접 문 앞까지 올 수 없다",
-      en: "A mailroom. You can send packages out, but outsiders can't come directly to your door",
+      ko: "도시 택배 발송 센터. 주민(프라이빗)이 외부로 물건을 보낼 수 있지만, 외부인이 직접 주거구역에 들어올 수는 없다",
+      en: "The city's outbound shipping center. Residents (private) can send packages out, but outsiders cannot enter the residential zone directly",
     },
   },
   {
@@ -138,8 +138,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     },
     related: ["vpc", "nat-gw", "s3", "dynamodb"],
     analogy: {
-      ko: "단지 내 편의점. 밖에 나가지 않고 단지 안에서 바로 이용",
-      en: "A convenience store inside the complex. No need to go outside",
+      ko: "도시 안에 입점한 관공서 지점. 시청(AWS 서비스)에 가려고 성 밖으로 나갈 필요 없이 도시 안에서 바로 이용",
+      en: "A government branch office inside the city. No need to leave the city walls to visit city hall (AWS services)",
     },
   },
   {
@@ -154,8 +154,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["subnet", "igw", "nat-gw"],
     analogy: {
-      ko: "도로 표지판. '서울 방면 → 이쪽', '부산 방면 → 저쪽' 같은 안내판",
-      en: "Road signs. 'To Seoul → this way', 'To Busan → that way'",
+      ko: "도시 도로 표지판. '시청 방면 → 좌회전', '병원 방면 → 우회전' 처럼 트래픽이 갈 방향을 안내",
+      en: "City road signs. Directs traffic like 'To City Hall → turn left', 'To Hospital → turn right'",
     },
   },
   {
@@ -174,8 +174,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     },
     related: ["nacl", "vpc", "ec2", "alb"],
     analogy: {
-      ko: "세대 현관 도어록. 허용된 사람만 들어올 수 있다",
-      en: "Your apartment door lock. Only authorized people can enter",
+      ko: "건물 출입 카드 시스템. 허가된 사람(트래픽)만 건물에 들어올 수 있고, 나갈 때는 자동으로 문이 열림",
+      en: "A building access card system. Only authorized people (traffic) can enter, and the door opens automatically when leaving",
     },
   },
   {
@@ -190,8 +190,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["sg", "subnet"],
     analogy: {
-      ko: "아파트 동 출입구 경비원. 세대 도어록(SG)과는 별도로 동 입구에서 검사",
-      en: "Building entrance guard. Separate from your door lock (SG), checks at the building entrance",
+      ko: "구역 출입 검문소. 건물 카드(SG)와 별개로 구역 입구에서 한 번 더 검사하는 이중 보안",
+      en: "A district checkpoint. A second layer of security at the district entrance, separate from the building card (SG)",
     },
   },
 
@@ -208,8 +208,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "edge",
     related: ["cloudfront", "alb"],
     analogy: {
-      ko: "전화번호부. 'example.com'이라는 이름을 실제 서버 주소로 안내",
-      en: "A phone book. Translates 'example.com' to the actual server address",
+      ko: "도시 안내 센터. '시청(example.com)이 어디인가요?' 물으면 정확한 주소(IP)를 알려줌",
+      en: "The city information center. Ask 'Where is City Hall (example.com)?' and it gives you the exact address (IP)",
     },
   },
   {
@@ -228,8 +228,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     },
     related: ["route53", "waf", "alb", "s3"],
     analogy: {
-      ko: "전국 편의점 체인. 본사(원본 서버) 대신 가까운 편의점(엣지)에서 바로 제공",
-      en: "A nationwide convenience chain. Serves from the nearest store (edge) instead of HQ (origin)",
+      ko: "전국 체인점 네트워크. 본사(원본 서버) 대신 가까운 지점(엣지)에서 바로 서비스 제공",
+      en: "A nationwide chain store network. Serves from the nearest branch (edge) instead of headquarters (origin server)",
     },
   },
   {
@@ -244,8 +244,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "edge",
     related: ["cloudfront", "alb", "shield"],
     analogy: {
-      ko: "건물 보안 검색대. 위험한 물건(공격 패턴)을 가진 사람은 입장 거부",
-      en: "Building security checkpoint. Denies entry to those carrying dangerous items (attack patterns)",
+      ko: "건물 보안 검색대. 위험물(공격 패턴)을 가진 방문자는 입장을 거부",
+      en: "A building security checkpoint. Denies entry to visitors carrying dangerous items (attack patterns)",
     },
   },
   {
@@ -260,8 +260,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "edge",
     related: ["waf", "cloudfront", "route53"],
     analogy: {
-      ko: "건물 경비 시스템. 기본(Standard)은 일반 경비, 고급(Advanced)은 특수 경호",
-      en: "Building security system. Standard is regular guards, Advanced is special protection",
+      ko: "도시 방호 시스템. 기본형(Standard)은 일반 방어, 고급형(Advanced)은 대규모 공격까지 방어",
+      en: "The city defense system. Standard provides basic defense, Advanced defends against large-scale attacks",
     },
   },
   {
@@ -280,8 +280,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     },
     related: ["nlb", "sg", "ec2", "ecs"],
     analogy: {
-      ko: "백화점 안내 데스크. '의류는 3층, 식품은 지하'처럼 요청을 적절한 곳으로 안내",
-      en: "A department store info desk. Directs requests — 'clothing floor 3, food basement'",
+      ko: "백화점 안내 데스크. '의류는 3층, 식품은 지하'처럼 요청 내용에 따라 적절한 곳으로 안내",
+      en: "A department store info desk. Directs visitors based on their needs — 'clothing on floor 3, food in the basement'",
     },
   },
   {
@@ -296,8 +296,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-public",
     related: ["alb"],
     analogy: {
-      ko: "고속도로 톨게이트. 내용을 확인하지 않고 빠르게 통과시킨다",
-      en: "A highway toll gate. Passes traffic through quickly without inspecting contents",
+      ko: "고속도로 톨게이트. 내용물을 검사하지 않고 초고속으로 통과시키는 단순하고 빠른 입구",
+      en: "A highway toll gate. A simple, fast entry point that passes traffic through at ultra-high speed without inspecting contents",
     },
   },
   {
@@ -316,8 +316,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     },
     related: ["lambda", "alb", "cloudfront"],
     analogy: {
-      ko: "호텔 프론트 데스크. 모든 요청을 접수·검증한 뒤 담당 부서로 전달",
-      en: "A hotel front desk. Receives and verifies every request before routing to the right department",
+      ko: "호텔 프론트 데스크. 모든 요청을 접수하고, 본인 확인(인증) 후 담당 부서로 전달",
+      en: "A hotel front desk. Receives all requests, verifies identity (auth), then routes to the right department",
     },
   },
 
@@ -338,8 +338,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     },
     related: ["auto-scaling", "alb", "sg", "ebs"],
     analogy: {
-      ko: "임대 서버. 사양을 고르고, OS를 설치하고, 직접 관리한다",
-      en: "A rented server. You pick specs, install OS, and manage it yourself",
+      ko: "임대 사무실. 크기(사양)와 인테리어(OS)를 직접 골라 입주하고, 관리도 직접 한다",
+      en: "A rented office. You choose the size (specs) and interior (OS), move in, and manage it yourself",
     },
   },
   {
@@ -354,8 +354,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["ec2", "alb"],
     analogy: {
-      ko: "마트 계산대. 손님이 많으면 계산대를 열고, 한산하면 줄인다",
-      en: "Grocery checkout lanes. Opens more when busy, closes when quiet",
+      ko: "유동적 사무실 배치. 직원(트래픽)이 많으면 사무실을 늘리고, 적으면 줄여서 임대료 절감",
+      en: "Flexible office allocation. Opens more offices when staff (traffic) increases, closes them when quiet to save rent",
     },
   },
   {
@@ -374,8 +374,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     },
     related: ["api-gateway", "sqs", "dynamodb", "s3"],
     analogy: {
-      ko: "자판기. 버튼(이벤트)을 누르면 원하는 것(코드)이 실행되고, 안 쓸 때는 전기 안 먹음",
-      en: "A vending machine. Press a button (event), get your result (code runs), zero cost when idle",
+      ko: "무인 자판기. 버튼(이벤트)을 누르면 음료(코드)가 나오고, 아무도 안 쓸 때는 유지비 0원",
+      en: "An unmanned vending machine. Press a button (event) and a drink (code) comes out. Zero maintenance cost when idle",
     },
   },
   {
@@ -390,8 +390,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-private",
     related: ["ecs", "eks", "lambda"],
     analogy: {
-      ko: "배달 전문 주방. 공간(서버)은 알아서 제공되고, 요리(컨테이너)만 하면 된다",
-      en: "A ghost kitchen. Space (servers) is provided automatically, you just cook (run containers)",
+      ko: "관리형 작업장. 건물 관리(서버)는 도시(AWS)가 하고, 나는 작업(컨테이너)에만 집중",
+      en: "A managed workspace. The city (AWS) handles the building (server), you just focus on your work (containers)",
     },
   },
 
@@ -408,8 +408,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["container", "ecs", "eks", "ecr"],
     analogy: {
-      ko: "이사 박스. 짐(코드+라이브러리)을 한 박스에 넣으면 어느 집(서버)에서든 바로 사용",
-      en: "A moving box. Pack your stuff (code+libs) in a box and it works in any house (server)",
+      ko: "표준 규격 컨테이너 박스. 짐(코드+라이브러리)을 규격 박스에 넣으면 어떤 트럭(서버)에서든 바로 사용",
+      en: "A standard shipping container. Pack your cargo (code+libraries) in a standard box and it works on any truck (server)",
     },
   },
   {
@@ -424,8 +424,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["docker", "pod"],
     analogy: {
-      ko: "실행 중인 앱. 박스(이미지)를 열어서 실제로 사용하고 있는 상태",
-      en: "A running app. The box (image) has been opened and is in active use",
+      ko: "컨테이너 박스를 열어 가동 중인 상태. 박스(이미지) 안의 물건을 꺼내 실제로 사용하고 있는 것",
+      en: "A container box opened and running. The contents of the box (image) have been unpacked and are in active use",
     },
   },
   {
@@ -440,8 +440,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["docker", "container", "ecr", "dockerfile"],
     analogy: {
-      ko: "붕어빵 틀. 틀(이미지)로 붕어빵(컨테이너)을 찍어낸다. 틀 자체는 변하지 않음",
-      en: "A waffle mold. The mold (image) stamps out waffles (containers). The mold itself doesn't change",
+      ko: "프랜차이즈 매뉴얼. 이 매뉴얼(이미지)대로 가게(컨테이너)를 열면 어디서든 동일한 결과",
+      en: "A franchise manual. Open a store (container) following this manual (image) and get identical results anywhere",
     },
   },
   {
@@ -456,8 +456,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["docker", "docker-image", "multi-stage-build"],
     analogy: {
-      ko: "요리 레시피. '재료 준비 → 조리 → 담기' 순서대로 따라하면 같은 요리(이미지)가 완성",
-      en: "A cooking recipe. Follow 'prep → cook → plate' in order and the same dish (image) is produced",
+      ko: "프랜차이즈 매뉴얼 작성법. '인테리어 → 장비 설치 → 메뉴판 설정' 순서를 적은 설명서",
+      en: "A franchise manual writing guide. Instructions listing steps in order: 'interior → equipment → menu setup'",
     },
   },
   {
@@ -472,8 +472,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["dockerfile", "docker-image", "ecr"],
     analogy: {
-      ko: "공장에서 완성품만 출하. 제조 도구(빌드 도구)는 공장에 남기고 제품(실행 파일)만 배송",
-      en: "Shipping only finished goods. Manufacturing tools (build tools) stay in the factory, only products (binaries) ship",
+      ko: "공장에서 완성품만 출하. 제조 도구(빌드 도구)는 공장에 남기고 제품(실행 파일)만 가게로 배송",
+      en: "Factory ships finished goods only. Manufacturing tools (build tools) stay in the factory; only products (binaries) are shipped to the store",
     },
   },
   {
@@ -488,8 +488,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["docker", "container", "ecs"],
     analogy: {
-      ko: "세트 메뉴 주문서. '밥 + 국 + 반찬'을 한 장(YAML)에 적으면 한 번에 전부 나옴",
-      en: "A combo meal order. Write 'rice + soup + sides' on one sheet (YAML) and everything comes at once",
+      ko: "복합 매장 세트 주문서. '카페 + 베이커리 + 꽃집'을 한 장(YAML)에 적으면 동시에 전부 오픈",
+      en: "A combo store order form. Write 'cafe + bakery + flower shop' on one sheet (YAML) and open them all at once",
     },
   },
   {
@@ -504,8 +504,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["docker-image", "ecr", "docker"],
     analogy: {
-      ko: "앱스토어. 만든 앱(이미지)을 올려두고, 필요한 서버에서 다운로드해서 실행",
-      en: "An app store. Upload your app (image) and any server can download and run it",
+      ko: "매뉴얼 보관 창고. 만든 매뉴얼(이미지)을 등록해두고, 새 지점을 열 때 다운로드해서 사용",
+      en: "A manual storage warehouse. Register your manuals (images) and download them when opening a new branch",
     },
   },
   {
@@ -520,8 +520,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["pod", "istio", "xray", "fluent-bit"],
     analogy: {
-      ko: "오토바이 사이드카. 본체(메인 앱) 옆에 붙어서 짐(부가 기능)을 나르는 보조 칸",
-      en: "A motorcycle sidecar. Attached to the main vehicle (app) to carry extra cargo (auxiliary functions)",
+      ko: "가게 옆에 붙은 보조 매장. 본 가게(메인 앱) 옆에서 배달 접수(로깅)나 보안 검사(프록시)를 담당",
+      en: "An auxiliary shop attached to the main store. Handles delivery reception (logging) or security checks (proxy) next to the main store (app)",
     },
   },
   {
@@ -536,8 +536,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["pod", "node", "eks", "helm"],
     analogy: {
-      ko: "물류 센터장. 수많은 택배(컨테이너)를 어디에 배치하고, 고장 나면 교체할지 관리",
-      en: "A logistics center manager. Decides where to place each package (container) and replaces broken ones",
+      ko: "대형 프랜차이즈 본부. 수백 개 가게(컨테이너)의 오픈·확장·폐점·교체를 자동으로 관리",
+      en: "A large franchise headquarters. Automatically manages opening, expanding, closing, and replacing hundreds of stores (containers)",
     },
   },
   {
@@ -552,8 +552,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["k8s", "node", "container"],
     analogy: {
-      ko: "같은 방을 쓰는 룸메이트. 네트워크·스토리지를 공유하는 컨테이너 묶음",
-      en: "Roommates sharing a room. A group of containers sharing network and storage",
+      ko: "같은 건물에 입점한 가게 묶음. 주소(네트워크)와 창고(스토리지)를 공유하는 컨테이너 그룹",
+      en: "A group of shops in the same building. Containers sharing an address (network) and warehouse (storage)",
     },
   },
   {
@@ -568,8 +568,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["k8s", "pod", "ec2"],
     analogy: {
-      ko: "건물 한 층. Pod(방)들이 이 층(Node) 위에서 돌아간다",
-      en: "A floor in a building. Pods (rooms) run on this floor (Node)",
+      ko: "가게들이 입점한 건물. Pod(가게)들이 이 건물(Node) 안에서 실제로 운영된다",
+      en: "A building where shops are located. Pods (shops) actually operate inside this building (Node)",
     },
   },
   {
@@ -584,8 +584,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["k8s", "eks"],
     analogy: {
-      ko: "이케아 조립 설명서. 여러 부품(K8s 리소스)을 한 묶음으로 조립 가능",
-      en: "IKEA assembly instructions. Assembles multiple parts (K8s resources) into one package",
+      ko: "프랜차이즈 창업 패키지. 여러 구성요소(K8s 리소스)를 한 묶음으로 쉽게 설치·관리",
+      en: "A franchise startup package. Easily installs and manages multiple components (K8s resources) as one bundle",
     },
   },
   {
@@ -600,8 +600,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-private",
     related: ["fargate", "ecr", "alb", "eks"],
     analogy: {
-      ko: "AWS 전용 배달 관리 시스템. 복잡한 물류센터(K8s) 대신 간편 배달 앱",
-      en: "AWS's own delivery management. A simpler delivery app instead of a full logistics center (K8s)",
+      ko: "도시(AWS) 전용 가게 관리 시스템. 복잡한 프랜차이즈 본부(K8s) 대신 간편하게 가게를 관리",
+      en: "The city's (AWS) own store management system. Manages stores simply instead of a complex franchise HQ (K8s)",
     },
   },
   {
@@ -620,8 +620,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     },
     related: ["k8s", "ecs", "fargate", "ecr"],
     analogy: {
-      ko: "프랜차이즈 물류센터. 본사(AWS)가 관리 시스템을 제공하고, 운영은 내가 한다",
-      en: "A franchise logistics center. HQ (AWS) provides management, you handle operations",
+      ko: "도시(AWS)에서 운영하는 프랜차이즈 본부. 관리 시스템(컨트롤 플레인)은 도시가 제공하고, 가게 운영은 내가 한다",
+      en: "A franchise HQ operated by the city (AWS). The city provides the management system (control plane), you handle store operations",
     },
   },
   {
@@ -636,8 +636,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["docker", "ecs", "eks"],
     analogy: {
-      ko: "레시피 보관함. 요리법(이미지)을 저장해두고 필요할 때 꺼내 쓴다",
-      en: "A recipe cabinet. Stores recipes (images) and retrieves them when needed",
+      ko: "도시 공인 매뉴얼 보관소. 도시(AWS)가 운영하는 공식 이미지 저장소로, ECS/EKS에서 바로 사용",
+      en: "The city's official manual storage. The official image registry run by the city (AWS), directly used by ECS/EKS",
     },
   },
   {
@@ -652,8 +652,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["k8s", "eks", "ecs"],
     analogy: {
-      ko: "사내 전화 교환기. 부서(서비스) 간 통화를 자동 연결·녹음·보안 처리",
-      en: "An office phone switchboard. Auto-connects, records, and secures calls between departments (services)",
+      ko: "가게 간 내부 통신망. 가게(서비스)들 사이의 주문·배달을 자동으로 관리하고 기록하는 인프라",
+      en: "An inter-store communication network. Infrastructure that auto-manages and records orders and deliveries between stores (services)",
     },
   },
 
@@ -674,8 +674,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     },
     related: ["dynamodb", "elasticache", "ec2"],
     analogy: {
-      ko: "엑셀 표. 행과 열이 있는 정형 데이터를 저장. AWS가 백업·업데이트를 대신 해줌",
-      en: "An Excel spreadsheet. Stores structured row/column data. AWS handles backup and updates",
+      ko: "도시 공공 도서관. 행과 열(테이블)로 정리된 책(데이터)을 저장하고, 도시(AWS)가 관리·백업을 담당",
+      en: "The city's public library. Stores books (data) organized in rows and columns (tables), with the city (AWS) handling management and backups",
     },
   },
   {
@@ -694,8 +694,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     },
     related: ["rds", "lambda", "vpc-endpoint"],
     analogy: {
-      ko: "사물함. 번호(키)로 물건(값)을 넣고 빼는 초고속 저장소",
-      en: "A locker system. Put in and retrieve items (values) by number (key) at ultra-high speed",
+      ko: "초고속 물품 보관함. 번호(키)로 물건(값)을 넣고 빼며, 보관함은 무한히 늘어난다",
+      en: "An ultra-fast locker system. Store and retrieve items (values) by number (key), with infinitely expandable lockers",
     },
   },
   {
@@ -710,8 +710,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-private",
     related: ["rds", "dynamodb"],
     analogy: {
-      ko: "자주 쓰는 전화번호 즐겨찾기. 매번 전화번호부(DB)를 뒤지지 않고 바로 연결",
-      en: "Phone speed dial. Instead of looking up the phone book (DB) every time, connect instantly",
+      ko: "도서관 앞 즐겨찾기 게시판. 자주 찾는 책(데이터)을 미리 꺼내두어 매번 서고(DB)까지 안 가도 됨",
+      en: "A favorites board in front of the library. Frequently requested books (data) are pre-staged so you don't have to go to the stacks (DB) every time",
     },
   },
   {
@@ -726,8 +726,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-private",
     related: ["elasticache", "kinesis"],
     analogy: {
-      ko: "도서관 검색 시스템. 수백만 권의 책(데이터)에서 원하는 내용을 순식간에 찾아줌",
-      en: "A library search system. Finds what you need instantly across millions of books (data)",
+      ko: "도시 검색 엔진. 수백만 건의 문서(데이터)에서 원하는 내용을 키워드로 순식간에 찾아주는 시스템",
+      en: "The city search engine. Instantly finds what you need by keyword across millions of documents (data)",
     },
   },
   {
@@ -746,8 +746,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     },
     related: ["cloudfront", "lambda", "vpc-endpoint"],
     analogy: {
-      ko: "무한 창고. 어떤 물건(파일)이든 넣으면 안전하게 보관해주고, 필요할 때 꺼내준다",
-      en: "An infinite warehouse. Store anything (files) safely and retrieve when needed",
+      ko: "도시 무한 창고. 어떤 물건(파일)이든 넣으면 안전하게 보관해주고, 필요할 때 언제든 꺼내준다",
+      en: "The city's infinite warehouse. Store anything (files) safely and retrieve whenever needed",
     },
   },
   {
@@ -762,8 +762,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-private",
     related: ["ec2", "efs"],
     analogy: {
-      ko: "USB 외장하드. 서버(EC2)에 꽂아서 쓰는 추가 저장 공간",
-      en: "A USB external hard drive. Extra storage plugged into your server (EC2)",
+      ko: "건물에 붙인 개인 창고. 사무실(EC2)에 직접 연결된 전용 저장 공간",
+      en: "A private storage unit attached to a building. Dedicated storage space directly connected to your office (EC2)",
     },
   },
   {
@@ -778,8 +778,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-private",
     related: ["ec2", "ebs", "ecs"],
     analogy: {
-      ko: "회사 공유 폴더. 여러 컴퓨터(서버)에서 동시에 같은 파일을 읽고 쓸 수 있다",
-      en: "A company shared folder. Multiple computers (servers) can read/write the same files simultaneously",
+      ko: "도시 공용 파일 캐비넷. 여러 사무실(서버)에서 동시에 같은 서류를 열람·수정할 수 있다",
+      en: "The city's shared file cabinet. Multiple offices (servers) can simultaneously read and write the same documents",
     },
   },
 
@@ -796,8 +796,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["sns", "lambda", "eventbridge"],
     analogy: {
-      ko: "음식점 대기표. 주문(메시지)을 대기열에 넣으면 순서대로 처리",
-      en: "A restaurant waiting list. Orders (messages) are queued and processed in order",
+      ko: "도시 택배 대기열. 주문(메시지)을 접수하면 대기열에 넣고 배달부가 순서대로 처리",
+      en: "The city's delivery queue. Orders (messages) are received, queued, and processed in order by delivery staff",
     },
   },
   {
@@ -812,8 +812,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["sqs", "lambda", "eventbridge"],
     analogy: {
-      ko: "학교 방송 시스템. 한 번 방송하면 모든 교실(구독자)이 동시에 들음",
-      en: "A school PA system. One broadcast is heard by all classrooms (subscribers) at once",
+      ko: "도시 방송 시스템. 한 번 방송하면 모든 구역(구독자)이 동시에 들을 수 있다",
+      en: "The city PA system. One broadcast is heard by all districts (subscribers) at the same time",
     },
   },
   {
@@ -828,8 +828,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["sqs", "sns", "lambda", "step-functions"],
     analogy: {
-      ko: "우편 분류 센터. 편지(이벤트)의 주소(규칙)를 보고 적절한 목적지로 배달",
-      en: "A mail sorting center. Reads the address (rules) on letters (events) and delivers to the right destination",
+      ko: "도시 우편 분류 센터. 편지(이벤트)의 주소(규칙)를 읽고 적절한 목적지로 자동 배달",
+      en: "The city mail sorting center. Reads the address (rules) on letters (events) and auto-delivers to the right destination",
     },
   },
   {
@@ -844,8 +844,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["lambda", "opensearch", "s3"],
     analogy: {
-      ko: "컨베이어 벨트. 끊임없이 들어오는 물건(데이터)을 실시간으로 운반·분류",
-      en: "A conveyor belt. Continuously transports and sorts incoming items (data) in real time",
+      ko: "도시 컨베이어 벨트 시스템. 끊임없이 들어오는 물건(데이터)을 실시간으로 운반·분류",
+      en: "The city conveyor belt system. Continuously transports and sorts incoming items (data) in real time",
     },
   },
   {
@@ -860,8 +860,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["lambda", "sqs", "eventbridge"],
     analogy: {
-      ko: "요리 레시피. '재료 손질 → 볶기 → 끓이기' 각 단계를 순서대로 자동 실행",
-      en: "A cooking recipe. Automatically runs 'prep → stir-fry → simmer' steps in order",
+      ko: "도시 업무 자동화 시스템. '서류 접수 → 심사 → 승인' 각 단계를 순서대로 자동 실행하는 워크플로",
+      en: "The city workflow automation system. Auto-executes steps in order: 'receive documents → review → approve'",
     },
   },
   {
@@ -876,8 +876,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-private",
     related: ["kinesis", "sqs"],
     analogy: {
-      ko: "대형 물류 허브. Kinesis보다 더 대규모·복잡한 물류(이벤트) 처리에 적합",
-      en: "A major logistics hub. Better suited for larger/more complex logistics (events) than Kinesis",
+      ko: "도시 대형 물류 허브. Kinesis(소형 컨베이어)보다 더 대규모·복잡한 이벤트 물류 처리에 적합",
+      en: "The city's major logistics hub. Better suited for larger, more complex event logistics than Kinesis (small conveyor)",
     },
   },
 
@@ -894,8 +894,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["cognito", "kms"],
     analogy: {
-      ko: "회사 사원증 시스템. 부서(역할)에 따라 출입 가능 구역(권한)이 다르다",
-      en: "A company badge system. Access areas (permissions) differ by department (role)",
+      ko: "도시 출입증 관리 본부. 부서(역할)에 따라 어떤 시설(리소스)에 출입할 수 있는지 통제",
+      en: "The city's access badge headquarters. Controls which facilities (resources) you can enter based on your department (role)",
     },
   },
   {
@@ -910,8 +910,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["iam", "s3", "rds", "secrets-manager"],
     analogy: {
-      ko: "금고 열쇠 관리인. 모든 금고(암호화된 데이터)의 열쇠를 안전하게 보관",
-      en: "A vault key keeper. Securely stores keys for all vaults (encrypted data)",
+      ko: "도시 금고 열쇠 관리소. 모든 금고(암호화된 데이터)의 열쇠를 안전하게 보관·교체",
+      en: "The city's vault key management office. Securely stores and rotates keys for all vaults (encrypted data)",
     },
   },
   {
@@ -926,8 +926,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["iam", "api-gateway", "alb"],
     analogy: {
-      ko: "건물 출입 시스템. 얼굴(비밀번호), 카드(소셜 로그인), 지문(MFA)으로 본인 확인",
-      en: "Building access system. Verifies identity via face (password), card (social login), fingerprint (MFA)",
+      ko: "도시 주민등록 센터. 회원가입, 로그인, 신분증(MFA) 발급 등 주민(사용자) 인증을 관리",
+      en: "The city's resident registration center. Manages citizen (user) authentication — sign-up, login, ID cards (MFA)",
     },
   },
   {
@@ -942,8 +942,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["cloudtrail", "iam"],
     analogy: {
-      ko: "CCTV + AI 감지. 건물 곳곳을 모니터링하다 수상한 행동을 자동 알림",
-      en: "CCTV with AI. Monitors the building everywhere and auto-alerts on suspicious behavior",
+      ko: "도시 AI CCTV 시스템. 도시 곳곳을 모니터링하다 수상한 행동이 감지되면 자동으로 알림",
+      en: "The city's AI CCTV system. Monitors everywhere and auto-alerts when suspicious behavior is detected",
     },
   },
   {
@@ -958,8 +958,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["cloudfront", "alb"],
     analogy: {
-      ko: "사업자 등록증. 이 사이트가 진짜임을 증명하는 공인 인증서",
-      en: "A business license. An official certificate proving this site is legitimate",
+      ko: "사업자 등록증 발급소. 이 가게(사이트)가 진짜임을 증명하는 인증서를 무료로 발급·갱신",
+      en: "A business license bureau. Issues and renews certificates proving this store (site) is legitimate, for free",
     },
   },
   {
@@ -974,8 +974,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["kms", "rds", "iam"],
     analogy: {
-      ko: "비밀번호 관리 앱(1Password). 모든 비밀번호를 안전하게 저장하고 주기적으로 변경",
-      en: "A password manager (like 1Password). Stores all passwords safely and rotates them periodically",
+      ko: "비밀번호 관리 금고. 모든 비밀번호·API 키를 안전하게 보관하고 주기적으로 자동 교체",
+      en: "A password management vault. Securely stores all passwords and API keys, auto-rotating them periodically",
     },
   },
   {
@@ -990,8 +990,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["guardduty", "s3", "cloudwatch"],
     analogy: {
-      ko: "건물 출입 기록부. 누가 언제 어디를 다녀갔는지 전부 기록",
-      en: "A building access log. Records who went where and when — everything",
+      ko: "도시 출입 기록 시스템. 누가 언제 어디를 방문(API 호출)했는지 전부 기록하는 감사 추적",
+      en: "The city's access log system. Records who visited (API called) where and when — a complete audit trail",
     },
   },
 
@@ -1008,8 +1008,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["codepipeline", "blue-green", "canary"],
     analogy: {
-      ko: "자동 조립 라인. 부품(코드)을 넣으면 검수(테스트) 후 완성품(배포)이 나온다",
-      en: "An assembly line. Put in parts (code), inspect (test), and out comes the finished product (deploy)",
+      ko: "도시 자동 건설 라인. 설계(코드) → 검수(테스트) → 시공(배포)을 자동화하는 파이프라인",
+      en: "The city's automated construction line. A pipeline automating design (code) → inspection (test) → construction (deploy)",
     },
   },
   {
@@ -1024,8 +1024,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["canary", "rolling", "cicd"],
     analogy: {
-      ko: "호텔 방 교체. 새 방(Green)을 완벽히 준비한 뒤, 손님을 한 번에 이동",
-      en: "A hotel room swap. Prepare the new room (Green) perfectly, then move all guests at once",
+      ko: "건물 교체 공사. 새 건물(Green)을 완벽히 지은 뒤, 입주자를 한 번에 이동시키는 무중단 교체",
+      en: "A building replacement project. Build the new building (Green) completely, then move all occupants at once — zero downtime",
     },
   },
   {
@@ -1040,8 +1040,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["blue-green", "rolling", "cicd"],
     analogy: {
-      ko: "시식 행사. 전체 출시 전에 소수에게 먼저 맛보게 해서 반응을 확인",
-      en: "A tasting event. Let a few try before the full launch to check reactions",
+      ko: "시범 오픈. 전체 오픈 전에 소수 고객에게 먼저 서비스해보고 반응을 확인한 뒤 점진적 확대",
+      en: "A soft opening. Serve a few customers first before the grand opening, check reactions, then gradually expand",
     },
   },
   {
@@ -1056,8 +1056,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["blue-green", "canary", "cicd"],
     analogy: {
-      ko: "전구 교체. 100개 전구를 한 번에 끄지 않고, 하나씩 새것으로 교체",
-      en: "Replacing light bulbs. Instead of turning off all 100, replace them one at a time",
+      ko: "순차 리모델링. 100개 사무실을 한 번에 닫지 않고, 하나씩 차례로 새것으로 교체하는 무중단 방식",
+      en: "Sequential renovation. Instead of closing all 100 offices at once, renovate them one at a time — zero downtime",
     },
   },
   {
@@ -1072,8 +1072,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["cicd", "ecs", "eks", "lambda"],
     analogy: {
-      ko: "택배 물류 시스템. 주문(코드) 접수 → 포장(빌드) → 검수(테스트) → 배송(배포) 자동화",
-      en: "A delivery logistics system. Order (code) → pack (build) → inspect (test) → ship (deploy) automated",
+      ko: "도시 공사 자동화 시스템. 설계(코드) → 자재 조달(빌드) → 검수(테스트) → 시공(배포)을 전자동 처리",
+      en: "The city's construction automation. Fully automates design (code) → materials (build) → inspection (test) → construction (deploy)",
     },
   },
   {
@@ -1088,8 +1088,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["xray", "ec2", "lambda", "ecs"],
     analogy: {
-      ko: "건물 관리실 모니터. 전기·수도·엘리베이터 상태를 실시간 확인하고, 이상 시 알림",
-      en: "A building management room monitor. Real-time status of electricity, water, elevators, with alerts on anomalies",
+      ko: "도시 관제 모니터실. 전기·수도·교통(CPU·메모리·네트워크)을 실시간 모니터링하고 이상 시 알림",
+      en: "The city control room. Real-time monitoring of power, water, traffic (CPU, memory, network) with alerts on anomalies",
     },
   },
   {
@@ -1104,8 +1104,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["cloudwatch", "lambda", "api-gateway"],
     analogy: {
-      ko: "택배 추적 시스템. 물건(요청)이 어디서 멈추고, 어디서 지연되는지 추적",
-      en: "A package tracking system. Tracks where items (requests) stall or get delayed",
+      ko: "택배 추적 시스템. 물건(요청)이 어느 거점(서비스)에서 멈추거나 지연되는지 경로를 추적",
+      en: "A package tracking system. Traces the route of items (requests) to find where they stall or get delayed",
     },
   },
   {
@@ -1120,8 +1120,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["cdk", "terraform", "codepipeline"],
     analogy: {
-      ko: "설계 도면. 도면(코드)대로 건물(인프라)을 정확히 재현할 수 있다",
-      en: "Architecture blueprints. Build the exact same building (infrastructure) from the blueprint (code)",
+      ko: "도시 건축 도면. 도면(코드)대로 건물(인프라)을 정확히 재현할 수 있어 수작업 실수를 방지",
+      en: "City architecture blueprints. Build the exact same building (infrastructure) from the blueprint (code), preventing manual errors",
     },
   },
   {
@@ -1136,8 +1136,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["iac", "terraform", "codepipeline"],
     analogy: {
-      ko: "프로그래밍 가능한 레고. 코드로 블록(AWS 리소스)을 조립하는 IaC 도구",
-      en: "Programmable LEGO. An IaC tool that assembles blocks (AWS resources) with code",
+      ko: "프로그래밍 가능한 레고 블록. 코드(TypeScript/Python)로 도시 블록(AWS 리소스)을 조립하는 IaC 도구",
+      en: "Programmable LEGO blocks. An IaC tool that assembles city blocks (AWS resources) with code (TypeScript/Python)",
     },
   },
   {
@@ -1152,8 +1152,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["iac", "cdk"],
     analogy: {
-      ko: "만능 설계 도면. AWS뿐 아니라 어떤 클라우드든 같은 형식으로 설계 가능",
-      en: "Universal blueprints. Design any cloud — not just AWS — in the same format",
+      ko: "만능 건축 도면. AWS뿐 아니라 어떤 도시(클라우드)든 같은 형식의 도면으로 건설 가능",
+      en: "Universal blueprints. Design any city (cloud) — not just AWS — using the same format",
     },
   },
 
@@ -1170,8 +1170,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["vpc", "transit-gw"],
     analogy: {
-      ko: "두 아파트 단지를 잇는 구름다리. 밖에 나가지 않고 직접 이동 가능",
-      en: "A skybridge between two apartment complexes. Move directly without going outside",
+      ko: "두 도시를 잇는 전용 다리. 외부 도로(인터넷)를 거치지 않고 두 도시가 직접 연결",
+      en: "A dedicated bridge between two cities. Direct connection without going through external roads (internet)",
     },
   },
   {
@@ -1186,8 +1186,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["vpc", "vpc-peering", "direct-connect", "site-to-site-vpn"],
     analogy: {
-      ko: "지하철 환승역. 여러 노선(VPC)이 한 역(허브)에서 만나 자유롭게 환승",
-      en: "A subway transfer station. Multiple lines (VPCs) meet at one hub for free interchange",
+      ko: "중앙 교통 허브. 여러 도시(VPC)가 이 허브 하나를 통해 서로 연결되는 환승 터미널",
+      en: "A central transit hub. Multiple cities (VPCs) connect to each other through this single transfer terminal",
     },
   },
   {
@@ -1202,8 +1202,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["transit-gw", "site-to-site-vpn", "vpc"],
     analogy: {
-      ko: "전용 고속도로. 일반 도로(인터넷) 대신 나만 쓰는 전용 도로로 AWS에 접속",
-      en: "A private highway. Access AWS via your own dedicated road instead of public roads (internet)",
+      ko: "전용 고속도로. 회사 본사(온프레미스)에서 도시(AWS)까지 나만 쓰는 직통 도로",
+      en: "A private highway. Your own dedicated road from company HQ (on-premises) directly to the city (AWS)",
     },
   },
   {
@@ -1218,8 +1218,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["direct-connect", "transit-gw", "vpc"],
     analogy: {
-      ko: "암호화된 비밀 터널. 인터넷 위에 보안 터널을 만들어 안전하게 통신",
-      en: "An encrypted secret tunnel. Creates a secure tunnel over the internet for safe communication",
+      ko: "암호화된 지하 터널. 일반 도로(인터넷) 아래에 비밀 통로를 만들어 안전하게 통신",
+      en: "An encrypted underground tunnel. Creates a secret passage under public roads (internet) for secure communication",
     },
   },
   {
@@ -1234,8 +1234,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["vpc", "cloudwatch", "s3"],
     analogy: {
-      ko: "도로 CCTV 녹화. 어떤 차(패킷)가 언제 어디로 갔는지 전부 녹화",
-      en: "Traffic camera recordings. Records which car (packet) went where and when",
+      ko: "도시 CCTV 녹화 시스템. 어떤 차(패킷)가 언제 어디를 지나갔는지 전부 녹화·기록",
+      en: "The city's CCTV recording system. Records which car (packet) passed where and when — everything captured",
     },
   },
   {
@@ -1250,8 +1250,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-private",
     related: ["vpc-endpoint", "vpc"],
     analogy: {
-      ko: "지하 통로. 밖에 나가지 않고 건물 지하로 연결된 비밀 통로",
-      en: "An underground passage. A secret path connecting buildings without going outside",
+      ko: "건물 사이 지하 연결 통로. 밖에 나가지 않고 지하로 다른 건물(서비스)에 직접 접근",
+      en: "An underground passage between buildings. Access other buildings (services) directly via underground without going outside",
     },
   },
   {
@@ -1266,8 +1266,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "edge",
     related: ["alb", "nlb", "cloudfront"],
     analogy: {
-      ko: "VIP 전용 고속도로. 일반 인터넷 대신 AWS 전용 네트워크로 빠르게 이동",
-      en: "A VIP express highway. Travels via AWS's private network instead of the public internet",
+      ko: "VIP 전용 고속도로. 일반 도로(인터넷) 대신 도시 전용 네트워크로 빠르게 이동",
+      en: "A VIP express highway. Travel via the city's private network instead of public roads (internet)",
     },
   },
 
@@ -1284,8 +1284,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "edge",
     related: ["cloudfront", "lambda-edge"],
     analogy: {
-      ko: "편의점 계산대 옆 간단 서비스. 복잡한 일은 못 하지만 빠른 처리에 최적",
-      en: "Quick services at a convenience store counter. Can't do complex tasks but optimized for speed",
+      ko: "도시 입구 간이 서비스 창구. 간단한 안내(URL 변환, 헤더 수정)만 빠르게 처리하는 경량 서비스",
+      en: "A quick service kiosk at the city entrance. A lightweight service handling only simple tasks (URL rewrite, header changes) at speed",
     },
   },
   {
@@ -1300,8 +1300,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "edge",
     related: ["cloudfront", "lambda", "cloudfront-functions"],
     analogy: {
-      ko: "각 지점에 배치된 전문 직원. 본사(리전)까지 가지 않고 현장에서 복잡한 업무 처리",
-      en: "Specialist staff at each branch. Handles complex work on-site without going to HQ (region)",
+      ko: "각 지점에 파견된 전문 직원. 본사(리전)까지 가지 않고 현장(엣지)에서 복잡한 업무를 처리",
+      en: "Specialist staff deployed to each branch. Handles complex work on-site (edge) without going to headquarters (region)",
     },
   },
 
@@ -1318,8 +1318,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-private",
     related: ["ec2", "fargate", "lambda"],
     analogy: {
-      ko: "연비 좋은 하이브리드 차. 같은 거리를 더 적은 연료(비용)로 달린다",
-      en: "A fuel-efficient hybrid car. Covers the same distance with less fuel (cost)",
+      ko: "연비 좋은 하이브리드 차. 같은 거리(성능)를 더 적은 연료(비용)로 달리는 고효율 엔진",
+      en: "A fuel-efficient hybrid car. Covers the same distance (performance) with less fuel (cost) — a high-efficiency engine",
     },
   },
   {
@@ -1334,8 +1334,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-private",
     related: ["ec2", "auto-scaling", "fargate"],
     analogy: {
-      ko: "항공 땡처리 좌석. 매우 싸지만 갑자기 취소될 수 있다",
-      en: "Last-minute flight deals. Very cheap but could be cancelled suddenly",
+      ko: "땡처리 항공편. 매우 저렴하지만 2분 전 통보로 갑자기 취소될 수 있는 좌석",
+      en: "A last-minute flight deal. Very cheap but could be cancelled with just 2 minutes' notice",
     },
   },
 
@@ -1352,8 +1352,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["eks", "node", "auto-scaling"],
     analogy: {
-      ko: "스마트 주차장 관리인. 차(Pod)가 오면 즉시 최적의 주차공간(노드)을 배정",
-      en: "A smart parking attendant. Instantly assigns the best spot (node) when a car (Pod) arrives",
+      ko: "스마트 건물 배정 시스템. 새 가게(Pod)가 오면 즉시 최적의 건물(노드)을 자동 할당",
+      en: "A smart building assignment system. Instantly assigns the best building (node) when a new shop (Pod) arrives",
     },
   },
   {
@@ -1368,8 +1368,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["eks", "helm", "flux"],
     analogy: {
-      ko: "자동 동기화 비서. 설계도(Git)가 바뀌면 건물(클러스터)을 자동으로 업데이트",
-      en: "An auto-sync secretary. When blueprints (Git) change, automatically updates the building (cluster)",
+      ko: "자동 리모델링 시스템. 설계도(Git)가 바뀌면 가게(클러스터)를 자동으로 업데이트",
+      en: "An auto-remodeling system. When blueprints (Git) change, stores (clusters) are automatically updated",
     },
   },
   {
@@ -1384,8 +1384,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["eks", "argocd", "helm"],
     analogy: {
-      ko: "ArgoCD의 대안. 같은 자동 동기화지만 UI 없이 더 가볍게 동작",
-      en: "Alternative to ArgoCD. Same auto-sync but lighter without a UI",
+      ko: "ArgoCD의 경량 대안. 같은 자동 업데이트(GitOps)지만 관리 화면 없이 더 가볍게 동작",
+      en: "A lightweight alternative to ArgoCD. Same auto-updates (GitOps) but runs lighter without a management UI",
     },
   },
   {
@@ -1400,8 +1400,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["service-mesh", "eks", "k8s"],
     analogy: {
-      ko: "자동 교통 관제 시스템. 모든 도로(서비스 간 통신)에 교통경찰(Envoy)을 배치",
-      en: "An automatic traffic control system. Places traffic cops (Envoy) on every road (service communication)",
+      ko: "도시 교통 관제 센터. 모든 도로(서비스 통신)에 교통경찰(Envoy 사이드카)을 배치해 제어·기록",
+      en: "The city traffic control center. Places traffic cops (Envoy sidecars) on every road (service communication) for control and logging",
     },
   },
   {
@@ -1416,8 +1416,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["k8s", "sqs", "msk"],
     analogy: {
-      ko: "주문량 연동 주방 인원 조절. 주문(이벤트)이 밀리면 요리사(Pod)를 자동 투입",
-      en: "Kitchen staff scaling by order volume. When orders (events) pile up, chefs (Pods) are auto-deployed",
+      ko: "주문량 연동 직원 배치. 주문(이벤트)이 밀리면 직원(Pod)을 자동으로 추가 투입",
+      en: "Order-driven staff scheduling. When orders (events) pile up, staff (Pods) are automatically deployed",
     },
   },
   {
@@ -1432,8 +1432,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["alb", "eks", "k8s"],
     analogy: {
-      ko: "건물 안내 데스크. 방문자(요청)를 확인하고 적절한 사무실(서비스)로 안내",
-      en: "Building reception desk. Checks visitors (requests) and directs them to the right office (service)",
+      ko: "도시 입구 안내소. 외부 방문자(HTTP 요청)를 확인하고 적절한 가게(서비스)로 안내",
+      en: "The city entrance reception. Checks external visitors (HTTP requests) and directs them to the right shop (service)",
     },
   },
   {
@@ -1448,8 +1448,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["acm", "eks", "ingress-controller"],
     analogy: {
-      ko: "자동 인증서 발급기. 만료 전에 알아서 새 인증서로 교체",
-      en: "An automatic certificate issuer. Replaces certificates automatically before they expire",
+      ko: "자동 인증서 발급소. 사업자등록증(TLS 인증서)이 만료되기 전에 알아서 새것으로 교체",
+      en: "An automatic certificate bureau. Auto-replaces business licenses (TLS certificates) before they expire",
     },
   },
   {
@@ -1464,8 +1464,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["secrets-manager", "eks", "kms"],
     analogy: {
-      ko: "비밀번호 자동 배달. 금고(Secrets Manager)에서 필요한 비밀번호를 자동으로 가져다 놓음",
-      en: "Automatic password delivery. Fetches needed passwords from the vault (Secrets Manager) automatically",
+      ko: "비밀 금고 배달 서비스. 중앙 금고(Secrets Manager)에서 필요한 비밀번호를 가게(Pod)로 자동 배달",
+      en: "A vault delivery service. Auto-delivers needed passwords from the central vault (Secrets Manager) to shops (Pods)",
     },
   },
   {
@@ -1480,8 +1480,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["eks", "s3", "ebs"],
     analogy: {
-      ko: "클러스터 타임머신. 문제가 생기면 이전 시점으로 되돌릴 수 있다",
-      en: "A cluster time machine. If something goes wrong, roll back to a previous point in time",
+      ko: "가게 타임머신. 문제가 생기면 이전 시점의 상태로 모든 가게(클러스터)를 되돌릴 수 있다",
+      en: "A store time machine. If something goes wrong, roll back all stores (cluster) to a previous point in time",
     },
   },
   {
@@ -1496,8 +1496,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["grafana", "cloudwatch", "eks"],
     analogy: {
-      ko: "체온계·혈압계 모음. 클러스터의 건강 수치(메트릭)를 지속적으로 측정",
-      en: "A collection of health monitors. Continuously measures the cluster's vital signs (metrics)",
+      ko: "도시 건강 측정 센터. 모든 건물(서버)의 온도·습도·전력(메트릭)을 지속적으로 측정·기록",
+      en: "The city health measurement center. Continuously measures and records every building's (server's) temperature, humidity, and power (metrics)",
     },
   },
   {
@@ -1512,8 +1512,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["prometheus", "loki", "cloudwatch"],
     analogy: {
-      ko: "병원 모니터 화면. 환자(서버)의 심박수·혈압(메트릭)을 한눈에 보여줌",
-      en: "Hospital monitor screen. Shows a patient's (server's) heart rate and blood pressure (metrics) at a glance",
+      ko: "도시 현황 대시보드. Prometheus가 측정한 데이터를 그래프·차트로 한눈에 보여주는 모니터",
+      en: "The city status dashboard. Displays Prometheus measurements as graphs and charts for at-a-glance monitoring",
     },
   },
   {
@@ -1528,8 +1528,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["grafana", "fluent-bit", "cloudwatch"],
     analogy: {
-      ko: "일기장 검색 엔진. 방대한 일기(로그)에서 원하는 날짜·키워드를 빠르게 찾음",
-      en: "A diary search engine. Quickly finds dates and keywords in massive diaries (logs)",
+      ko: "도시 일지 검색 시스템. 방대한 운영 일지(로그)에서 원하는 날짜·키워드를 빠르게 검색",
+      en: "The city log search system. Quickly searches for specific dates and keywords in massive operation logs",
     },
   },
   {
@@ -1544,8 +1544,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["loki", "cloudwatch", "eks"],
     analogy: {
-      ko: "우체부. 각 집(컨테이너)의 편지(로그)를 수거해서 우체국(저장소)에 배달",
-      en: "A mail carrier. Picks up letters (logs) from each house (container) and delivers to the post office (storage)",
+      ko: "건물별 일지 수거원. 각 건물(컨테이너)의 운영 일지(로그)를 수거해서 보관소(저장소)로 배달",
+      en: "A building-by-building log collector. Picks up operation logs from each building (container) and delivers to the archive (storage)",
     },
   },
   {
@@ -1560,8 +1560,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["eks", "k8s"],
     analogy: {
-      ko: "건물 규정집. '이 층에는 이런 것만 허용' 같은 규칙을 자동 적용",
-      en: "Building regulations. Auto-enforces rules like 'only these things are allowed on this floor'",
+      ko: "도시 건축 규정 관리. '이 구역에는 3층 이상 건물 불가' 같은 정책을 자동으로 적용·검사",
+      en: "City building code enforcement. Auto-applies and inspects policies like 'no buildings over 3 stories in this zone'",
     },
   },
   {
@@ -1576,8 +1576,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["eks", "k8s", "service-mesh"],
     analogy: {
-      ko: "초고속 네트워크 경찰. 커널 수준에서 트래픽을 감시하고 규칙을 적용",
-      en: "Ultra-fast network police. Monitors traffic and enforces rules at the kernel level",
+      ko: "초고속 지하 감시 시스템. 도시 지하(커널) 수준에서 모든 통신을 초고속으로 감시·제어",
+      en: "An ultra-fast underground surveillance system. Monitors and controls all communications at the city's underground (kernel) level",
     },
   },
 
@@ -1594,8 +1594,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-isolated",
     related: ["rds", "dynamodb", "lambda"],
     analogy: {
-      ko: "자동 확장 식탁. 손님이 많으면 커지고, 적으면 줄어드는 스마트 테이블",
-      en: "An auto-expanding dining table. Gets bigger with more guests, shrinks when fewer",
+      ko: "자동 확장 도서관. 방문자가 많으면 열람실을 늘리고, 적으면 줄이는 스마트 도서관",
+      en: "An auto-expanding library. Adds reading rooms when visitors increase, reduces them when quiet — a smart library",
     },
   },
   {
@@ -1610,8 +1610,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-private",
     related: ["dynamodb", "elasticache"],
     analogy: {
-      ko: "DynamoDB 전용 즐겨찾기. 자주 찾는 데이터를 메모리에 저장해 초고속 응답",
-      en: "DynamoDB's own speed dial. Stores frequently accessed data in memory for ultra-fast responses",
+      ko: "도서관(DynamoDB) 전용 초고속 카운터. 자주 찾는 책을 카운터에 미리 꺼내두어 마이크로초 만에 제공",
+      en: "An express counter just for the library (DynamoDB). Pre-stages frequently requested books at the counter for microsecond delivery",
     },
   },
   {
@@ -1626,8 +1626,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-private",
     related: ["athena", "s3", "rds"],
     analogy: {
-      ko: "거대한 분석 전용 도서관. 수백만 권의 책(데이터)을 한 번에 분석하는 데 특화",
-      en: "A massive analytics-only library. Specialized in analyzing millions of books (data) at once",
+      ko: "도시 대형 분석 센터. 수백만 건의 데이터를 한꺼번에 분석하는 데 특화된 전용 시설",
+      en: "The city's large-scale analytics center. A dedicated facility specialized in analyzing millions of data records at once",
     },
   },
   {
@@ -1642,8 +1642,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-isolated",
     related: ["dynamodb", "rds", "dms"],
     analogy: {
-      ko: "MongoDB 전용 관리인. 기존 MongoDB 집(코드)을 그대로 옮겨와서 AWS가 관리해줌",
-      en: "A MongoDB-specific property manager. Moves your existing MongoDB house (code) as-is and AWS manages it",
+      ko: "도시에 유치한 MongoDB 전문 도서관. 기존 MongoDB 방식(코드) 그대로 가져와서 도시(AWS)가 관리",
+      en: "A MongoDB-specialist library recruited to the city. Bring your existing MongoDB approach (code) as-is and the city (AWS) manages it",
     },
   },
   {
@@ -1658,8 +1658,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-isolated",
     related: ["dynamodb", "rds", "opensearch"],
     analogy: {
-      ko: "인맥 지도. 사람(노드)과 관계(엣지)를 따라가며 '친구의 친구'를 빠르게 찾아냄",
-      en: "A connections map. Follows people (nodes) and relationships (edges) to quickly find 'friends of friends'",
+      ko: "도시 인맥 지도 센터. 사람(노드)과 관계(엣지)를 따라가며 '친구의 친구'를 빠르게 찾아냄",
+      en: "The city connections mapping center. Follows people (nodes) and relationships (edges) to quickly find 'friends of friends'",
     },
   },
   {
@@ -1674,8 +1674,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-isolated",
     related: ["elasticache", "dynamodb", "rds"],
     analogy: {
-      ko: "금고가 달린 메모장. 빠르게 읽고 쓸 수 있으면서(Redis) 내용이 절대 사라지지 않음(내구성)",
-      en: "A notepad with a vault. Read/write quickly (Redis) while contents never disappear (durability)",
+      ko: "금고가 달린 메모장. 빠르게 읽고 쓸 수 있으면서(Redis) 내용이 절대 사라지지 않는(내구성) 저장소",
+      en: "A notepad with a vault. Read and write quickly (Redis) while contents never disappear (durability)",
     },
   },
   {
@@ -1690,8 +1690,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["kinesis", "cloudwatch"],
     analogy: {
-      ko: "체온 기록표. 시간대별 데이터를 순서대로 기록하고 추이를 분석",
-      en: "A temperature log chart. Records data chronologically and analyzes trends",
+      ko: "도시 기상 관측소 기록. 시간순으로 데이터를 기록하고, 온도 추이·패턴 같은 시계열 분석에 특화",
+      en: "The city weather station records. Logs data chronologically, specialized for time-series analysis like temperature trends and patterns",
     },
   },
   {
@@ -1706,8 +1706,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["s3", "redshift", "glue"],
     analogy: {
-      ko: "창고(S3) 검색 도구. 물건을 옮기지 않고 창고에서 바로 원하는 걸 찾아냄",
-      en: "A warehouse (S3) search tool. Finds what you need right in the warehouse without moving anything",
+      ko: "창고(S3) 현장 검색 서비스. 물건을 옮기지 않고 창고에서 SQL로 바로 원하는 걸 찾아냄",
+      en: "A warehouse (S3) on-site search service. Finds what you need via SQL right in the warehouse without moving anything",
     },
   },
   {
@@ -1722,8 +1722,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["rds", "ebs", "s3", "efs"],
     analogy: {
-      ko: "자동 백업 금고. 모든 귀중품(데이터)을 정해진 시간에 자동으로 안전한 곳에 복사",
-      en: "An automatic backup vault. Copies all valuables (data) to a safe place on schedule",
+      ko: "도시 자동 백업 금고. 모든 중요 시설(데이터)을 정해진 시간에 자동으로 복사·보관",
+      en: "The city's automatic backup vault. Auto-copies and stores all important facilities (data) on schedule",
     },
   },
 
@@ -1740,8 +1740,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["api-gateway", "dynamodb", "lambda"],
     analogy: {
-      ko: "만능 리모컨. 여러 가전(데이터 소스)을 하나의 리모컨(API)으로 조작",
-      en: "A universal remote. Controls multiple appliances (data sources) with one remote (API)",
+      ko: "도시 만능 창구. 여러 관공서(데이터 소스)의 업무를 하나의 창구(API)에서 통합 처리하고 실시간 알림도 지원",
+      en: "The city's all-in-one counter. Handles business from multiple agencies (data sources) at one counter (API) with real-time notifications",
     },
   },
   {
@@ -1756,8 +1756,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["kinesis", "lambda", "timestream"],
     analogy: {
-      ko: "스마트홈 허브. 집 안의 모든 센서·기기를 중앙에서 연결·제어",
-      en: "A smart home hub. Connects and controls all sensors and devices in the house centrally",
+      ko: "도시 스마트 센서 허브. 도시 곳곳의 센서·기기(IoT)를 중앙에서 연결·제어하는 관제 시스템",
+      en: "The city's smart sensor hub. A control system that centrally connects and manages sensors and devices (IoT) throughout the city",
     },
   },
   {
@@ -1772,8 +1772,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["s3", "athena", "redshift"],
     analogy: {
-      ko: "데이터 가공 공장. 원재료(Raw 데이터)를 받아서 정리·변환·배달",
-      en: "A data processing factory. Takes raw materials (data), cleans, transforms, and delivers them",
+      ko: "도시 데이터 가공 공장. 원재료(Raw 데이터)를 받아서 정리·변환한 뒤 목적지로 배달",
+      en: "The city's data processing factory. Takes raw materials (data), cleans and transforms them, then delivers to the destination",
     },
   },
 
@@ -1790,8 +1790,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["guardduty", "inspector", "aws-config"],
     analogy: {
-      ko: "통합 보안 관제 센터. 모든 보안 카메라(서비스)의 영상을 한 화면에서 모니터링",
-      en: "A unified security operations center. Monitors all security camera (service) feeds on one screen",
+      ko: "도시 통합 보안 관제 센터. 모든 보안 카메라(서비스)의 경보를 한 화면에서 통합 모니터링",
+      en: "The city's unified security operations center. Monitors all security camera (service) alerts on a single screen",
     },
   },
   {
@@ -1806,8 +1806,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["security-hub", "ecr", "ec2"],
     analogy: {
-      ko: "건물 안전 점검관. 정기적으로 건물(인프라)의 약한 부분을 찾아서 보고",
-      en: "A building safety inspector. Regularly finds and reports weak spots in the building (infrastructure)",
+      ko: "도시 건물 안전 점검관. 정기적으로 건물(인프라)의 취약한 부분을 찾아서 보고",
+      en: "The city building safety inspector. Regularly finds and reports vulnerable parts of buildings (infrastructure)",
     },
   },
   {
@@ -1822,8 +1822,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["s3", "security-hub", "kms"],
     analogy: {
-      ko: "민감 정보 탐지견. 창고(S3)를 돌아다니며 숨겨진 개인정보를 찾아냄",
-      en: "A sensitive data sniffer dog. Roams the warehouse (S3) finding hidden personal information",
+      ko: "민감 정보 탐지견. 창고(S3)를 돌아다니며 숨겨진 개인정보(주민번호, 카드번호)를 찾아냄",
+      en: "A sensitive data sniffer dog. Roams the warehouse (S3) sniffing out hidden personal information (SSN, card numbers)",
     },
   },
   {
@@ -1838,8 +1838,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["iam", "s3", "security-hub"],
     analogy: {
-      ko: "건물 출입문 점검관. 잠기지 않은 문(공개 리소스)을 자동으로 찾아서 알려줌",
-      en: "A building door inspector. Automatically finds unlocked doors (public resources) and alerts you",
+      ko: "도시 출입문 점검관. 잠기지 않은 문(공개 리소스)을 자동으로 찾아서 관리자에게 알림",
+      en: "The city door inspector. Automatically finds unlocked doors (public resources) and alerts the administrator",
     },
   },
   {
@@ -1870,8 +1870,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["cloudtrail", "security-hub", "organizations"],
     analogy: {
-      ko: "건물 설비 변경 기록부. 어떤 설비가 언제 바뀌었는지 기록하고 규정 위반 여부 검사",
-      en: "A facility change log. Records when equipment changed and checks for regulation violations",
+      ko: "도시 설비 변경 기록부. 어떤 설비가 언제 변경되었는지 기록하고 규정 위반 여부를 자동 검사",
+      en: "The city's facility change log. Records when equipment was changed and auto-checks for regulation violations",
     },
   },
   {
@@ -1886,8 +1886,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["ec2", "secrets-manager", "iam"],
     analogy: {
-      ko: "원격 서버 관리 리모컨. SSH 키 없이도 서버에 접속하고, 설정값을 안전하게 보관",
-      en: "A remote server management tool. Access servers without SSH keys and store settings securely",
+      ko: "원격 건물 관리 리모컨. 열쇠(SSH) 없이도 건물(서버)에 접근하고, 설정값을 안전하게 보관",
+      en: "A remote building management tool. Access buildings (servers) without keys (SSH) and store settings securely",
     },
   },
   {
@@ -1902,8 +1902,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["iam", "control-tower", "aws-config"],
     analogy: {
-      ko: "그룹사 본사. 각 계열사(계정)가 할 수 있는 일의 범위를 본사에서 통제",
-      en: "A corporate HQ. Controls what each subsidiary (account) is allowed to do",
+      ko: "도시 연합 본부. 각 도시(계정)가 할 수 있는 일의 범위를 본부에서 통제",
+      en: "The city federation headquarters. Controls what each city (account) is allowed to do",
     },
   },
   {
@@ -1918,8 +1918,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["organizations", "iam", "aws-config"],
     analogy: {
-      ko: "신도시 마스터플랜. 도로·상하수도(보안·로깅)를 자동으로 깔아주는 도시 설계",
-      en: "A new city master plan. Automatically lays out roads and utilities (security, logging)",
+      ko: "신도시 마스터플랜. 도로·전기·수도(보안·로깅·계정 구조)를 모범 사례에 맞게 자동 설계",
+      en: "A new city master plan. Auto-designs roads, power, water (security, logging, account structure) following best practices",
     },
   },
   {
@@ -1934,8 +1934,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["iam", "organizations", "cognito"],
     analogy: {
-      ko: "만능 출입 카드. 하나의 카드로 모든 건물(계정)에 출입",
-      en: "A master access card. One card to enter all buildings (accounts)",
+      ko: "도시 통합 출입 카드. 하나의 카드로 모든 도시(계정)와 시설(앱)에 출입 가능",
+      en: "The city's universal access card. One card to enter all cities (accounts) and facilities (apps)",
     },
   },
 
@@ -1952,8 +1952,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["cicd", "codepipeline", "argocd"],
     analogy: {
-      ko: "GitHub 전속 비서. 코드를 올리면 자동으로 검사·포장·배송까지 처리",
-      en: "GitHub's personal assistant. Automatically inspects, packages, and ships when you push code",
+      ko: "GitHub 전속 건설팀. 설계도(코드)를 올리면 자동으로 검수·시공·배포까지 처리",
+      en: "GitHub's dedicated construction crew. Upload blueprints (code) and they auto-handle inspection, construction, and deployment",
     },
   },
   {
@@ -1968,8 +1968,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["cicd", "github-actions"],
     analogy: {
-      ko: "GitLab 전속 비서. GitHub Actions와 같은 역할이지만 GitLab 환경에서 동작",
-      en: "GitLab's personal assistant. Same role as GitHub Actions but runs in the GitLab environment",
+      ko: "GitLab 전속 건설팀. GitHub Actions와 같은 역할이지만 GitLab 환경에서 동작",
+      en: "GitLab's dedicated construction crew. Same role as GitHub Actions but operates in the GitLab environment",
     },
   },
   {
@@ -1984,8 +1984,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["cdk", "terraform", "iac"],
     analogy: {
-      ko: "AWS 전용 설계 도면. AWS 리소스를 템플릿 파일 하나로 자동 생성",
-      en: "AWS-specific blueprints. Auto-creates all AWS resources from a single template file",
+      ko: "도시(AWS) 전용 건축 도면. AWS 리소스를 템플릿 하나로 자동 생성하는 공식 도구",
+      en: "The city's (AWS) official blueprints. The official tool that auto-creates all AWS resources from a single template",
     },
   },
   {
@@ -2000,8 +2000,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["cloudwatch", "ecs", "eks"],
     analogy: {
-      ko: "컨테이너 전용 건강 검진. 각 컨테이너의 상태를 자동으로 체크하고 기록",
-      en: "Container-specific health checkups. Automatically checks and records each container's status",
+      ko: "건물(컨테이너) 전용 건강 검진. 각 건물의 전력·수도(CPU·메모리) 사용량을 자동 체크·기록",
+      en: "Building (container) health checkups. Auto-checks and records each building's power and water (CPU, memory) usage",
     },
   },
   {
@@ -2016,8 +2016,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["prometheus", "grafana", "cloudwatch"],
     analogy: {
-      ko: "관리형 건강 모니터. 직접 장비를 관리하지 않아도 AWS가 모니터링 시스템을 운영",
-      en: "A managed health monitor. AWS runs the monitoring system so you don't manage the equipment",
+      ko: "도시 관리형 건강 모니터. 직접 장비를 관리하지 않아도 도시(AWS)가 모니터링 시스템을 운영",
+      en: "The city's managed health monitor. The city (AWS) runs the monitoring system so you don't manage the equipment yourself",
     },
   },
 
@@ -2034,8 +2034,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["graphql", "websocket", "alb"],
     analogy: {
-      ko: "전용 핫라인. 일반 전화(REST)보다 빠르고 효율적인 서비스 간 직통 회선",
-      en: "A dedicated hotline. A faster, more efficient direct line between services than regular calls (REST)",
+      ko: "전용 핫라인 전화. 일반 전화(REST)보다 빠르고 효율적인 부서 간 직통 회선",
+      en: "A dedicated hotline. A faster, more efficient direct line between departments than regular calls (REST)",
     },
   },
   {
@@ -2050,8 +2050,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["appsync", "api-gateway"],
     analogy: {
-      ko: "맞춤형 뷔페. 원하는 음식(데이터)만 정확히 골라 담을 수 있다",
-      en: "A custom buffet. Pick exactly the dishes (data) you want, nothing more",
+      ko: "맞춤형 도시락 주문. 원하는 반찬(데이터)만 정확히 골라 담을 수 있어 낭비가 없다",
+      en: "A custom bento order. Pick exactly the side dishes (data) you want — nothing wasted",
     },
   },
   {
@@ -2066,8 +2066,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["api-gateway", "alb", "appsync"],
     analogy: {
-      ko: "전화 통화. HTTP(편지)와 달리 양쪽이 동시에 실시간으로 대화",
-      en: "A phone call. Unlike HTTP (letters), both sides talk in real time simultaneously",
+      ko: "전화 통화. 편지(HTTP)와 달리 양쪽이 동시에 실시간으로 대화하는 통신 방식",
+      en: "A phone call. Unlike letters (HTTP), both sides talk simultaneously in real time",
     },
   },
   {
@@ -2082,8 +2082,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["service-mesh", "istio"],
     analogy: {
-      ko: "전기 차단기. 과부하(장애)가 오면 자동으로 전기(요청)를 끊어 화재(연쇄 장애)를 방지",
-      en: "An electrical circuit breaker. Cuts power (requests) on overload (failure) to prevent fire (cascading failure)",
+      ko: "도시 전기 차단기. 과부하(장애)가 오면 자동으로 전기(요청)를 끊어 화재(연쇄 장애)를 방지",
+      en: "The city's electrical circuit breaker. Auto-cuts power (requests) on overload (failure) to prevent fire (cascading failure)",
     },
   },
   {
@@ -2098,8 +2098,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["step-functions", "sqs", "eventbridge"],
     analogy: {
-      ko: "여행 예약 시스템. 항공→호텔→렌터카 순서대로 예약하고, 중간에 실패하면 앞의 예약도 취소",
-      en: "A trip booking system. Books flight→hotel→car in order; if one fails, cancels all previous bookings",
+      ko: "연쇄 예약 시스템. 항공→호텔→렌터카 순서로 예약하고, 중간에 실패하면 앞의 예약도 자동 취소",
+      en: "A chain booking system. Books flight → hotel → car in order; if one fails, all previous bookings are auto-cancelled",
     },
   },
   {
@@ -2114,8 +2114,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["sqs", "eventbridge", "rds"],
     analogy: {
-      ko: "등기 우편. 편지(이벤트)를 보낸 기록을 우체국(DB)에 남겨서 분실을 방지",
-      en: "Registered mail. Records the letter (event) at the post office (DB) to prevent loss",
+      ko: "등기 우편 시스템. 편지(이벤트)를 보낸 기록을 우체국(DB)에 남겨서 분실을 방지",
+      en: "A registered mail system. Records that a letter (event) was sent at the post office (DB) to prevent loss",
     },
   },
 
@@ -2132,8 +2132,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["ecs", "fargate", "lambda"],
     analogy: {
-      ko: "올인원 배달 서비스. 요리(코드)만 주면 포장·배달·인원 조절까지 전부 해줌",
-      en: "An all-in-one delivery service. Just hand over the food (code) and it handles packaging, delivery, and staffing",
+      ko: "올인원 창업 서비스. 요리(코드)만 가져오면 가게(인프라)·배달(배포)·인원(스케일링)까지 전부 해줌",
+      en: "An all-in-one business startup service. Just bring the food (code) and it handles the store (infra), delivery (deploy), and staffing (scaling)",
     },
   },
   {
@@ -2148,8 +2148,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-private",
     related: ["ec2", "fargate", "step-functions"],
     analogy: {
-      ko: "자동 세탁기. 빨래(작업)를 넣으면 알아서 돌리고, 양이 많으면 세탁기를 더 켬",
-      en: "An automatic washing machine. Load laundry (jobs), it runs itself, and spins up more machines when busy",
+      ko: "도시 세탁소. 빨래(배치 작업)를 맡기면 알아서 세탁기(컴퓨팅)를 배정하고 돌려줌",
+      en: "The city laundromat. Drop off laundry (batch jobs) and it assigns washing machines (compute) and returns them done",
     },
   },
   {
@@ -2164,8 +2164,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["kinesis", "s3", "redshift", "opensearch"],
     analogy: {
-      ko: "자동 분류 택배 시스템. 물건(데이터)이 들어오면 목적지(S3/Redshift)로 자동 배송",
-      en: "An auto-sorting delivery system. Items (data) are auto-shipped to their destination (S3/Redshift)",
+      ko: "도시 자동 분류 택배. 물건(스트리밍 데이터)이 들어오면 목적지(S3/Redshift)로 자동 배송",
+      en: "The city's auto-sorting delivery service. When items (streaming data) arrive, they're auto-shipped to their destination (S3/Redshift)",
     },
   },
   {
@@ -2180,8 +2180,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-private",
     related: ["rds", "lambda", "aurora-serverless"],
     analogy: {
-      ko: "은행 번호표 시스템. 창구(DB 커넥션)가 한정되니 대기표로 순서대로 처리",
-      en: "A bank queue system. Limited counters (DB connections), so a ticket system processes in order",
+      ko: "도서관 번호표 시스템. 창구(DB 커넥션)가 한정적이니 번호표로 순서대로 처리해서 혼잡 방지",
+      en: "A library queue ticket system. Limited counters (DB connections), so a ticket system processes in order to prevent congestion",
     },
   },
   {
@@ -2196,8 +2196,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["redshift", "athena", "s3"],
     analogy: {
-      ko: "자동 보고서 생성기. 데이터를 넣으면 예쁜 차트·그래프가 자동으로 나옴",
-      en: "An auto-report generator. Feed in data and beautiful charts and graphs come out automatically",
+      ko: "도시 통계 대시보드. 데이터를 넣으면 차트·그래프가 자동으로 만들어지는 보고서 생성기",
+      en: "The city statistics dashboard. Feed in data and charts and graphs are automatically generated — an auto-report builder",
     },
   },
   {
@@ -2212,8 +2212,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["sagemaker", "s3", "opensearch"],
     analogy: {
-      ko: "AI 전문가 파견 서비스. 필요할 때만 전문가(모델)를 불러서 질문하고 비용을 지불",
-      en: "An AI expert dispatch service. Call an expert (model) only when needed, ask questions, and pay per use",
+      ko: "도시 AI 전문가 파견 서비스. 필요할 때 전문가(AI 모델)를 불러 질문하고, 사용한 만큼만 비용 지불",
+      en: "The city's AI expert dispatch service. Call an expert (AI model) when needed, ask questions, and pay only for usage",
     },
   },
   {
@@ -2228,8 +2228,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["s3", "lambda", "aws-batch"],
     analogy: {
-      ko: "AI 요리 학원. 재료 준비(데이터)부터 요리(학습), 레스토랑 오픈(배포)까지 전부 지원",
-      en: "An AI cooking school. From ingredient prep (data) to cooking (training) to opening a restaurant (deployment)",
+      ko: "도시 AI 연구소. 실험 재료(데이터) 준비부터 연구(학습), 제품 출시(배포)까지 전부 지원하는 시설",
+      en: "The city's AI research lab. Supports everything from experiment materials (data) to research (training) to product launch (deployment)",
     },
   },
   {
@@ -2244,8 +2244,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["s3", "glue", "athena"],
     analogy: {
-      ko: "데이터 도서관 사서. 모든 책(데이터)을 정리하고, 누가 어떤 페이지를 볼 수 있는지 관리",
-      en: "A data library librarian. Organizes all books (data) and controls who can read which pages",
+      ko: "도시 데이터 도서관 사서. 모든 데이터를 정리하고, 누가 어떤 페이지를 볼 수 있는지 세밀하게 관리",
+      en: "The city's data library curator. Organizes all data and finely controls who can view which pages",
     },
   },
   {
@@ -2260,8 +2260,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "account-level",
     related: ["cloudwatch", "route53", "xray"],
     analogy: {
-      ko: "미스터리 쇼퍼. 가짜 손님(스크립트)을 보내 매장(서비스)이 정상 운영되는지 확인",
-      en: "A mystery shopper. Sends fake customers (scripts) to check if the store (service) is operating normally",
+      ko: "미스터리 쇼퍼. 가짜 손님(스크립트)을 보내 가게(서비스)가 정상 운영되는지 주기적으로 확인",
+      en: "A mystery shopper. Sends fake customers (scripts) to periodically check if the store (service) is operating normally",
     },
   },
   {
@@ -2276,8 +2276,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-private",
     related: ["ecs", "cloud-map", "service-mesh"],
     analogy: {
-      ko: "사내 내선 전화. 부서(서비스) 이름만 누르면 자동으로 연결되고 통화 기록도 남음",
-      en: "An office intercom. Just press a department (service) name and you're connected, with call logs included",
+      ko: "도시 내선 전화 시스템. 부서(ECS 서비스) 이름만 누르면 자동 연결되고 통화 기록도 남음",
+      en: "The city's intercom system. Press a department name (ECS service) and you're auto-connected, with call logs included",
     },
   },
   {
@@ -2292,8 +2292,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["ecs-service-connect", "eks", "route53"],
     analogy: {
-      ko: "회사 내선번호부. 부서 이름(서비스명)으로 전화번호(IP)를 자동 조회",
-      en: "An office phone directory. Auto-looks up phone numbers (IPs) by department name (service name)",
+      ko: "도시 내선번호부. 부서 이름(서비스명)으로 전화번호(IP/포트)를 자동으로 찾아주는 시스템",
+      en: "The city's extension directory. Auto-looks up phone numbers (IP/port) by department name (service name)",
     },
   },
   {
@@ -2308,8 +2308,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-private",
     related: ["sqs", "sns", "msk"],
     analogy: {
-      ko: "기존 우체국 이사 서비스. 기존 우편 시스템(MQ)을 그대로 옮겨서 AWS가 운영해줌",
-      en: "A post office relocation service. Moves your existing mail system (MQ) as-is and AWS operates it",
+      ko: "기존 우체국 이사 서비스. 기존 우편 시스템(MQ)을 코드 변경 없이 그대로 도시(AWS)로 이전·운영",
+      en: "A post office relocation service. Moves your existing mail system (MQ) to the city (AWS) as-is without code changes",
     },
   },
   {
@@ -2324,8 +2324,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["app-mesh", "alb", "cloud-map"],
     analogy: {
-      ko: "건물 간 내부 전용선. 서로 다른 건물(VPC)의 부서(서비스)가 AWS 전용선으로 안전하게 통신",
-      en: "A private line between buildings. Departments (services) in different buildings (VPCs) communicate securely via AWS private lines",
+      ko: "도시 간 전용 통신선. 서로 다른 도시(VPC)의 부서(서비스)가 전용선으로 안전하게 통신",
+      en: "A dedicated line between cities. Departments (services) in different cities (VPCs) communicate securely via private lines",
     },
   },
   {
@@ -2340,8 +2340,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["msk", "kinesis", "glue"],
     analogy: {
-      ko: "표준 양식 관리소. 모든 부서가 같은 양식(스키마)을 쓰도록 버전 관리",
-      en: "A standard forms office. Ensures all departments use the same forms (schemas) with version control",
+      ko: "도시 공문서 양식 관리소. 모든 부서가 같은 양식(스키마)을 쓰도록 버전을 관리",
+      en: "The city's official forms office. Manages versions so all departments use the same forms (schemas)",
     },
   },
 
@@ -2358,8 +2358,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["vpa", "keda", "karpenter"],
     analogy: {
-      ko: "마트 계산대 자동 관리. 줄(CPU)이 길어지면 계산대(Pod)를 열고, 한산하면 닫음",
-      en: "Auto-managing checkout lanes. Opens lanes (Pods) when lines (CPU) get long, closes when quiet",
+      ko: "자동 계산대 관리. 줄(CPU 사용률)이 길어지면 계산대(Pod)를 열고, 한산하면 줄이는 시스템",
+      en: "Auto checkout lane management. Opens lanes (Pods) when lines (CPU usage) get long, closes them when quiet",
     },
   },
   {
@@ -2374,8 +2374,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["hpa", "karpenter"],
     analogy: {
-      ko: "맞춤 양복. 기성복(기본 설정) 대신 체형(실제 사용량)에 맞게 옷(리소스)을 조정",
-      en: "A tailored suit. Adjusts clothes (resources) to fit your body (actual usage) instead of off-the-rack (defaults)",
+      ko: "맞춤형 사무실 조절. 실제 사용량에 맞춰 사무실 크기(CPU/메모리)를 자동으로 키우거나 줄임",
+      en: "Custom office resizing. Auto-adjusts office size (CPU/memory) to match actual usage — bigger or smaller as needed",
     },
   },
   {
@@ -2390,8 +2390,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["karpenter", "eks", "auto-scaling"],
     analogy: {
-      ko: "주차장 관리인(구형). 빈 주차장(노드)이 부족하면 늘리고, 남으면 줄임. Karpenter보다 느림",
-      en: "An old-school parking attendant. Adds/removes lots (nodes) as needed. Slower than Karpenter",
+      ko: "건물 증축 관리인(구형). 공간이 부족하면 건물(노드)을 늘리고 남으면 줄임. Karpenter보다 느림",
+      en: "A building expansion manager (legacy). Adds buildings (nodes) when space runs out, removes extras. Slower than Karpenter",
     },
   },
   {
@@ -2406,8 +2406,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["iam", "k8s", "namespace"],
     analogy: {
-      ko: "회사 직급별 권한. 인턴은 열람만, 팀장은 수정 가능, 임원은 삭제까지 가능",
-      en: "Company rank-based permissions. Interns can view, managers can edit, executives can delete",
+      ko: "직급별 출입 권한. 인턴은 로비만, 팀장은 사무실까지, 임원은 금고까지 접근 가능",
+      en: "Rank-based access permissions. Interns access the lobby only, managers reach offices, executives access the vault",
     },
   },
   {
@@ -2422,8 +2422,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["k8s", "rbac", "kyverno"],
     analogy: {
-      ko: "공유 오피스의 각 사무실. 같은 건물(클러스터)이지만 각 회사(팀)가 독립된 공간을 사용",
-      en: "Offices in a shared building. Same building (cluster) but each company (team) uses its own space",
+      ko: "공유 건물의 각 층. 같은 건물(클러스터)이지만 각 회사(팀)가 독립된 층을 사용",
+      en: "Separate floors in a shared building. Same building (cluster) but each company (team) uses its own independent floor",
     },
   },
   {
@@ -2438,8 +2438,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["iam", "eks", "pod"],
     analogy: {
-      ko: "팀별 법인카드. 모든 직원이 대표 카드를 쓰는 대신, 팀마다 권한이 다른 카드를 발급",
-      en: "Team-specific corporate cards. Instead of sharing one card, each team gets a card with specific limits",
+      ko: "팀별 법인카드. 전 직원이 대표 카드를 쓰는 대신, 팀(Pod)마다 권한이 다른 카드를 발급",
+      en: "Team-specific corporate cards. Instead of everyone sharing one card, each team (Pod) gets a card with specific spending limits",
     },
   },
   {
@@ -2454,8 +2454,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["k8s", "eks", "cloud-map"],
     analogy: {
-      ko: "건물 내 내선번호 안내. '영업팀'이라고 하면 내선번호(IP)를 자동으로 알려줌",
-      en: "An in-building extension directory. Say 'sales team' and it auto-tells you the extension number (IP)",
+      ko: "건물 내 내선번호 안내. '영업팀'이라고 하면 내선번호(IP)를 자동으로 알려주는 시스템",
+      en: "An in-building extension directory. Say 'sales team' and it auto-provides the extension number (IP)",
     },
   },
   {
@@ -2470,8 +2470,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["route53", "ingress-controller", "eks"],
     analogy: {
-      ko: "자동 전화번호부 등록. 새 부서(서비스)가 생기면 전화번호부(DNS)에 자동 등록",
-      en: "Auto phone book registration. When a new dept (service) is created, it's auto-added to the phone book (DNS)",
+      ko: "자동 전화번호부 등록. 새 부서(서비스)가 생기면 도시 전화번호부(DNS)에 자동 등록",
+      en: "Auto phone book registration. When a new department (service) is created, it's automatically added to the city directory (DNS)",
     },
   },
   {
@@ -2486,8 +2486,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["istio", "service-mesh", "envoy"],
     analogy: {
-      ko: "AWS 전용 교통 관제. Istio와 같은 역할이지만 AWS가 직접 관리",
-      en: "AWS's own traffic control. Same role as Istio but managed directly by AWS",
+      ko: "도시(AWS) 전용 교통 관제. Istio와 같은 역할이지만 도시(AWS)가 직접 관리. 2026년 서비스 종료 예정",
+      en: "The city's (AWS) own traffic control. Same role as Istio but managed directly by the city (AWS). Scheduled for EOL in 2026",
     },
   },
   {
@@ -2502,8 +2502,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["istio", "app-mesh", "sidecar"],
     analogy: {
-      ko: "만능 통역사. 서비스 사이에서 통신을 중계하고, 모니터링·보안까지 처리",
-      en: "A versatile interpreter. Relays communication between services while handling monitoring and security",
+      ko: "만능 통역·중계사. 가게(서비스) 사이에서 통신을 중계하고, 기록·보안까지 처리",
+      en: "A versatile interpreter and relay. Mediates communication between shops (services) while handling logging and security",
     },
   },
   {
@@ -2518,8 +2518,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["xray", "istio", "prometheus"],
     analogy: {
-      ko: "택배 GPS 추적. 물건(요청)이 각 거점(서비스)을 거치는 경로를 지도에 표시",
-      en: "Package GPS tracking. Maps the route of items (requests) through each waypoint (service)",
+      ko: "택배 GPS 추적 시스템. 물건(요청)이 각 거점(서비스)을 거치는 경로를 지도에 표시",
+      en: "A package GPS tracking system. Maps the route of items (requests) through each waypoint (service)",
     },
   },
   {
@@ -2534,8 +2534,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["istio", "jaeger", "grafana"],
     analogy: {
-      ko: "지하철 노선도. 모든 역(서비스)과 노선(트래픽)을 한눈에 보여줌",
-      en: "A subway map. Shows all stations (services) and routes (traffic) at a glance",
+      ko: "도시 교통 현황판. 모든 도로(서비스 통신)와 교차로(연결)를 한눈에 보여주는 대시보드",
+      en: "The city traffic status board. A dashboard showing all roads (service communications) and intersections (connections) at a glance",
     },
   },
   {
@@ -2550,8 +2550,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["cilium", "prometheus", "grafana"],
     analogy: {
-      ko: "네트워크 현미경. 커널 수준에서 모든 패킷의 이동을 실시간으로 관찰",
-      en: "A network microscope. Observes every packet's movement in real time at the kernel level",
+      ko: "도시 지하 통신 현미경. 지하(커널) 수준의 모든 통신 흐름을 실시간으로 관찰",
+      en: "The city's underground communications microscope. Observes all communication flows at the underground (kernel) level in real time",
     },
   },
   {
@@ -2566,8 +2566,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["cilium", "hubble"],
     analogy: {
-      ko: "커널 안에 심은 CCTV. OS 깊숙한 곳에서 네트워크를 초고속으로 감시·제어",
-      en: "CCTV planted inside the kernel. Monitors and controls networking at ultra-high speed deep in the OS",
+      ko: "도시 지하에 심은 초고속 센서. OS 깊숙한 곳에서 네트워크를 초고속으로 감시·제어하는 기술",
+      en: "Ultra-fast sensors planted underground. Technology that monitors and controls networking at high speed deep inside the OS",
     },
   },
 
@@ -2584,8 +2584,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["acm", "istio", "service-mesh"],
     analogy: {
-      ko: "쌍방 신분증 확인. 방문자도 신분증을 보여주고, 건물 측도 신분증을 보여줘야 입장",
-      en: "Two-way ID check. Both the visitor and the building show their IDs before entry is allowed",
+      ko: "쌍방 신분증 확인. 방문자도 신분증을 보여주고, 건물 측도 신분증을 보여줘야 입장 가능",
+      en: "Two-way ID verification. Both the visitor and the building must show their IDs before entry is allowed",
     },
   },
   {
@@ -2600,8 +2600,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["iot-core", "sns", "websocket"],
     analogy: {
-      ko: "무전기. 적은 전력으로 짧은 메시지를 빠르게 주고받는 통신 방식",
-      en: "A walkie-talkie. Quickly exchanges short messages with minimal power consumption",
+      ko: "무전기. 적은 전력으로 짧은 메시지를 빠르게 주고받는 경량 통신 방식",
+      en: "A walkie-talkie. Quickly exchanges short messages with minimal power consumption — a lightweight communication method",
     },
   },
   {
@@ -2616,8 +2616,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["cognito", "oidc", "api-gateway"],
     analogy: {
-      ko: "놀이공원 자유이용권 팔찌. 팔찌(토큰)만 보여주면 매번 매표소(서버)에 안 가도 됨",
-      en: "An amusement park wristband. Just show the band (token) — no need to visit the ticket booth (server) each time",
+      ko: "자유이용권 팔찌. 팔찌(토큰)만 보여주면 매번 매표소(서버)에 가지 않아도 모든 시설 이용 가능",
+      en: "An all-access wristband. Just show the band (token) — no need to visit the ticket booth (server) each time to use any facility",
     },
   },
   {
@@ -2632,8 +2632,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["cognito", "jwt", "saml", "iam-identity-center"],
     analogy: {
-      ko: "소셜 로그인 표준. 'Google로 로그인' 같은 기능의 기반 기술",
-      en: "The social login standard. The technology behind 'Sign in with Google' features",
+      ko: "소셜 로그인 표준. 'Google로 로그인' 같은 기능의 기반이 되는 인증 기술",
+      en: "The social login standard. The authentication technology behind 'Sign in with Google' features",
     },
   },
   {
@@ -2648,8 +2648,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["oidc", "cognito", "iam-identity-center"],
     analogy: {
-      ko: "회사 통합 출입증. 본사 카드(IdP) 하나로 모든 계열사(서비스)에 출입",
-      en: "A corporate master badge. One HQ card (IdP) grants access to all subsidiaries (services)",
+      ko: "도시 연합 통합 출입증. 본부 카드(IdP) 하나로 모든 연합 도시(서비스)에 출입 가능",
+      en: "A federation-wide master badge. One HQ card (IdP) grants access to all federated cities (services)",
     },
   },
   {
@@ -2682,8 +2682,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["api-gateway", "graphql", "alb"],
     analogy: {
-      ko: "전담 비서. 대표(백엔드)가 하나여도 각 고객(프론트엔드)마다 전담 비서(BFF)가 맞춤 응대",
-      en: "A dedicated secretary. One CEO (backend) but each client (frontend) gets a personal secretary (BFF)",
+      ko: "전담 비서 서비스. 하나의 본부(백엔드)가 있어도 각 고객 유형(프론트엔드)마다 전담 비서가 맞춤 응대",
+      en: "A dedicated secretary service. One HQ (backend) but each client type (frontend) gets a personal secretary for tailored responses",
     },
   },
   {
@@ -2698,8 +2698,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["blue-green", "route53", "rds"],
     analogy: {
-      ko: "보일러 점화 불씨. 평소에는 작은 불씨(최소 인프라)만 유지하다가, 필요하면 풀 가동",
-      en: "A boiler pilot flame. Maintains just a tiny flame (minimal infra) until full heat (scaling) is needed",
+      ko: "비상 발전기 대기. 평소에는 최소 전력(인프라)만 유지하다가, 정전(장애) 시 즉시 풀 가동",
+      en: "Backup generator on standby. Maintains minimal power (infrastructure) normally, instantly goes full power on outage (failure)",
     },
   },
   {
@@ -2714,8 +2714,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["pilot-light", "circuit-breaker"],
     analogy: {
-      ko: "소방 훈련. 실제 화재(장애) 전에 미리 훈련해서 대응 능력을 확인",
-      en: "A fire drill. Practice before a real fire (outage) to verify response capabilities",
+      ko: "도시 재난 훈련. 실제 재난(장애) 전에 의도적으로 훈련해서 대응 능력을 검증",
+      en: "City disaster drills. Intentionally runs drills before real disasters (outages) to verify response capabilities",
     },
   },
   {
@@ -2730,8 +2730,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["rds", "dynamodb", "cognito", "lake-formation"],
     analogy: {
-      ko: "공유 오피스. 같은 건물(앱)을 쓰지만 각 회사(테넌트)의 사무실(데이터)은 완전히 분리",
-      en: "A shared office building. Same building (app) but each company's (tenant) office (data) is fully separated",
+      ko: "공유 오피스 건물. 같은 건물(앱)을 쓰지만 각 회사(테넌트)의 사무실(데이터)은 완전히 분리",
+      en: "A shared office building. Same building (app) but each company's (tenant) office space (data) is fully separated",
     },
   },
   {
@@ -2746,8 +2746,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["argocd", "flux", "cicd", "iac"],
     analogy: {
-      ko: "설계도 자동 시공. 설계도(Git)를 수정하면 건물(클러스터)이 자동으로 변경됨",
-      en: "Auto-construction from blueprints. When blueprints (Git) change, the building (cluster) auto-updates",
+      ko: "설계도 자동 시공 시스템. 설계도(Git)를 수정하면 건물(클러스터)이 자동으로 변경됨",
+      en: "An auto-construction-from-blueprints system. When blueprints (Git) change, buildings (clusters) auto-update",
     },
   },
 
@@ -2764,8 +2764,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-isolated",
     related: ["rds", "aurora-serverless", "elasticache"],
     analogy: {
-      ko: "복사본 도서관. 원본(Primary) 도서관이 바쁘면 복사본 도서관에서 책을 열람",
-      en: "A copy library. When the original (Primary) library is busy, read books at copy libraries",
+      ko: "도서관 분관. 본관(Primary)이 바쁘면 분관에서 같은 책을 열람할 수 있어 본관 부하를 줄임",
+      en: "A library branch. When the main library (Primary) is busy, read the same books at branch libraries to reduce the load",
     },
   },
   {
@@ -2780,8 +2780,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["rds", "dynamodb", "aws-backup"],
     analogy: {
-      ko: "타임머신. 실수로 데이터를 지웠어도 원하는 시점으로 되돌릴 수 있다",
-      en: "A time machine. Even if data was accidentally deleted, you can go back to any point in time",
+      ko: "도시 타임머신. 실수로 데이터를 지웠어도 보존 기간 내 원하는 시점으로 되돌릴 수 있다",
+      en: "The city's time machine. Even if data was accidentally deleted, you can go back to any point within the retention period",
     },
   },
   {
@@ -2796,8 +2796,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["sqs", "sns", "lambda"],
     analogy: {
-      ko: "반송 우편함. 배달 실패한 편지(메시지)를 모아두고, 왜 실패했는지 나중에 확인",
-      en: "A returned mail box. Collects undeliverable letters (messages) for later investigation",
+      ko: "반송 우편함. 배달에 반복 실패한 편지(메시지)를 모아두고, 실패 원인을 나중에 분석",
+      en: "A returned mail box. Collects letters (messages) that repeatedly failed delivery for later investigation",
     },
   },
   {
@@ -2812,8 +2812,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "regional-managed",
     related: ["sqs", "dlq"],
     analogy: {
-      ko: "은행 번호표. 도착 순서대로 정확히 한 번만 처리. 새치기(순서 뒤바뀜) 불가",
-      en: "Bank queue numbers. Processed exactly once in arrival order. No cutting in line (reordering)",
+      ko: "은행 번호표 시스템. 도착 순서대로 정확히 한 번만 처리하고, 새치기(순서 뒤바뀜) 불가",
+      en: "A bank queue number system. Processed exactly once in arrival order. No cutting in line (reordering) allowed",
     },
   },
 
@@ -2830,8 +2830,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["waf", "kms", "cloudtrail", "vpc"],
     analogy: {
-      ko: "카드 결제 보안 자격증. 이 인증 없이는 카드 결제를 처리할 수 없다",
-      en: "A card payment security certification. Can't process card payments without this certification",
+      ko: "카드 결제 보안 자격증. 이 인증 없이는 도시 안에서 카드 결제를 처리할 수 없다",
+      en: "A card payment security certification. Cannot process card payments in the city without this certification",
     },
   },
   {
@@ -2846,8 +2846,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["kms", "cloudtrail", "guardduty"],
     analogy: {
-      ko: "환자 정보 보호 규정. 병원(시스템)이 환자 기록을 어떻게 보관·접근해야 하는지 규정",
-      en: "Patient data protection rules. Governs how hospitals (systems) must store and access patient records",
+      ko: "환자 정보 보호 규정. 병원(시스템)이 환자 기록을 어떻게 보관·접근해야 하는지 엄격하게 규정",
+      en: "Patient data protection regulations. Strictly governs how hospitals (systems) must store and access patient records",
     },
   },
   {
@@ -2862,8 +2862,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["s3", "rds", "organizations"],
     analogy: {
-      ko: "유럽 개인정보 보호법. EU 시민의 데이터를 다룰 때 반드시 따라야 하는 규칙",
-      en: "European privacy law. Mandatory rules when handling data of EU citizens",
+      ko: "유럽 개인정보 보호법. EU 시민의 데이터를 다룰 때 반드시 따라야 하는 국제 규칙",
+      en: "European privacy law. Mandatory international rules when handling data of EU citizens",
     },
   },
 
@@ -2880,8 +2880,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "vpc-public",
     related: ["ssm", "sg", "ec2"],
     analogy: {
-      ko: "경비실. 프라이빗 구역에 들어가려면 반드시 경비실(Bastion)을 거쳐야 함",
-      en: "A guard house. Must pass through the guard house (Bastion) to enter the private area",
+      ko: "주거구역 출입 관리소. 프라이빗 구역에 들어가려면 반드시 관리소(Bastion)를 거쳐 신분 확인",
+      en: "A residential zone guard house. Must pass through the guard house (Bastion) with ID verification to enter the private area",
     },
   },
   {
@@ -2896,8 +2896,8 @@ export const GLOSSARY: GlossaryTerm[] = [
     placement: "concept",
     related: ["ec2", "fargate", "lambda", "spot-instance"],
     analogy: {
-      ko: "휴대폰 약정 요금제. 2년 약정(RI)하면 월 요금이 크게 내려가는 것과 같은 원리",
-      en: "A phone contract plan. Commit for 2 years (RI) and the monthly bill drops significantly",
+      ko: "장기 임대 계약. 1~3년 계약하면 월세(비용)가 최대 72%까지 내려가는 할인 제도",
+      en: "A long-term lease contract. Sign a 1-3 year lease and rent (cost) drops by up to 72%",
     },
   },
 ];

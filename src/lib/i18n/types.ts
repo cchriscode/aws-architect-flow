@@ -281,6 +281,13 @@ export interface Dict {
     badgeDocker: string;
     groups: Record<string, string>;
     placements: Record<string, string>;
+    viewList: string;
+    viewCityMap: string;
+    viewIllustration: string;
+    cityMapTitle: string;
+    cityMapDesc: string;
+    zoneDescs: Record<string, string>;
+    clickToExpand: string;
   };
   hero: {
     headline: string;

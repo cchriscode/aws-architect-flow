@@ -8,6 +8,7 @@ import {
   GLOSSARY_GROUPS,
   type GlossaryTerm,
 } from "@/data/glossary";
+import { CityIllustrationView } from "./CityIllustrationView";
 
 const BADGE_STYLES: Record<string, string> = {
   aws: "bg-orange-100 text-orange-700",
@@ -33,6 +34,7 @@ export default function GlossaryPage() {
   const { lang } = useLang();
   const [search, setSearch] = useState("");
   const [badgeFilter, setBadgeFilter] = useState<BadgeFilter>("all");
+  const [view, setView] = useState<"list" | "city">("list");
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -77,62 +79,92 @@ export default function GlossaryPage() {
         <h1 className="text-xl font-bold text-gray-900">{t.glossary.title}</h1>
         <p className="mt-1 text-sm text-gray-500">{t.glossary.subtitle}</p>
 
-        {/* Search */}
-        <div className="relative mt-5">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-            🔍
-          </span>
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={t.glossary.searchPlaceholder}
-            className="w-full rounded-lg border-[1.5px] border-gray-200 bg-white py-2.5 pl-9 pr-3 text-sm outline-none transition-colors focus:border-indigo-400"
-          />
+        {/* View toggle */}
+        <div className="mt-4 flex gap-2">
+          <button
+            onClick={() => setView("list")}
+            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+              view === "list"
+                ? "bg-indigo-600 text-white"
+                : "border-[1.5px] border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            {t.glossary.viewList}
+          </button>
+          <button
+            onClick={() => setView("city")}
+            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+              view === "city"
+                ? "bg-indigo-600 text-white"
+                : "border-[1.5px] border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            {t.glossary.viewCityMap}
+          </button>
         </div>
 
-        {/* Badge filter */}
-        <div className="mt-3 flex gap-2">
-          {(["all", "aws", "general", "k8s", "docker"] as BadgeFilter[]).map((b) => (
-            <button
-              key={b}
-              onClick={() => setBadgeFilter(b)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-                badgeFilter === b
-                  ? "bg-indigo-600 text-white"
-                  : "border-[1.5px] border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              {badgeLabel(b)}
-            </button>
-          ))}
-        </div>
+        {view === "list" ? (
+          <>
+            {/* Search */}
+            <div className="relative mt-5">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                🔍
+              </span>
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={t.glossary.searchPlaceholder}
+                className="w-full rounded-lg border-[1.5px] border-gray-200 bg-white py-2.5 pl-9 pr-3 text-sm outline-none transition-colors focus:border-indigo-400"
+              />
+            </div>
 
-        {/* No results */}
-        {filtered.length === 0 && (
-          <p className="mt-10 text-center text-sm text-gray-400">
-            {t.glossary.noResults}
-          </p>
+            {/* Badge filter */}
+            <div className="mt-3 flex gap-2">
+              {(["all", "aws", "general", "k8s", "docker"] as BadgeFilter[]).map((b) => (
+                <button
+                  key={b}
+                  onClick={() => setBadgeFilter(b)}
+                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                    badgeFilter === b
+                      ? "bg-indigo-600 text-white"
+                      : "border-[1.5px] border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  {badgeLabel(b)}
+                </button>
+              ))}
+            </div>
+
+            {/* No results */}
+            {filtered.length === 0 && (
+              <p className="mt-10 text-center text-sm text-gray-400">
+                {t.glossary.noResults}
+              </p>
+            )}
+
+            {/* Grouped sections */}
+            {GLOSSARY_GROUPS.map((g) => {
+              const terms = grouped.get(g.id);
+              if (!terms || terms.length === 0) return null;
+              return (
+                <section key={g.id} className="mt-8">
+                  <h2 className="flex items-center gap-2 border-b border-gray-200 pb-2 text-sm font-bold text-gray-700">
+                    <span>{g.icon}</span>
+                    {t.glossary.groups[g.id]}
+                  </h2>
+                  <div className="mt-3 space-y-3">
+                    {terms.map((term) => (
+                      <TermCard key={term.id} term={term} lang={lang} t={t} />
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
+          </>
+        ) : (
+          <CityIllustrationView lang={lang} t={t} />
         )}
-
-        {/* Grouped sections */}
-        {GLOSSARY_GROUPS.map((g) => {
-          const terms = grouped.get(g.id);
-          if (!terms || terms.length === 0) return null;
-          return (
-            <section key={g.id} className="mt-8">
-              <h2 className="flex items-center gap-2 border-b border-gray-200 pb-2 text-sm font-bold text-gray-700">
-                <span>{g.icon}</span>
-                {t.glossary.groups[g.id]}
-              </h2>
-              <div className="mt-3 space-y-3">
-                {terms.map((term) => (
-                  <TermCard key={term.id} term={term} lang={lang} t={t} />
-                ))}
-              </div>
-            </section>
-          );
-        })}
       </div>
     </div>
   );
@@ -152,7 +184,6 @@ function TermCard({
       id={term.id}
       className="rounded-xl border-[1.5px] border-gray-200 bg-white px-5 py-4"
     >
-      {/* Header row */}
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm font-bold text-gray-900">{term.name}</span>
         <span
@@ -167,19 +198,16 @@ function TermCard({
         </span>
       </div>
 
-      {/* Description */}
       <p className="mt-2 text-sm leading-relaxed text-gray-600">
         {term.desc[lang]}
       </p>
 
-      {/* Placement note */}
       {term.placementNote && (
         <p className="mt-1.5 text-xs text-gray-500">
           📍 {term.placementNote[lang]}
         </p>
       )}
 
-      {/* Related */}
       {term.related.length > 0 && (
         <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
           <span className="text-xs text-gray-400">
@@ -200,7 +228,6 @@ function TermCard({
         </div>
       )}
 
-      {/* Analogy */}
       <div className="mt-2.5 rounded-lg bg-amber-50 px-3 py-2">
         <span className="text-xs text-amber-700">
           💡 {t.glossary.analogyLabel}: {term.analogy[lang]}
