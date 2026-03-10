@@ -446,7 +446,7 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
     const auroraBase = isXL ? 800 : isLarge ? 400 : isMedium ? 200 : isServerless ? 75 : 120;
     const maxAcu = isXL ? 128 : isLarge ? 64 : 8;
     I(t.database, t.auroraServerless, t.auroraServerlessDesc(maxAcu),
-      Math.round(auroraBase * 0.6 * commitDiscount), Math.round(auroraBase * commitDiscount));
+      Math.round(auroraBase * 0.75 * commitDiscount), Math.round(auroraBase * commitDiscount));
     if (dbHa === "multi_az_read" || dbHa === "global") {
       I(t.database, t.auroraReadReplica, t.auroraReadReplicaDesc,
         Math.round(auroraBase * 0.8 * commitDiscount), Math.round(auroraBase * 1.0 * commitDiscount));
@@ -454,7 +454,7 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
     I(t.database, t.auroraStorage, t.auroraStorageDesc, isXL ? 200 : isLarge ? 80 : 20, isXL ? 600 : isLarge ? 200 : 60);
   }
   if (hasRds) {
-    const rdsBase = isXL ? 700 : isLarge ? 350 : isMedium ? 180 : 100;
+    const rdsBase = isXL ? 700 : isLarge ? 350 : isMedium ? 180 : 75;
     const rdsMaFactor = dbHa !== "single_az" ? 2.0 : 1.0;
     I(t.database, t.rdsInstance, `${dbHa !== "single_az" ? "Multi-AZ" : "Single-AZ"}`,
       Math.round(rdsBase * rdsMaFactor * commitDiscount), Math.round(rdsBase * rdsMaFactor * 1.2 * commitDiscount));

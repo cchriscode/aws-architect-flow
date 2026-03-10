@@ -1209,8 +1209,11 @@ function applyCostFirst(s: WizardState): string[] {
     changes.push("Spot Instances partial");
   }
 
-  // primary_db: aurora → rds (skip SaaS, ticketing, serverless — Aurora Serverless v2 cheaper at low scale)
-  if (!isWorkload(s, "saas", "ticketing") && get(s, "compute", "arch_pattern") !== "serverless") {
+  // primary_db: aurora → rds (skip SaaS, ticketing, serverless, medium+ DAU — Aurora Serverless v2 auto-scales)
+  const dau = get(s, "scale", "dau") as string;
+  if (!isWorkload(s, "saas", "ticketing")
+      && get(s, "compute", "arch_pattern") !== "serverless"
+      && !["medium", "large", "xlarge"].includes(dau)) {
     const dbs = getArr(s, "data", "primary_db");
     const mapped = dbs.map((db) => {
       if (db === "aurora_pg") return "rds_pg";
