@@ -407,6 +407,9 @@ export function generateChecklist(state: WizardState, lang: Lang = "ko") {
   }
   p9.items.push(item(t("p9_sns_oncall", lang), t("p9_sns_oncall_d", lang)));
   p9.items.push(item(t("p9_xray", lang), t("p9_xray_d", lang)));
+  const cicdMon = toArray(state.cicd?.monitoring);
+  if (cicdMon.includes("datadog")) p9.items.push(item(t("p9_datadog", lang), t("p9_datadog_d", lang)));
+  if (cicdMon.includes("grafana")) p9.items.push(item(t("p9_grafana", lang), t("p9_grafana_d", lang)));
   if (hasCritCert) {
     p9.items.push(item(t("p9_ct_integrity", lang), t("p9_ct_integrity_d", lang), true));
     p9.items.push(item(t("p9_cost_anomaly", lang), t("p9_cost_anomaly_d", lang), true));

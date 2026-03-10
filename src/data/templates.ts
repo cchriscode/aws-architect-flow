@@ -1021,7 +1021,7 @@ export const TEMPLATES: QuickTemplate[] = [
         k8s_monitoring: "prometheus_grafana",
         k8s_secrets: "external_secrets",
         pod_security: "kyverno",
-        network_policy: "calico",
+        network_policy: "cilium",
         k8s_backup: "velero",
         autoscaling_strategy: "hpa_keda",
         cluster_strategy: "multi_cluster",

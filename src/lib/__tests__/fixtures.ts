@@ -68,7 +68,7 @@ export const EKS_FULL_STATE: WizardState = {
     k8s_monitoring: "hybrid",
     k8s_secrets: "external_secrets",
     pod_security: "kyverno",
-    network_policy: "calico",
+    network_policy: "cilium",
     k8s_backup: "velero",
   },
   data: {
@@ -145,6 +145,7 @@ export const COMPLIANCE_STATE: WizardState = {
     pipeline: "github",
     deploy_strategy: "bluegreen",
     env_count: "three",
+    monitoring: ["cloudwatch", "xray", "datadog"],
   },
   cost: { priority: "balanced", commitment: "1yr", spot_usage: "no" },
 };

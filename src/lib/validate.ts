@@ -99,6 +99,8 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     multiRegionMvp:      { t: "멀티 리전 + MVP 단계 과잉", m: "MVP 단계에서 멀티 리전은 비용 대비 효과가 낮습니다. 단일 리전 + Multi-AZ로 시작하세요." },
     highAvailSolo:       { t: "99.99% 가용성 + 1인 팀 비현실", m: "99.99% 달성에는 온콜 로테이션, 자동 복구, 멀티 리전이 필요합니다. 1인 팀에는 99.9%가 현실적입니다." },
     canaryFlash:         { t: "카나리 배포 + 선착순 이벤트 주의", m: "선착순 이벤트 중 카나리 배포는 일부 사용자에게 다른 버전이 노출됩니다. 이벤트 전후 배포를 분리하세요." },
+    noMonitoring:        { t: "모니터링 미설정", m: "CloudWatch, X-Ray 등 모니터링 도구가 선택되지 않았습니다. 프로덕션 환경에서는 모니터링이 필수입니다." },
+    noBackupNonEks:      { t: "백업 전략 미설정", m: "DB 백업 외에 애플리케이션 상태·설정 백업 전략이 없습니다. AWS Backup 활용을 검토하세요." },
   } : {
     availAz:            { t: "99.99% availability + single AZ impossible", m: "Single AZ means full outage on AZ failure. At least 2 AZs required for 99.99% (3 AZs recommended)." },
     highAvailAz:        { t: "High availability target conflicts with single AZ", m: "99.95%+ availability cannot be achieved without Multi-AZ." },
@@ -191,6 +193,8 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     multiRegionMvp:      { t: "Multi-region + MVP stage overkill", m: "Multi-region is cost-ineffective at MVP stage. Start with single region + Multi-AZ." },
     highAvailSolo:       { t: "99.99% availability + solo team unrealistic", m: "Achieving 99.99% requires on-call rotation, automated recovery, and multi-region. 99.9% is realistic for solo teams." },
     canaryFlash:         { t: "Canary deploy + flash sale caution", m: "Canary deployment during flash sales exposes some users to different versions. Separate deployments from events." },
+    noMonitoring:        { t: "No monitoring configured", m: "No monitoring tool selected (CloudWatch, X-Ray, etc.). Monitoring is essential for production environments." },
+    noBackupNonEks:      { t: "No backup strategy configured", m: "No application state/configuration backup strategy beyond DB backups. Consider leveraging AWS Backup." },
   };
 
   const types     = state.workload?.type || [];
@@ -520,6 +524,10 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
   // -- Canary + flash sale --
   if (deploy === "canary" && state.workload?.ticketing_detail === "flash")
     W(_.canaryFlash.t, _.canaryFlash.m, ["cicd","workload"]);
+
+  // -- Non-EKS monitoring --
+  if (!isEks && !isInternalOnly && !isServerless && !monitor && !state.cicd?.monitoring)
+    W(_.noMonitoring.t, _.noMonitoring.m, ["cicd"]);
 
   return issues;
 }

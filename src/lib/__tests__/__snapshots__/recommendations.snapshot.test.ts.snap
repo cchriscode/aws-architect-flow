@@ -688,6 +688,18 @@ exports[`getRecommendations snapshots > compliance (en) 1`] = `
     "badge": "⭐ Industry standard for mid-to-large scale",
     "reason": "De facto standard for multi-account/multi-region management. Manage non-AWS services the same way",
   },
+  "cicd.monitoring.cloudwatch": {
+    "badge": "⭐ AWS default monitoring",
+    "reason": "CloudWatch: Integrated logs, metrics, and alarms without additional setup. Default choice for most services",
+  },
+  "cicd.monitoring.datadog": {
+    "badge": "✨ Unified APM platform",
+    "reason": "Datadog: Logs, metrics, and traces in a single UI. Powerful but expensive",
+  },
+  "cicd.monitoring.xray": {
+    "badge": "✨ Distributed tracing recommended",
+    "reason": "X-Ray: Visualize request flow between microservices. Quickly identify bottlenecks and error causes",
+  },
   "cicd.pipeline.gitlab": {
     "badge": "✨ Secure enterprise environment",
     "reason": "GitLab CI: On-premises installation available. For financial/public sectors where code must not leave external servers",
@@ -1041,6 +1053,18 @@ exports[`getRecommendations snapshots > compliance (ko) 1`] = `
     "badge": "⭐ 중대규모 업계 표준",
     "reason": "멀티 계정·멀티 리전 관리의 사실상 표준. AWS 외 서비스도 동일하게 관리 가능",
   },
+  "cicd.monitoring.cloudwatch": {
+    "badge": "⭐ AWS 기본 모니터링",
+    "reason": "CloudWatch: 추가 설치 없이 로그·메트릭·알람 통합. 대부분 서비스의 기본 선택",
+  },
+  "cicd.monitoring.datadog": {
+    "badge": "✨ 통합 APM 플랫폼",
+    "reason": "Datadog: 로그·메트릭·트레이스를 하나의 UI에서. 강력하지만 비용이 높습니다",
+  },
+  "cicd.monitoring.xray": {
+    "badge": "✨ 분산 추적 권장",
+    "reason": "X-Ray: 마이크로서비스 간 요청 흐름 시각화. 병목 구간과 오류 원인 빠른 파악",
+  },
   "cicd.pipeline.gitlab": {
     "badge": "✨ 보안 기업 환경",
     "reason": "GitLab CI: 온프레미스 설치 가능. 코드가 외부 서버에 나가지 않아야 하는 금융·공공",
@@ -1390,6 +1414,10 @@ exports[`getRecommendations snapshots > data_pipeline (en) 1`] = `
     "badge": "⭐ Industry standard for mid-to-large scale",
     "reason": "De facto standard for multi-account/multi-region management. Manage non-AWS services the same way",
   },
+  "cicd.monitoring.cloudwatch": {
+    "badge": "⭐ AWS default monitoring",
+    "reason": "CloudWatch: Integrated logs, metrics, and alarms without additional setup. Default choice for most services",
+  },
   "cicd.pipeline.github": {
     "badge": "⭐ Standard for small-to-mid scale",
     "reason": "GitHub Actions: Fastest setup. 2000 free minutes/month. Largest open-source action ecosystem",
@@ -1509,6 +1537,10 @@ exports[`getRecommendations snapshots > data_pipeline (en) 1`] = `
   "integration.batch_workflow.aws_batch": {
     "badge": "⭐ Required for large-volume batch",
     "reason": "ML training, settlement, large data transformation: 70% cost savings with Spot + Auto Scaling",
+  },
+  "integration.batch_workflow.glue": {
+    "badge": "⭐ Large-scale ETL service",
+    "reason": "AWS Glue: Spark-based serverless ETL. Auto-manage schemas with Data Catalog. Essential for data lake setup",
   },
   "integration.queue_type.amazon_mq": {
     "badge": "✨ On-premises MQ migration",
@@ -1695,6 +1727,10 @@ exports[`getRecommendations snapshots > data_pipeline (ko) 1`] = `
     "badge": "⭐ 중대규모 업계 표준",
     "reason": "멀티 계정·멀티 리전 관리의 사실상 표준. AWS 외 서비스도 동일하게 관리 가능",
   },
+  "cicd.monitoring.cloudwatch": {
+    "badge": "⭐ AWS 기본 모니터링",
+    "reason": "CloudWatch: 추가 설치 없이 로그·메트릭·알람 통합. 대부분 서비스의 기본 선택",
+  },
   "cicd.pipeline.github": {
     "badge": "⭐ 소~중규모 표준",
     "reason": "GitHub Actions: 가장 빠른 설정. 무료 월 2000분. 오픈소스 액션 생태계 최대",
@@ -1814,6 +1850,10 @@ exports[`getRecommendations snapshots > data_pipeline (ko) 1`] = `
   "integration.batch_workflow.aws_batch": {
     "badge": "⭐ 대용량 배치 필수",
     "reason": "ML 학습·정산·대용량 데이터 변환: Spot으로 70% 비용 절감 + 자동 확장",
+  },
+  "integration.batch_workflow.glue": {
+    "badge": "⭐ 대용량 ETL 서비스",
+    "reason": "AWS Glue: Spark 기반 서버리스 ETL. 데이터 카탈로그로 스키마 자동 관리. 데이터 레이크 구성에 필수",
   },
   "integration.queue_type.amazon_mq": {
     "badge": "✨ 온프레미스 MQ 마이그레이션",
@@ -2007,6 +2047,14 @@ exports[`getRecommendations snapshots > ecommerce_mvp (en) 1`] = `
   "cicd.iac.terraform": {
     "badge": "⭐ Industry standard for mid-to-large scale",
     "reason": "De facto standard for multi-account/multi-region management. Manage non-AWS services the same way",
+  },
+  "cicd.monitoring.cloudwatch": {
+    "badge": "⭐ AWS default monitoring",
+    "reason": "CloudWatch: Integrated logs, metrics, and alarms without additional setup. Default choice for most services",
+  },
+  "cicd.monitoring.xray": {
+    "badge": "✨ Distributed tracing recommended",
+    "reason": "X-Ray: Visualize request flow between microservices. Quickly identify bottlenecks and error causes",
   },
   "cicd.pipeline.github": {
     "badge": "⭐ Standard for small-to-mid scale",
@@ -2352,6 +2400,14 @@ exports[`getRecommendations snapshots > ecommerce_mvp (ko) 1`] = `
   "cicd.iac.terraform": {
     "badge": "⭐ 중대규모 업계 표준",
     "reason": "멀티 계정·멀티 리전 관리의 사실상 표준. AWS 외 서비스도 동일하게 관리 가능",
+  },
+  "cicd.monitoring.cloudwatch": {
+    "badge": "⭐ AWS 기본 모니터링",
+    "reason": "CloudWatch: 추가 설치 없이 로그·메트릭·알람 통합. 대부분 서비스의 기본 선택",
+  },
+  "cicd.monitoring.xray": {
+    "badge": "✨ 분산 추적 권장",
+    "reason": "X-Ray: 마이크로서비스 간 요청 흐름 시각화. 병목 구간과 오류 원인 빠른 파악",
   },
   "cicd.pipeline.github": {
     "badge": "⭐ 소~중규모 표준",
@@ -3524,6 +3580,10 @@ exports[`getRecommendations snapshots > generic_web_api (en) 1`] = `
     "badge": "⭐ Industry standard for mid-to-large scale",
     "reason": "De facto standard for multi-account/multi-region management. Manage non-AWS services the same way",
   },
+  "cicd.monitoring.cloudwatch": {
+    "badge": "⭐ AWS default monitoring",
+    "reason": "CloudWatch: Integrated logs, metrics, and alarms without additional setup. Default choice for most services",
+  },
   "cicd.pipeline.github": {
     "badge": "⭐ Standard for small-to-mid scale",
     "reason": "GitHub Actions: Fastest setup. 2000 free minutes/month. Largest open-source action ecosystem",
@@ -3816,6 +3876,10 @@ exports[`getRecommendations snapshots > generic_web_api (ko) 1`] = `
   "cicd.iac.terraform": {
     "badge": "⭐ 중대규모 업계 표준",
     "reason": "멀티 계정·멀티 리전 관리의 사실상 표준. AWS 외 서비스도 동일하게 관리 가능",
+  },
+  "cicd.monitoring.cloudwatch": {
+    "badge": "⭐ AWS 기본 모니터링",
+    "reason": "CloudWatch: 추가 설치 없이 로그·메트릭·알람 통합. 대부분 서비스의 기본 선택",
   },
   "cicd.pipeline.github": {
     "badge": "⭐ 소~중규모 표준",
@@ -4114,6 +4178,10 @@ exports[`getRecommendations snapshots > internal_tool (en) 1`] = `
     "badge": "✨ Initial manual setup",
     "reason": "Early MVP: Quick setup via console. Migrate to IaC after service stabilizes",
   },
+  "cicd.monitoring.cloudwatch": {
+    "badge": "⭐ AWS default monitoring",
+    "reason": "CloudWatch: Integrated logs, metrics, and alarms without additional setup. Default choice for most services",
+  },
   "cicd.pipeline.github": {
     "badge": "⭐ Standard for small-to-mid scale",
     "reason": "GitHub Actions: Fastest setup. 2000 free minutes/month. Largest open-source action ecosystem",
@@ -4411,6 +4479,10 @@ exports[`getRecommendations snapshots > internal_tool (ko) 1`] = `
     "badge": "✨ 초기 수동 설정",
     "reason": "MVP 초기: 콘솔에서 빠르게 세팅. 서비스 안정 후 IaC로 마이그레이션",
   },
+  "cicd.monitoring.cloudwatch": {
+    "badge": "⭐ AWS 기본 모니터링",
+    "reason": "CloudWatch: 추가 설치 없이 로그·메트릭·알람 통합. 대부분 서비스의 기본 선택",
+  },
   "cicd.pipeline.github": {
     "badge": "⭐ 소~중규모 표준",
     "reason": "GitHub Actions: 가장 빠른 설정. 무료 월 2000분. 오픈소스 액션 생태계 최대",
@@ -4704,6 +4776,14 @@ exports[`getRecommendations snapshots > iot_platform (en) 1`] = `
     "badge": "⭐ Industry standard for mid-to-large scale",
     "reason": "De facto standard for multi-account/multi-region management. Manage non-AWS services the same way",
   },
+  "cicd.monitoring.cloudwatch": {
+    "badge": "⭐ AWS default monitoring",
+    "reason": "CloudWatch: Integrated logs, metrics, and alarms without additional setup. Default choice for most services",
+  },
+  "cicd.monitoring.xray": {
+    "badge": "✨ Distributed tracing recommended",
+    "reason": "X-Ray: Visualize request flow between microservices. Quickly identify bottlenecks and error causes",
+  },
   "cicd.pipeline.github": {
     "badge": "⭐ Standard for small-to-mid scale",
     "reason": "GitHub Actions: Fastest setup. 2000 free minutes/month. Largest open-source action ecosystem",
@@ -4989,6 +5069,14 @@ exports[`getRecommendations snapshots > iot_platform (ko) 1`] = `
     "badge": "⭐ 중대규모 업계 표준",
     "reason": "멀티 계정·멀티 리전 관리의 사실상 표준. AWS 외 서비스도 동일하게 관리 가능",
   },
+  "cicd.monitoring.cloudwatch": {
+    "badge": "⭐ AWS 기본 모니터링",
+    "reason": "CloudWatch: 추가 설치 없이 로그·메트릭·알람 통합. 대부분 서비스의 기본 선택",
+  },
+  "cicd.monitoring.xray": {
+    "badge": "✨ 분산 추적 권장",
+    "reason": "X-Ray: 마이크로서비스 간 요청 흐름 시각화. 병목 구간과 오류 원인 빠른 파악",
+  },
   "cicd.pipeline.github": {
     "badge": "⭐ 소~중규모 표준",
     "reason": "GitHub Actions: 가장 빠른 설정. 무료 월 2000분. 오픈소스 액션 생태계 최대",
@@ -5266,6 +5354,10 @@ exports[`getRecommendations snapshots > minimal (en) 1`] = `
     "badge": "⭐ Industry standard for mid-to-large scale",
     "reason": "De facto standard for multi-account/multi-region management. Manage non-AWS services the same way",
   },
+  "cicd.monitoring.cloudwatch": {
+    "badge": "⭐ AWS default monitoring",
+    "reason": "CloudWatch: Integrated logs, metrics, and alarms without additional setup. Default choice for most services",
+  },
   "cicd.pipeline.github": {
     "badge": "⭐ Standard for small-to-mid scale",
     "reason": "GitHub Actions: Fastest setup. 2000 free minutes/month. Largest open-source action ecosystem",
@@ -5486,6 +5578,10 @@ exports[`getRecommendations snapshots > minimal (ko) 1`] = `
   "cicd.iac.terraform": {
     "badge": "⭐ 중대규모 업계 표준",
     "reason": "멀티 계정·멀티 리전 관리의 사실상 표준. AWS 외 서비스도 동일하게 관리 가능",
+  },
+  "cicd.monitoring.cloudwatch": {
+    "badge": "⭐ AWS 기본 모니터링",
+    "reason": "CloudWatch: 추가 설치 없이 로그·메트릭·알람 통합. 대부분 서비스의 기본 선택",
   },
   "cicd.pipeline.github": {
     "badge": "⭐ 소~중규모 표준",
@@ -5711,6 +5807,14 @@ exports[`getRecommendations snapshots > realtime_chat (en) 1`] = `
   "cicd.iac.terraform": {
     "badge": "⭐ Industry standard for mid-to-large scale",
     "reason": "De facto standard for multi-account/multi-region management. Manage non-AWS services the same way",
+  },
+  "cicd.monitoring.cloudwatch": {
+    "badge": "⭐ AWS default monitoring",
+    "reason": "CloudWatch: Integrated logs, metrics, and alarms without additional setup. Default choice for most services",
+  },
+  "cicd.monitoring.xray": {
+    "badge": "✨ Distributed tracing recommended",
+    "reason": "X-Ray: Visualize request flow between microservices. Quickly identify bottlenecks and error causes",
   },
   "cicd.pipeline.github": {
     "badge": "⭐ Standard for small-to-mid scale",
@@ -5976,6 +6080,14 @@ exports[`getRecommendations snapshots > realtime_chat (ko) 1`] = `
   "cicd.iac.terraform": {
     "badge": "⭐ 중대규모 업계 표준",
     "reason": "멀티 계정·멀티 리전 관리의 사실상 표준. AWS 외 서비스도 동일하게 관리 가능",
+  },
+  "cicd.monitoring.cloudwatch": {
+    "badge": "⭐ AWS 기본 모니터링",
+    "reason": "CloudWatch: 추가 설치 없이 로그·메트릭·알람 통합. 대부분 서비스의 기본 선택",
+  },
+  "cicd.monitoring.xray": {
+    "badge": "✨ 분산 추적 권장",
+    "reason": "X-Ray: 마이크로서비스 간 요청 흐름 시각화. 병목 구간과 오류 원인 빠른 파악",
   },
   "cicd.pipeline.github": {
     "badge": "⭐ 소~중규모 표준",
@@ -6245,6 +6357,10 @@ exports[`getRecommendations snapshots > serverless (en) 1`] = `
   "cicd.iac.terraform": {
     "badge": "⭐ Industry standard for mid-to-large scale",
     "reason": "De facto standard for multi-account/multi-region management. Manage non-AWS services the same way",
+  },
+  "cicd.monitoring.cloudwatch": {
+    "badge": "⭐ AWS default monitoring",
+    "reason": "CloudWatch: Integrated logs, metrics, and alarms without additional setup. Default choice for most services",
   },
   "cicd.pipeline.github": {
     "badge": "⭐ Standard for small-to-mid scale",
@@ -6539,6 +6655,10 @@ exports[`getRecommendations snapshots > serverless (ko) 1`] = `
     "badge": "⭐ 중대규모 업계 표준",
     "reason": "멀티 계정·멀티 리전 관리의 사실상 표준. AWS 외 서비스도 동일하게 관리 가능",
   },
+  "cicd.monitoring.cloudwatch": {
+    "badge": "⭐ AWS 기본 모니터링",
+    "reason": "CloudWatch: 추가 설치 없이 로그·메트릭·알람 통합. 대부분 서비스의 기본 선택",
+  },
   "cicd.pipeline.github": {
     "badge": "⭐ 소~중규모 표준",
     "reason": "GitHub Actions: 가장 빠른 설정. 무료 월 2000분. 오픈소스 액션 생태계 최대",
@@ -6823,6 +6943,14 @@ exports[`getRecommendations snapshots > ticketing (en) 1`] = `
   "cicd.iac.terraform": {
     "badge": "⭐ Industry standard for mid-to-large scale",
     "reason": "De facto standard for multi-account/multi-region management. Manage non-AWS services the same way",
+  },
+  "cicd.monitoring.cloudwatch": {
+    "badge": "⭐ AWS default monitoring",
+    "reason": "CloudWatch: Integrated logs, metrics, and alarms without additional setup. Default choice for most services",
+  },
+  "cicd.monitoring.xray": {
+    "badge": "✨ Distributed tracing recommended",
+    "reason": "X-Ray: Visualize request flow between microservices. Quickly identify bottlenecks and error causes",
   },
   "cicd.pipeline.github": {
     "badge": "⭐ Standard for small-to-mid scale",
@@ -7128,6 +7256,14 @@ exports[`getRecommendations snapshots > ticketing (ko) 1`] = `
   "cicd.iac.terraform": {
     "badge": "⭐ 중대규모 업계 표준",
     "reason": "멀티 계정·멀티 리전 관리의 사실상 표준. AWS 외 서비스도 동일하게 관리 가능",
+  },
+  "cicd.monitoring.cloudwatch": {
+    "badge": "⭐ AWS 기본 모니터링",
+    "reason": "CloudWatch: 추가 설치 없이 로그·메트릭·알람 통합. 대부분 서비스의 기본 선택",
+  },
+  "cicd.monitoring.xray": {
+    "badge": "✨ 분산 추적 권장",
+    "reason": "X-Ray: 마이크로서비스 간 요청 흐름 시각화. 병목 구간과 오류 원인 빠른 파악",
   },
   "cicd.pipeline.github": {
     "badge": "⭐ 소~중규모 표준",

@@ -1281,6 +1281,22 @@ export const dict: Record<string, Record<Lang, string>> = {
     ko: "ALB → 앱 → DB 전 구간 추적. 느린 요청 원인 분석",
     en: "Trace entire path: ALB -> App -> DB. Analyze slow request causes",
   },
+  p9_datadog: {
+    ko: "Datadog 에이전트 설치 및 APM 연동",
+    en: "Install Datadog agent and connect APM",
+  },
+  p9_datadog_d: {
+    ko: "ECS/EC2에 에이전트 배포. AWS Integration 활성화로 CloudWatch 메트릭 자동 수집",
+    en: "Deploy agent on ECS/EC2. Enable AWS Integration for auto CloudWatch metric collection",
+  },
+  p9_grafana: {
+    ko: "Amazon Managed Grafana 워크스페이스 구성",
+    en: "Set up Amazon Managed Grafana workspace",
+  },
+  p9_grafana_d: {
+    ko: "데이터 소스(CloudWatch, X-Ray) 연결. SSO 기반 팀별 접근 제어 설정",
+    en: "Connect data sources (CloudWatch, X-Ray). Configure SSO-based per-team access control",
+  },
   p9_ct_integrity: {
     ko: "CloudTrail 로그 무결성 검증 활성화",
     en: "Enable CloudTrail log integrity validation",

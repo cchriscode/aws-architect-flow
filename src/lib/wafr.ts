@@ -485,10 +485,15 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
       I(t.ops_gitops_q, 10,
         gitops === "argocd" || gitops === "flux" ? 10 : 0,
         t.ops_gitops_rec),
-    ] : [
-      I(t.ops_cw_monitor, 12, 12),
-      I(t.ops_cicd_history, 8, 8),
-    ]),
+    ] : (() => {
+      const cicdMon = toArray(state.cicd?.monitoring);
+      const hasMonitoring = cicdMon.length > 0;
+      const monScore = cicdMon.includes("datadog") ? 15 : cicdMon.length >= 2 ? 14 : hasMonitoring ? 12 : 8;
+      return [
+        I(t.ops_cw_monitor, 15, monScore, t.ops_k8s_monitor_rec),
+        I(t.ops_cicd_history, 8, 8),
+      ];
+    })()),
     I(t.ops_multi_account_q, 10,
       account !== "single" ? 10 : 0,
       t.ops_multi_account_rec),
@@ -719,6 +724,23 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
     sus: P(susItems),
   };
 
-  const overall = Math.round(Object.values(pillars).reduce((s, p) => s + p.score, 0) / 6);
+  // Workload-aware pillar weights (AWS WAF methodology)
+  const isCompliance = hasCritCert || cert.includes("isms") || cert.includes("isms_p");
+  const isConsumer = isTx || types.includes("realtime") || types.includes("ticketing");
+  const w = isCompliance
+    ? { ops: 1, sec: 1.5, rel: 1.2, perf: 0.8, cost: 0.8, sus: 0.5 }
+    : isConsumer
+    ? { ops: 1, sec: 1, rel: 1.3, perf: 1.3, cost: 1, sus: 0.5 }
+    : { ops: 1, sec: 1, rel: 1, perf: 1, cost: 1, sus: 0.5 };
+
+  const totalWeight = w.ops + w.sec + w.rel + w.perf + w.cost + w.sus;
+  const overall = Math.round(
+    (pillars.ops.score * w.ops +
+     pillars.sec.score * w.sec +
+     pillars.rel.score * w.rel +
+     pillars.perf.score * w.perf +
+     pillars.cost.score * w.cost +
+     pillars.sus.score * w.sus) / totalWeight
+  );
   return { overall, pillars };
 }

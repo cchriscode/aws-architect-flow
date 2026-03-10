@@ -600,6 +600,18 @@ exports[`estimateMonthlyCost snapshots > compliance (en) 1`] = `
           "name": "CloudWatch (Logs + Metrics + Alarms)",
         },
         {
+          "desc": "~$23/host/mo + APM add-on",
+          "max": 760,
+          "min": 460,
+          "name": "Datadog (Infrastructure + APM)",
+        },
+        {
+          "desc": "Traces $5/1M, sampling config recommended",
+          "max": 25,
+          "min": 10,
+          "name": "AWS X-Ray (Distributed Tracing)",
+        },
+        {
           "desc": "Compliance / sensitive data monitoring",
           "max": 200,
           "min": 80,
@@ -650,8 +662,8 @@ exports[`estimateMonthlyCost snapshots > compliance (en) 1`] = `
       ],
       "name": "Operations",
       "total": {
-        "max": 530,
-        "min": 176,
+        "max": 1315,
+        "min": 646,
       },
     },
     {
@@ -678,9 +690,9 @@ exports[`estimateMonthlyCost snapshots > compliance (en) 1`] = `
   ],
   "hasCommit": true,
   "hasSpot": false,
-  "totalMax": 4663,
-  "totalMid": 3422,
-  "totalMin": 2181,
+  "totalMax": 5448,
+  "totalMid": 4050,
+  "totalMin": 2651,
 }
 `;
 
@@ -846,6 +858,18 @@ exports[`estimateMonthlyCost snapshots > compliance (ko) 1`] = `
           "name": "CloudWatch (로그+메트릭+알람)",
         },
         {
+          "desc": "호스트당 ~$23/월 + APM 추가",
+          "max": 760,
+          "min": 460,
+          "name": "Datadog (Infrastructure + APM)",
+        },
+        {
+          "desc": "추적 $5/백만 건, 샘플링 설정 권장",
+          "max": 25,
+          "min": 10,
+          "name": "AWS X-Ray (분산 추적)",
+        },
+        {
           "desc": "규정 준수 / 민감 데이터 모니터링",
           "max": 200,
           "min": 80,
@@ -896,8 +920,8 @@ exports[`estimateMonthlyCost snapshots > compliance (ko) 1`] = `
       ],
       "name": "운영",
       "total": {
-        "max": 530,
-        "min": 176,
+        "max": 1315,
+        "min": 646,
       },
     },
     {
@@ -924,9 +948,9 @@ exports[`estimateMonthlyCost snapshots > compliance (ko) 1`] = `
   ],
   "hasCommit": true,
   "hasSpot": false,
-  "totalMax": 4663,
-  "totalMid": 3422,
-  "totalMin": 2181,
+  "totalMax": 5448,
+  "totalMid": 4050,
+  "totalMin": 2651,
 }
 `;
 
@@ -1689,6 +1713,12 @@ exports[`estimateMonthlyCost snapshots > eks_full (en) 1`] = `
           "name": "DynamoDB (On-Demand)",
         },
         {
+          "desc": "At high traffic, On-Demand can cost 5-7x more than Provisioned. Consider Reserved Capacity.",
+          "max": 0,
+          "min": 0,
+          "name": "⚠️ DynamoDB On-Demand cost warning",
+        },
+        {
           "desc": "3AZ Replication Group",
           "max": 163,
           "min": 136,
@@ -1975,6 +2005,12 @@ exports[`estimateMonthlyCost snapshots > eks_full (ko) 1`] = `
           "max": 800,
           "min": 200,
           "name": "DynamoDB (On-Demand)",
+        },
+        {
+          "desc": "대규모 트래픽에서 On-Demand는 Provisioned 대비 5-7배 비쌀 수 있습니다. Reserved Capacity 검토를 권장합니다.",
+          "max": 0,
+          "min": 0,
+          "name": "⚠️ DynamoDB On-Demand 비용 주의",
         },
         {
           "desc": "3AZ Replication Group",

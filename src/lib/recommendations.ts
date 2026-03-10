@@ -644,6 +644,25 @@ export function getRecommendations(
   if (isXL && isMature)
     R("appstack","protocol","mixed",t("✨ 외부 REST + 내부 gRPC","✨ External REST + internal gRPC"),t("외부 API는 REST(호환성), 내부 MSA 통신은 gRPC(성능). 역할 분리","External APIs use REST (compatibility), internal microservices communication uses gRPC (performance). Role separation"));
 
+  // ── MONITORING (non-EKS, CICD phase) ──────────────────────────────
+  if (!isEks) {
+    R("cicd","monitoring","cloudwatch",t("⭐ AWS 기본 모니터링","⭐ AWS default monitoring"),t("CloudWatch: 추가 설치 없이 로그·메트릭·알람 통합. 대부분 서비스의 기본 선택","CloudWatch: Integrated logs, metrics, and alarms without additional setup. Default choice for most services"));
+    if (isMedPlus || isTx)
+      R("cicd","monitoring","xray",t("✨ 분산 추적 권장","✨ Distributed tracing recommended"),t("X-Ray: 마이크로서비스 간 요청 흐름 시각화. 병목 구간과 오류 원인 빠른 파악","X-Ray: Visualize request flow between microservices. Quickly identify bottlenecks and error causes"));
+    if (isLarge && seniorLarge)
+      R("cicd","monitoring","datadog",t("✨ 통합 APM 플랫폼","✨ Unified APM platform"),t("Datadog: 로그·메트릭·트레이스를 하나의 UI에서. 강력하지만 비용이 높습니다","Datadog: Logs, metrics, and traces in a single UI. Powerful but expensive"));
+  }
+
+  // ── BATCH: Glue recommendation ──────────────────────────────────
+  if (isData && (dataD === "log_analytics" || dataD === "bi_dashboard" || dataD === "stream_analytics"))
+    R("integration","batch_workflow","glue",t("⭐ 대용량 ETL 서비스","⭐ Large-scale ETL service"),t("AWS Glue: Spark 기반 서버리스 ETL. 데이터 카탈로그로 스키마 자동 관리. 데이터 레이크 구성에 필수","AWS Glue: Spark-based serverless ETL. Auto-manage schemas with Data Catalog. Essential for data lake setup"));
+
+  // ALB+NLB dual pattern: when gRPC is used with ALB, suggest NLB alongside
+  const protocol = state.appstack?.protocol;
+  const apiType = state.integration?.api_type;
+  if ((protocol === "grpc" || protocol === "mixed") && apiType === "alb")
+    R("integration","api_type","alb",t("💡 gRPC 사용 시 NLB 병행 권장","💡 Consider NLB alongside ALB for gRPC"),t("ALB는 HTTP/REST에 최적이지만 gRPC는 NLB가 더 적합합니다. ALB(웹)+NLB(gRPC) 병행 패턴을 고려하세요","ALB is optimal for HTTP/REST but NLB better handles gRPC. Consider ALB(web)+NLB(gRPC) dual pattern"));
+
   if (!isEks)
     R("appstack","service_discovery","cloud_map",t("⭐ ECS 표준","⭐ ECS standard"),t("AWS Cloud Map: ECS 서비스 자동 등록. Route53 프라이빗 DNS로 이름 기반 통신","AWS Cloud Map: Auto-register ECS services. Name-based communication via Route53 private DNS"));
   if (isEks)

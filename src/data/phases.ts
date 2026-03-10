@@ -36,7 +36,7 @@ export const PHASES: PhaseDefinition[] = [
     tip:"여러 서비스가 서로 데이터를 주고받는 방식을 정합니다. 직접 연결이냐, 메시지 큐를 통한 비동기 처리냐에 따라 장애 범위와 확장성이 달라집니다." },
   { id:"appstack",    no:12, label:"앱 스택 선택",   icon:"🖥️", desc:"API 게이트웨이/통신방식을 어떻게 할 것인가",
     tip:"인프라와 데이터 저장소가 결정됐으니 이제 API 게이트웨이 구현, 통신 프로토콜, 서비스 디스커버리 등 앱 아키텍처 상세를 정합니다.",
-    skipPhase: (s: WizardState) => s.compute?.arch_pattern === "vm" },
+    skipPhase: (s: WizardState) => s.compute?.arch_pattern === "vm" && s.compute?.orchestration === "none" },
   { id:"edge",        no:13, label:"사용자 전달",    icon:"🚀", desc:"어떻게 사용자에게 전달할 것인가",
     tip:"사용자의 요청이 서버에 닿기 전 관문을 설계합니다. CDN은 속도를, WAF는 보안을 담당합니다. 봇·매크로가 많은 서비스에서 특히 중요합니다." },
   { id:"cicd",        no:14, label:"배포/운영",      icon:"🔄", desc:"어떻게 배포하고 운영할 것인가",

@@ -807,6 +807,15 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
       { name:`${lang==="ko"?"배포 전략":"Deploy strategy"}: ${s.cicd?.deploy_strategy === "bluegreen" ? "Blue/Green" : s.cicd?.deploy_strategy === "canary" ? "Canary" : "Rolling Update"}`,
         detail:`${s.cicd?.deploy_strategy === "bluegreen" ? (lang==="ko"?"트래픽 전환, 즉각 롤백":"Traffic switch, instant rollback") : s.cicd?.deploy_strategy === "canary" ? (lang==="ko"?"5% → 100% 단계적 전환":"5% -> 100% gradual shift") : (lang==="ko"?"순차 교체":"Sequential replacement")}`,
         reason:lang==="ko"?"무중단 배포":"Zero-downtime deployment", cost:lang==="ko"?"Blue/Green은 일시적 2배 비용":"Blue/Green temporarily doubles cost", opt:s.cicd?.deploy_strategy === "bluegreen" ? (lang==="ko"?"CodeDeploy 통합으로 자동화":"Automate with CodeDeploy integration") : "" },
+      ...(!isK8s ? (() => {
+        const cicdMon = toArray(s.cicd?.monitoring);
+        const monSvcs: any[] = [];
+        if (cicdMon.includes("cloudwatch")) monSvcs.push({ name:"CloudWatch", detail:lang==="ko"?"로그·메트릭·알람 통합 모니터링":"Unified logs, metrics, and alarms monitoring", reason:lang==="ko"?"AWS 기본 제공, 추가 설치 불필요":"AWS native, no additional setup", cost:lang==="ko"?"기본 무료, 상세 모니터링 추가 과금":"Free basic, detailed monitoring extra", opt:lang==="ko"?"Contributor Insights로 Top-N 기여자 분석. Anomaly Detection 활성화 권장":"Analyze Top-N contributors with Contributor Insights. Enable Anomaly Detection" });
+        if (cicdMon.includes("xray")) monSvcs.push({ name:"AWS X-Ray", detail:lang==="ko"?"분산 추적, 서비스 맵 자동 생성":"Distributed tracing, auto service map", reason:lang==="ko"?"마이크로서비스 간 레이턴시 병목 가시화":"Visualize latency bottlenecks between microservices", cost:"$5/1M traces", opt:lang==="ko"?"X-Ray SDK 또는 OpenTelemetry Collector로 자동 계측":"Auto-instrument with X-Ray SDK or OpenTelemetry Collector" });
+        if (cicdMon.includes("datadog")) monSvcs.push({ name:"Datadog APM", detail:lang==="ko"?"인프라·APM·로그 통합 SaaS":"Unified infra, APM, logs SaaS", reason:lang==="ko"?"AWS 네이티브 대비 풍부한 대시보드·알림":"Richer dashboards and alerting vs AWS native", cost:lang==="ko"?"~$23/호스트/월 (Infrastructure)":"~$23/host/mo (Infrastructure)", opt:lang==="ko"?"ECS/EC2 에이전트 DaemonSet 배포. AWS Integration으로 CloudWatch 메트릭 자동 수집":"Deploy agent as DaemonSet on ECS/EC2. Auto-collect CloudWatch metrics via AWS Integration" });
+        if (cicdMon.includes("grafana")) monSvcs.push({ name:"Amazon Managed Grafana", detail:lang==="ko"?"AWS 관리형 Grafana, SSO 통합":"AWS-managed Grafana, SSO integration", reason:lang==="ko"?"CloudWatch·Prometheus·X-Ray 데이터 소스 통합 시각화":"Unified visualization of CloudWatch, Prometheus, X-Ray", cost:lang==="ko"?"$9/에디터/월":"$9/editor/mo", opt:lang==="ko"?"AWS SSO 연동으로 팀별 대시보드 접근 제어":"Control per-team dashboard access with AWS SSO" });
+        return monSvcs;
+      })() : []),
     ],
     insights:[
       isContainer ? (lang==="ko"?"ECR 이미지 취약점 스캔 자동화 필수 (ECR Scanning)":"ECR image vulnerability scanning automation required (ECR Scanning)") : "",

@@ -3,6 +3,12 @@ import type { WizardState, CostEstimate, CostCategory } from "@/lib/types";
 import { toArray, toArrayFiltered, azToNum } from "@/lib/shared";
 import { COMMITMENT_DISCOUNT, FARGATE_COMMITMENT_DISCOUNT, SPOT_DISCOUNT, DAU_SCALE } from "@/lib/shared";
 
+// ── Seoul (ap-northeast-2) region pricing reference ──
+// All cost estimates below use Seoul region pricing as default.
+// Key rates: NAT GW $0.059/hr, ALB $0.0288/hr, NLB $0.0252/hr,
+// t3.medium $0.052/hr, r6g.large $0.296/hr, S3 $0.025/GB.
+// Virginia (us-east-1) is typically 10-31% cheaper.
+
 const dict = {
   ko: {
     // Category names
@@ -143,6 +149,12 @@ const dict = {
     inspectorDesc: "인스턴스당 $0.01/시간",
     macie: "Macie",
     macieDesc: "첫 1GB 무료, 이후 $1/GB",
+    datadog: "Datadog (Infrastructure + APM)",
+    datadogDesc: "호스트당 ~$23/월 + APM 추가",
+    xray: "AWS X-Ray (분산 추적)",
+    xrayDesc: "추적 $5/백만 건, 샘플링 설정 권장",
+    managedGrafana: "Amazon Managed Grafana",
+    managedGrafanaDesc: "에디터 $9/월 + 뷰어 $5/월",
 
     // Multi-Region items
     replicaRegion: "복제 리전 인프라",
@@ -289,6 +301,12 @@ const dict = {
     inspectorDesc: "$0.01/instance/hr",
     macie: "Macie",
     macieDesc: "First 1GB free, then $1/GB",
+    datadog: "Datadog (Infrastructure + APM)",
+    datadogDesc: "~$23/host/mo + APM add-on",
+    xray: "AWS X-Ray (Distributed Tracing)",
+    xrayDesc: "Traces $5/1M, sampling config recommended",
+    managedGrafana: "Amazon Managed Grafana",
+    managedGrafanaDesc: "Editor $9/mo + Viewer $5/mo",
 
     // Multi-Region items
     replicaRegion: "Replica Region Infrastructure",
@@ -414,6 +432,12 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
   if (batchArr.includes("ecs_scheduled")) {
     I(t.compute, t.ecsScheduled, t.ecsScheduledDesc, isXL ? 30 : isLarge ? 15 : 5, isXL ? 100 : isLarge ? 50 : 15);
   }
+  // Glue from batch_workflow (skip if already added via data_detail analytics)
+  const dataDetail = state.workload?.data_detail;
+  const glueAlreadyAdded = types.includes("data") && (dataDetail === "log_analytics" || dataDetail === "bi_dashboard");
+  if (batchArr.includes("glue") && !glueAlreadyAdded) {
+    I(t.operations, t.glue, t.glueDesc, isXL ? 100 : isLarge ? 40 : 10, isXL ? 400 : isLarge ? 150 : 30);
+  }
   if (archP === "app_runner") {
     const arBase = isXL ? 200 : isLarge ? 100 : 30;
     I(t.compute, t.appRunner, t.appRunnerDesc, arBase, Math.round(arBase * 2.5));
@@ -439,6 +463,15 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
   }
   if (hasDynamo) {
     I(t.database, t.dynamodb, t.dynamodbDesc, isXL ? 200 : isLarge ? 80 : 10, isXL ? 800 : isLarge ? 300 : 40);
+    // On-Demand cost warning for large-scale DynamoDB
+    if (isLarge) {
+      I(t.database,
+        lang === "ko" ? "⚠️ DynamoDB On-Demand 비용 주의" : "⚠️ DynamoDB On-Demand cost warning",
+        lang === "ko"
+          ? "대규모 트래픽에서 On-Demand는 Provisioned 대비 5-7배 비쌀 수 있습니다. Reserved Capacity 검토를 권장합니다."
+          : "At high traffic, On-Demand can cost 5-7x more than Provisioned. Consider Reserved Capacity.",
+        0, 0);
+    }
   }
   if (hasRedis) {
     const redisBase = isXL ? 400 : isLarge ? 200 : isMedium ? 120 : 80;
@@ -537,6 +570,19 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
   I(t.operations, t.cloudwatch, t.cloudwatchDesc, isXL ? 50 : isLarge ? 25 : 10, isXL ? 200 : isLarge ? 80 : 30);
   if (isEks && (monitor === "prometheus_grafana" || monitor === "hybrid")) {
     I(t.operations, t.prometheus, t.prometheusDesc, isXL ? 100 : 40, isXL ? 300 : 100);
+  }
+  if (!isEks) {
+    const cicdMon = toArray(state.cicd?.monitoring);
+    if (cicdMon.includes("datadog")) {
+      const hosts = isXL ? 50 : isLarge ? 20 : isMedium ? 5 : 2;
+      I(t.operations, t.datadog, t.datadogDesc, hosts * 23, hosts * 38);
+    }
+    if (cicdMon.includes("xray")) {
+      I(t.operations, t.xray, t.xrayDesc, isLarge ? 10 : 3, isXL ? 50 : isLarge ? 25 : 8);
+    }
+    if (cicdMon.includes("grafana")) {
+      I(t.operations, t.managedGrafana, t.managedGrafanaDesc, 9, isLarge ? 45 : 18);
+    }
   }
   const hasPersonalData = ["sensitive","critical"].includes(state.workload?.data_sensitivity);
   if (hasCritCert || hasPersonalData) {

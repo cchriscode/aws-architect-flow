@@ -675,6 +675,7 @@ export function buildPhaseQuestions(
             {v:"step_functions",  l:"Step Functions — 복잡한 단계별 워크플로",            d:"'주문 접수 → 재고 확인 → 결제 → 배송 시작'처럼 여러 단계를 순서대로, 오류 처리와 함께 실행합니다. 각 단계가 실패해도 자동 재시도·보상 트랜잭션이 가능합니다."},
             {v:"aws_batch",       l:"AWS Batch — 대용량 병렬 배치 처리",                 d:"수천 개의 컨테이너를 병렬로 실행하는 대용량 작업에 사용합니다. 리포트 생성, ML 학습, 유전체 분석 등에 적합합니다. Spot 인스턴스 자동 활용으로 비용 절감."},
             {v:"ecs_scheduled",   l:"ECS Scheduled Task — 컨테이너 기반 정기 배치",     d:"ECS 컨테이너를 정해진 시간에 실행합니다. 기존 컨테이너 코드를 재사용할 수 있습니다. EventBridge Scheduler로 트리거합니다."},
+            {v:"glue",            l:"AWS Glue — 서버리스 ETL·데이터 카탈로그",           d:"서버리스 ETL 서비스입니다. Spark 기반 대규모 데이터 변환에 적합합니다. 데이터 카탈로그로 스키마 관리도 포함됩니다."},
           ]
         },
       ]);
@@ -728,7 +729,9 @@ export function buildPhaseQuestions(
     }
 
     // ──────────────────────────────────────────
-    case "cicd": return localizeAll(lang, p, [
+    case "cicd": {
+      const isEksCicd = state.compute?.orchestration === "eks";
+      return localizeAll(lang, p, [
       {
         id:"iac",
         q:"인프라(서버, 네트워크 등)를 어떻게 만들고 관리할 건가요?",
@@ -771,7 +774,20 @@ export function buildPhaseQuestions(
           {v:"four",    l:"개발 + 스테이징 + 프리-운영 + 운영 (4단계)", d:"운영 직전 단계를 하나 더 두어 안전성을 높입니다. 규정 준수가 중요하거나 대형 조직에 적합합니다."},
         ]
       },
+      {
+        id:"monitoring",
+        q:"어떤 모니터링/옵저버빌리티 도구를 사용할 건가요? (복수 선택 가능)",
+        help:"서비스 장애를 빠르게 감지하고 원인을 파악하려면 모니터링이 필수입니다. CloudWatch는 AWS 기본 제공이고, X-Ray는 분산 추적에 특화되어 있습니다.",
+        skip: isEksCicd, // EKS users already answered k8s_monitoring in platform phase
+        multi:true, opts:[
+          {v:"cloudwatch", l:"CloudWatch (AWS 기본 모니터링)",              d:"AWS가 기본 제공하는 모니터링입니다. 로그·메트릭·알람을 한 곳에서 관리합니다. 추가 비용이 적고 설정이 쉽습니다."},
+          {v:"xray",       l:"X-Ray (분산 추적)",                           d:"마이크로서비스 간 요청 흐름을 추적합니다. 어디서 느려지는지, 어디서 에러가 나는지 시각적으로 확인할 수 있습니다."},
+          {v:"datadog",    l:"Datadog (통합 APM)",                          d:"로그·메트릭·트레이싱을 하나의 플랫폼에서 관리합니다. 강력하지만 비용이 높습니다. 중대규모 팀에 적합합니다."},
+          {v:"grafana",    l:"Amazon Managed Grafana (대시보드)",            d:"다양한 데이터 소스를 시각화하는 대시보드 서비스입니다. CloudWatch·Prometheus 등 여러 소스를 통합합니다."},
+        ]
+      },
     ]);
+    }
 
     // ──────────────────────────────────────────
     case "cost": return localizeAll(lang, p, [
@@ -970,7 +986,7 @@ export function buildPhaseQuestions(
           id:"service_discovery",
           q:"여러 마이크로서비스가 서로를 어떻게 찾을 건가요? (서비스 디스커버리)",
           help:"마이크로서비스 환경에서는 각 서비스의 IP가 계속 바뀝니다. 자동으로 최신 주소를 찾아주는 서비스 디스커버리가 필요합니다.",
-          skip: !["large","xlarge"].includes(state.scale?.dau) && !isEks,
+          skip: !["medium","large","xlarge"].includes(state.scale?.dau) && !isEks,
           multi:false, opts:[
             {v:"k8s_dns",          l:"K8s 내장 DNS (EKS 사용 시 자동 제공)",           d:"K8s가 자동으로 서비스 이름 기반 DNS를 제공합니다. EKS를 쓴다면 별도 설정 없이 사용할 수 있습니다."},
             {v:"cloud_map",        l:"AWS Cloud Map (ECS·Lambda·EC2 통합 디스커버리)", d:"ECS 서비스를 이름으로 찾아줍니다. ALB와 통합되고 멀티 환경(ECS+Lambda+EC2)을 하나로 관리합니다."},
