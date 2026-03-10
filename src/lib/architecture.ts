@@ -124,14 +124,14 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
 
   // 로드밸런서 / API 입구
   if(lbType === "nlb") {
-    computeServices.push({ name:"NLB (Network Load Balancer)", detail:t("comp.nlb.detail"), reason:t("comp.nlb.reason"), cost:lang==="ko"?"~$16/월 + $0.006/NLCU":"~$16/mo + $0.006/NLCU", opt:t("comp.nlb.opt") });
+    computeServices.push({ name:"NLB (Network Load Balancer)", detail:t("comp.nlb.detail"), reason:t("comp.nlb.reason"), cost:lang==="ko"?"~$18/월 + $0.006/NLCU":"~$18/mo + $0.006/NLCU", opt:t("comp.nlb.opt") });
   } else if(lbType === "api_gateway") {
-    computeServices.push({ name:"API Gateway", detail:"REST/HTTP API", reason:t("comp.apigw.reason"), cost:lang==="ko"?"$3.50/100만 요청":"$3.50/1M requests", opt:t("comp.apigw.opt") });
+    computeServices.push({ name:"API Gateway", detail:"REST/HTTP API", reason:t("comp.apigw.reason"), cost:lang==="ko"?"HTTP $1 / REST $3.50 /100만 요청":"HTTP $1 / REST $3.50 /1M requests", opt:t("comp.apigw.opt") });
   } else if(lbType === "both") {
-    computeServices.push({ name:"ALB (Application Load Balancer)", detail:t("comp.alb.detail"), reason:t("comp.alb.reason"), cost:lang==="ko"?"~$16/월 + $0.008/LCU":"~$16/mo + $0.008/LCU", opt:t("comp.alb.opt") });
-    computeServices.push({ name:"API Gateway", detail:"REST/HTTP API", reason:t("comp.apigw.reason"), cost:lang==="ko"?"$3.50/100만 요청":"$3.50/1M requests", opt:t("comp.apigw.opt") });
+    computeServices.push({ name:"ALB (Application Load Balancer)", detail:t("comp.alb.detail"), reason:t("comp.alb.reason"), cost:lang==="ko"?"~$21/월 + $0.008/LCU":"~$21/mo + $0.008/LCU", opt:t("comp.alb.opt") });
+    computeServices.push({ name:"API Gateway", detail:"REST/HTTP API", reason:t("comp.apigw.reason"), cost:lang==="ko"?"HTTP $1 / REST $3.50 /100만 요청":"HTTP $1 / REST $3.50 /1M requests", opt:t("comp.apigw.opt") });
   } else {
-    computeServices.push({ name:"ALB (Application Load Balancer)", detail:t("comp.alb.detail"), reason:t("comp.alb.reason"), cost:lang==="ko"?"~$16/월 + $0.008/LCU":"~$16/mo + $0.008/LCU", opt:t("comp.alb.opt") });
+    computeServices.push({ name:"ALB (Application Load Balancer)", detail:t("comp.alb.detail"), reason:t("comp.alb.reason"), cost:lang==="ko"?"~$21/월 + $0.008/LCU":"~$21/mo + $0.008/LCU", opt:t("comp.alb.opt") });
   }
 
   // realtime 워크로드 → WebSocket 서비스 카드 추가

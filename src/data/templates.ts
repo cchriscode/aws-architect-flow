@@ -251,7 +251,7 @@ export const TEMPLATES: QuickTemplate[] = [
         arch_pattern: "serverless",
       },
       data: {
-        primary_db: ["aurora_pg"],
+        primary_db: ["dynamodb"],
         db_ha: "single_az",
         cache: "no",
         storage: ["s3"],
@@ -447,7 +447,7 @@ export const TEMPLATES: QuickTemplate[] = [
         iac: "terraform",
         pipeline: "github",
         deploy_strategy: "rolling",
-        env_count: "three",
+        env_count: "dev_prod",
         monitoring: ["cloudwatch", "grafana"],
       },
       cost: {
@@ -532,7 +532,7 @@ export const TEMPLATES: QuickTemplate[] = [
         iac: "terraform",
         pipeline: "github",
         deploy_strategy: "rolling",
-        env_count: "three",
+        env_count: "dev_prod",
         monitoring: ["cloudwatch"],
       },
       cost: {
@@ -1200,9 +1200,8 @@ function isRealtime(s: WizardState) {
 function applyCostFirst(s: WizardState): string[] {
   const changes: string[] = [];
 
-  // cost priority & commitment
+  // cost priority (commitment preserved — 1yr RI saves 35%)
   set(s, "cost", "priority", "cost_first");
-  set(s, "cost", "commitment", "none");
 
   // spot for data/iot
   if (isWorkload(s, "data", "iot")) {
@@ -1272,14 +1271,16 @@ function applyCostFirst(s: WizardState): string[] {
     changes.push("Shield ($3,000/mo) → WAF Basic");
   }
 
-  // env_count → dev_prod
-  if (get(s, "cicd", "env_count") === "three") {
+  // env_count → dev_prod (skip SaaS — needs staging for tenant impact testing)
+  if (get(s, "cicd", "env_count") === "three" && !isWorkload(s, "saas")) {
     set(s, "cicd", "env_count", "dev_prod");
     changes.push("3 envs → dev/prod only");
   }
 
-  // B2B SaaS special: EKS → ECS, remove platform section
-  if (isWorkload(s, "saas") && get(s, "compute", "orchestration") === "eks") {
+  // B2B SaaS special: EKS → ECS (skip scale+large — platform layer too critical)
+  if (isWorkload(s, "saas") && get(s, "compute", "orchestration") === "eks"
+      && get(s, "workload", "growth_stage") !== "scale"
+      && !["large", "xlarge"].includes(get(s, "scale", "dau") as string)) {
     set(s, "compute", "orchestration", "ecs");
     set(s, "compute", "compute_node", "fargate");
     const scaling = getArr(s, "compute", "scaling").filter((v) => v !== "keda");

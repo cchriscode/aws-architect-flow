@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { WizardState, CostEstimate, CostCategory } from "@/lib/types";
 import { toArray, toArrayFiltered, azToNum } from "@/lib/shared";
-import { COMMITMENT_DISCOUNT, FARGATE_COMMITMENT_DISCOUNT, SPOT_DISCOUNT, DAU_SCALE } from "@/lib/shared";
+import { COMMITMENT_DISCOUNT, FARGATE_COMMITMENT_DISCOUNT, SPOT_DISCOUNT } from "@/lib/shared";
 
 // ── Seoul (ap-northeast-2) region pricing reference ──
 // All cost estimates below use Seoul region pricing as default.
-// Key rates: NAT GW $0.059/hr, ALB $0.0288/hr, NLB $0.0252/hr,
-// t3.medium $0.052/hr, r6g.large $0.296/hr, S3 $0.025/GB.
+// Key rates: NAT GW $0.059/hr ($43/mo), ALB $0.0288/hr ($21/mo),
+// NLB $0.0252/hr ($18/mo), t3.medium $0.052/hr, S3 $0.025/GB,
+// Aurora ACU $0.12/hr, ECS Fargate vCPU $0.04048/hr.
 // Virginia (us-east-1) is typically 10-31% cheaper.
 
 const dict = {
@@ -33,7 +34,7 @@ const dict = {
     lambda: "Lambda 함수",
     lambdaDesc: "1M+ 요청/월 기준 (첫 1M 무료)",
     apiGateway: "API Gateway",
-    apiGatewayDesc: "HTTP API 기준",
+    apiGatewayDesc: "HTTP/REST API 기준",
     alb: "ALB (Application Load Balancer)",
     albDesc: "LCU 기준",
     nlb: "NLB (Network Load Balancer)",
@@ -58,7 +59,7 @@ const dict = {
     elasticache: "ElastiCache Valkey/Redis",
     elasticacheDesc: (azNum: number) => `${azNum}AZ Replication Group`,
     opensearch: "OpenSearch",
-    opensearchDesc: (azNum: number) => `r6g.large × ${azNum}`,
+    opensearchDesc: (azNum: number) => `${azNum} 노드 클러스터`,
     rdsProxy: "RDS Proxy",
     rdsProxyDesc: "Lambda→RDS 커넥션 풀링 (DB 비용의 ~15%)",
     dax: "DAX (DynamoDB Accelerator)",
@@ -185,7 +186,7 @@ const dict = {
     lambda: "Lambda Functions",
     lambdaDesc: "Based on 1M+ requests/mo (first 1M free)",
     apiGateway: "API Gateway",
-    apiGatewayDesc: "Based on HTTP API",
+    apiGatewayDesc: "HTTP/REST API based",
     alb: "ALB (Application Load Balancer)",
     albDesc: "Based on LCU",
     nlb: "NLB (Network Load Balancer)",
@@ -210,7 +211,7 @@ const dict = {
     elasticache: "ElastiCache Valkey/Redis",
     elasticacheDesc: (azNum: number) => `${azNum}AZ Replication Group`,
     opensearch: "OpenSearch",
-    opensearchDesc: (azNum: number) => `r6g.large × ${azNum}`,
+    opensearchDesc: (azNum: number) => `${azNum}-node cluster`,
     rdsProxy: "RDS Proxy",
     rdsProxyDesc: "Lambda-to-RDS connection pooling (~15% of DB cost)",
     dax: "DAX (DynamoDB Accelerator)",
@@ -371,9 +372,6 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
   const fargateCommitDiscount = FARGATE_COMMITMENT_DISCOUNT[commit as keyof typeof FARGATE_COMMITMENT_DISCOUNT] ?? 1.0;
   const spotDiscount = SPOT_DISCOUNT[spot as keyof typeof SPOT_DISCOUNT] ?? 1.0;
 
-  // Scale coefficient by DAU
-  const scale = DAU_SCALE[dau as keyof typeof DAU_SCALE] ?? 0.5;
-
   const categories: CostCategory[] = [];
   const I = (cat: string, name: string, desc: string, min: number, max: number) => {
     const existing = categories.find(c => c.name === cat);
@@ -445,7 +443,7 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
 
   // -- Database
   if (hasAurora) {
-    const auroraBase = isXL ? 800 : isLarge ? 400 : isMedium ? 200 : isServerless ? 30 : 120;
+    const auroraBase = isXL ? 800 : isLarge ? 400 : isMedium ? 200 : isServerless ? 75 : 120;
     const maxAcu = isXL ? 128 : isLarge ? 64 : 8;
     I(t.database, t.auroraServerless, t.auroraServerlessDesc(maxAcu),
       Math.round(auroraBase * 0.6 * commitDiscount), Math.round(auroraBase * commitDiscount));
@@ -474,12 +472,15 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
     }
   }
   if (hasRedis) {
-    const redisBase = isXL ? 400 : isLarge ? 200 : isMedium ? 120 : 80;
+    const redisPerNode = isXL ? 150 : isLarge ? 80 : isMedium ? 50 : 30;
     I(t.database, t.elasticache, t.elasticacheDesc(azNum),
-      Math.round(redisBase * commitDiscount), Math.round(redisBase * 1.2 * commitDiscount));
+      Math.round(redisPerNode * azNum * commitDiscount),
+      Math.round(redisPerNode * azNum * 1.3 * commitDiscount));
   }
   if (search === "opensearch") {
-    I(t.database, t.opensearch, t.opensearchDesc(azNum), isXL ? 800 : isLarge ? 400 : 150, isXL ? 1800 : isLarge ? 800 : 300);
+    const osPerNode = isXL ? 280 : isLarge ? 140 : isMedium ? 60 : 30;
+    I(t.database, t.opensearch, t.opensearchDesc(azNum),
+      osPerNode * azNum, Math.round(osPerNode * azNum * 2));
   }
   if (isServerless && (hasAurora || hasRds)) {
     const rdsProxyBase = hasAurora ? (isXL ? 50 : isLarge ? 25 : 8) : (isXL ? 40 : isLarge ? 20 : 6);
@@ -503,9 +504,10 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
     I(t.database, t.timestream, t.timestreamDesc, isXL ? 100 : isLarge ? 40 : 10, isXL ? 500 : isLarge ? 200 : 50);
   }
   if (cache === "memorydb") {
-    const memdbBase = isXL ? 480 : isLarge ? 240 : isMedium ? 144 : 96;
+    const memdbPerNode = isXL ? 180 : isLarge ? 90 : isMedium ? 55 : 35;
     I(t.database, t.memorydb, t.memorydbDesc(azNum),
-      Math.round(memdbBase * commitDiscount), Math.round(memdbBase * 1.2 * commitDiscount));
+      Math.round(memdbPerNode * azNum * commitDiscount),
+      Math.round(memdbPerNode * azNum * 1.2 * commitDiscount));
   }
 
   // -- Network
