@@ -223,6 +223,20 @@ export function TemplateSelector({ onSelect }: TemplateSelectorProps) {
                         </div>
                       </div>
                     )}
+                    {tier && p === "cost_first" && tier.result.changes.length === 0 && (
+                      <div className="mt-2 border-t border-gray-100 pt-2">
+                        <span className="text-[10px] text-emerald-600">
+                          {t.budgetModal.alreadyOptimized}
+                        </span>
+                      </div>
+                    )}
+                    {tier && p === "balanced" && tier.result.changes.length === 0 && (
+                      <div className="mt-2 border-t border-gray-100 pt-2">
+                        <span className="text-[10px] text-indigo-500">
+                          {t.budgetModal.baselineConfig}
+                        </span>
+                      </div>
+                    )}
                   </button>
                 );
               })}

@@ -156,6 +156,10 @@ const dict = {
     xrayDesc: "추적 $5/백만 건, 샘플링 설정 권장",
     managedGrafana: "Amazon Managed Grafana",
     managedGrafanaDesc: "에디터 $9/월 + 뷰어 $5/월",
+    stagingEnv: "Staging 환경 인프라",
+    stagingEnvDesc: "축소 복제 (프로덕션 대비 ~40%)",
+    canaryEnv: "Canary 환경 인프라",
+    canaryEnvDesc: "카나리 배포용 축소 인프라",
 
     // Multi-Region items
     replicaRegion: "복제 리전 인프라",
@@ -308,6 +312,10 @@ const dict = {
     xrayDesc: "Traces $5/1M, sampling config recommended",
     managedGrafana: "Amazon Managed Grafana",
     managedGrafanaDesc: "Editor $9/mo + Viewer $5/mo",
+    stagingEnv: "Staging Environment Infra",
+    stagingEnvDesc: "Reduced replica (~40% of production)",
+    canaryEnv: "Canary Environment Infra",
+    canaryEnvDesc: "Reduced infra for canary deployment",
 
     // Multi-Region items
     replicaRegion: "Replica Region Infrastructure",
@@ -623,6 +631,25 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
   }
   if (cert.includes("isms_p") || cert.includes("pci") || (hasPersonalData && storArr.includes("s3"))) {
     I(t.operations, t.macie, t.macieDesc, 0, isXL ? 100 : isLarge ? 30 : 5);
+  }
+
+  // -- Environment count (staging/canary infra cost)
+  const envCount = state.cicd?.env_count;
+  if (envCount === "three" || envCount === "four") {
+    const stagingBase = isServerless
+      ? (isXL ? 25 : isLarge ? 12 : isMedium ? 6 : 3)
+      : isEks
+        ? (isXL ? 350 : isLarge ? 180 : 80)
+        : (isXL ? 250 : isLarge ? 130 : 50);
+    I(t.operations, t.stagingEnv, t.stagingEnvDesc, stagingBase, Math.round(stagingBase * 1.8));
+  }
+  if (envCount === "four") {
+    const canaryBase = isServerless
+      ? (isXL ? 10 : isLarge ? 5 : isMedium ? 3 : 1)
+      : isEks
+        ? (isXL ? 150 : isLarge ? 80 : 35)
+        : (isXL ? 100 : isLarge ? 50 : 20);
+    I(t.operations, t.canaryEnv, t.canaryEnvDesc, canaryBase, Math.round(canaryBase * 1.5));
   }
 
   // -- Multi-Region

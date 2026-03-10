@@ -127,6 +127,8 @@ export interface Dict {
     keyChanges: string;
     cancel: string;
     generate: string;
+    alreadyOptimized: string;
+    baselineConfig: string;
   };
   questionCard: {
     helpToggle: string;

@@ -173,6 +173,8 @@ export const en: Dict = {
     keyChanges: "Key changes",
     cancel: "Cancel",
     generate: "Generate Architecture",
+    alreadyOptimized: "✓ This template is already cost-optimized",
+    baselineConfig: "📐 Baseline — Other strategies are adjusted from here",
   },
   questionCard: {
     helpToggle: "✦ Multiple selection",

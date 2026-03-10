@@ -168,6 +168,8 @@ export const ko: Dict = {
     keyChanges: "주요 변경점",
     cancel: "취소",
     generate: "아키텍처 생성",
+    alreadyOptimized: "✓ 이 템플릿은 이미 비용 최적화 구성입니다",
+    baselineConfig: "📐 기준 구성 — 다른 전략은 여기서 조정됩니다",
   },
   questionCard: {
     helpToggle: "✦ 복수 선택 가능",

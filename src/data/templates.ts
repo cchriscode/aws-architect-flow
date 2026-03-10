@@ -1203,8 +1203,8 @@ function applyCostFirst(s: WizardState): string[] {
   // cost priority (commitment preserved — 1yr RI saves 35%)
   set(s, "cost", "priority", "cost_first");
 
-  // spot for data/iot
-  if (isWorkload(s, "data", "iot")) {
+  // spot for data/iot (skip serverless — Lambda has no Spot concept)
+  if (isWorkload(s, "data", "iot") && get(s, "compute", "arch_pattern") !== "serverless") {
     set(s, "cost", "spot_usage", "partial");
     changes.push("Spot Instances partial");
   }
