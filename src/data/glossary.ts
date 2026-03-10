@@ -2480,14 +2480,14 @@ export const GLOSSARY: GlossaryTerm[] = [
     group: "container",
     badge: "aws",
     desc: {
-      ko: "AWS 관리형 서비스 메시. Envoy 프록시 기반으로 ECS/EKS/EC2 서비스 간 통신을 관리.",
-      en: "AWS-managed service mesh. Manages communication between ECS/EKS/EC2 services via Envoy proxy.",
+      ko: "AWS 관리형 서비스 메시. Envoy 프록시 기반으로 ECS/EKS/EC2 서비스 간 통신을 관리. 2026년 서비스 종료 예정.",
+      en: "AWS-managed service mesh. Manages communication between ECS/EKS/EC2 services via Envoy proxy. Scheduled for EOL in 2026.",
     },
-    placement: "regional-managed",
+    placement: "concept",
     related: ["istio", "service-mesh", "envoy"],
     analogy: {
-      ko: "도시(AWS) 전용 교통 관제. Istio와 같은 역할이지만 도시(AWS)가 직접 관리. 2026년 서비스 종료 예정",
-      en: "The city's (AWS) own traffic control. Same role as Istio but managed directly by the city (AWS). Scheduled for EOL in 2026",
+      ko: "도시(AWS) 전용 서비스 간 통신 관리 시스템. Istio와 같은 역할이지만 도시가 직접 운영. 현재 Istio/Cilium으로 대체 추세",
+      en: "The city's (AWS) own inter-service communication manager. Same role as Istio but run by the city. Being replaced by Istio/Cilium",
     },
   },
   {

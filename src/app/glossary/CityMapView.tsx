@@ -121,26 +121,33 @@ function GateSVG() {
   );
 }
 
-/** Cobblestone road with direction arrow */
+/** Cobblestone road with direction arrow — full-width with extensions */
 function RoadSVG() {
   return (
-    <div className="flex flex-col items-center py-0.5">
-      <svg viewBox="0 0 60 44" className="h-8 w-12" aria-hidden>
-        {/* road body */}
-        <rect x="10" y="2" width="40" height="36" rx="4" fill="#c4b5a3" />
-        {/* cobblestones */}
-        {[
-          [18, 8], [30, 6], [42, 9],
-          [15, 16], [28, 15], [40, 17],
-          [20, 24], [32, 23], [44, 25],
-        ].map(([cx, cy], i) => (
-          <ellipse key={i} cx={cx} cy={cy} rx="4" ry="3" fill="#b0a18e" stroke="#9a8b7a" strokeWidth="0.5" />
-        ))}
-        {/* center dashed line */}
-        <line x1="30" y1="4" x2="30" y2="34" stroke="#9a8b7a" strokeWidth="1.5" strokeDasharray="3,3" />
-        {/* arrow */}
-        <polygon points="24,32 30,42 36,32" fill="#8b7d6b" />
-      </svg>
+    <div className="my-1 flex items-center py-1.5">
+      {/* left road surface */}
+      <div className="h-1 flex-1 rounded-full bg-amber-200/50" />
+      {/* cobblestone center */}
+      <div className="mx-2 shrink-0">
+        <svg viewBox="0 0 80 44" className="h-9 w-20" aria-hidden>
+          {/* road body */}
+          <rect x="4" y="2" width="72" height="36" rx="4" fill="#c4b5a3" />
+          {/* cobblestones */}
+          {[
+            [16, 8], [32, 6], [48, 9], [64, 7],
+            [12, 16], [28, 15], [44, 17], [60, 16],
+            [18, 24], [34, 23], [50, 25], [66, 23],
+          ].map(([cx, cy], i) => (
+            <ellipse key={i} cx={cx} cy={cy} rx="5" ry="3" fill="#b0a18e" stroke="#9a8b7a" strokeWidth="0.5" />
+          ))}
+          {/* center dashed line */}
+          <line x1="40" y1="4" x2="40" y2="34" stroke="#9a8b7a" strokeWidth="1.5" strokeDasharray="3,3" />
+          {/* arrow */}
+          <polygon points="34,32 40,42 46,32" fill="#8b7d6b" />
+        </svg>
+      </div>
+      {/* right road surface */}
+      <div className="h-1 flex-1 rounded-full bg-amber-200/50" />
     </div>
   );
 }
@@ -517,7 +524,7 @@ export function CityMapView({
                 <ZoneContent {...zp("regional-managed")} />
 
                 {/* Edge — City Gate */}
-                <div className="mx-auto mt-3 max-w-md">
+                <div className="mx-auto mt-4 max-w-lg">
                   <GateSVG />
                   <div className="rounded-lg border-2 border-orange-300 bg-orange-50/60 p-2.5">
                     <ZoneHeader zone="edge" count={cnt("edge")} t={t} />

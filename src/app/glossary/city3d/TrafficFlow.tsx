@@ -238,9 +238,9 @@ const ENTITIES: EntityCfg[] = [
   { type: "truck", color: "#ea580c", basePos: [-3, 0, -72], axis: "x", speed: 9, range: 80, offset: 80, reversed: true,
     label: { ko: "CDN 콘텐츠", en: "CDN Content" } },
   // Main avenue cars (N-S spine, x=0)
-  { type: "car", color: "#ef4444", basePos: [2, 0, 0], axis: "z", speed: 10, range: 59, offset: 0,
+  { type: "car", color: "#ef4444", basePos: [2, 0, 0], axis: "z", speed: 10, range: 45, offset: 0,
     label: { ko: "API 요청", en: "API Request" } },
-  { type: "car", color: "#3b82f6", basePos: [-2, 0, 0], axis: "z", speed: 7, range: 59, offset: 40, reversed: true,
+  { type: "car", color: "#3b82f6", basePos: [-2, 0, 0], axis: "z", speed: 7, range: 45, offset: 40, reversed: true,
     label: { ko: "응답 데이터", en: "Response" } },
   // Cross street cars
   { type: "car", color: "#22c55e", basePos: [0, 0, -38], axis: "x", speed: 8, range: 50, offset: 20,
@@ -250,7 +250,7 @@ const ENTITIES: EntityCfg[] = [
   { type: "car", color: "#f97316", basePos: [0, 0, -60], axis: "x", speed: 9, range: 60, offset: 10,
     label: { ko: "엣지 요청", en: "Edge Request" } },
   // NAT-GW outbound car (Public Street z=-38, heading west toward NAT-GW)
-  { type: "car", color: "#0ea5e9", basePos: [0, 0, -36], axis: "x", speed: 7, range: 40, offset: 50, reversed: true,
+  { type: "car", color: "#0ea5e9", basePos: [0, 0, -38], axis: "x", speed: 7, range: 43, offset: 50, reversed: true,
     label: { ko: "아웃바운드", en: "Outbound" } },
   // Private Drive data-processing car (z=-10, east-west internal traffic)
   { type: "car", color: "#a78bfa", basePos: [0, 0, -10], axis: "x", speed: 6, range: 42, offset: 35,

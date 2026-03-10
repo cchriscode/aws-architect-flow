@@ -296,7 +296,7 @@ export const CONNECTIONS: ConnectionDef[] = [
   // ─── Main inbound flow (all right-angle, road-following paths) ───
   { id: "c-dns", label: { ko: "DNS 쿼리", en: "DNS Query" },
     color: "#f59e0b", points: [[-38, 2, -72], [-38, 2, -66]], speed: 0.8, dots: 2 },
-  { id: "c-cdn", label: { ko: "콘텐츠 전달", en: "Content Delivery" },
+  { id: "c-cdn", label: { ko: "요청 라우팅", en: "Request Routing" },
     color: "#f97316", points: [[-38, 2, -64], [-25, 2, -64]], speed: 0.7, dots: 2 },
   { id: "c-sec", label: { ko: "보안 검사", en: "Security Check" },
     color: "#ef4444", points: [[-25, 2, -64], [-5, 2, -64], [-5, 2, -54]], speed: 0.5, dots: 3 },
