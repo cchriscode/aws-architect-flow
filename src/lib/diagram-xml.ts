@@ -102,6 +102,8 @@ const SHAPE_CATALOG: [string, ShapeInfo][] = [
   ["vpc flow",       { shape: "mxgraph.aws4.flow_logs",                  fillColor: "#8C4FFF", zone: "region", label: "VPC Flow Logs" }],
   ["iam roles",      { shape: "mxgraph.aws4.role",                       fillColor: "#DD344C", zone: "region", label: "IAM Roles" }],
   ["security group", { shape: "mxgraph.aws4.network_firewall",           fillColor: "#DD344C", zone: "region", label: "Security Group" }],
+  ["security hub",   { shape: "mxgraph.aws4.security_hub",               fillColor: "#DD344C", zone: "region", label: "Security Hub" }],
+  ["audit manager",  { shape: "mxgraph.aws4.audit_manager",              fillColor: "#DD344C", zone: "region", label: "Audit Manager" }],
   ["config",         { shape: "mxgraph.aws4.config",                     fillColor: "#DD344C", zone: "region", label: "Config" }],
   ["systems manager",{ shape: "mxgraph.aws4.systems_manager",            fillColor: "#E7157B", zone: "region", label: "SSM" }],
 
@@ -151,6 +153,7 @@ const SHAPE_CATALOG: [string, ShapeInfo][] = [
   ["istio",          { shape: "mxgraph.aws4.eks",  fillColor: "#ED7100", zone: "app", label: "Istio" }],
   ["kiali",          { shape: "mxgraph.aws4.eks",  fillColor: "#ED7100", zone: "app", label: "Kiali" }],
   ["app mesh",       { shape: "mxgraph.aws4.app_mesh",                   fillColor: "#ED7100", zone: "app", label: "App Mesh" }],
+  ["datadog",        { shape: "mxgraph.aws4.cloudwatch",                 fillColor: "#E7157B", zone: "region", label: "Datadog" }],
   ["argocd",         { shape: "mxgraph.aws4.codepipeline",               fillColor: "#E7157B", zone: "cicd", label: "ArgoCD" }],
   ["flux",           { shape: "mxgraph.aws4.codepipeline",               fillColor: "#E7157B", zone: "cicd", label: "Flux" }],
   ["prometheus",     { shape: "mxgraph.aws4.cloudwatch",                 fillColor: "#E7157B", zone: "region", label: "Prometheus" }],

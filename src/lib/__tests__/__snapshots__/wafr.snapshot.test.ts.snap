@@ -1206,7 +1206,7 @@ exports[`wellArchitectedScore snapshots > compliance (ko) 1`] = `
 
 exports[`wellArchitectedScore snapshots > data_pipeline (en) 1`] = `
 {
-  "overall": 74,
+  "overall": 75,
   "pillars": {
     "cost": {
       "items": [
@@ -1270,7 +1270,7 @@ exports[`wellArchitectedScore snapshots > data_pipeline (en) 1`] = `
           "q": "Do you have sufficient environment separation (Dev/Stage/Prod)?",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 14,
           "maxPts": 15,
           "q": "CloudWatch monitoring is included by default",
           "rec": "Increase K8s metric visibility with Prometheus + Grafana",
@@ -1292,7 +1292,7 @@ exports[`wellArchitectedScore snapshots > data_pipeline (en) 1`] = `
           "rec": "Enable CloudTrail across all regions to capture API call audit trails",
         },
       ],
-      "score": 85,
+      "score": 90,
     },
     "perf": {
       "items": [
@@ -1468,7 +1468,7 @@ exports[`wellArchitectedScore snapshots > data_pipeline (en) 1`] = `
 
 exports[`wellArchitectedScore snapshots > data_pipeline (ko) 1`] = `
 {
-  "overall": 74,
+  "overall": 75,
   "pillars": {
     "cost": {
       "items": [
@@ -1532,7 +1532,7 @@ exports[`wellArchitectedScore snapshots > data_pipeline (ko) 1`] = `
           "q": "충분한 환경 분리(Dev/Stage/Prod)가 되어 있습니까?",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 14,
           "maxPts": 15,
           "q": "CloudWatch 모니터링이 기본 제공됩니다",
           "rec": "Prometheus + Grafana로 K8s 메트릭 가시성을 높이세요",
@@ -1554,7 +1554,7 @@ exports[`wellArchitectedScore snapshots > data_pipeline (ko) 1`] = `
           "rec": "CloudTrail 전 리전 활성화로 API 호출 감사 이력을 확보하세요",
         },
       ],
-      "score": 85,
+      "score": 90,
     },
     "perf": {
       "items": [
@@ -1730,7 +1730,7 @@ exports[`wellArchitectedScore snapshots > data_pipeline (ko) 1`] = `
 
 exports[`wellArchitectedScore snapshots > ecommerce_mvp (en) 1`] = `
 {
-  "overall": 77,
+  "overall": 78,
   "pillars": {
     "cost": {
       "items": [
@@ -1796,7 +1796,7 @@ exports[`wellArchitectedScore snapshots > ecommerce_mvp (en) 1`] = `
           "q": "Do you have sufficient environment separation (Dev/Stage/Prod)?",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 14,
           "maxPts": 15,
           "q": "CloudWatch monitoring is included by default",
           "rec": "Increase K8s metric visibility with Prometheus + Grafana",
@@ -1818,7 +1818,7 @@ exports[`wellArchitectedScore snapshots > ecommerce_mvp (en) 1`] = `
           "rec": "Enable CloudTrail across all regions to capture API call audit trails",
         },
       ],
-      "score": 90,
+      "score": 96,
     },
     "perf": {
       "items": [
@@ -2036,7 +2036,7 @@ exports[`wellArchitectedScore snapshots > ecommerce_mvp (en) 1`] = `
 
 exports[`wellArchitectedScore snapshots > ecommerce_mvp (ko) 1`] = `
 {
-  "overall": 77,
+  "overall": 78,
   "pillars": {
     "cost": {
       "items": [
@@ -2102,7 +2102,7 @@ exports[`wellArchitectedScore snapshots > ecommerce_mvp (ko) 1`] = `
           "q": "충분한 환경 분리(Dev/Stage/Prod)가 되어 있습니까?",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 14,
           "maxPts": 15,
           "q": "CloudWatch 모니터링이 기본 제공됩니다",
           "rec": "Prometheus + Grafana로 K8s 메트릭 가시성을 높이세요",
@@ -2124,7 +2124,7 @@ exports[`wellArchitectedScore snapshots > ecommerce_mvp (ko) 1`] = `
           "rec": "CloudTrail 전 리전 활성화로 API 호출 감사 이력을 확보하세요",
         },
       ],
-      "score": 90,
+      "score": 96,
     },
     "perf": {
       "items": [
@@ -2934,7 +2934,7 @@ exports[`wellArchitectedScore snapshots > eks_full (ko) 1`] = `
 
 exports[`wellArchitectedScore snapshots > generic_web_api (en) 1`] = `
 {
-  "overall": 69,
+  "overall": 70,
   "pillars": {
     "cost": {
       "items": [
@@ -3000,7 +3000,7 @@ exports[`wellArchitectedScore snapshots > generic_web_api (en) 1`] = `
           "q": "Do you have sufficient environment separation (Dev/Stage/Prod)?",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 12,
           "maxPts": 15,
           "q": "CloudWatch monitoring is included by default",
           "rec": "Increase K8s metric visibility with Prometheus + Grafana",
@@ -3022,7 +3022,7 @@ exports[`wellArchitectedScore snapshots > generic_web_api (en) 1`] = `
           "rec": "Enable CloudTrail across all regions to capture API call audit trails",
         },
       ],
-      "score": 85,
+      "score": 89,
     },
     "perf": {
       "items": [
@@ -3244,7 +3244,7 @@ exports[`wellArchitectedScore snapshots > generic_web_api (en) 1`] = `
 
 exports[`wellArchitectedScore snapshots > generic_web_api (ko) 1`] = `
 {
-  "overall": 69,
+  "overall": 70,
   "pillars": {
     "cost": {
       "items": [
@@ -3310,7 +3310,7 @@ exports[`wellArchitectedScore snapshots > generic_web_api (ko) 1`] = `
           "q": "충분한 환경 분리(Dev/Stage/Prod)가 되어 있습니까?",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 12,
           "maxPts": 15,
           "q": "CloudWatch 모니터링이 기본 제공됩니다",
           "rec": "Prometheus + Grafana로 K8s 메트릭 가시성을 높이세요",
@@ -3332,7 +3332,7 @@ exports[`wellArchitectedScore snapshots > generic_web_api (ko) 1`] = `
           "rec": "CloudTrail 전 리전 활성화로 API 호출 감사 이력을 확보하세요",
         },
       ],
-      "score": 85,
+      "score": 89,
     },
     "perf": {
       "items": [
@@ -3620,7 +3620,7 @@ exports[`wellArchitectedScore snapshots > internal_tool (en) 1`] = `
           "rec": "Add a Stage environment to validate before production deployments",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 12,
           "maxPts": 15,
           "q": "CloudWatch monitoring is included by default",
           "rec": "Increase K8s metric visibility with Prometheus + Grafana",
@@ -3643,7 +3643,7 @@ exports[`wellArchitectedScore snapshots > internal_tool (en) 1`] = `
           "rec": "Enable CloudTrail across all regions to capture API call audit trails",
         },
       ],
-      "score": 50,
+      "score": 53,
     },
     "perf": {
       "items": [
@@ -3882,7 +3882,7 @@ exports[`wellArchitectedScore snapshots > internal_tool (ko) 1`] = `
           "rec": "Stage 환경 추가로 프로덕션 배포 전 검증하세요",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 12,
           "maxPts": 15,
           "q": "CloudWatch 모니터링이 기본 제공됩니다",
           "rec": "Prometheus + Grafana로 K8s 메트릭 가시성을 높이세요",
@@ -3905,7 +3905,7 @@ exports[`wellArchitectedScore snapshots > internal_tool (ko) 1`] = `
           "rec": "CloudTrail 전 리전 활성화로 API 호출 감사 이력을 확보하세요",
         },
       ],
-      "score": 50,
+      "score": 53,
     },
     "perf": {
       "items": [
@@ -4078,7 +4078,7 @@ exports[`wellArchitectedScore snapshots > internal_tool (ko) 1`] = `
 
 exports[`wellArchitectedScore snapshots > iot_platform (en) 1`] = `
 {
-  "overall": 75,
+  "overall": 76,
   "pillars": {
     "cost": {
       "items": [
@@ -4145,7 +4145,7 @@ exports[`wellArchitectedScore snapshots > iot_platform (en) 1`] = `
           "q": "Do you have sufficient environment separation (Dev/Stage/Prod)?",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 14,
           "maxPts": 15,
           "q": "CloudWatch monitoring is included by default",
           "rec": "Increase K8s metric visibility with Prometheus + Grafana",
@@ -4167,7 +4167,7 @@ exports[`wellArchitectedScore snapshots > iot_platform (en) 1`] = `
           "rec": "Enable CloudTrail across all regions to capture API call audit trails",
         },
       ],
-      "score": 85,
+      "score": 90,
     },
     "perf": {
       "items": [
@@ -4376,7 +4376,7 @@ exports[`wellArchitectedScore snapshots > iot_platform (en) 1`] = `
 
 exports[`wellArchitectedScore snapshots > iot_platform (ko) 1`] = `
 {
-  "overall": 75,
+  "overall": 76,
   "pillars": {
     "cost": {
       "items": [
@@ -4443,7 +4443,7 @@ exports[`wellArchitectedScore snapshots > iot_platform (ko) 1`] = `
           "q": "충분한 환경 분리(Dev/Stage/Prod)가 되어 있습니까?",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 14,
           "maxPts": 15,
           "q": "CloudWatch 모니터링이 기본 제공됩니다",
           "rec": "Prometheus + Grafana로 K8s 메트릭 가시성을 높이세요",
@@ -4465,7 +4465,7 @@ exports[`wellArchitectedScore snapshots > iot_platform (ko) 1`] = `
           "rec": "CloudTrail 전 리전 활성화로 API 호출 감사 이력을 확보하세요",
         },
       ],
-      "score": 85,
+      "score": 90,
     },
     "perf": {
       "items": [
@@ -5312,7 +5312,7 @@ exports[`wellArchitectedScore snapshots > minimal (ko) 1`] = `
 
 exports[`wellArchitectedScore snapshots > realtime_chat (en) 1`] = `
 {
-  "overall": 74,
+  "overall": 75,
   "pillars": {
     "cost": {
       "items": [
@@ -5378,7 +5378,7 @@ exports[`wellArchitectedScore snapshots > realtime_chat (en) 1`] = `
           "q": "Do you have sufficient environment separation (Dev/Stage/Prod)?",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 14,
           "maxPts": 15,
           "q": "CloudWatch monitoring is included by default",
           "rec": "Increase K8s metric visibility with Prometheus + Grafana",
@@ -5400,7 +5400,7 @@ exports[`wellArchitectedScore snapshots > realtime_chat (en) 1`] = `
           "rec": "Enable CloudTrail across all regions to capture API call audit trails",
         },
       ],
-      "score": 90,
+      "score": 96,
     },
     "perf": {
       "items": [
@@ -5625,7 +5625,7 @@ exports[`wellArchitectedScore snapshots > realtime_chat (en) 1`] = `
 
 exports[`wellArchitectedScore snapshots > realtime_chat (ko) 1`] = `
 {
-  "overall": 74,
+  "overall": 75,
   "pillars": {
     "cost": {
       "items": [
@@ -5691,7 +5691,7 @@ exports[`wellArchitectedScore snapshots > realtime_chat (ko) 1`] = `
           "q": "충분한 환경 분리(Dev/Stage/Prod)가 되어 있습니까?",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 14,
           "maxPts": 15,
           "q": "CloudWatch 모니터링이 기본 제공됩니다",
           "rec": "Prometheus + Grafana로 K8s 메트릭 가시성을 높이세요",
@@ -5713,7 +5713,7 @@ exports[`wellArchitectedScore snapshots > realtime_chat (ko) 1`] = `
           "rec": "CloudTrail 전 리전 활성화로 API 호출 감사 이력을 확보하세요",
         },
       ],
-      "score": 90,
+      "score": 96,
     },
     "perf": {
       "items": [
@@ -6552,7 +6552,7 @@ exports[`wellArchitectedScore snapshots > serverless (ko) 1`] = `
 
 exports[`wellArchitectedScore snapshots > ticketing (en) 1`] = `
 {
-  "overall": 78,
+  "overall": 79,
   "pillars": {
     "cost": {
       "items": [
@@ -6618,7 +6618,7 @@ exports[`wellArchitectedScore snapshots > ticketing (en) 1`] = `
           "q": "Do you have sufficient environment separation (Dev/Stage/Prod)?",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 14,
           "maxPts": 15,
           "q": "CloudWatch monitoring is included by default",
           "rec": "Increase K8s metric visibility with Prometheus + Grafana",
@@ -6640,7 +6640,7 @@ exports[`wellArchitectedScore snapshots > ticketing (en) 1`] = `
           "rec": "Enable CloudTrail across all regions to capture API call audit trails",
         },
       ],
-      "score": 90,
+      "score": 96,
     },
     "perf": {
       "items": [
@@ -6861,7 +6861,7 @@ exports[`wellArchitectedScore snapshots > ticketing (en) 1`] = `
 
 exports[`wellArchitectedScore snapshots > ticketing (ko) 1`] = `
 {
-  "overall": 78,
+  "overall": 79,
   "pillars": {
     "cost": {
       "items": [
@@ -6927,7 +6927,7 @@ exports[`wellArchitectedScore snapshots > ticketing (ko) 1`] = `
           "q": "충분한 환경 분리(Dev/Stage/Prod)가 되어 있습니까?",
         },
         {
-          "earnedPts": 8,
+          "earnedPts": 14,
           "maxPts": 15,
           "q": "CloudWatch 모니터링이 기본 제공됩니다",
           "rec": "Prometheus + Grafana로 K8s 메트릭 가시성을 높이세요",
@@ -6949,7 +6949,7 @@ exports[`wellArchitectedScore snapshots > ticketing (ko) 1`] = `
           "rec": "CloudTrail 전 리전 활성화로 API 호출 감사 이력을 확보하세요",
         },
       ],
-      "score": 90,
+      "score": 96,
     },
     "perf": {
       "items": [

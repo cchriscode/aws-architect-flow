@@ -1071,6 +1071,12 @@ exports[`estimateMonthlyCost snapshots > data_pipeline (en) 1`] = `
           "name": "CloudWatch (Logs + Metrics + Alarms)",
         },
         {
+          "desc": "Editor $9/mo + Viewer $5/mo",
+          "max": 18,
+          "min": 9,
+          "name": "Amazon Managed Grafana",
+        },
+        {
           "desc": "Scanned data $5/TB",
           "max": 20,
           "min": 5,
@@ -1085,16 +1091,16 @@ exports[`estimateMonthlyCost snapshots > data_pipeline (en) 1`] = `
       ],
       "name": "Operations",
       "total": {
-        "max": 80,
-        "min": 25,
+        "max": 98,
+        "min": 34,
       },
     },
   ],
   "hasCommit": false,
   "hasSpot": false,
-  "totalMax": 590,
-  "totalMid": 408,
-  "totalMin": 225,
+  "totalMax": 608,
+  "totalMid": 421,
+  "totalMin": 234,
 }
 `;
 
@@ -1215,6 +1221,12 @@ exports[`estimateMonthlyCost snapshots > data_pipeline (ko) 1`] = `
           "name": "CloudWatch (로그+메트릭+알람)",
         },
         {
+          "desc": "에디터 $9/월 + 뷰어 $5/월",
+          "max": 18,
+          "min": 9,
+          "name": "Amazon Managed Grafana",
+        },
+        {
           "desc": "스캔 데이터 $5/TB",
           "max": 20,
           "min": 5,
@@ -1229,16 +1241,16 @@ exports[`estimateMonthlyCost snapshots > data_pipeline (ko) 1`] = `
       ],
       "name": "운영",
       "total": {
-        "max": 80,
-        "min": 25,
+        "max": 98,
+        "min": 34,
       },
     },
   ],
   "hasCommit": false,
   "hasSpot": false,
-  "totalMax": 590,
-  "totalMid": 408,
-  "totalMin": 225,
+  "totalMax": 608,
+  "totalMid": 421,
+  "totalMin": 234,
 }
 `;
 
@@ -1386,6 +1398,12 @@ exports[`estimateMonthlyCost snapshots > ecommerce_mvp (en) 1`] = `
           "name": "CloudWatch (Logs + Metrics + Alarms)",
         },
         {
+          "desc": "Traces $5/1M, sampling config recommended",
+          "max": 8,
+          "min": 3,
+          "name": "AWS X-Ray (Distributed Tracing)",
+        },
+        {
           "desc": "Compliance / sensitive data monitoring",
           "max": 200,
           "min": 80,
@@ -1430,16 +1448,16 @@ exports[`estimateMonthlyCost snapshots > ecommerce_mvp (en) 1`] = `
       ],
       "name": "Operations",
       "total": {
-        "max": 345,
-        "min": 131,
+        "max": 353,
+        "min": 134,
       },
     },
   ],
   "hasCommit": false,
   "hasSpot": false,
-  "totalMax": 1092,
-  "totalMid": 826,
-  "totalMin": 559,
+  "totalMax": 1100,
+  "totalMid": 831,
+  "totalMin": 562,
 }
 `;
 
@@ -1587,6 +1605,12 @@ exports[`estimateMonthlyCost snapshots > ecommerce_mvp (ko) 1`] = `
           "name": "CloudWatch (로그+메트릭+알람)",
         },
         {
+          "desc": "추적 $5/백만 건, 샘플링 설정 권장",
+          "max": 8,
+          "min": 3,
+          "name": "AWS X-Ray (분산 추적)",
+        },
+        {
           "desc": "규정 준수 / 민감 데이터 모니터링",
           "max": 200,
           "min": 80,
@@ -1631,16 +1655,16 @@ exports[`estimateMonthlyCost snapshots > ecommerce_mvp (ko) 1`] = `
       ],
       "name": "운영",
       "total": {
-        "max": 345,
-        "min": 131,
+        "max": 353,
+        "min": 134,
       },
     },
   ],
   "hasCommit": false,
   "hasSpot": false,
-  "totalMax": 1092,
-  "totalMid": 826,
-  "totalMin": 559,
+  "totalMax": 1100,
+  "totalMid": 831,
+  "totalMin": 562,
 }
 `;
 
@@ -2922,6 +2946,12 @@ exports[`estimateMonthlyCost snapshots > iot_platform (en) 1`] = `
           "name": "CloudWatch (Logs + Metrics + Alarms)",
         },
         {
+          "desc": "Editor $9/mo + Viewer $5/mo",
+          "max": 18,
+          "min": 9,
+          "name": "Amazon Managed Grafana",
+        },
+        {
           "desc": "Compliance / sensitive data monitoring",
           "max": 200,
           "min": 80,
@@ -2960,16 +2990,16 @@ exports[`estimateMonthlyCost snapshots > iot_platform (en) 1`] = `
       ],
       "name": "Operations",
       "total": {
-        "max": 315,
-        "min": 121,
+        "max": 333,
+        "min": 130,
       },
     },
   ],
   "hasCommit": false,
   "hasSpot": true,
-  "totalMax": 1276,
-  "totalMid": 941,
-  "totalMin": 606,
+  "totalMax": 1294,
+  "totalMid": 955,
+  "totalMin": 615,
 }
 `;
 
@@ -3129,6 +3159,12 @@ exports[`estimateMonthlyCost snapshots > iot_platform (ko) 1`] = `
           "name": "CloudWatch (로그+메트릭+알람)",
         },
         {
+          "desc": "에디터 $9/월 + 뷰어 $5/월",
+          "max": 18,
+          "min": 9,
+          "name": "Amazon Managed Grafana",
+        },
+        {
           "desc": "규정 준수 / 민감 데이터 모니터링",
           "max": 200,
           "min": 80,
@@ -3167,16 +3203,16 @@ exports[`estimateMonthlyCost snapshots > iot_platform (ko) 1`] = `
       ],
       "name": "운영",
       "total": {
-        "max": 315,
-        "min": 121,
+        "max": 333,
+        "min": 130,
       },
     },
   ],
   "hasCommit": false,
   "hasSpot": true,
-  "totalMax": 1276,
-  "totalMid": 941,
-  "totalMin": 606,
+  "totalMax": 1294,
+  "totalMid": 955,
+  "totalMin": 615,
 }
 `;
 
@@ -3540,6 +3576,12 @@ exports[`estimateMonthlyCost snapshots > realtime_chat (en) 1`] = `
           "name": "CloudWatch (Logs + Metrics + Alarms)",
         },
         {
+          "desc": "Traces $5/1M, sampling config recommended",
+          "max": 8,
+          "min": 3,
+          "name": "AWS X-Ray (Distributed Tracing)",
+        },
+        {
           "desc": "Compliance / sensitive data monitoring",
           "max": 200,
           "min": 80,
@@ -3578,16 +3620,16 @@ exports[`estimateMonthlyCost snapshots > realtime_chat (en) 1`] = `
       ],
       "name": "Operations",
       "total": {
-        "max": 315,
-        "min": 121,
+        "max": 323,
+        "min": 124,
       },
     },
   ],
   "hasCommit": false,
   "hasSpot": false,
-  "totalMax": 1573,
-  "totalMid": 1198,
-  "totalMin": 822,
+  "totalMax": 1581,
+  "totalMid": 1203,
+  "totalMin": 825,
 }
 `;
 
@@ -3741,6 +3783,12 @@ exports[`estimateMonthlyCost snapshots > realtime_chat (ko) 1`] = `
           "name": "CloudWatch (로그+메트릭+알람)",
         },
         {
+          "desc": "추적 $5/백만 건, 샘플링 설정 권장",
+          "max": 8,
+          "min": 3,
+          "name": "AWS X-Ray (분산 추적)",
+        },
+        {
           "desc": "규정 준수 / 민감 데이터 모니터링",
           "max": 200,
           "min": 80,
@@ -3779,16 +3827,16 @@ exports[`estimateMonthlyCost snapshots > realtime_chat (ko) 1`] = `
       ],
       "name": "운영",
       "total": {
-        "max": 315,
-        "min": 121,
+        "max": 323,
+        "min": 124,
       },
     },
   ],
   "hasCommit": false,
   "hasSpot": false,
-  "totalMax": 1573,
-  "totalMid": 1198,
-  "totalMin": 822,
+  "totalMax": 1581,
+  "totalMid": 1203,
+  "totalMin": 825,
 }
 `;
 
@@ -4128,6 +4176,12 @@ exports[`estimateMonthlyCost snapshots > ticketing (en) 1`] = `
           "name": "CloudWatch (Logs + Metrics + Alarms)",
         },
         {
+          "desc": "Traces $5/1M, sampling config recommended",
+          "max": 8,
+          "min": 3,
+          "name": "AWS X-Ray (Distributed Tracing)",
+        },
+        {
           "desc": "Compliance / sensitive data monitoring",
           "max": 200,
           "min": 80,
@@ -4172,16 +4226,16 @@ exports[`estimateMonthlyCost snapshots > ticketing (en) 1`] = `
       ],
       "name": "Operations",
       "total": {
-        "max": 345,
-        "min": 131,
+        "max": 353,
+        "min": 134,
       },
     },
   ],
   "hasCommit": false,
   "hasSpot": false,
-  "totalMax": 1260,
-  "totalMid": 959,
-  "totalMin": 657,
+  "totalMax": 1268,
+  "totalMid": 964,
+  "totalMin": 660,
 }
 `;
 
@@ -4335,6 +4389,12 @@ exports[`estimateMonthlyCost snapshots > ticketing (ko) 1`] = `
           "name": "CloudWatch (로그+메트릭+알람)",
         },
         {
+          "desc": "추적 $5/백만 건, 샘플링 설정 권장",
+          "max": 8,
+          "min": 3,
+          "name": "AWS X-Ray (분산 추적)",
+        },
+        {
           "desc": "규정 준수 / 민감 데이터 모니터링",
           "max": 200,
           "min": 80,
@@ -4379,15 +4439,15 @@ exports[`estimateMonthlyCost snapshots > ticketing (ko) 1`] = `
       ],
       "name": "운영",
       "total": {
-        "max": 345,
-        "min": 131,
+        "max": 353,
+        "min": 134,
       },
     },
   ],
   "hasCommit": false,
   "hasSpot": false,
-  "totalMax": 1260,
-  "totalMid": 959,
-  "totalMin": 657,
+  "totalMax": 1268,
+  "totalMid": 964,
+  "totalMin": 660,
 }
 `;

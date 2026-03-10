@@ -94,6 +94,7 @@ export const TEMPLATES: QuickTemplate[] = [
         pipeline: "github",
         deploy_strategy: "bluegreen",
         env_count: "three",
+        monitoring: ["cloudwatch", "xray"],
       },
       cost: {
         priority: "balanced",
@@ -276,6 +277,7 @@ export const TEMPLATES: QuickTemplate[] = [
         pipeline: "github",
         deploy_strategy: "rolling",
         env_count: "dev_prod",
+        monitoring: ["cloudwatch"],
       },
       cost: {
         priority: "cost_first",
@@ -362,6 +364,7 @@ export const TEMPLATES: QuickTemplate[] = [
         pipeline: "github",
         deploy_strategy: "bluegreen",
         env_count: "three",
+        monitoring: ["cloudwatch", "xray"],
       },
       cost: {
         priority: "balanced",
@@ -429,7 +432,7 @@ export const TEMPLATES: QuickTemplate[] = [
         sync_async: "async",
         queue_type: ["kinesis", "eventbridge"],
         api_type: "api_gateway",
-        batch_workflow: ["step_functions", "eventbridge_sch"],
+        batch_workflow: ["step_functions", "glue", "eventbridge_sch"],
       },
       appstack: {
         api_gateway_impl: "aws_apigw",
@@ -445,6 +448,7 @@ export const TEMPLATES: QuickTemplate[] = [
         pipeline: "github",
         deploy_strategy: "rolling",
         env_count: "three",
+        monitoring: ["cloudwatch", "grafana"],
       },
       cost: {
         priority: "cost_first",
@@ -529,6 +533,7 @@ export const TEMPLATES: QuickTemplate[] = [
         pipeline: "github",
         deploy_strategy: "rolling",
         env_count: "three",
+        monitoring: ["cloudwatch"],
       },
       cost: {
         priority: "cost_first",
@@ -615,6 +620,7 @@ export const TEMPLATES: QuickTemplate[] = [
         pipeline: "github",
         deploy_strategy: "bluegreen",
         env_count: "three",
+        monitoring: ["cloudwatch", "xray"],
       },
       cost: {
         priority: "balanced",
@@ -701,6 +707,7 @@ export const TEMPLATES: QuickTemplate[] = [
         pipeline: "github",
         deploy_strategy: "rolling",
         env_count: "three",
+        monitoring: ["cloudwatch", "grafana"],
       },
       cost: {
         priority: "balanced",
@@ -787,6 +794,7 @@ export const TEMPLATES: QuickTemplate[] = [
         pipeline: "github",
         deploy_strategy: "bluegreen",
         env_count: "three",
+        monitoring: ["cloudwatch", "xray"],
       },
       cost: {
         priority: "balanced",
@@ -869,6 +877,7 @@ export const TEMPLATES: QuickTemplate[] = [
         pipeline: "github",
         deploy_strategy: "rolling",
         env_count: "three",
+        monitoring: ["cloudwatch"],
       },
       cost: {
         priority: "cost_first",
@@ -955,6 +964,7 @@ export const TEMPLATES: QuickTemplate[] = [
         pipeline: "github",
         deploy_strategy: "bluegreen",
         env_count: "three",
+        monitoring: ["cloudwatch", "xray"],
       },
       cost: {
         priority: "balanced",
@@ -1137,6 +1147,7 @@ export const TEMPLATES: QuickTemplate[] = [
         pipeline: "github",
         deploy_strategy: "rolling",
         env_count: "dev_prod",
+        monitoring: ["cloudwatch"],
       },
       cost: {
         priority: "cost_first",

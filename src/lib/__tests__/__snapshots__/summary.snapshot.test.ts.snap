@@ -568,8 +568,8 @@ exports[`generateSummary snapshots > data_pipeline (en) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 408,
-    "wafrScore": 74,
+    "monthlyCost": 421,
+    "wafrScore": 75,
     "warnings": 0,
   },
   "teamReqs": {
@@ -676,8 +676,8 @@ exports[`generateSummary snapshots > data_pipeline (ko) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 408,
-    "wafrScore": 74,
+    "monthlyCost": 421,
+    "wafrScore": 75,
     "warnings": 0,
   },
   "teamReqs": {
@@ -784,9 +784,9 @@ exports[`generateSummary snapshots > ecommerce_mvp (en) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 826,
-    "wafrScore": 77,
-    "warnings": 1,
+    "monthlyCost": 831,
+    "wafrScore": 78,
+    "warnings": 0,
   },
   "teamReqs": {
     "minDevs": 1,
@@ -892,9 +892,9 @@ exports[`generateSummary snapshots > ecommerce_mvp (ko) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 826,
-    "wafrScore": 77,
-    "warnings": 1,
+    "monthlyCost": 831,
+    "wafrScore": 78,
+    "warnings": 0,
   },
   "teamReqs": {
     "minDevs": 1,
@@ -1263,8 +1263,8 @@ exports[`generateSummary snapshots > generic_web_api (en) 1`] = `
     "availability": "99.9",
     "errors": 0,
     "monthlyCost": 750,
-    "wafrScore": 69,
-    "warnings": 1,
+    "wafrScore": 70,
+    "warnings": 0,
   },
   "teamReqs": {
     "minDevs": 1,
@@ -1371,8 +1371,8 @@ exports[`generateSummary snapshots > generic_web_api (ko) 1`] = `
     "availability": "99.9",
     "errors": 0,
     "monthlyCost": 750,
-    "wafrScore": 69,
-    "warnings": 1,
+    "wafrScore": 70,
+    "warnings": 0,
   },
   "teamReqs": {
     "minDevs": 1,
@@ -1694,9 +1694,9 @@ exports[`generateSummary snapshots > iot_platform (en) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 941,
-    "wafrScore": 75,
-    "warnings": 1,
+    "monthlyCost": 955,
+    "wafrScore": 76,
+    "warnings": 0,
   },
   "teamReqs": {
     "minDevs": 1,
@@ -1802,9 +1802,9 @@ exports[`generateSummary snapshots > iot_platform (ko) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 941,
-    "wafrScore": 75,
-    "warnings": 1,
+    "monthlyCost": 955,
+    "wafrScore": 76,
+    "warnings": 0,
   },
   "teamReqs": {
     "minDevs": 1,
@@ -2126,9 +2126,9 @@ exports[`generateSummary snapshots > realtime_chat (en) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 1198,
-    "wafrScore": 74,
-    "warnings": 1,
+    "monthlyCost": 1203,
+    "wafrScore": 75,
+    "warnings": 0,
   },
   "teamReqs": {
     "minDevs": 1,
@@ -2234,9 +2234,9 @@ exports[`generateSummary snapshots > realtime_chat (ko) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 1198,
-    "wafrScore": 74,
-    "warnings": 1,
+    "monthlyCost": 1203,
+    "wafrScore": 75,
+    "warnings": 0,
   },
   "teamReqs": {
     "minDevs": 1,
@@ -2558,9 +2558,9 @@ exports[`generateSummary snapshots > ticketing (en) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 959,
-    "wafrScore": 78,
-    "warnings": 1,
+    "monthlyCost": 964,
+    "wafrScore": 79,
+    "warnings": 0,
   },
   "teamReqs": {
     "minDevs": 1,
@@ -2666,9 +2666,9 @@ exports[`generateSummary snapshots > ticketing (ko) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 959,
-    "wafrScore": 78,
-    "warnings": 1,
+    "monthlyCost": 964,
+    "wafrScore": 79,
+    "warnings": 0,
   },
   "teamReqs": {
     "minDevs": 1,
