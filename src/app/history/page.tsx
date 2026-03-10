@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { Header } from "@/components/layout/Header";
 import { useDict, useLang } from "@/lib/i18n/context";
 import {
   getHistory,
@@ -88,26 +88,18 @@ export default function HistoryPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-200 bg-white px-7 py-3.5">
-        <div className="flex items-center gap-2.5">
-          <div className="h-2.5 w-2.5 rounded-full bg-indigo-600" />
-          <span className="text-base font-extrabold text-gray-900">
-            ArchFlow
-          </span>
-          <span className="text-xs text-gray-400">
-            {t.history.title}
-          </span>
-        </div>
-        <Link
-          href="/"
-          className="rounded-lg border-[1.5px] border-gray-200 bg-white px-3.5 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
-        >
-          {t.history.backHome}
-        </Link>
-      </div>
+      <Header />
 
       <div className="mx-auto max-w-[900px] px-7 py-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h1 className="text-sm font-bold text-gray-700">{t.history.title}</h1>
+          <Link
+            href="/"
+            className="rounded-lg border-[1.5px] border-gray-200 bg-white px-3.5 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
+          >
+            {t.history.backHome}
+          </Link>
+        </div>
         {loading ? (
           <div className="flex items-center justify-center py-16 text-sm text-gray-400">
             {t.history.loading}
