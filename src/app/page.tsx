@@ -3,7 +3,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { LoginModal } from "@/components/auth/LoginModal";
-import { cn } from "@/lib/utils";
 import { useWizard } from "@/hooks/use-wizard";
 import { PHASES } from "@/data/phases";
 import { useDict, useLang } from "@/lib/i18n/context";
@@ -11,35 +10,17 @@ import { useDict, useLang } from "@/lib/i18n/context";
 import { Header } from "@/components/layout/Header";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { ProgressBar } from "@/components/wizard/ProgressBar";
-import { PhaseHeader } from "@/components/wizard/PhaseHeader";
-import { QuestionCard } from "@/components/wizard/QuestionCard";
-import { InfoPanel } from "@/components/wizard/InfoPanel";
-import { TemplateSelector } from "@/components/wizard/TemplateSelector";
-
-import { ArchOutput } from "@/components/result/ArchOutput";
-import { DiagramView } from "@/components/result/DiagramView";
-import { ValidationView } from "@/components/result/ValidationView";
-import { ChecklistView } from "@/components/result/ChecklistView";
-import { SecurityGroupView } from "@/components/result/SecurityGroupView";
-import { CostView } from "@/components/result/CostView";
-import { WafrView } from "@/components/result/WafrView";
-import { CodeView } from "@/components/result/CodeView";
-import { StateSummary } from "@/components/result/StateSummary";
-import { SummaryView } from "@/components/result/SummaryView";
+import { ActionToolbar } from "@/components/wizard/ActionToolbar";
+import { WizardView } from "@/components/wizard/WizardView";
+import { ResultView } from "@/components/result/ResultView";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { SlidePanel, SlidePanelTrigger } from "@/components/ui/slide-panel";
 
 import { validateState } from "@/lib/validate";
-import { wellArchitectedScore } from "@/lib/wafr";
-import { estimateMonthlyCost } from "@/lib/cost";
-import { generateChecklist } from "@/lib/checklist";
-import { generateCodeSnippets } from "@/lib/code-snippets";
 import { getRecommendations } from "@/lib/recommendations";
 import { checkGuardrails } from "@/lib/guardrails";
 import { saveToHistory } from "@/lib/history";
 import { getInfoDb } from "@/lib/info-db";
 
-import type { InfoEntry } from "@/lib/types";
 import type { GuardrailWarning } from "@/lib/guardrails";
 
 export default function Home() {
@@ -60,7 +41,6 @@ export default function Home() {
     prev,
     jumpTo,
     reset,
-    importJSON,
     applyTemplate,
     returnToResults,
   } = useWizard();
@@ -68,12 +48,10 @@ export default function Home() {
   const t = useDict();
   const { lang } = useLang();
   const { data: session } = useSession();
-  const [infoPanel, setInfoPanel] = useState<InfoEntry | null>(null);
   const [activeTab, setActiveTab] = useState("summary");
   const [saveToast, setSaveToast] = useState("");
   const [shareMsg, setShareMsg] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [heroVisible, setHeroVisible] = useState(true);
 
   // Read heroVisible from localStorage after hydration to avoid SSR/CSR mismatch
@@ -84,6 +62,16 @@ export default function Home() {
   }, []);
 
   const infoDb = useMemo(() => getInfoDb(lang), [lang]);
+
+  /* ---------------------------------------------------------------- */
+  /* Shared action handlers                                            */
+  /* ---------------------------------------------------------------- */
+
+  async function handleSave() {
+    await saveToHistory(allPhaseState, [...completedPhases], undefined, lang);
+    setSaveToast(t.result.saved);
+    setTimeout(() => setSaveToast(""), 2000);
+  }
 
   async function handleShareURL() {
     if (!session) {
@@ -106,65 +94,31 @@ export default function Home() {
       setShareMsg(t.header.linkCopied);
       setTimeout(() => setShareMsg(""), 2500);
     } catch (e) {
-      console.warn('[page] Failed to copy share link:', e);
+      console.warn("[page] Failed to copy share link:", e);
       setShareMsg(t.header.copyFailed);
     }
   }
 
-  function handleExportJSON() {
-    const json = JSON.stringify(
-      {
-        state: allPhaseState,
-        completedPhases: [...completedPhases],
-      },
-      null,
-      2
-    );
-    const blob = new Blob([json], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `aws-arch-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  function handleReset() {
+    reset();
+    setActiveTab("summary");
   }
 
-  function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      try {
-        const data = JSON.parse(ev.target?.result as string);
-        if (data.state) {
-          importJSON({
-            state: data.state,
-            completedPhases: data.completedPhases || [],
-          });
-        }
-      } catch (e) {
-        console.warn('[page] Failed to import JSON:', e);
-        alert(t.header.invalidJSON);
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = "";
-  }
+  /* ---------------------------------------------------------------- */
+  /* Computed data                                                     */
+  /* ---------------------------------------------------------------- */
 
-  // Phase data from dictionary
   const phasesDict = t.phases;
-  const phaseDict = phasesDict.find((p) => p.id === phase.id);
 
-  // Live validation for current phase
   const liveIssues = useMemo(
     () => validateState(allPhaseState, lang),
     [allPhaseState, lang]
   );
+
   const phaseIssues = liveIssues.filter(
-    (i) => i.phases && i.phases.includes(phase.id)
+    (i) => i.phases && i.phases.length === 1 && i.phases[0] === phase.id
   );
 
-  // Recommendations for current phase
   const allRecs = useMemo(
     () => getRecommendations(allPhaseState, lang),
     [allPhaseState, lang]
@@ -175,7 +129,6 @@ export default function Home() {
     return q.opts?.some((o) => allRecs[`${phase.id}.${q.id}.${o.v}`]);
   });
 
-  // Pre-compute guardrails for all questions in current phase
   const allGuardrails = useMemo(() => {
     const map: Record<string, Record<string, GuardrailWarning>> = {};
     for (const q of questions) {
@@ -190,70 +143,18 @@ export default function Home() {
     return map;
   }, [questions, allPhaseState, phase.id]);
 
-  // Build result tab data
-  const resultTabs = useMemo(() => {
-    if (!showResult || !arch) return [];
-    const _errs = liveIssues.filter((i) => i.severity === "error").length;
-    const _warns = liveIssues.filter((i) => i.severity === "warn").length;
-    const _wa = wellArchitectedScore(allPhaseState, lang);
-    const _cost = estimateMonthlyCost(allPhaseState, lang);
-
-    let checklistLabel = t.result.tabs.checklist;
-    try {
-      const saved = JSON.parse(
-        localStorage.getItem("aws_arch_checklist_v1") || "{}"
-      );
-      const cl = generateChecklist(allPhaseState, lang);
-      const done = cl.phases.reduce(
-        (s: number, p: any) => s + p.items.filter((i: any) => saved[i.id]).length,
-        0
-      );
-      const total = cl.totalItems;
-      const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-      checklistLabel = t.result.tabs.checklistPct(pct);
-    } catch (e) { console.warn('[page] Failed to compute checklist label:', e); }
-
-    let codeLabel = t.result.tabs.code;
-    try {
-      codeLabel = t.result.tabs.codeCnt(generateCodeSnippets(allPhaseState).length);
-    } catch (e) { console.warn('[page] Failed to compute code label:', e); }
-
-    return [
-      { id: "summary", label: t.result.tabs.summary },
-      { id: "cards", label: t.result.tabs.serviceDetail },
-      { id: "diagram", label: t.result.tabs.diagram },
-      {
-        id: "validate",
-        label:
-          t.result.tabs.validation +
-          (_errs > 0
-            ? ` ❗${_errs}`
-            : _warns > 0
-              ? ` ⚠️${_warns}`
-              : " ✅"),
-      },
-      { id: "checklist", label: checklistLabel },
-      { id: "sg", label: t.result.tabs.securityGroups },
-      {
-        id: "cost",
-        label: t.result.tabs.cost(_cost.totalMid.toLocaleString()),
-      },
-      {
-        id: "wafr",
-        label: t.result.tabs.wafr(_wa.overall),
-      },
-      { id: "code", label: codeLabel },
-    ];
-  }, [showResult, arch, allPhaseState, liveIssues, t, lang]);
-
-  // Build phase labels for ProgressBar / PhaseHeader from dictionary
-  const phasesWithLabels = useMemo(() =>
-    PHASES.map((p) => {
-      const d = phasesDict.find((pd) => pd.id === p.id);
-      return d ? { ...p, label: d.label, desc: d.desc, tip: d.tip } : p;
-    }),
+  const phasesWithLabels = useMemo(
+    () =>
+      PHASES.map((p) => {
+        const d = phasesDict.find((pd) => pd.id === p.id);
+        return d ? { ...p, label: d.label, desc: d.desc, tip: d.tip } : p;
+      }),
     [phasesDict]
   );
+
+  /* ---------------------------------------------------------------- */
+  /* Hydration gate                                                    */
+  /* ---------------------------------------------------------------- */
 
   if (!hydrated) {
     return (
@@ -263,17 +164,24 @@ export default function Home() {
     );
   }
 
+  /* ---------------------------------------------------------------- */
+  /* Render                                                            */
+  /* ---------------------------------------------------------------- */
+
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header */}
       <Header onLoginClick={() => setShowLoginModal(true)} />
 
-      {/* Landing Hero — first visit, no saved data, not a share link */}
+      {/* Landing Hero -- first visit, no saved data */}
       {heroVisible && completedPhases.size === 0 && !showResult && (
-        <HeroSection onStart={() => { setHeroVisible(false); localStorage.setItem("archflow_hero_dismissed", "1"); }} />
+        <HeroSection
+          onStart={() => {
+            setHeroVisible(false);
+            localStorage.setItem("archflow_hero_dismissed", "1");
+          }}
+        />
       )}
 
-      {/* Progress */}
       <ProgressBar
         phases={phasesWithLabels}
         currentPhase={showResult ? "__done__" : currentPhase}
@@ -281,405 +189,69 @@ export default function Home() {
         onJump={jumpTo}
       />
 
-      {/* Action toolbar */}
-      <div className="border-b border-indigo-100 bg-gradient-to-r from-indigo-50/80 to-white px-3 py-2.5 md:px-7">
-        <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4">
-          <div className="hidden items-center gap-1.5 text-[12px] text-indigo-500 md:flex">
-            <span>💡</span>
-            <span>{t.wizard.stepHint}</span>
-          </div>
-          {(completedPhases.size > 0 || showResult) && (
-            <div className="flex flex-wrap items-center gap-1 md:gap-1.5">
-              {/* Save */}
-              <div className="relative">
-                <button
-                  onClick={async () => {
-                    if (!session) {
-                      setShowLoginModal(true);
-                      return;
-                    }
-                    await saveToHistory(allPhaseState, [...completedPhases], undefined, lang);
-                    setSaveToast(t.result.saved);
-                    setTimeout(() => setSaveToast(""), 2000);
-                  }}
-                  className="rounded-md bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 md:py-1.5 md:text-[11px]"
-                >
-                  {t.result.saveBtn}
-                </button>
-                {saveToast && (
-                  <div className="absolute right-0 top-full z-[100] mt-1 whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1 text-[11px] text-white">
-                    {saveToast}
-                  </div>
-                )}
-              </div>
-              {/* Download JSON — disabled */}
-              {/* Import — disabled */}
-              {/* Share */}
-              <div className="relative">
-                <button
-                  onClick={handleShareURL}
-                  className="rounded-md border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-600 transition-colors hover:bg-indigo-100 md:py-1.5 md:text-[11px]"
-                >
-                  {t.header.share}
-                </button>
-                {shareMsg && (
-                  <div className="absolute right-0 top-full z-[100] mt-1 whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1 text-[11px] text-white">
-                    {shareMsg}
-                  </div>
-                )}
-              </div>
-              {/* Reset */}
-              <button
-                onClick={() => { if (!window.confirm(t.header.resetConfirm)) return; reset(); setActiveTab("summary"); }}
-                className="rounded-md bg-gray-800 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-gray-900 md:py-1.5 md:text-[11px]"
-              >
-                {t.header.resetAll}
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
+      <ActionToolbar
+        session={session}
+        allPhaseState={allPhaseState}
+        completedPhases={completedPhases}
+        showResult={showResult}
+        onSave={handleSave}
+        onShare={handleShareURL}
+        onReset={handleReset}
+        onLoginClick={() => setShowLoginModal(true)}
+        saveToast={saveToast}
+        shareMsg={shareMsg}
+        t={t}
+      />
 
       {showResult && arch ? (
-        /* RESULT VIEW */
         <ErrorBoundary>
-        <div className="mx-auto max-w-[1400px] px-3 py-4 md:px-7 md:py-6">
-          {/* Completion banner */}
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border-[1.5px] border-emerald-200 bg-emerald-50 px-3 py-3 md:px-5 md:py-4">
-            <div>
-              <div className="mb-0.5 text-base font-bold text-emerald-600">
-                {t.result.completionTitle}
-              </div>
-              <div className="text-[13px] text-gray-700">
-                {t.result.completionDesc}
-              </div>
-            </div>
-            {/* Save button */}
-            <div className="relative">
-              <button
-                onClick={async () => {
-                  if (!session) {
-                    setShowLoginModal(true);
-                    return;
-                  }
-                  await saveToHistory(allPhaseState, [...completedPhases], undefined, lang);
-                  setSaveToast(t.result.saved);
-                  setTimeout(() => setSaveToast(""), 2000);
-                }}
-                className="rounded-lg border-[1.5px] border-emerald-300 bg-emerald-50 px-3.5 py-1.5 text-xs font-semibold text-emerald-600 transition-colors hover:bg-emerald-100"
-              >
-                {t.result.saveBtn}
-              </button>
-              {saveToast && (
-                <div className="absolute right-0 top-full z-[100] mt-1 whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1 text-[11px] text-white">
-                  {saveToast}
-                </div>
-              )}
-            </div>
-
-            {/* Tab toggle */}
-            <div className="scrollbar-hide flex gap-1 overflow-x-auto rounded-[10px] bg-gray-100 p-1 md:flex-wrap">
-              {resultTabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={cn(
-                    "shrink-0 whitespace-nowrap rounded-lg px-3.5 py-2 text-xs font-semibold transition-all",
-                    activeTab === tab.id
-                      ? "bg-white text-indigo-600 shadow-sm"
-                      : "bg-transparent text-gray-500"
-                  )}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Tab content */}
-          {activeTab === "summary" ? (
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-[1fr_280px]">
-              <SummaryView state={allPhaseState} arch={arch} />
-              <div className="hidden md:block">
-                <StateSummary
-                  state={allPhaseState}
-                  phases={phasesWithLabels}
-                  onEdit={jumpTo}
-                />
-              </div>
-            </div>
-          ) : activeTab === "cards" ? (
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-[1fr_280px]">
-              <ArchOutput arch={arch} />
-              <div className="hidden md:block">
-                <StateSummary
-                  state={allPhaseState}
-                  phases={phasesWithLabels}
-                  onEdit={jumpTo}
-                />
-              </div>
-            </div>
-          ) : activeTab === "diagram" ? (
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-[1fr_280px]">
-              <DiagramView arch={arch} state={allPhaseState} />
-              <div className="hidden md:block">
-                <StateSummary
-                  state={allPhaseState}
-                  phases={phasesWithLabels}
-                  onEdit={jumpTo}
-                />
-              </div>
-            </div>
-          ) : activeTab === "validate" ? (
-            <ValidationView state={allPhaseState} onEdit={jumpTo} />
-          ) : activeTab === "cost" ? (
-            <CostView state={allPhaseState} />
-          ) : activeTab === "wafr" ? (
-            <WafrView state={allPhaseState} />
-          ) : activeTab === "checklist" ? (
-            <ChecklistView state={allPhaseState} />
-          ) : activeTab === "sg" ? (
-            <SecurityGroupView state={allPhaseState} />
-          ) : activeTab === "code" ? (
-            <CodeView state={allPhaseState} />
-          ) : null}
-
-          {/* Mobile SlidePanel for StateSummary (result view) */}
-          <SlidePanelTrigger onClick={() => setMobileSidebarOpen(true)} label={t.stateSummary.title} />
-          <SlidePanel open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen} title={t.stateSummary.title}>
-            <StateSummary
-              state={allPhaseState}
-              phases={phasesWithLabels}
-              onEdit={(id) => { setMobileSidebarOpen(false); jumpTo(id); }}
-            />
-          </SlidePanel>
-        </div>
+          <ResultView
+            arch={arch}
+            allPhaseState={allPhaseState}
+            completedPhases={completedPhases}
+            phasesWithLabels={phasesWithLabels}
+            liveIssues={liveIssues}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            onJump={jumpTo}
+            onLoginClick={() => setShowLoginModal(true)}
+            session={session}
+            saveToast={saveToast}
+            setSaveToast={setSaveToast}
+            t={t}
+            lang={lang}
+          />
         </ErrorBoundary>
       ) : (
-        /* QUESTION VIEW */
-        <div className="mx-auto max-w-[1400px] px-3 py-4 md:px-7 md:py-6">
-          <div className="flex flex-col gap-4 md:grid md:grid-cols-[1fr_280px] md:gap-5">
-            <div>
-              {/* Phase header */}
-              <PhaseHeader
-                phase={phaseDict ? { ...phase, label: phaseDict.label, desc: phaseDict.desc, tip: phaseDict.tip } : phase}
-                totalPhases={PHASES.length}
-              />
-
-              {/* Quick Start Templates (Phase 1 only, before any answers) */}
-              {phaseIdx === 0 && !completedPhases.has("workload") && (
-                <TemplateSelector
-                  onSelect={(s) => {
-                    applyTemplate(s);
-                    setActiveTab("summary");
-                  }}
-                />
-              )}
-
-              {/* Live Phase validation banner */}
-              {phaseIssues.length > 0 && (
-                <div className="mb-3">
-                  {phaseIssues.map((issue, i) => (
-                    <div
-                      key={i}
-                      className={cn(
-                        "mb-1.5 flex items-start gap-2.5 rounded-lg border px-3.5 py-2.5",
-                        issue.severity === "error"
-                          ? "border-red-300 bg-red-50"
-                          : "border-amber-200 bg-amber-50"
-                      )}
-                    >
-                      <span className="shrink-0 text-base">
-                        {issue.severity === "error"
-                          ? "❗"
-                          : "⚠️"}
-                      </span>
-                      <div className="flex-1">
-                        <div
-                          className={cn(
-                            "mb-0.5 text-xs font-bold",
-                            issue.severity === "error"
-                              ? "text-red-600"
-                              : "text-yellow-800"
-                          )}
-                        >
-                          {issue.title}
-                        </div>
-                        <div className="text-[11px] leading-relaxed text-gray-700">
-                          {issue.message}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Recommendation guide */}
-              {hasAnyRec && (
-                <div className="mb-3 flex flex-wrap items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-3.5 py-2 text-[11px] text-yellow-800">
-                  <span className="font-bold">{t.wizard.recGuide}:</span>
-                  <span className="flex items-center gap-1">
-                    <span className="rounded border border-red-300 bg-red-50 px-1 py-px text-[10px] font-bold text-red-600">
-                      {t.wizard.recRequired}
-                    </span>{" "}
-                    {t.wizard.recStrongly}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="rounded border border-violet-300 bg-violet-50 px-1 py-px text-[10px] font-bold text-violet-600">
-                      {t.wizard.recRecommended}
-                    </span>{" "}
-                    {t.wizard.recBestPractice}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="rounded border border-emerald-300 bg-green-50 px-1 py-px text-[10px] font-bold text-emerald-600">
-                      {t.wizard.recCostSave}
-                    </span>{" "}
-                    {t.wizard.recCostOpt}
-                  </span>
-                  <button
-                    onClick={() => {
-                      const filledIds = new Set<string>();
-                      const skipDeps: Record<string, string[]> = {
-                        arch_pattern: ["orchestration", "compute_node", "scaling"],
-                        sync_async: ["queue_type"],
-                      };
-                      for (const q of questions) {
-                        if (q.skip) continue;
-                        const existing = phaseState[q.id];
-                        const hasAnswer = Array.isArray(existing) ? existing.length > 0 : existing != null && existing !== "";
-                        if (hasAnswer) continue;
-                        if ([...filledIds].some((fid) => skipDeps[fid]?.includes(q.id))) continue;
-                        if (q.multi) {
-                          const recOpts = q.opts
-                            .filter((o) => o.v !== "none" && allRecs[`${phase.id}.${q.id}.${o.v}`])
-                            .map((o) => o.v);
-                          if (recOpts.length > 0) {
-                            handleAnswer(q.id, recOpts);
-                            filledIds.add(q.id);
-                          }
-                        } else {
-                          const ranked = q.opts
-                            .filter((o) => allRecs[`${phase.id}.${q.id}.${o.v}`])
-                            .sort((a, b) => {
-                              const ba = allRecs[`${phase.id}.${q.id}.${a.v}`]?.badge || "";
-                              const bb = allRecs[`${phase.id}.${q.id}.${b.v}`]?.badge || "";
-                              const pri = (s: string) => s.startsWith("⭐") ? 0 : s.startsWith("✨") ? 1 : 2;
-                              return pri(ba) - pri(bb);
-                            });
-                          if (ranked.length > 0) {
-                            handleAnswer(q.id, ranked[0].v);
-                            filledIds.add(q.id);
-                          }
-                        }
-                      }
-                    }}
-                    className="ml-auto shrink-0 rounded-md border border-indigo-300 bg-indigo-50 px-2.5 py-1 text-[11px] font-bold text-indigo-600 transition-colors hover:bg-indigo-100"
-                  >
-                    {t.wizard.autoSelect}
-                  </button>
-                </div>
-              )}
-
-              {/* Questions */}
-              {questions.map(
-                (q) =>
-                  !q.skip && (
-                    <QuestionCard
-                      key={q.id}
-                      question={q}
-                      value={phaseState[q.id]}
-                      onChange={(v) => handleAnswer(q.id, v)}
-                      onInfo={setInfoPanel}
-                      infoDb={infoDb}
-                      recommendations={Object.fromEntries(
-                        Object.entries(allRecs)
-                          .filter(([k]) =>
-                            k.startsWith(`${phase.id}.${q.id}.`)
-                          )
-                          .map(([k, v]) => [
-                            k.split(".").slice(2).join("."),
-                            v,
-                          ])
-                      )}
-                      guardrails={allGuardrails[q.id] || {}}
-                    />
-                  )
-              )}
-
-              {/* Navigation */}
-              <div className="mt-2 flex flex-col gap-2">
-                <div className="flex gap-2.5">
-                  {phaseIdx > 0 && (
-                    <button
-                      onClick={() => prev()}
-                      className="rounded-[10px] border-[1.5px] border-gray-200 bg-white px-6 py-3 text-[13px] font-medium text-gray-500"
-                    >
-                      {t.wizard.prevBtn}
-                    </button>
-                  )}
-                  <button
-                    onClick={next}
-                    disabled={!isPhaseComplete}
-                    className={cn(
-                      "flex-1 rounded-[10px] py-3 text-sm font-bold transition-all",
-                      isPhaseComplete
-                        ? "cursor-pointer bg-indigo-600 text-white"
-                        : "cursor-not-allowed bg-gray-200 text-gray-400"
-                    )}
-                  >
-                    {phaseIdx < PHASES.length - 1
-                      ? t.wizard.nextStep(phasesWithLabels[phaseIdx + 1]?.label || "")
-                      : t.wizard.generateArch}
-                  </button>
-                </div>
-                {/* Return to results button */}
-                {arch && completedPhases.size >= PHASES.filter(p => !p.skipPhase || !p.skipPhase(allPhaseState)).length && (
-                  <button
-                    onClick={() => {
-                      returnToResults();
-                      setActiveTab("summary");
-                    }}
-                    className="rounded-[10px] border-[1.5px] border-emerald-300 bg-emerald-50 py-2.5 text-[13px] font-semibold text-emerald-600 transition-colors hover:bg-emerald-100"
-                  >
-                    {t.wizard.returnToResult}
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Summary sidebar — desktop */}
-            <div className="hidden md:block">
-              <StateSummary
-                state={allPhaseState}
-                phases={phasesWithLabels.filter((p) => completedPhases.has(p.id))}
-                onEdit={jumpTo}
-              />
-            </div>
-          </div>
-
-          {/* Mobile SlidePanel for wizard sidebar */}
-          <SlidePanelTrigger onClick={() => setMobileSidebarOpen(true)} label={t.stateSummary.title} />
-          <SlidePanel open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen} title={t.stateSummary.title}>
-            <StateSummary
-              state={allPhaseState}
-              phases={phasesWithLabels.filter((p) => completedPhases.has(p.id))}
-              onEdit={(id) => { setMobileSidebarOpen(false); jumpTo(id); }}
-            />
-          </SlidePanel>
-        </div>
-      )}
-
-      {/* Login modal — rendered outside result/wizard conditional */}
-      {showLoginModal && (
-        <LoginModal
-          onClose={() => setShowLoginModal(false)}
+        <WizardView
+          phase={phase}
+          phaseIdx={phaseIdx}
+          phaseState={phaseState}
+          questions={questions}
+          isPhaseComplete={isPhaseComplete}
+          allPhaseState={allPhaseState}
+          completedPhases={completedPhases}
+          arch={arch}
+          phasesWithLabels={phasesWithLabels}
+          phaseIssues={phaseIssues}
+          allRecs={allRecs}
+          hasAnyRec={hasAnyRec}
+          allGuardrails={allGuardrails}
+          infoDb={infoDb}
+          handleAnswer={handleAnswer}
+          next={next}
+          prev={prev}
+          jumpTo={jumpTo}
+          applyTemplate={applyTemplate}
+          returnToResults={returnToResults}
+          setActiveTab={setActiveTab}
+          t={t}
         />
       )}
 
-      <InfoPanel
-        info={infoPanel}
-        onClose={() => setInfoPanel(null)}
-      />
+      {showLoginModal && (
+        <LoginModal onClose={() => setShowLoginModal(false)} />
+      )}
     </div>
   );
 }

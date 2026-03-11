@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 import type { WizardState } from "@/lib/types";
 import { estimateMonthlyCost } from "@/lib/cost";
 import { useDict, useLang } from "@/lib/i18n/context";
+import { SERVICE_CATEGORY_COLORS } from "@/lib/shared/colors";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface CostViewProps {
   state: WizardState;
@@ -17,6 +19,8 @@ export function CostView({ state }: CostViewProps) {
   const [viewMode, setViewMode] = useState<"current" | "optimized">(
     "current"
   );
+  const [showPeriod, setShowPeriod] = useState(false);
+  const [showTips, setShowTips] = useState(false);
 
   const cost = estimateMonthlyCost(state, lang);
 
@@ -36,25 +40,6 @@ export function CostView({ state }: CostViewProps) {
 
   const activeCost = viewMode === "current" ? cost : costOpt;
 
-  const catColors: Record<string, string> = {
-    컴퓨팅: "#6366f1",
-    데이터베이스: "#2563eb",
-    네트워크: "#0891b2",
-    엣지: "#7c3aed",
-    스토리지: "#d97706",
-    메시징: "#059669",
-    운영: "#374151",
-    멀티리전: "#dc2626",
-    Compute: "#6366f1",
-    Database: "#2563eb",
-    Network: "#0891b2",
-    Edge: "#7c3aed",
-    Storage: "#d97706",
-    Messaging: "#059669",
-    Operations: "#374151",
-    "Multi-Region": "#dc2626",
-  };
-
   const tips: { icon: string; text: string }[] = [];
   if (!state.cost?.commitment || state.cost?.commitment === "none")
     tips.push({ icon: "\uD83D\uDCB8", text: t.costView.tips.commit });
@@ -71,6 +56,53 @@ export function CostView({ state }: CostViewProps) {
     tips.push({ icon: "\u26A1", text: t.costView.tips.cache });
   if (state.edge?.waf === "shield")
     tips.push({ icon: "\uD83D\uDEE1\uFE0F", text: t.costView.tips.shield });
+
+  /* Sidebar content shared between desktop sidebar and mobile accordion */
+  const periodCompareContent = (
+    <>
+      <div className="mb-2.5 text-xs font-bold text-gray-700">
+        {t.costView.periodCompare}
+      </div>
+      {t.costView.periods.map((p) => (
+        <div
+          key={p.label}
+          className="flex justify-between border-b border-gray-50 py-1"
+        >
+          <span className="text-xs text-gray-500">{p.label}</span>
+          <div className="text-right">
+            <div className="text-xs font-semibold text-gray-900">
+              ${(cost.totalMid * p.mult).toLocaleString()}
+            </div>
+            {saving > 0 && (
+              <div className="text-xs text-emerald-600">
+                {t.costView.optimized} $
+                {(costOpt.totalMid * p.mult).toLocaleString()}
+              </div>
+            )}
+          </div>
+        </div>
+      ))}
+    </>
+  );
+
+  const costTipsContent = tips.length > 0 ? (
+    <>
+      <div className="mb-2.5 text-xs font-bold text-gray-700">
+        {t.costView.costTips}
+      </div>
+      {tips.map((tip, i) => (
+        <div
+          key={i}
+          className="flex items-start gap-2 border-b border-gray-50 py-[7px]"
+        >
+          <span className="shrink-0 text-sm">{tip.icon}</span>
+          <span className="text-xs leading-relaxed text-gray-700">
+            {tip.text}
+          </span>
+        </div>
+      ))}
+    </>
+  ) : null;
 
   return (
     <div className="grid grid-cols-1 gap-5 md:grid-cols-[1fr_280px]">
@@ -108,18 +140,18 @@ export function CostView({ state }: CostViewProps) {
             <span className="text-4xl font-extrabold text-gray-900">
               ${activeCost.totalMid.toLocaleString()}
             </span>
-            <span className="text-[13px] text-gray-500">{t.costView.perMonthEstimate}</span>
+            <span className="text-sm text-gray-500">{t.costView.perMonthEstimate}</span>
           </div>
           <div className="mt-0.5 text-xs text-gray-400">
             {t.costView.range} ${activeCost.totalMin.toLocaleString()} ~ $
             {activeCost.totalMax.toLocaleString()}
             {activeCost.hasCommit && (
-              <span className="ml-2 rounded bg-emerald-50 px-1.5 py-px text-[11px] font-semibold text-emerald-600">
+              <span className="ml-2 rounded bg-emerald-50 px-1.5 py-px text-xs font-semibold text-emerald-600">
                 {t.costView.commitDiscount}
               </span>
             )}
             {activeCost.hasSpot && (
-              <span className="ml-1 rounded bg-sky-50 px-1.5 py-px text-[11px] font-semibold text-sky-600">
+              <span className="ml-1 rounded bg-sky-50 px-1.5 py-px text-xs font-semibold text-sky-600">
                 {t.costView.spotMixed}
               </span>
             )}
@@ -141,7 +173,7 @@ export function CostView({ state }: CostViewProps) {
                 )
               : 0;
           const isOpen = openCat === cat.name;
-          const color = catColors[cat.name] || "#6b7280";
+          const color = SERVICE_CATEGORY_COLORS[cat.name] || "#6b7280";
           return (
             <div
               key={cat.name}
@@ -160,11 +192,11 @@ export function CostView({ state }: CostViewProps) {
                 />
                 <div className="flex-1">
                   <div className="mb-1 flex items-center justify-between">
-                    <span className="text-[13px] font-semibold text-gray-900">
+                    <span className="text-sm font-semibold text-gray-900">
                       {cat.name}
                     </span>
                     <span
-                      className="text-[13px] font-bold"
+                      className="text-sm font-bold"
                       style={{ color }}
                     >
                       $
@@ -184,12 +216,12 @@ export function CostView({ state }: CostViewProps) {
                         }}
                       />
                     </div>
-                    <span className="shrink-0 text-[11px] text-gray-400">
+                    <span className="shrink-0 text-xs text-gray-400">
                       {pct}%
                     </span>
                   </div>
                 </div>
-                <span className="text-[11px] text-gray-400">
+                <span className="text-xs text-gray-400">
                   {isOpen ? "\u25B2" : "\u25BC"}
                 </span>
               </div>
@@ -204,7 +236,7 @@ export function CostView({ state }: CostViewProps) {
                         <div className="text-xs font-medium text-gray-700">
                           {item.name}
                         </div>
-                        <div className="text-[11px] text-gray-400">
+                        <div className="text-xs text-gray-400">
                           {item.desc}
                         </div>
                       </div>
@@ -214,7 +246,7 @@ export function CostView({ state }: CostViewProps) {
                             ? `$${item.min.toLocaleString()}`
                             : `$${item.min.toLocaleString()}~${item.max.toLocaleString()}`}
                         </div>
-                        <div className="text-[10px] text-gray-400">
+                        <div className="text-xs text-gray-400">
                           {item.min === 0 && item.max === 0
                             ? t.costView.included
                             : t.costView.perMonth}
@@ -227,53 +259,92 @@ export function CostView({ state }: CostViewProps) {
             </div>
           );
         })}
+
+        {/* Mobile-only collapsible sections */}
+        <div className="mt-3 flex flex-col gap-2 md:hidden">
+          {/* Period Compare accordion */}
+          <div className="rounded-xl border border-gray-200 bg-white">
+            <button
+              onClick={() => setShowPeriod(!showPeriod)}
+              className="flex w-full items-center justify-between px-3.5 py-3 text-xs font-bold text-gray-700"
+            >
+              {t.costView.periodCompare}
+              {showPeriod ? (
+                <ChevronUp className="h-4 w-4 text-gray-400" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-gray-400" />
+              )}
+            </button>
+            {showPeriod && (
+              <div className="border-t border-gray-100 px-3.5 pb-3">
+                {t.costView.periods.map((p) => (
+                  <div
+                    key={p.label}
+                    className="flex justify-between border-b border-gray-50 py-1"
+                  >
+                    <span className="text-xs text-gray-500">{p.label}</span>
+                    <div className="text-right">
+                      <div className="text-xs font-semibold text-gray-900">
+                        ${(cost.totalMid * p.mult).toLocaleString()}
+                      </div>
+                      {saving > 0 && (
+                        <div className="text-xs text-emerald-600">
+                          {t.costView.optimized} $
+                          {(costOpt.totalMid * p.mult).toLocaleString()}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Cost Tips accordion */}
+          {tips.length > 0 && (
+            <div className="rounded-xl border border-gray-200 bg-white">
+              <button
+                onClick={() => setShowTips(!showTips)}
+                className="flex w-full items-center justify-between px-3.5 py-3 text-xs font-bold text-gray-700"
+              >
+                {t.costView.costTips}
+                {showTips ? (
+                  <ChevronUp className="h-4 w-4 text-gray-400" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                )}
+              </button>
+              {showTips && (
+                <div className="border-t border-gray-100 px-3.5 pb-3">
+                  {tips.map((tip, i) => (
+                    <div
+                      key={i}
+                      className="flex items-start gap-2 border-b border-gray-50 py-[7px]"
+                    >
+                      <span className="shrink-0 text-sm">{tip.icon}</span>
+                      <span className="text-xs leading-relaxed text-gray-700">
+                        {tip.text}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Sidebar */}
-      <div>
+      {/* Sidebar — hidden on mobile, shown on md+ */}
+      <div className="hidden md:block">
         {/* Period comparison */}
         <div className="mb-3 rounded-xl border border-gray-200 bg-white p-3.5">
-          <div className="mb-2.5 text-xs font-bold text-gray-700">
-            {t.costView.periodCompare}
-          </div>
-          {t.costView.periods.map((p) => (
-            <div
-              key={p.label}
-              className="flex justify-between border-b border-gray-50 py-1"
-            >
-              <span className="text-xs text-gray-500">{p.label}</span>
-              <div className="text-right">
-                <div className="text-xs font-semibold text-gray-900">
-                  ${(cost.totalMid * p.mult).toLocaleString()}
-                </div>
-                {saving > 0 && (
-                  <div className="text-[10px] text-emerald-600">
-                    {t.costView.optimized} $
-                    {(costOpt.totalMid * p.mult).toLocaleString()}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
+          {periodCompareContent}
         </div>
 
         {/* Cost tips */}
-        {tips.length > 0 && (
+        {costTipsContent && (
           <div className="rounded-xl border border-gray-200 bg-white p-3.5">
-            <div className="mb-2.5 text-xs font-bold text-gray-700">
-              {t.costView.costTips}
-            </div>
-            {tips.map((tip, i) => (
-              <div
-                key={i}
-                className="flex items-start gap-2 border-b border-gray-50 py-[7px]"
-              >
-                <span className="shrink-0 text-sm">{tip.icon}</span>
-                <span className="text-[11px] leading-relaxed text-gray-700">
-                  {tip.text}
-                </span>
-              </div>
-            ))}
+            {costTipsContent}
           </div>
         )}
       </div>

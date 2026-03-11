@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { Lightbulb, AlertTriangle } from "lucide-react";
 import type { Question, InfoEntry, Recommendation } from "@/lib/types";
 import type { GuardrailWarning } from "@/lib/guardrails";
 import { useDict } from "@/lib/i18n/context";
@@ -144,16 +145,21 @@ export function QuestionCard({
                     {opt.d}
                   </div>
                 )}
+
+                {/* Recommendation reason */}
                 {rec && (
                   <div
                     className={cn(
-                      "mt-1 text-[10px] leading-snug opacity-85",
+                      "mt-1 flex items-start gap-1 text-[10px] leading-snug opacity-85",
                       reasonColor
                     )}
                   >
-                    {"💡"} {rec.reason}
+                    <Lightbulb className="mt-px h-3 w-3 shrink-0" />
+                    <span>{rec.reason}</span>
                   </div>
                 )}
+
+                {/* Guardrail warning */}
                 {guard && (
                   <div
                     className={cn(
@@ -163,9 +169,7 @@ export function QuestionCard({
                         : "border-amber-200 bg-amber-50 text-amber-700"
                     )}
                   >
-                    <span className="shrink-0">
-                      {guard.level === "warning" ? "⚠️" : "💡"}
-                    </span>
+                    <AlertTriangle className="mt-px h-3 w-3 shrink-0" />
                     <span>{guard.message}</span>
                   </div>
                 )}

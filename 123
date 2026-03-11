@@ -1,0 +1,75 @@
+아래처럼 진행하면 지금 UI를 “한눈에 파악 + 단순 + 편한 흐름”으로 확실히 바꿀 수 있습니다.
+
+현재 상태 진단(코드 기준)
+
+입력 화면에 정보층이 많습니다: 헤더 + 히어로 + 진행바 + 액션바 + 경고/추천 배너 + 질문카드가 동시에 보여서 스캔 부담이 큽니다.
+결과 화면은 탭이 많습니다(현재 9개). 상단에서 무엇부터 봐야 할지 판단 비용이 큽니다.
+같은 행동(저장/공유/리셋)이 여러 위치에 반복되어 우선 행동이 흐려집니다.
+옵션 카드 안에 추천 배지/사유/가드레일/인포 버튼이 함께 있어 초보 사용자에게 과밀하게 느껴질 수 있습니다.
+핵심 원칙(레퍼런스 근거)
+
+기본 화면은 핵심만, 고급 옵션은 접어서 보여주기(Progressive Disclosure).
+“회상”보다 “인식” 중심: 선택지는 보이게, 기억해서 입력하게 하지 않기.
+미니멀리즘: 덜 중요한 정보는 1차 화면에서 제거.
+멀티스텝은 3~5단계 권장, 길어도 7단계 이내(Cloudscape).
+대시보드는 “at-a-glance + 빠른 액션” 구조로.
+접근성 최소선: 클릭 타겟 24x24px 이상, 포커스 표시, 텍스트 대비 4.5:1.
+지연 피드백: 2~10초는 spinner+설명, 10초 이상은 진행률 표시.
+실행 계획(6주 로드맵)
+
+Week 1: 사용자/데이터 진단
+퍼널 수집: 단계별 이탈, 평균 완료시간, 되돌아가기 횟수, 모바일 이탈.
+사용 시나리오 3개 정의: “처음 생성”, “수정/재생성”, “공유/보고”.
+Week 2: 정보구조(IA) 재설계
+결과 9탭을 4영역으로 통합: Overview / Risk / Cost&Architecture / Implementation.
+상단 1스크린에 핵심 카드 4개만 고정: 총비용, WAFR, 치명 리스크, 다음 액션.
+고급 정보(코드, SG 상세, 세부 표)는 2차 영역(아코디언/드로어)로 이동.
+Week 3: 입력 플로우 단순화
+질문 페이지 기본 원칙: “한 페이지 한 결정(또는 강하게 연관된 소수 질문)”.
+질문 카드의 추천 설명은 기본 접힘, 선택 시 확장.
+진행 표시를 간단화: 모바일은 질문 x / y 우선, 전체 스텝 바는 축소.
+Week 4: 결과 화면 재구성
+첫 화면에 “요약 + 즉시 행동” 배치: 상위 3개 개선 권장 버튼 제공.
+저장/공유/리셋을 하나의 “Actions” 그룹으로 통합(중복 버튼 제거).
+상태요약 패널은 split-panel/slide panel로 일관화.
+Week 5: 비주얼/카피 정리
+색상 체계 단순화: 기본(중립) + 상태 3색(성공/경고/위험)만.
+문구 기준 통일: 짧은 문장, 액션 중심 라벨(“다음”, “수정”, “적용”).
+힌트 텍스트는 1문장 원칙, 긴 설명은 별도 도움 패널로 이동.
+Week 6: 접근성 + 성능 + 검증
+WCAG 체크리스트 통과(타겟 크기/포커스/대비).
+로딩 정책 적용(2~10s, 10s+ 분기).
+A/B 테스트: 기존 vs 개편안 비교.
+KPI 목표(출시 후 2주)
+
+첫 완료율 +15% 이상
+“첫 결과 도달 시간” 25~30% 단축
+결과 화면에서 첫 액션 클릭률 +20%
+모바일 이탈률 -15%
+사용자 인터뷰에서 “어디부터 봐야 할지 모르겠다” 발화 50% 이상 감소
+비슷한 사이트/패턴에서 바로 차용할 포인트
+
+AWS Console: 즐겨찾기/최근 사용으로 탐색 단축, 탭 식별성 강화.
+Cloudscape Patterns: 복잡한 생성 플로우(멀티스텝), split view, 대시보드 스캔성.
+Lucidscale/Cloudcraft: 다이어그램의 레벨별 필터링, 문서화/공유 흐름.
+참고한 레퍼런스
+
+NN/g Progressive Disclosure: https://www.nngroup.com/articles/progressive-disclosure/
+NN/g Recognition vs Recall (2024-01-15): https://www.nngroup.com/articles/recognition-and-recall/
+NN/g 10 Heuristics: https://www.nngroup.com/articles/ten-usability-heuristics/
+NN/g Progress Indicators: https://www.nngroup.com/articles/progress-indicators/
+NN/g Response Times: https://www.nngroup.com/articles/website-response-times/
+Cloudscape Multipage create: https://cloudscape.design/patterns/resource-management/create/multi-page-create/
+Cloudscape Service dashboard: https://cloudscape.design/patterns/general/service-dashboard/
+Cloudscape Split view: https://cloudscape.design/patterns/resource-management/view/split-view/
+Cloudscape Secondary panels: https://cloudscape.design/patterns/general/secondary-panels/
+GOV.UK Question pages: https://design-system.service.gov.uk/patterns/question-pages
+GOV.UK Form structure: https://www.gov.uk/service-manual/design/form-structure
+WCAG 2.2 Target size: https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html
+WCAG 2.2 Focus visible: https://www.w3.org/WAI/WCAG22/Understanding/focus-visible.html
+WCAG 2.2 Contrast: https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html
+AWS Console usability updates (2023-09-19): https://aws.amazon.com/about-aws/whats-new/2023/09/aws-management-console-usability-navigation-bar/
+AWS Console favorites docs: https://docs.aws.amazon.com/awsconsolehelpdocs/latest/gsg/access-fave.html
+Lucidscale: https://lucid.co/lucidscale
+Cloudcraft: https://www.cloudcraft.co/
+원하면 다음 단계로, 이 계획을 바로 화면별 와이어프레임(텍스트) + 개발 티켓(우선순위/난이도/완료조건)까지 쪼개서 드리겠습니다.

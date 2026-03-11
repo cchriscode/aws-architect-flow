@@ -50,6 +50,13 @@ export interface Dict {
     perMonth: string;
     wafrScore: (n: number) => string;
     deleteAllConfirm: string;
+    today: string;
+    yesterday: string;
+    thisWeek: string;
+    earlier: string;
+    undoDelete: string;
+    deleted: string;
+    deleteConfirm: string;
   };
   privacy: {
     title: string;
@@ -82,6 +89,13 @@ export interface Dict {
       code: string;
       codeCnt: (cnt: number) => string;
     };
+    tabGroups: {
+      overview: string;
+      risk: string;
+      cost: string;
+      implementation: string;
+    };
+    dismiss: string;
   };
   wizard: {
     prevBtn: string;
@@ -97,6 +111,8 @@ export interface Dict {
     recCostOpt: string;
     autoSelect: string;
     stepHint: string;
+    questionProgress: (answered: number, total: number) => string;
+    phaseList: string;
   };
   phases: {
     id: string;
@@ -134,6 +150,8 @@ export interface Dict {
   questionCard: {
     helpToggle: string;
     moreInfo: string;
+    showDetails: string;
+    hideDetails: string;
   };
   summaryView: {
     archOverview: string;
@@ -158,6 +176,10 @@ export interface Dict {
     minDevsBefore: string;
     minDevsAfter: string;
     rolloutRoadmap: string;
+    criticalRisks: string;
+    topImprovements: string;
+    nextAction: string;
+    viewTab: string;
   };
   stateSummary: {
     title: string;
@@ -332,6 +354,18 @@ export interface Dict {
     perMonth: string;
     services: string;
     monthlyCost: string;
+  };
+  confirm: {
+    cancel: string;
+    confirm: string;
+    delete: string;
+    resetTitle: string;
+    resetDesc: string;
+    deleteAllTitle: string;
+    deleteAllDesc: string;
+    importError: string;
+    deleteDesignTitle: string;
+    deleteDesignDesc: string;
   };
   errorBoundary: {
     title: string;

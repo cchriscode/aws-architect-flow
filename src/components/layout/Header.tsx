@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getHistoryCount } from "@/lib/history";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { useDict, useLang } from "@/lib/i18n/context";
+import { ClipboardList } from "lucide-react";
 
 interface HeaderProps {
   onLoginClick?: () => void;
@@ -35,6 +36,7 @@ export function Header({ onLoginClick }: HeaderProps) {
           href="/history"
           className="ml-2 hidden items-center gap-1 rounded-lg border-[1.5px] border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 md:flex"
         >
+          <ClipboardList className="h-3.5 w-3.5 text-gray-500" />
           {t.header.historyLink}
           {historyCount > 0 && (
             <span className="rounded-full bg-indigo-600 px-1.5 py-px text-[10px] font-bold text-white">

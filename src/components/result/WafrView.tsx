@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import type { WizardState, WafrItem } from "@/lib/types";
 import { wellArchitectedScore } from "@/lib/wafr";
 import { useDict, useLang } from "@/lib/i18n/context";
+import { PILLAR_COLORS, scoreColor } from "@/lib/shared/colors";
 
 interface WafrViewProps {
   state: WizardState;
@@ -18,22 +19,6 @@ const pillarIcons: Record<string, string> = {
   cost: "\uD83D\uDCB0",
   sus: "\uD83C\uDF31",
 };
-
-const pillarColors: Record<string, string> = {
-  ops: "#6366f1",
-  sec: "#dc2626",
-  rel: "#d97706",
-  perf: "#0891b2",
-  cost: "#059669",
-  sus: "#7c3aed",
-};
-
-function scoreColor(s: number) {
-  if (s >= 80) return "#059669";
-  if (s >= 60) return "#d97706";
-  if (s >= 40) return "#ca8a04";
-  return "#dc2626";
-}
 
 function itemColor(item: WafrItem) {
   if (item.earnedPts >= item.maxPts) return "#059669";
@@ -127,7 +112,7 @@ export function WafrView({ state }: WafrViewProps) {
                 ].map((b) => (
                   <span
                     key={b.t}
-                    className="rounded px-1.5 py-px text-[10px] font-semibold"
+                    className="rounded px-1.5 py-px text-xs font-semibold"
                     style={{
                       background: b.c + "20",
                       color: b.c,
@@ -141,21 +126,36 @@ export function WafrView({ state }: WafrViewProps) {
           </div>
           <button
             onClick={exportWA}
-            className="rounded-lg border-[1.5px] border-gray-200 bg-white px-3.5 py-[7px] text-[11px] font-semibold text-gray-700"
+            className="rounded-lg border-[1.5px] border-gray-200 bg-white px-3.5 py-[7px] text-xs font-semibold text-gray-700"
           >
             {t.wafrView.exportJson}
           </button>
         </div>
 
-        {/* Pillar tabs */}
-        <div className="mb-3 flex flex-wrap gap-1.5">
+        {/* Mobile-only: compact pillar scores bar */}
+        <div className="mb-3 flex items-center gap-2 overflow-x-auto rounded-xl border border-gray-200 bg-white px-3 py-2.5 md:hidden">
+          {pillars.map((p) => (
+            <div key={p.id} className="flex shrink-0 items-center gap-1">
+              <span className="text-xs">{pillarIcons[p.id]}</span>
+              <span
+                className="text-xs font-bold tabular-nums"
+                style={{ color: scoreColor(wa.pillars[p.id].score) }}
+              >
+                {wa.pillars[p.id].score}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Pillar tabs — horizontal scrollable chips on mobile */}
+        <div className="mb-3 flex flex-nowrap gap-1.5 overflow-x-auto scrollbar-hide md:flex-wrap md:overflow-x-visible">
           {pillars.map((p) => {
-            const color = pillarColors[p.id];
+            const color = PILLAR_COLORS[p.id];
             return (
               <button
                 key={p.id}
                 onClick={() => setActivePillar(p.id)}
-                className="rounded-lg border-[1.5px] px-3.5 py-[7px] text-[11px] font-semibold"
+                className="shrink-0 rounded-lg border-[1.5px] px-3.5 py-[7px] text-xs font-semibold"
                 style={{
                   background: activePillar === p.id ? color : "#fff",
                   color: activePillar === p.id ? "#fff" : color,
@@ -187,7 +187,7 @@ export function WafrView({ state }: WafrViewProps) {
                 {earnedTotal}/{maxTotal}{t.wafrView.pts}
               </span>
               <span
-                className="rounded px-1.5 py-px text-[10px] font-bold"
+                className="rounded px-1.5 py-px text-xs font-bold"
                 style={{
                   background: scoreColor(wa.pillars[activePillar].score) + "18",
                   color: scoreColor(wa.pillars[activePillar].score),
@@ -202,7 +202,7 @@ export function WafrView({ state }: WafrViewProps) {
               className="h-full rounded-md transition-[width] duration-400"
               style={{
                 width: `${maxTotal > 0 ? Math.round((earnedTotal / maxTotal) * 100) : 0}%`,
-                background: pillarColors[activePillar],
+                background: PILLAR_COLORS[activePillar],
               }}
             />
           </div>
@@ -241,7 +241,7 @@ export function WafrView({ state }: WafrViewProps) {
                     {item.q}
                   </span>
                   {item.rec && (
-                    <div className="mt-0.5 text-[11px] text-gray-400">
+                    <div className="mt-0.5 text-xs text-gray-400">
                       {"\u21B3"} {item.rec}
                       {gain > 0 && (
                         <span
@@ -256,7 +256,7 @@ export function WafrView({ state }: WafrViewProps) {
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-0.5">
                   <span
-                    className="text-[11px] font-bold tabular-nums"
+                    className="text-xs font-bold tabular-nums"
                     style={{ color }}
                   >
                     {item.earnedPts}/{item.maxPts}
@@ -287,7 +287,7 @@ export function WafrView({ state }: WafrViewProps) {
                 {recsItems.map((item, i) => (
                   <div
                     key={i}
-                    className="flex gap-1.5 py-0.5 text-[11px] text-yellow-800"
+                    className="flex gap-1.5 py-0.5 text-xs text-yellow-800"
                   >
                     <span>{"\u2192"}</span>
                     <span>
@@ -306,8 +306,8 @@ export function WafrView({ state }: WafrViewProps) {
         </div>
       </div>
 
-      {/* Sidebar */}
-      <div>
+      {/* Sidebar — hidden on mobile */}
+      <div className="hidden md:block">
         <div className="rounded-xl border border-gray-200 bg-white p-3.5">
           <div className="mb-2.5 text-xs font-bold text-gray-700">
             {t.wafrView.pillarScores}
@@ -315,11 +315,11 @@ export function WafrView({ state }: WafrViewProps) {
           {pillars.map((p) => (
             <div key={p.id} className="mb-2.5">
               <div className="mb-0.5 flex justify-between">
-                <span className="text-[11px] text-gray-700">
+                <span className="text-xs text-gray-700">
                   {pillarIcons[p.id]} {p.label}
                 </span>
                 <span
-                  className="text-[11px] font-bold"
+                  className="text-xs font-bold"
                   style={{ color: scoreColor(wa.pillars[p.id].score) }}
                 >
                   {wa.pillars[p.id].score}{t.wafrView.pts}
@@ -330,7 +330,7 @@ export function WafrView({ state }: WafrViewProps) {
                   className="h-full rounded"
                   style={{
                     width: `${wa.pillars[p.id].score}%`,
-                    background: pillarColors[p.id],
+                    background: PILLAR_COLORS[p.id],
                   }}
                 />
               </div>
@@ -358,12 +358,12 @@ export function WafrView({ state }: WafrViewProps) {
                 />
                 <div className="flex-1">
                   <span
-                    className="text-[11px] font-semibold"
+                    className="text-xs font-semibold"
                     style={{ color }}
                   >
                     {g.grade}{" "}
                   </span>
-                  <span className="text-[10px] text-gray-400">
+                  <span className="text-xs text-gray-400">
                     {g.range}{t.wafrView.pts}
                   </span>
                 </div>

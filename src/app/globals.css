@@ -116,6 +116,8 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Typography scale: xs(11px), sm(13px), base(15px), lg(18px), xl(22px) */
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

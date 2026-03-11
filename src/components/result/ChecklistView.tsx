@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import type { WizardState } from "@/lib/types";
 import { generateChecklist } from "@/lib/checklist";
 import { useDict, useLang } from "@/lib/i18n/context";
+import { CheckCircle2, AlertCircle } from "lucide-react";
 
 interface ChecklistViewProps {
   state: WizardState;
@@ -95,35 +96,58 @@ export function ChecklistView({ state }: ChecklistViewProps) {
               }}
             />
           </div>
-          <div className="text-[11px] text-gray-400">
+          <div className="text-xs text-gray-400">
             {doneCount} / {totalItems} {t.checklistView.completed} {"\u00B7"} {t.checklistView.criticalItems(criticalItems)}
           </div>
         </div>
 
-        {/* Filter */}
+        {/* Filter — horizontal chips on mobile, vertical list on desktop */}
         <div className="mb-3 rounded-xl border border-gray-200 bg-white p-2.5">
-          {[
-            { id: "all" as const, label: t.checklistView.viewAll },
-            { id: "critical" as const, label: t.checklistView.criticalOnly },
-            { id: "todo" as const, label: t.checklistView.todoOnly },
-          ].map((f) => (
-            <button
-              key={f.id}
-              onClick={() => setFilterMode(f.id)}
-              className={cn(
-                "mb-0.5 w-full rounded-md px-2.5 py-[7px] text-left text-xs",
-                filterMode === f.id
-                  ? "bg-indigo-50 font-bold text-indigo-600"
-                  : "bg-transparent font-normal text-gray-700"
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
+          <div className="flex gap-1.5 md:flex-col md:gap-0">
+            {[
+              { id: "all" as const, label: t.checklistView.viewAll },
+              { id: "critical" as const, label: t.checklistView.criticalOnly },
+              { id: "todo" as const, label: t.checklistView.todoOnly },
+            ].map((f) => (
+              <button
+                key={f.id}
+                onClick={() => setFilterMode(f.id)}
+                className={cn(
+                  "rounded-md px-2.5 py-[7px] text-xs md:mb-0.5 md:w-full md:text-left",
+                  filterMode === f.id
+                    ? "bg-indigo-50 font-bold text-indigo-600"
+                    : "bg-transparent font-normal text-gray-700"
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Phase list */}
-        <div className="flex overflow-x-auto gap-1.5 md:flex-col md:overflow-x-visible md:gap-0 overflow-hidden rounded-xl border border-gray-200 bg-white">
+        {/* Phase list — mobile: horizontal scrollable select, desktop: vertical list */}
+        {/* Mobile phase selector */}
+        <div className="mb-3 md:hidden">
+          <select
+            value={expandedPhase}
+            onChange={(e) => setExpandedPhase(e.target.value)}
+            className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-xs font-bold text-gray-700"
+          >
+            {phases.map((phase) => {
+              const phaseDone = phase.items.filter(
+                (i: any) => checked[i.id]
+              ).length;
+              return (
+                <option key={phase.phase} value={phase.phase}>
+                  {phase.icon} {phase.phase}: {phase.label} ({phaseDone}/{phase.items.length})
+                </option>
+              );
+            })}
+          </select>
+        </div>
+
+        {/* Desktop phase list */}
+        <div className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white md:block">
           {phases.map((phase) => {
             const phaseDone = phase.items.filter(
               (i: any) => checked[i.id]
@@ -144,19 +168,19 @@ export function ChecklistView({ state }: ChecklistViewProps) {
                   <span className="text-sm">{phase.icon}</span>
                   <div className="min-w-0 flex-1">
                     <div
-                      className="truncate text-[11px] font-bold"
+                      className="truncate text-xs font-bold"
                       style={{
                         color: isActive ? "#4f46e5" : col,
                       }}
                     >
                       {phase.phase}
                     </div>
-                    <div className="truncate text-[10px] text-gray-400">
+                    <div className="truncate text-xs text-gray-400">
                       {phase.label}
                     </div>
                   </div>
                   <span
-                    className="shrink-0 text-[11px] font-semibold"
+                    className="shrink-0 text-xs font-semibold"
                     style={{ color: col }}
                   >
                     {phaseDone}/{total}
@@ -202,8 +226,8 @@ export function ChecklistView({ state }: ChecklistViewProps) {
                         {phaseDone}/{phase.items.length} {t.checklistView.completed}
                         {phase.items.filter((i: any) => i.critical).length >
                           0 && (
-                          <span className="ml-2 font-semibold text-red-600">
-                            {"\u2757"}
+                          <span className="ml-2 inline-flex items-center gap-0.5 font-semibold text-red-600">
+                            <AlertCircle className="inline h-3.5 w-3.5" />
                             {
                               phase.items.filter((i: any) => i.critical)
                                 .length
@@ -215,7 +239,7 @@ export function ChecklistView({ state }: ChecklistViewProps) {
                     </div>
                     <button
                       onClick={() => resetPhase(phase.phase)}
-                      className="rounded-md border border-gray-200 bg-transparent px-2.5 py-1 text-[11px] text-gray-400"
+                      className="rounded-md border border-gray-200 bg-transparent px-2.5 py-1 text-xs text-gray-400"
                     >
                       {t.checklistView.reset}
                     </button>
@@ -239,7 +263,7 @@ export function ChecklistView({ state }: ChecklistViewProps) {
                 </div>
 
                 {filtered.length === 0 ? (
-                  <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-[13px] text-gray-400">
+                  <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-400">
                     {filterMode === "critical"
                       ? t.checklistView.noCritical
                       : t.checklistView.allDone}
@@ -274,7 +298,7 @@ export function ChecklistView({ state }: ChecklistViewProps) {
                           }}
                         >
                           {checked[item.id] && (
-                            <span className="text-[13px] font-bold text-white">
+                            <span className="text-sm font-bold text-white">
                               {"\u2713"}
                             </span>
                           )}
@@ -282,13 +306,14 @@ export function ChecklistView({ state }: ChecklistViewProps) {
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             {item.critical && !checked[item.id] && (
-                              <span className="shrink-0 rounded border border-red-300 bg-red-50 px-1.5 py-px text-[10px] font-bold text-red-600">
+                              <span className="inline-flex shrink-0 items-center gap-0.5 rounded border border-red-300 bg-red-50 px-1.5 py-px text-xs font-bold text-red-600">
+                                <AlertCircle className="h-3 w-3" />
                                 {t.checklistView.critical}
                               </span>
                             )}
                             <span
                               className={cn(
-                                "text-[13px]",
+                                "text-sm",
                                 checked[item.id]
                                   ? "font-normal text-gray-400 line-through"
                                   : "font-semibold text-gray-900"
@@ -308,7 +333,7 @@ export function ChecklistView({ state }: ChecklistViewProps) {
                   ))
                 )}
 
-                {/* Phase complete → next */}
+                {/* Phase complete -> next */}
                 {phaseDone === phase.items.length &&
                   phase.items.length > 0 &&
                   (() => {
@@ -320,20 +345,20 @@ export function ChecklistView({ state }: ChecklistViewProps) {
                       <div className="mt-4 text-center">
                         <button
                           onClick={() => setExpandedPhase(next.phase)}
-                          className="rounded-lg bg-indigo-600 px-6 py-2.5 text-[13px] font-semibold text-white"
+                          className="rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white"
                         >
                           {next.icon} {t.checklistView.moveToPhase(next.phase)}
                         </button>
                       </div>
                     ) : (
                       <div className="mt-4 rounded-xl border-[1.5px] border-emerald-200 bg-emerald-50 p-5 text-center">
-                        <div className="mb-2 text-[32px]">
-                          {"\uD83C\uDF89"}
+                        <div className="mb-2">
+                          <CheckCircle2 className="mx-auto h-8 w-8 text-emerald-500" />
                         </div>
                         <div className="text-base font-bold text-emerald-600">
                           {t.checklistView.allPhasesComplete}
                         </div>
-                        <div className="mt-1 text-[13px] text-gray-500">
+                        <div className="mt-1 text-sm text-gray-500">
                           {t.checklistView.allPhasesDoneDesc}
                         </div>
                       </div>
