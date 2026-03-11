@@ -301,8 +301,8 @@ function SRow({ svcs }: { svcs: ArchService[] }) {
   if (!svcs || !svcs.length) return null;
   return (
     <div className="flex flex-wrap items-start gap-2 p-2.5 px-3">
-      {svcs.map((s, i) => (
-        <SCard key={i} svc={s} />
+      {svcs.map((s) => (
+        <SCard key={s.name} svc={s} />
       ))}
     </div>
   );
@@ -415,6 +415,7 @@ function DrawioPreview({ xml }: { xml: string }) {
   return (
     <iframe
       srcDoc={srcdoc}
+      sandbox="allow-scripts"
       style={{ height: "calc(100vh - 200px)" }}
       className="w-full min-h-[400px] rounded-lg border border-gray-200 bg-gray-50 md:min-h-[700px]"
       title="Architecture Diagram"
@@ -456,8 +457,10 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
         if (msg.event === "init") {
           win.postMessage(JSON.stringify({ action: "load", xml: diagramXml }), "*");
         }
-        if (msg.event === "exit") window.removeEventListener("message", onMsg);
-      } catch (e) { /* non-JSON message, expected from other origins */ }
+        if (msg.event === "exit" || msg.event === "save") {
+          window.removeEventListener("message", onMsg);
+        }
+      } catch { /* non-JSON message from other origins */ }
     };
     window.addEventListener("message", onMsg);
   };
@@ -547,8 +550,8 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
               <span className="mr-1 text-[10px] font-bold text-gray-700">
                 {td.accountOrg}
               </span>
-              {z.account.map((s, i) => (
-                <SCard key={i} svc={s} />
+              {z.account.map((s) => (
+                <SCard key={s.name} svc={s} />
               ))}
             </div>
           )}
@@ -563,8 +566,8 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
                   <span className="mr-1 self-center text-[9px] font-bold text-gray-400">
                     {td.networkBasis}
                   </span>
-                  {z.networkExtras.map((s, i) => (
-                    <SCard key={i} svc={s} />
+                  {z.networkExtras.map((s) => (
+                    <SCard key={s.name} svc={s} />
                   ))}
                 </div>
               )}
