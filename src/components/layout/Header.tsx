@@ -6,7 +6,11 @@ import { getHistoryCount } from "@/lib/history";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { useDict, useLang } from "@/lib/i18n/context";
 
-export function Header() {
+interface HeaderProps {
+  onLoginClick?: () => void;
+}
+
+export function Header({ onLoginClick }: HeaderProps) {
   const t = useDict();
   const { lang, setLang } = useLang();
   const [historyCount, setHistoryCount] = useState(0);
@@ -69,7 +73,7 @@ export function Header() {
             EN
           </button>
         </div>
-        <UserMenu />
+        <UserMenu onLoginClick={onLoginClick} />
       </div>
     </div>
   );

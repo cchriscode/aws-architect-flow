@@ -37,10 +37,10 @@ export function HeroSection({ onStart }: HeroSectionProps) {
   }, [exampleState, lang]);
 
   const tabLabels: Record<DemoTab, string> = {
-    summary: lang === "ko" ? "요약" : "Summary",
-    diagram: lang === "ko" ? "아키텍처 다이어그램" : "Architecture Diagram",
-    cost: lang === "ko" ? `비용 $${cost.totalMid.toLocaleString()}` : `Cost $${cost.totalMid.toLocaleString()}`,
-    wafr: `WAFR ${wafr.overall}pts`,
+    summary: t.hero.tabSummary,
+    diagram: t.hero.tabDiagram,
+    cost: t.hero.tabCost(cost.totalMid.toLocaleString()),
+    wafr: `${t.hero.tabWafr} ${wafr.overall}pts`,
   };
 
   return (
@@ -82,46 +82,38 @@ export function HeroSection({ onStart }: HeroSectionProps) {
         <div className="mx-auto max-w-[1400px]">
           <div className="mb-6 text-center">
             <div className="mb-1 text-[11px] font-semibold uppercase tracking-widest text-indigo-500">
-              {lang === "ko" ? "예시 결과" : "Example Output"}
+              {t.hero.exampleLabel}
             </div>
             <h2 className="text-lg font-bold text-gray-900 md:text-xl">
               {summary.headline}
             </h2>
             <p className="mt-1 text-xs text-gray-400">
-              {lang === "ko"
-                ? "이커머스 MVP 템플릿으로 생성된 실제 결과입니다"
-                : "Real output generated from the E-commerce MVP template"}
+              {t.hero.exampleDesc}
             </p>
           </div>
 
           {/* Stats bar */}
           <div className="mx-auto mb-6 flex max-w-xl justify-center gap-3">
             <div className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-center">
-              <div className="text-[10px] text-gray-400">
-                {lang === "ko" ? "월간 비용" : "Monthly Cost"}
-              </div>
+              <div className="text-[10px] text-gray-400">{t.hero.statCost}</div>
               <div className="text-sm font-bold text-emerald-600">
                 ${cost.totalMid.toLocaleString()}
               </div>
             </div>
             <div className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-center">
-              <div className="text-[10px] text-gray-400">WAFR</div>
+              <div className="text-[10px] text-gray-400">{t.hero.statWafr}</div>
               <div className="text-sm font-bold text-violet-600">
                 {wafr.overall}pts
               </div>
             </div>
             <div className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-center">
-              <div className="text-[10px] text-gray-400">
-                {lang === "ko" ? "서비스" : "Services"}
-              </div>
+              <div className="text-[10px] text-gray-400">{t.hero.statServices}</div>
               <div className="text-sm font-bold text-blue-600">
                 {arch.layers.reduce((s, l) => s + l.services.length, 0)}
               </div>
             </div>
             <div className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-center">
-              <div className="text-[10px] text-gray-400">
-                {lang === "ko" ? "가용성" : "Availability"}
-              </div>
+              <div className="text-[10px] text-gray-400">{t.hero.statAvailability}</div>
               <div className="text-sm font-bold text-blue-600">
                 {summary.stats.availability}%
               </div>

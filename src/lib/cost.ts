@@ -364,7 +364,7 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
   const authArr  = toArray(state.integration?.auth);
 
   const isEks       = orchest === "eks";
-  const isEcs       = !isEks && archP !== "serverless";
+  const isEcs       = !isEks && archP === "container";
   const isServerless= archP === "serverless";
   const isLarge     = dau === "large" || dau === "xlarge";
   const isXL        = dau === "xlarge";
@@ -563,7 +563,7 @@ export function estimateMonthlyCost(state: WizardState, lang: Lang = "ko"): Cost
   if (queueArr.includes("eventbridge")) {
     I(t.messaging, t.eventbridge, t.eventbridgeDesc, 0, isXL ? 30 : 10);
   }
-  if (types.includes("data") && state.workload?.data_detail === "stream_analytics") {
+  if ((types.includes("data") && state.workload?.data_detail === "stream_analytics") || queueArr.includes("kinesis")) {
     I(t.messaging, "Kinesis Data Firehose", lang === "ko" ? "$0.029/GB 수집 기준" : "$0.029/GB ingestion based", 30, isXL ? 150 : isLarge ? 80 : 40);
   }
   if (queueArr.includes("msk")) {

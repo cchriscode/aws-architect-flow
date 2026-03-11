@@ -47,13 +47,13 @@ export function SummaryView({ state, arch }: SummaryViewProps) {
           color="text-violet-600"
         />
         <StatBox
-          label={lang === "ko" ? "검증 결과" : "Validation"}
+          label={t.summaryView.validation}
           value={
             summary.stats.errors > 0
-              ? `❗${summary.stats.errors} ${lang === "ko" ? "오류" : "errors"}`
+              ? t.summaryView.validationErrors(summary.stats.errors)
               : summary.stats.warnings > 0
-                ? `⚠️${summary.stats.warnings} ${lang === "ko" ? "주의" : "warnings"}`
-                : `✅ ${lang === "ko" ? "통과" : "Pass"}`
+                ? t.summaryView.validationWarnings(summary.stats.warnings)
+                : t.summaryView.validationPass
           }
           color={
             summary.stats.errors > 0
@@ -66,7 +66,7 @@ export function SummaryView({ state, arch }: SummaryViewProps) {
       </div>
 
       {/* Complexity Meter */}
-      <ComplexityMeter complexity={summary.complexity} lang={lang} />
+      <ComplexityMeter complexity={summary.complexity} />
 
       {/* Key Services */}
       <div className="rounded-xl border border-gray-200 bg-white p-5">
@@ -96,15 +96,15 @@ export function SummaryView({ state, arch }: SummaryViewProps) {
       </div>
 
       {/* Team Requirements */}
-      <TeamSection teamReqs={summary.teamReqs} lang={lang} />
+      <TeamSection teamReqs={summary.teamReqs} />
 
       {/* Rollout Roadmap */}
-      <RolloutSection rollout={summary.rolloutPath} lang={lang} />
+      <RolloutSection rollout={summary.rolloutPath} />
 
       {/* Next Steps */}
       <div className="rounded-xl border border-gray-200 bg-white p-5">
         <div className="mb-3 text-sm font-bold text-gray-900">
-          {"📋"} {lang === "ko" ? "다음 할 일" : "Next Steps"}
+          {t.summaryView.nextSteps}
         </div>
         <ol className="space-y-1.5">
           {summary.nextSteps.map((step, i) => (
@@ -125,7 +125,7 @@ export function SummaryView({ state, arch }: SummaryViewProps) {
       {summary.warnings.length > 0 && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-5">
           <div className="mb-2 text-sm font-bold text-red-600">
-            {"⚠️"} {lang === "ko" ? "주의사항" : "Warnings"}
+            {t.summaryView.warningsTitle}
           </div>
           <ul className="space-y-1">
             {summary.warnings.map((w, i) => (
@@ -161,11 +161,10 @@ function StatBox({
 
 function ComplexityMeter({
   complexity,
-  lang,
 }: {
   complexity: ArchSummary["complexity"];
-  lang: string;
 }) {
+  const t = useDict();
   const pct = (complexity.score / 10) * 100;
   const barColor =
     complexity.score <= 3
@@ -188,7 +187,7 @@ function ComplexityMeter({
     <div className="rounded-xl border border-gray-200 bg-white p-5">
       <div className="mb-2 flex items-center justify-between">
         <span className="text-sm font-bold text-gray-900">
-          {"📊"} {lang === "ko" ? "복잡도" : "Complexity"}
+          {t.summaryView.complexity}
         </span>
         <span
           className={cn(
@@ -223,21 +222,17 @@ function ComplexityMeter({
 
 function TeamSection({
   teamReqs,
-  lang,
 }: {
   teamReqs: ArchSummary["teamReqs"];
-  lang: string;
 }) {
+  const t = useDict();
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5">
       <div className="mb-3 text-sm font-bold text-gray-900">
-        {"👥"} {lang === "ko" ? "필요 팀 구성" : "Required Team"}
+        {t.summaryView.requiredTeam}
       </div>
       <div className="mb-2 text-xs text-gray-700">
-        {lang === "ko"
-          ? <>최소 <span className="font-bold text-indigo-600">{teamReqs.minDevs}명</span> 권장</>
-          : <>Min. <span className="font-bold text-indigo-600">{teamReqs.minDevs}</span> recommended</>
-        }
+        {t.summaryView.minDevsBefore}<span className="font-bold text-indigo-600">{teamReqs.minDevs}</span>{t.summaryView.minDevsAfter}
       </div>
       <div className="mb-2 flex flex-wrap gap-1">
         {teamReqs.roles.map((r, i) => (
@@ -265,15 +260,14 @@ function TeamSection({
 
 function RolloutSection({
   rollout,
-  lang,
 }: {
   rollout: ArchSummary["rolloutPath"];
-  lang: string;
 }) {
+  const t = useDict();
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5">
       <div className="mb-3 text-sm font-bold text-gray-900">
-        {"📅"} {lang === "ko" ? "단계별 구축 로드맵" : "Rollout Roadmap"}
+        {t.summaryView.rolloutRoadmap}
       </div>
       <div className="space-y-3">
         {rollout.map((step, i) => (

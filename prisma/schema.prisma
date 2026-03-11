@@ -50,7 +50,7 @@ model HistoryEntry {
   wafrScore       Float    @map("wafr_score")
   archPattern     String   @map("arch_pattern")
   workloadTypes   Json     @map("workload_types")
-  user            User     @relation("UserHistory", fields: [userId], references: [id])
+  user            User     @relation("UserHistory", fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@map("history_entries")

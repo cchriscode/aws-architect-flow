@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useDict, useLang } from "@/lib/i18n/context";
 import { Header } from "@/components/layout/Header";
+import { LoginModal } from "@/components/auth/LoginModal";
 import {
   GLOSSARY,
   GLOSSARY_GROUPS,
@@ -35,6 +36,7 @@ export default function GlossaryPage() {
   const [search, setSearch] = useState("");
   const [badgeFilter, setBadgeFilter] = useState<BadgeFilter>("all");
   const [view, setView] = useState<"list" | "city">("list");
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -72,7 +74,8 @@ export default function GlossaryPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header onLoginClick={() => setShowLoginModal(true)} />
+      {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
 
       <div className="mx-auto max-w-[900px] px-7 py-6">
         {/* Title */}
@@ -115,6 +118,7 @@ export default function GlossaryPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t.glossary.searchPlaceholder}
+                aria-label={t.glossary.searchPlaceholder}
                 className="w-full rounded-lg border-[1.5px] border-gray-200 bg-white py-2.5 pl-9 pr-3 text-sm outline-none transition-colors focus:border-indigo-400"
               />
             </div>

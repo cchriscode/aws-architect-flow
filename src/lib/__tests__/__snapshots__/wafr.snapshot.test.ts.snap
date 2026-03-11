@@ -1206,7 +1206,7 @@ exports[`wellArchitectedScore snapshots > compliance (ko) 1`] = `
 
 exports[`wellArchitectedScore snapshots > data_pipeline (en) 1`] = `
 {
-  "overall": 75,
+  "overall": 74,
   "pillars": {
     "cost": {
       "items": [
@@ -1265,9 +1265,10 @@ exports[`wellArchitectedScore snapshots > data_pipeline (en) 1`] = `
           "rec": "Strengthen rollback capabilities with Blue/Green or Canary deployments",
         },
         {
-          "earnedPts": 15,
+          "earnedPts": 8,
           "maxPts": 15,
           "q": "Do you have sufficient environment separation (Dev/Stage/Prod)?",
+          "rec": "Add a Stage environment to validate before production deployments",
         },
         {
           "earnedPts": 14,
@@ -1292,7 +1293,7 @@ exports[`wellArchitectedScore snapshots > data_pipeline (en) 1`] = `
           "rec": "Enable CloudTrail across all regions to capture API call audit trails",
         },
       ],
-      "score": 90,
+      "score": 84,
     },
     "perf": {
       "items": [
@@ -1468,7 +1469,7 @@ exports[`wellArchitectedScore snapshots > data_pipeline (en) 1`] = `
 
 exports[`wellArchitectedScore snapshots > data_pipeline (ko) 1`] = `
 {
-  "overall": 75,
+  "overall": 74,
   "pillars": {
     "cost": {
       "items": [
@@ -1527,9 +1528,10 @@ exports[`wellArchitectedScore snapshots > data_pipeline (ko) 1`] = `
           "rec": "Blue/Green 또는 Canary 배포로 롤백 능력을 강화하세요",
         },
         {
-          "earnedPts": 15,
+          "earnedPts": 8,
           "maxPts": 15,
           "q": "충분한 환경 분리(Dev/Stage/Prod)가 되어 있습니까?",
+          "rec": "Stage 환경 추가로 프로덕션 배포 전 검증하세요",
         },
         {
           "earnedPts": 14,
@@ -1554,7 +1556,7 @@ exports[`wellArchitectedScore snapshots > data_pipeline (ko) 1`] = `
           "rec": "CloudTrail 전 리전 활성화로 API 호출 감사 이력을 확보하세요",
         },
       ],
-      "score": 90,
+      "score": 84,
     },
     "perf": {
       "items": [
@@ -2934,7 +2936,7 @@ exports[`wellArchitectedScore snapshots > eks_full (ko) 1`] = `
 
 exports[`wellArchitectedScore snapshots > generic_web_api (en) 1`] = `
 {
-  "overall": 70,
+  "overall": 68,
   "pillars": {
     "cost": {
       "items": [
@@ -2995,9 +2997,10 @@ exports[`wellArchitectedScore snapshots > generic_web_api (en) 1`] = `
           "rec": "Strengthen rollback capabilities with Blue/Green or Canary deployments",
         },
         {
-          "earnedPts": 15,
+          "earnedPts": 8,
           "maxPts": 15,
           "q": "Do you have sufficient environment separation (Dev/Stage/Prod)?",
+          "rec": "Add a Stage environment to validate before production deployments",
         },
         {
           "earnedPts": 12,
@@ -3022,7 +3025,7 @@ exports[`wellArchitectedScore snapshots > generic_web_api (en) 1`] = `
           "rec": "Enable CloudTrail across all regions to capture API call audit trails",
         },
       ],
-      "score": 89,
+      "score": 82,
     },
     "perf": {
       "items": [
@@ -3244,7 +3247,7 @@ exports[`wellArchitectedScore snapshots > generic_web_api (en) 1`] = `
 
 exports[`wellArchitectedScore snapshots > generic_web_api (ko) 1`] = `
 {
-  "overall": 70,
+  "overall": 68,
   "pillars": {
     "cost": {
       "items": [
@@ -3305,9 +3308,10 @@ exports[`wellArchitectedScore snapshots > generic_web_api (ko) 1`] = `
           "rec": "Blue/Green 또는 Canary 배포로 롤백 능력을 강화하세요",
         },
         {
-          "earnedPts": 15,
+          "earnedPts": 8,
           "maxPts": 15,
           "q": "충분한 환경 분리(Dev/Stage/Prod)가 되어 있습니까?",
+          "rec": "Stage 환경 추가로 프로덕션 배포 전 검증하세요",
         },
         {
           "earnedPts": 12,
@@ -3332,7 +3336,7 @@ exports[`wellArchitectedScore snapshots > generic_web_api (ko) 1`] = `
           "rec": "CloudTrail 전 리전 활성화로 API 호출 감사 이력을 확보하세요",
         },
       ],
-      "score": 89,
+      "score": 82,
     },
     "perf": {
       "items": [
@@ -3554,7 +3558,7 @@ exports[`wellArchitectedScore snapshots > generic_web_api (ko) 1`] = `
 
 exports[`wellArchitectedScore snapshots > internal_tool (en) 1`] = `
 {
-  "overall": 61,
+  "overall": 62,
   "pillars": {
     "cost": {
       "items": [
@@ -3704,6 +3708,11 @@ exports[`wellArchitectedScore snapshots > internal_tool (en) 1`] = `
           "q": "AWS Backup is integrated by default",
         },
         {
+          "earnedPts": 5,
+          "maxPts": 5,
+          "q": "DynamoDB built-in 3-AZ replication enhances reliability",
+        },
+        {
           "earnedPts": 8,
           "maxPts": 8,
           "q": "Is Auto Scaling configured?",
@@ -3720,7 +3729,7 @@ exports[`wellArchitectedScore snapshots > internal_tool (en) 1`] = `
           "rec": "Ensure immediate rollback capability with Blue/Green or Canary deployments",
         },
       ],
-      "score": 43,
+      "score": 46,
     },
     "sec": {
       "items": [
@@ -3816,7 +3825,7 @@ exports[`wellArchitectedScore snapshots > internal_tool (en) 1`] = `
 
 exports[`wellArchitectedScore snapshots > internal_tool (ko) 1`] = `
 {
-  "overall": 61,
+  "overall": 62,
   "pillars": {
     "cost": {
       "items": [
@@ -3966,6 +3975,11 @@ exports[`wellArchitectedScore snapshots > internal_tool (ko) 1`] = `
           "q": "AWS Backup이 기본 통합됩니다",
         },
         {
+          "earnedPts": 5,
+          "maxPts": 5,
+          "q": "DynamoDB 기본 3-AZ 복제가 안정성을 강화합니다",
+        },
+        {
           "earnedPts": 8,
           "maxPts": 8,
           "q": "Auto Scaling이 설정되어 있습니까?",
@@ -3982,7 +3996,7 @@ exports[`wellArchitectedScore snapshots > internal_tool (ko) 1`] = `
           "rec": "Blue/Green 또는 Canary 배포로 장애 시 즉각 롤백 능력을 확보하세요",
         },
       ],
-      "score": 43,
+      "score": 46,
     },
     "sec": {
       "items": [

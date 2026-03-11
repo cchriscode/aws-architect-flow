@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { useSession, signIn } from "next-auth/react";
+import { useState, useMemo, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { LoginModal } from "@/components/auth/LoginModal";
 import { cn } from "@/lib/utils";
 import { useWizard } from "@/hooks/use-wizard";
 import { PHASES } from "@/data/phases";
@@ -61,6 +62,7 @@ export default function Home() {
     reset,
     importJSON,
     applyTemplate,
+    returnToResults,
   } = useWizard();
 
   const t = useDict();
@@ -72,13 +74,22 @@ export default function Home() {
   const [shareMsg, setShareMsg] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [heroVisible, setHeroVisible] = useState(() => {
-    try { return localStorage.getItem("archflow_hero_dismissed") !== "1"; } catch { return true; }
-  });
+  const [heroVisible, setHeroVisible] = useState(true);
+
+  // Read heroVisible from localStorage after hydration to avoid SSR/CSR mismatch
+  useEffect(() => {
+    try {
+      if (localStorage.getItem("archflow_hero_dismissed") === "1") setHeroVisible(false);
+    } catch { /* ignore */ }
+  }, []);
 
   const infoDb = useMemo(() => getInfoDb(lang), [lang]);
 
   async function handleShareURL() {
+    if (!session) {
+      setShowLoginModal(true);
+      return;
+    }
     try {
       const res = await fetch("/api/share", {
         method: "POST",
@@ -164,12 +175,26 @@ export default function Home() {
     return q.opts?.some((o) => allRecs[`${phase.id}.${q.id}.${o.v}`]);
   });
 
+  // Pre-compute guardrails for all questions in current phase
+  const allGuardrails = useMemo(() => {
+    const map: Record<string, Record<string, GuardrailWarning>> = {};
+    for (const q of questions) {
+      if (q.skip) continue;
+      const qg: Record<string, GuardrailWarning> = {};
+      for (const o of q.opts) {
+        const w = checkGuardrails(allPhaseState, phase.id, q.id, o.v);
+        if (w) qg[o.v] = w;
+      }
+      if (Object.keys(qg).length > 0) map[q.id] = qg;
+    }
+    return map;
+  }, [questions, allPhaseState, phase.id]);
+
   // Build result tab data
   const resultTabs = useMemo(() => {
     if (!showResult || !arch) return [];
-    const _issues = validateState(allPhaseState, lang);
-    const _errs = _issues.filter((i) => i.severity === "error").length;
-    const _warns = _issues.filter((i) => i.severity === "warn").length;
+    const _errs = liveIssues.filter((i) => i.severity === "error").length;
+    const _warns = liveIssues.filter((i) => i.severity === "warn").length;
     const _wa = wellArchitectedScore(allPhaseState, lang);
     const _cost = estimateMonthlyCost(allPhaseState, lang);
 
@@ -219,7 +244,16 @@ export default function Home() {
       },
       { id: "code", label: codeLabel },
     ];
-  }, [showResult, arch, allPhaseState, t, lang]);
+  }, [showResult, arch, allPhaseState, liveIssues, t, lang]);
+
+  // Build phase labels for ProgressBar / PhaseHeader from dictionary
+  const phasesWithLabels = useMemo(() =>
+    PHASES.map((p) => {
+      const d = phasesDict.find((pd) => pd.id === p.id);
+      return d ? { ...p, label: d.label, desc: d.desc, tip: d.tip } : p;
+    }),
+    [phasesDict]
+  );
 
   if (!hydrated) {
     return (
@@ -229,16 +263,10 @@ export default function Home() {
     );
   }
 
-  // Build phase labels for ProgressBar / PhaseHeader from dictionary
-  const phasesWithLabels = PHASES.map((p) => {
-    const d = phasesDict.find((pd) => pd.id === p.id);
-    return d ? { ...p, label: d.label, desc: d.desc, tip: d.tip } : p;
-  });
-
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
-      <Header />
+      <Header onLoginClick={() => setShowLoginModal(true)} />
 
       {/* Landing Hero — first visit, no saved data, not a share link */}
       {heroVisible && completedPhases.size === 0 && !showResult && (
@@ -302,7 +330,7 @@ export default function Home() {
               </div>
               {/* Reset */}
               <button
-                onClick={() => { reset(); setActiveTab("summary"); }}
+                onClick={() => { if (!window.confirm(t.header.resetConfirm)) return; reset(); setActiveTab("summary"); }}
                 className="rounded-md bg-gray-800 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-gray-900 md:py-1.5 md:text-[11px]"
               >
                 {t.header.resetAll}
@@ -349,27 +377,6 @@ export default function Home() {
               )}
             </div>
 
-            {/* Login modal */}
-            {showLoginModal && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                <div className="w-full max-w-xs rounded-xl bg-white p-6 text-center shadow-xl">
-                  <p className="mb-1 text-sm font-bold text-gray-900">{t.result.loginRequired}</p>
-                  <p className="mb-5 text-xs text-gray-500">{t.result.loginRequiredDesc}</p>
-                  <button
-                    onClick={() => { setShowLoginModal(false); signIn("google"); }}
-                    className="mb-2 w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
-                  >
-                    {t.result.googleLogin}
-                  </button>
-                  <button
-                    onClick={() => setShowLoginModal(false)}
-                    className="w-full rounded-lg px-4 py-2 text-sm text-gray-400 transition-colors hover:text-gray-600"
-                  >
-                    {t.result.close}
-                  </button>
-                </div>
-              </div>
-            )}
             {/* Tab toggle */}
             <div className="scrollbar-hide flex gap-1 overflow-x-auto rounded-[10px] bg-gray-100 p-1 md:flex-wrap">
               {resultTabs.map((tab) => (
@@ -594,14 +601,7 @@ export default function Home() {
                             v,
                           ])
                       )}
-                      guardrails={Object.fromEntries(
-                        q.opts
-                          .map((o) => {
-                            const w = checkGuardrails(allPhaseState, phase.id, q.id, o.v);
-                            return w ? [o.v, w] as [string, GuardrailWarning] : null;
-                          })
-                          .filter((x): x is [string, GuardrailWarning] => x !== null)
-                      )}
+                      guardrails={allGuardrails[q.id] || {}}
                     />
                   )
               )}
@@ -619,10 +619,10 @@ export default function Home() {
                   )}
                   <button
                     onClick={next}
-                    disabled={!isPhaseComplete()}
+                    disabled={!isPhaseComplete}
                     className={cn(
                       "flex-1 rounded-[10px] py-3 text-sm font-bold transition-all",
-                      isPhaseComplete()
+                      isPhaseComplete
                         ? "cursor-pointer bg-indigo-600 text-white"
                         : "cursor-not-allowed bg-gray-200 text-gray-400"
                     )}
@@ -636,10 +636,7 @@ export default function Home() {
                 {arch && completedPhases.size >= PHASES.filter(p => !p.skipPhase || !p.skipPhase(allPhaseState)).length && (
                   <button
                     onClick={() => {
-                      importJSON({
-                        state: allPhaseState,
-                        completedPhases: [...completedPhases],
-                      });
+                      returnToResults();
                       setActiveTab("summary");
                     }}
                     className="rounded-[10px] border-[1.5px] border-emerald-300 bg-emerald-50 py-2.5 text-[13px] font-semibold text-emerald-600 transition-colors hover:bg-emerald-100"
@@ -670,6 +667,13 @@ export default function Home() {
             />
           </SlidePanel>
         </div>
+      )}
+
+      {/* Login modal — rendered outside result/wizard conditional */}
+      {showLoginModal && (
+        <LoginModal
+          onClose={() => setShowLoginModal(false)}
+        />
       )}
 
       <InfoPanel

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import type { WizardState } from "@/lib/types";
 import { generateCodeSnippets } from "@/lib/code-snippets";
-import { useDict, useLang } from "@/lib/i18n/context";
+import { useDict } from "@/lib/i18n/context";
 
 interface CodeViewProps {
   state: WizardState;
@@ -19,8 +19,7 @@ const langColors: Record<string, string> = {
 
 export function CodeView({ state }: CodeViewProps) {
   const t = useDict();
-  const { lang } = useLang();
-  const allLabel = lang === "ko" ? "전체" : "All";
+  const allLabel = t.codeView.allLabel;
   const [activeIdx, setActiveIdx] = useState(0);
   const [copied, setCopied] = useState(false);
   const [filterCat, setFilterCat] = useState(allLabel);
@@ -174,9 +173,7 @@ export function CodeView({ state }: CodeViewProps) {
             </pre>
           </div>
           <div className="border-t border-gray-100 bg-gray-50 px-5 py-2 text-[11px] text-gray-500">
-            {"💡"} {lang === "ko"
-              ? "이 코드는 참고용 스니펫입니다. 배포 전 보안·IAM·네트워크 설정을 반드시 검토하세요."
-              : "This is a reference snippet. Review security, IAM, and network settings before deploying."}
+            {t.codeView.disclaimer}
           </div>
         </div>
       )}

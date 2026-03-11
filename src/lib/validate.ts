@@ -199,16 +199,15 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     prodNoIac:           { t: "No IaC configured (recommended for production)", m: "Manual console management makes environment reproduction, change tracking, and disaster recovery difficult. Consider adopting Terraform or CDK." },
   };
 
-  const types     = state.workload?.type || [];
+  const types     = toArray(state.workload?.type);
   const avail     = state.slo?.availability;
   const az        = state.network?.az_count;
   const azNum     = azToNum(az);
   const subnet    = state.network?.subnet_tier;
   const netIso    = state.compliance?.network_iso;
-  const cert      = state.compliance?.cert || [];
+  const cert      = toArray(state.compliance?.cert);
   const encr      = state.compliance?.encryption;
-  const db        = state.data?.primary_db || [];
-  const dbArr     = Array.isArray(db) ? db : [];
+  const dbArr     = toArray(state.data?.primary_db);
   const dbHa      = state.data?.db_ha;
   const cache     = state.data?.cache;
   const rpo       = state.slo?.rpo;
@@ -216,7 +215,7 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
   const region    = state.slo?.region;
   const dau       = state.scale?.dau;
   const rps       = state.scale?.peak_rps;
-  const pattern   = state.scale?.traffic_pattern || [];
+  const pattern   = toArray(state.scale?.traffic_pattern);
   const orchest   = state.compute?.orchestration;
   const archP     = state.compute?.arch_pattern;
   const scaling   = state.compute?.scaling;
@@ -244,12 +243,12 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
   const natStrat  = state.network?.nat_strategy;
   const nodeP     = state.platform?.node_provisioner;
   const account   = state.network?.account_structure;
-  const storArr   = Array.isArray(state.data?.storage) ? state.data.storage : [];
-  const userTypes = state.workload?.user_type || [];
+  const storArr   = toArray(state.data?.storage);
+  const userTypes = toArray(state.workload?.user_type);
   const meshType  = state.platform?.service_mesh;
   const monitor   = state.platform?.k8s_monitoring;
   const gitops    = state.platform?.gitops;
-  const authArr   = Array.isArray(state.integration?.auth) ? state.integration.auth : [];
+  const authArr   = toArray(state.integration?.auth);
 
   const hasCritCert = cert.includes("pci") || cert.includes("hipaa") || cert.includes("sox");
   const isGdpr      = cert.includes("gdpr");
@@ -503,8 +502,8 @@ export function validateState(state: WizardState, lang: "ko" | "en" = "ko"): Val
     E(_.appRunnerRealtime.t, _.appRunnerRealtime.m, ["compute","workload"]);
 
   // -- VPC Lattice + App Mesh --
-  if (meshType === "vpc_lattice" && state.platform?.service_mesh === "aws_app_mesh")
-    W(_.latticePlusAppMesh.t, _.latticePlusAppMesh.m, ["platform"]);
+  // meshType IS state.platform?.service_mesh, so it can't be both values simultaneously.
+  // This rule is unreachable — removed as dead code.
 
   // -- Bedrock + sensitive data --
   if (state.workload?.data_detail === "ai_genai" && dataS === "critical")

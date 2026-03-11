@@ -85,11 +85,12 @@ export function QuestionCard({
               : "text-violet-600";
 
           return (
-            <div
+            <button
+              type="button"
               key={opt.v}
               onClick={() => toggle(opt.v)}
               className={cn(
-                "relative flex cursor-pointer items-start gap-2.5 rounded-[10px] border-[1.5px] px-3.5 py-3 transition-all",
+                "relative flex cursor-pointer items-start gap-2.5 rounded-[10px] border-[1.5px] px-3.5 py-3 text-left transition-all",
                 selected
                   ? "border-indigo-600 bg-indigo-50"
                   : "border-gray-200 bg-gray-50 hover:border-indigo-300 hover:bg-violet-50"
@@ -170,12 +171,21 @@ export function QuestionCard({
                 )}
               </div>
 
-              {/* Info button */}
+              {/* Info indicator */}
               {hasInfo && (
-                <button
+                <span
+                  role="button"
+                  tabIndex={0}
                   onClick={(e) => {
                     e.stopPropagation();
                     onInfo && infoKey && onInfo(infoDb[infoKey]);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      onInfo && infoKey && onInfo(infoDb[infoKey]);
+                    }
                   }}
                   title={t.questionCard.moreInfo}
                   className={cn(
@@ -186,9 +196,9 @@ export function QuestionCard({
                   )}
                 >
                   i
-                </button>
+                </span>
               )}
-            </div>
+            </button>
           );
         })}
       </div>

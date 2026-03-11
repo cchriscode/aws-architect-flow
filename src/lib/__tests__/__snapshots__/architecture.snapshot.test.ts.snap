@@ -135,7 +135,7 @@ exports[`generateArchitecture snapshots > b2b_saas (en) 1`] = `
       "label": "Compute Layer",
       "services": [
         {
-          "cost": "~$16/mo + $0.008/LCU",
+          "cost": "~$21/mo + $0.008/LCU",
           "detail": "Public subnet, TLS termination",
           "name": "ALB (Application Load Balancer)",
           "opt": "ALB Access Log -> S3 -> Athena analysis",
@@ -688,11 +688,11 @@ exports[`generateArchitecture snapshots > b2b_saas (en) 1`] = `
   ],
   "waScore": {
     "cost": 4,
-    "operational": 4,
-    "performance": 4,
-    "reliability": 4,
-    "security": 4,
-    "sustainability": 3,
+    "operational": 5,
+    "performance": 5,
+    "reliability": 5,
+    "security": 5,
+    "sustainability": 5,
   },
 }
 `;
@@ -832,7 +832,7 @@ exports[`generateArchitecture snapshots > b2b_saas (ko) 1`] = `
       "label": "컴퓨트 계층",
       "services": [
         {
-          "cost": "~$16/월 + $0.008/LCU",
+          "cost": "~$21/월 + $0.008/LCU",
           "detail": "퍼블릭 서브넷, TLS 종료",
           "name": "ALB (Application Load Balancer)",
           "opt": "ALB Access Log → S3 → Athena 분석",
@@ -1385,11 +1385,11 @@ exports[`generateArchitecture snapshots > b2b_saas (ko) 1`] = `
   ],
   "waScore": {
     "cost": 4,
-    "operational": 4,
-    "performance": 4,
-    "reliability": 4,
-    "security": 4,
-    "sustainability": 3,
+    "operational": 5,
+    "performance": 5,
+    "reliability": 5,
+    "security": 5,
+    "sustainability": 5,
   },
 }
 `;
@@ -1539,7 +1539,7 @@ exports[`generateArchitecture snapshots > compliance (en) 1`] = `
       "label": "Compute Layer",
       "services": [
         {
-          "cost": "~$16/mo + $0.008/LCU",
+          "cost": "~$21/mo + $0.008/LCU",
           "detail": "Public subnet, TLS termination",
           "name": "ALB (Application Load Balancer)",
           "opt": "ALB Access Log -> S3 -> Athena analysis",
@@ -1971,9 +1971,9 @@ exports[`generateArchitecture snapshots > compliance (en) 1`] = `
   ],
   "waScore": {
     "cost": 4,
-    "operational": 4,
-    "performance": 5,
-    "reliability": 4,
+    "operational": 5,
+    "performance": 4,
+    "reliability": 5,
     "security": 5,
     "sustainability": 4,
   },
@@ -2125,7 +2125,7 @@ exports[`generateArchitecture snapshots > compliance (ko) 1`] = `
       "label": "컴퓨트 계층",
       "services": [
         {
-          "cost": "~$16/월 + $0.008/LCU",
+          "cost": "~$21/월 + $0.008/LCU",
           "detail": "퍼블릭 서브넷, TLS 종료",
           "name": "ALB (Application Load Balancer)",
           "opt": "ALB Access Log → S3 → Athena 분석",
@@ -2557,9 +2557,9 @@ exports[`generateArchitecture snapshots > compliance (ko) 1`] = `
   ],
   "waScore": {
     "cost": 4,
-    "operational": 4,
-    "performance": 5,
-    "reliability": 4,
+    "operational": 5,
+    "performance": 4,
+    "reliability": 5,
     "security": 5,
     "sustainability": 4,
   },
@@ -2669,7 +2669,7 @@ exports[`generateArchitecture snapshots > data_pipeline (en) 1`] = `
       "label": "Compute Layer",
       "services": [
         {
-          "cost": "$3.50/1M requests",
+          "cost": "HTTP $1 / REST $3.50 /1M requests",
           "detail": "REST/HTTP API",
           "name": "API Gateway",
           "opt": "HTTP API is 70% cheaper than REST API",
@@ -3038,11 +3038,11 @@ exports[`generateArchitecture snapshots > data_pipeline (en) 1`] = `
     },
   ],
   "waScore": {
-    "cost": 2,
-    "operational": 4,
-    "performance": 3,
-    "reliability": 3,
-    "security": 2,
+    "cost": 4,
+    "operational": 5,
+    "performance": 5,
+    "reliability": 4,
+    "security": 4,
     "sustainability": 5,
   },
 }
@@ -3151,7 +3151,7 @@ exports[`generateArchitecture snapshots > data_pipeline (ko) 1`] = `
       "label": "컴퓨트 계층",
       "services": [
         {
-          "cost": "$3.50/100만 요청",
+          "cost": "HTTP $1 / REST $3.50 /100만 요청",
           "detail": "REST/HTTP API",
           "name": "API Gateway",
           "opt": "HTTP API가 REST API보다 70% 저렴",
@@ -3520,11 +3520,11 @@ exports[`generateArchitecture snapshots > data_pipeline (ko) 1`] = `
     },
   ],
   "waScore": {
-    "cost": 2,
-    "operational": 4,
-    "performance": 3,
-    "reliability": 3,
-    "security": 2,
+    "cost": 4,
+    "operational": 5,
+    "performance": 5,
+    "reliability": 4,
+    "security": 4,
     "sustainability": 5,
   },
 }
@@ -3657,7 +3657,7 @@ exports[`generateArchitecture snapshots > ecommerce_mvp (en) 1`] = `
       "label": "Compute Layer",
       "services": [
         {
-          "cost": "~$16/mo + $0.008/LCU",
+          "cost": "~$21/mo + $0.008/LCU",
           "detail": "Public subnet, TLS termination",
           "name": "ALB (Application Load Balancer)",
           "opt": "ALB Access Log -> S3 -> Athena analysis",
@@ -4036,11 +4036,11 @@ exports[`generateArchitecture snapshots > ecommerce_mvp (en) 1`] = `
     },
   ],
   "waScore": {
-    "cost": 2,
-    "operational": 4,
+    "cost": 3,
+    "operational": 5,
     "performance": 4,
-    "reliability": 3,
-    "security": 4,
+    "reliability": 4,
+    "security": 5,
     "sustainability": 4,
   },
 }
@@ -4173,7 +4173,7 @@ exports[`generateArchitecture snapshots > ecommerce_mvp (ko) 1`] = `
       "label": "컴퓨트 계층",
       "services": [
         {
-          "cost": "~$16/월 + $0.008/LCU",
+          "cost": "~$21/월 + $0.008/LCU",
           "detail": "퍼블릭 서브넷, TLS 종료",
           "name": "ALB (Application Load Balancer)",
           "opt": "ALB Access Log → S3 → Athena 분석",
@@ -4552,11 +4552,11 @@ exports[`generateArchitecture snapshots > ecommerce_mvp (ko) 1`] = `
     },
   ],
   "waScore": {
-    "cost": 2,
-    "operational": 4,
+    "cost": 3,
+    "operational": 5,
     "performance": 4,
-    "reliability": 3,
-    "security": 4,
+    "reliability": 4,
+    "security": 5,
     "sustainability": 4,
   },
 }
@@ -4727,7 +4727,7 @@ exports[`generateArchitecture snapshots > eks_full (en) 1`] = `
       "label": "Compute Layer",
       "services": [
         {
-          "cost": "~$16/mo + $0.008/LCU",
+          "cost": "~$21/mo + $0.008/LCU",
           "detail": "Public subnet, TLS termination",
           "name": "ALB (Application Load Balancer)",
           "opt": "ALB Access Log -> S3 -> Athena analysis",
@@ -5341,12 +5341,12 @@ exports[`generateArchitecture snapshots > eks_full (en) 1`] = `
     },
   ],
   "waScore": {
-    "cost": 5,
+    "cost": 4,
     "operational": 5,
     "performance": 5,
-    "reliability": 4,
+    "reliability": 5,
     "security": 5,
-    "sustainability": 3,
+    "sustainability": 5,
   },
 }
 `;
@@ -5516,7 +5516,7 @@ exports[`generateArchitecture snapshots > eks_full (ko) 1`] = `
       "label": "컴퓨트 계층",
       "services": [
         {
-          "cost": "~$16/월 + $0.008/LCU",
+          "cost": "~$21/월 + $0.008/LCU",
           "detail": "퍼블릭 서브넷, TLS 종료",
           "name": "ALB (Application Load Balancer)",
           "opt": "ALB Access Log → S3 → Athena 분석",
@@ -6130,12 +6130,12 @@ exports[`generateArchitecture snapshots > eks_full (ko) 1`] = `
     },
   ],
   "waScore": {
-    "cost": 5,
+    "cost": 4,
     "operational": 5,
     "performance": 5,
-    "reliability": 4,
+    "reliability": 5,
     "security": 5,
-    "sustainability": 3,
+    "sustainability": 5,
   },
 }
 `;
@@ -6267,7 +6267,7 @@ exports[`generateArchitecture snapshots > generic_web_api (en) 1`] = `
       "label": "Compute Layer",
       "services": [
         {
-          "cost": "~$16/mo + $0.008/LCU",
+          "cost": "~$21/mo + $0.008/LCU",
           "detail": "Public subnet, TLS termination",
           "name": "ALB (Application Load Balancer)",
           "opt": "ALB Access Log -> S3 -> Athena analysis",
@@ -6574,11 +6574,11 @@ exports[`generateArchitecture snapshots > generic_web_api (en) 1`] = `
     },
   ],
   "waScore": {
-    "cost": 2,
-    "operational": 4,
-    "performance": 3,
-    "reliability": 3,
-    "security": 3,
+    "cost": 4,
+    "operational": 5,
+    "performance": 4,
+    "reliability": 4,
+    "security": 5,
     "sustainability": 4,
   },
 }
@@ -6711,7 +6711,7 @@ exports[`generateArchitecture snapshots > generic_web_api (ko) 1`] = `
       "label": "컴퓨트 계층",
       "services": [
         {
-          "cost": "~$16/월 + $0.008/LCU",
+          "cost": "~$21/월 + $0.008/LCU",
           "detail": "퍼블릭 서브넷, TLS 종료",
           "name": "ALB (Application Load Balancer)",
           "opt": "ALB Access Log → S3 → Athena 분석",
@@ -7018,11 +7018,11 @@ exports[`generateArchitecture snapshots > generic_web_api (ko) 1`] = `
     },
   ],
   "waScore": {
-    "cost": 2,
-    "operational": 4,
-    "performance": 3,
-    "reliability": 3,
-    "security": 3,
+    "cost": 4,
+    "operational": 5,
+    "performance": 4,
+    "reliability": 4,
+    "security": 5,
     "sustainability": 4,
   },
 }
@@ -7126,14 +7126,13 @@ exports[`generateArchitecture snapshots > internal_tool (en) 1`] = `
       "id": "compute",
       "insights": [
         "ECS Fargate runs containers without server management",
-        "⚠️ Lambda + RDS: Direct connection without RDS Proxy causes connection limit overflow during concurrent Lambda executions",
         "Lambda auto-scales concurrency. Reserved Concurrency recommended to limit max",
         "Business hours pattern: reduce instances at night/weekends with Scheduled Scaling for 30-50% savings",
       ],
       "label": "Compute Layer",
       "services": [
         {
-          "cost": "$3.50/1M requests",
+          "cost": "HTTP $1 / REST $3.50 /1M requests",
           "detail": "REST/HTTP API",
           "name": "API Gateway",
           "opt": "HTTP API is 70% cheaper than REST API",
@@ -7152,13 +7151,6 @@ exports[`generateArchitecture snapshots > internal_tool (en) 1`] = `
           "name": "Lambda",
           "opt": "20% savings with ARM, PowerTuning required",
           "reason": "Event-driven processing, scale-to-zero",
-        },
-        {
-          "cost": "~3% of DB cost",
-          "detail": "Lambda <-> RDS connection pooling",
-          "name": "RDS Proxy",
-          "opt": "Direct RDS connection from Lambda prohibited. Without RDS Proxy, connection limit overflow causes failures",
-          "reason": "Prevent RDS connection explosion during Lambda scale-up",
         },
       ],
     },
@@ -7195,23 +7187,22 @@ exports[`generateArchitecture snapshots > internal_tool (en) 1`] = `
       "id": "data",
       "insights": [
         "Place DB in isolated subnets. Block all internet access",
-        "RDS/Aurora auto backup retention: set to 7+ days. Snapshots are retained even after deletion",
       ],
       "label": "Data Layer",
       "services": [
         {
-          "cost": "r6g.large: ~$200/mo/instance",
-          "detail": "Single-AZ, private subnet",
-          "name": "Aurora PostgreSQL",
-          "opt": "Aurora Serverless v2: 40-60% cost reduction for variable traffic. Switch to RI after stabilization",
+          "cost": "On-Demand: per-request billing",
+          "detail": "Single-AZ, On-Demand/Provisioned",
+          "name": "DynamoDB",
+          "opt": "Provisioned + Auto Scaling: 60-80% savings vs On-Demand for predictable traffic. PITR must be enabled",
           "reason": "Primary data SoT (Source of Truth)",
         },
         {
-          "cost": "Storage $0.05/GB/mo",
-          "detail": "Backup retention 7 days, cross-region copy",
-          "name": "AWS Backup",
-          "opt": "Prevent backup tampering with Backup Vault Lock (WORM). Quarterly restore testing",
-          "reason": "Guarantee RPO with centralized backup policy, automated compliance audit logs",
+          "cost": "PITR: ~20% of storage cost",
+          "detail": "Point-in-Time Recovery (35 days) + AWS Backup policy",
+          "name": "DynamoDB PITR + Backup",
+          "opt": "PITR must be enabled individually per region when using Global Tables",
+          "reason": "Minimize RPO with point-in-time recovery. Recover accidentally deleted data",
         },
         {
           "cost": "$0.023/GB/mo",
@@ -7419,11 +7410,11 @@ exports[`generateArchitecture snapshots > internal_tool (en) 1`] = `
     },
   ],
   "waScore": {
-    "cost": 2,
-    "operational": 2,
-    "performance": 3,
-    "reliability": 2,
-    "security": 2,
+    "cost": 4,
+    "operational": 3,
+    "performance": 5,
+    "reliability": 3,
+    "security": 3,
     "sustainability": 5,
   },
 }
@@ -7527,14 +7518,13 @@ exports[`generateArchitecture snapshots > internal_tool (ko) 1`] = `
       "id": "compute",
       "insights": [
         "ECS Fargate는 서버 관리 없이 컨테이너 실행",
-        "⚠️ Lambda + RDS: RDS Proxy 없이 직접 연결하면 동시 Lambda 실행 시 커넥션 한도 초과로 장애 발생",
         "Lambda 자동 동시성 스케일링. Reserved Concurrency로 최대치 제한 권장",
         "🕐 업무시간 패턴: Scheduled Scaling으로 야간/주말 인스턴스 감소 → 비용 30~50% 절감",
       ],
       "label": "컴퓨트 계층",
       "services": [
         {
-          "cost": "$3.50/100만 요청",
+          "cost": "HTTP $1 / REST $3.50 /100만 요청",
           "detail": "REST/HTTP API",
           "name": "API Gateway",
           "opt": "HTTP API가 REST API보다 70% 저렴",
@@ -7553,13 +7543,6 @@ exports[`generateArchitecture snapshots > internal_tool (ko) 1`] = `
           "name": "Lambda",
           "opt": "ARM 선택 시 20% 절감, PowerTuning 필수",
           "reason": "이벤트성 처리, 스케일-투-제로",
-        },
-        {
-          "cost": "db 비용의 ~3%",
-          "detail": "Lambda ↔ RDS 커넥션 풀링",
-          "name": "RDS Proxy",
-          "opt": "Lambda에서 RDS 직접 연결 금지. RDS Proxy 없으면 연결 한도 초과로 장애 발생",
-          "reason": "Lambda 스케일업 시 RDS 커넥션 폭발 방지",
         },
       ],
     },
@@ -7596,23 +7579,22 @@ exports[`generateArchitecture snapshots > internal_tool (ko) 1`] = `
       "id": "data",
       "insights": [
         "DB는 격리 서브넷에 배치. 인터넷 접근 완전 차단",
-        "RDS/Aurora 자동 백업 보존 기간: 7일 이상 설정. 스냅샷은 삭제 후에도 보존됨",
       ],
       "label": "데이터 계층",
       "services": [
         {
-          "cost": "r6g.large: ~$200/월/인스턴스",
-          "detail": "Single-AZ, 프라이빗 서브넷",
-          "name": "Aurora PostgreSQL",
-          "opt": "Aurora Serverless v2: 가변 트래픽에서 비용 40~60% 절감. 안정화 후 RI 전환",
+          "cost": "On-Demand: 요청당 과금",
+          "detail": "Single-AZ, On-Demand/Provisioned",
+          "name": "DynamoDB",
+          "opt": "Provisioned + Auto Scaling: 예측 가능한 트래픽에서 On-Demand 대비 60~80% 절감. PITR 반드시 활성화",
           "reason": "주요 데이터 SoT (Source of Truth)",
         },
         {
-          "cost": "스토리지 $0.05/GB/월",
-          "detail": "백업 보존 7일, 크로스 리전 복사",
-          "name": "AWS Backup",
-          "opt": "Backup Vault Lock으로 백업 변조 방지 (WORM). 복구 테스트 분기 1회 실시",
-          "reason": "중앙 백업 정책으로 RPO 보장, 규정 준수 감사 로그 자동화",
+          "cost": "PITR: 스토리지 비용의 약 20%",
+          "detail": "Point-in-Time Recovery (35일) + AWS Backup 정책",
+          "name": "DynamoDB PITR + Backup",
+          "opt": "Global Tables 사용 시 각 리전별 PITR 개별 활성화 필요",
+          "reason": "임의 시점 복구로 RPO 최소화. 실수로 인한 데이터 삭제 복구",
         },
         {
           "cost": "$0.023/GB/월",
@@ -7820,11 +7802,11 @@ exports[`generateArchitecture snapshots > internal_tool (ko) 1`] = `
     },
   ],
   "waScore": {
-    "cost": 2,
-    "operational": 2,
-    "performance": 3,
-    "reliability": 2,
-    "security": 2,
+    "cost": 4,
+    "operational": 3,
+    "performance": 5,
+    "reliability": 3,
+    "security": 3,
     "sustainability": 5,
   },
 }
@@ -7943,7 +7925,7 @@ exports[`generateArchitecture snapshots > iot_platform (en) 1`] = `
       "label": "Compute Layer",
       "services": [
         {
-          "cost": "~$16/mo + $0.008/LCU",
+          "cost": "~$21/mo + $0.008/LCU",
           "detail": "Public subnet, TLS termination",
           "name": "ALB (Application Load Balancer)",
           "opt": "ALB Access Log -> S3 -> Athena analysis",
@@ -8357,12 +8339,12 @@ exports[`generateArchitecture snapshots > iot_platform (en) 1`] = `
     },
   ],
   "waScore": {
-    "cost": 3,
-    "operational": 4,
+    "cost": 4,
+    "operational": 5,
     "performance": 4,
-    "reliability": 3,
-    "security": 3,
-    "sustainability": 4,
+    "reliability": 4,
+    "security": 5,
+    "sustainability": 5,
   },
 }
 `;
@@ -8480,7 +8462,7 @@ exports[`generateArchitecture snapshots > iot_platform (ko) 1`] = `
       "label": "컴퓨트 계층",
       "services": [
         {
-          "cost": "~$16/월 + $0.008/LCU",
+          "cost": "~$21/월 + $0.008/LCU",
           "detail": "퍼블릭 서브넷, TLS 종료",
           "name": "ALB (Application Load Balancer)",
           "opt": "ALB Access Log → S3 → Athena 분석",
@@ -8894,12 +8876,12 @@ exports[`generateArchitecture snapshots > iot_platform (ko) 1`] = `
     },
   ],
   "waScore": {
-    "cost": 3,
-    "operational": 4,
+    "cost": 4,
+    "operational": 5,
     "performance": 4,
-    "reliability": 3,
-    "security": 3,
-    "sustainability": 4,
+    "reliability": 4,
+    "security": 5,
+    "sustainability": 5,
   },
 }
 `;
@@ -9015,7 +8997,7 @@ exports[`generateArchitecture snapshots > minimal (en) 1`] = `
       "label": "Compute Layer",
       "services": [
         {
-          "cost": "~$16/mo + $0.008/LCU",
+          "cost": "~$21/mo + $0.008/LCU",
           "detail": "Public subnet, TLS termination",
           "name": "ALB (Application Load Balancer)",
           "opt": "ALB Access Log -> S3 -> Athena analysis",
@@ -9244,10 +9226,10 @@ exports[`generateArchitecture snapshots > minimal (en) 1`] = `
   "waScore": {
     "cost": 2,
     "operational": 2,
-    "performance": 3,
+    "performance": 1,
     "reliability": 2,
     "security": 2,
-    "sustainability": 3,
+    "sustainability": 1,
   },
 }
 `;
@@ -9363,7 +9345,7 @@ exports[`generateArchitecture snapshots > minimal (ko) 1`] = `
       "label": "컴퓨트 계층",
       "services": [
         {
-          "cost": "~$16/월 + $0.008/LCU",
+          "cost": "~$21/월 + $0.008/LCU",
           "detail": "퍼블릭 서브넷, TLS 종료",
           "name": "ALB (Application Load Balancer)",
           "opt": "ALB Access Log → S3 → Athena 분석",
@@ -9592,10 +9574,10 @@ exports[`generateArchitecture snapshots > minimal (ko) 1`] = `
   "waScore": {
     "cost": 2,
     "operational": 2,
-    "performance": 3,
+    "performance": 1,
     "reliability": 2,
     "security": 2,
-    "sustainability": 3,
+    "sustainability": 1,
   },
 }
 `;
@@ -9730,7 +9712,7 @@ exports[`generateArchitecture snapshots > realtime_chat (en) 1`] = `
       "label": "Compute Layer",
       "services": [
         {
-          "cost": "~$16/mo + $0.008/LCU",
+          "cost": "~$21/mo + $0.008/LCU",
           "detail": "Public subnet, TLS termination",
           "name": "ALB (Application Load Balancer)",
           "opt": "ALB Access Log -> S3 -> Athena analysis",
@@ -10141,11 +10123,11 @@ exports[`generateArchitecture snapshots > realtime_chat (en) 1`] = `
     },
   ],
   "waScore": {
-    "cost": 2,
-    "operational": 4,
+    "cost": 3,
+    "operational": 5,
     "performance": 4,
-    "reliability": 3,
-    "security": 3,
+    "reliability": 4,
+    "security": 5,
     "sustainability": 4,
   },
 }
@@ -10281,7 +10263,7 @@ exports[`generateArchitecture snapshots > realtime_chat (ko) 1`] = `
       "label": "컴퓨트 계층",
       "services": [
         {
-          "cost": "~$16/월 + $0.008/LCU",
+          "cost": "~$21/월 + $0.008/LCU",
           "detail": "퍼블릭 서브넷, TLS 종료",
           "name": "ALB (Application Load Balancer)",
           "opt": "ALB Access Log → S3 → Athena 분석",
@@ -10692,11 +10674,11 @@ exports[`generateArchitecture snapshots > realtime_chat (ko) 1`] = `
     },
   ],
   "waScore": {
-    "cost": 2,
-    "operational": 4,
+    "cost": 3,
+    "operational": 5,
     "performance": 4,
-    "reliability": 3,
-    "security": 3,
+    "reliability": 4,
+    "security": 5,
     "sustainability": 4,
   },
 }
@@ -10805,7 +10787,7 @@ exports[`generateArchitecture snapshots > serverless (en) 1`] = `
       "label": "Compute Layer",
       "services": [
         {
-          "cost": "$3.50/1M requests",
+          "cost": "HTTP $1 / REST $3.50 /1M requests",
           "detail": "REST/HTTP API",
           "name": "API Gateway",
           "opt": "HTTP API is 70% cheaper than REST API",
@@ -11043,8 +11025,8 @@ exports[`generateArchitecture snapshots > serverless (en) 1`] = `
     },
   ],
   "waScore": {
-    "cost": 2,
-    "operational": 2,
+    "cost": 4,
+    "operational": 3,
     "performance": 3,
     "reliability": 2,
     "security": 2,
@@ -11156,7 +11138,7 @@ exports[`generateArchitecture snapshots > serverless (ko) 1`] = `
       "label": "컴퓨트 계층",
       "services": [
         {
-          "cost": "$3.50/100만 요청",
+          "cost": "HTTP $1 / REST $3.50 /100만 요청",
           "detail": "REST/HTTP API",
           "name": "API Gateway",
           "opt": "HTTP API가 REST API보다 70% 저렴",
@@ -11394,8 +11376,8 @@ exports[`generateArchitecture snapshots > serverless (ko) 1`] = `
     },
   ],
   "waScore": {
-    "cost": 2,
-    "operational": 2,
+    "cost": 4,
+    "operational": 3,
     "performance": 3,
     "reliability": 2,
     "security": 2,
@@ -11534,7 +11516,7 @@ exports[`generateArchitecture snapshots > ticketing (en) 1`] = `
       "label": "Compute Layer",
       "services": [
         {
-          "cost": "~$16/mo + $0.008/LCU",
+          "cost": "~$21/mo + $0.008/LCU",
           "detail": "Public subnet, TLS termination",
           "name": "ALB (Application Load Balancer)",
           "opt": "ALB Access Log -> S3 -> Athena analysis",
@@ -11934,12 +11916,12 @@ exports[`generateArchitecture snapshots > ticketing (en) 1`] = `
     },
   ],
   "waScore": {
-    "cost": 2,
-    "operational": 4,
-    "performance": 4,
-    "reliability": 3,
-    "security": 4,
-    "sustainability": 3,
+    "cost": 3,
+    "operational": 5,
+    "performance": 5,
+    "reliability": 4,
+    "security": 5,
+    "sustainability": 4,
   },
 }
 `;
@@ -12074,7 +12056,7 @@ exports[`generateArchitecture snapshots > ticketing (ko) 1`] = `
       "label": "컴퓨트 계층",
       "services": [
         {
-          "cost": "~$16/월 + $0.008/LCU",
+          "cost": "~$21/월 + $0.008/LCU",
           "detail": "퍼블릭 서브넷, TLS 종료",
           "name": "ALB (Application Load Balancer)",
           "opt": "ALB Access Log → S3 → Athena 분석",
@@ -12474,12 +12456,12 @@ exports[`generateArchitecture snapshots > ticketing (ko) 1`] = `
     },
   ],
   "waScore": {
-    "cost": 2,
-    "operational": 4,
-    "performance": 4,
-    "reliability": 3,
-    "security": 4,
-    "sustainability": 3,
+    "cost": 3,
+    "operational": 5,
+    "performance": 5,
+    "reliability": 4,
+    "security": 5,
+    "sustainability": 4,
   },
 }
 `;

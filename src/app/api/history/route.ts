@@ -22,8 +22,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = await req.json();
-  const { name, state, completedPhases, summary } = body;
+  let body: Record<string, unknown>;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+  const { name, state, completedPhases, summary } = body as {
+    name?: string;
+    state?: unknown;
+    completedPhases?: unknown;
+    summary?: { headline: string; monthlyCost: number; wafrScore: number; archPattern: string; workloadTypes: string[] };
+  };
 
   if (!state || !completedPhases || !summary) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });

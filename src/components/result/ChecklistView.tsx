@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import type { WizardState } from "@/lib/types";
 import { generateChecklist } from "@/lib/checklist";
@@ -15,14 +15,15 @@ export function ChecklistView({ state }: ChecklistViewProps) {
   const t = useDict();
   const { lang } = useLang();
   const STORAGE_KEY = "aws_arch_checklist_v1";
-  const [checked, setChecked] = useState<Record<string, boolean>>(() => {
+  const [checked, setChecked] = useState<Record<string, boolean>>({});
+
+  // Read checked state from localStorage after hydration to avoid SSR/CSR mismatch
+  useEffect(() => {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-    } catch (e) {
-      console.warn('[checklist] Failed to load saved state:', e);
-      return {};
-    }
-  });
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) setChecked(JSON.parse(saved));
+    } catch { /* ignore */ }
+  }, []);
   const [expandedPhase, setExpandedPhase] = useState("Phase 1");
   const [filterMode, setFilterMode] = useState<"all" | "critical" | "todo">(
     "all"

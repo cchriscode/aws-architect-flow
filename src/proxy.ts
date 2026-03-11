@@ -4,16 +4,13 @@ import { NextResponse } from "next/server";
 export default auth((req) => {
   const { pathname } = req.nextUrl;
 
-  // Public routes — accessible without login
-  const publicPaths = ["/", "/login", "/privacy"];
-  if (pathname.startsWith("/api/auth") || pathname.startsWith("/share/") || pathname.startsWith("/api/share") || pathname.startsWith("/api/og/") || publicPaths.includes(pathname)) {
-    return NextResponse.next();
-  }
+  // Only protect authenticated API routes (history)
+  // All pages are publicly accessible — login is handled via client-side modal
+  const protectedApiPrefixes = ["/api/history"];
+  const isProtectedApi = protectedApiPrefixes.some((p) => pathname.startsWith(p));
 
-  // Redirect unauthenticated users to login for protected routes (history, api/history)
-  if (!req.auth) {
-    const loginUrl = new URL("/login", req.url);
-    return NextResponse.redirect(loginUrl);
+  if (isProtectedApi && !req.auth) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   return NextResponse.next();

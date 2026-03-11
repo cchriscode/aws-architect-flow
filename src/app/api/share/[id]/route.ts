@@ -12,5 +12,6 @@ export async function GET(
     return NextResponse.json({ error: "Not found or expired" }, { status: 404 });
   }
 
-  return NextResponse.json(share);
+  const { id: _id, ...publicShare } = share;
+  return NextResponse.json(publicShare);
 }

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Analytics } from "@vercel/analytics/next";
 import { SessionProvider } from "@/components/auth/SessionProvider";
-import { LangProvider } from "@/lib/i18n/context";
+import { LangProvider, LANG_COOKIE } from "@/lib/i18n/context";
+import type { Locale } from "@/lib/i18n/types";
 import "./globals.css";
 
 const SITE_URL = "https://archflow-aws.online";
@@ -81,13 +83,17 @@ const jsonLd = {
   offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const langCookie = cookieStore.get(LANG_COOKIE)?.value;
+  const initialLang: Locale = langCookie === "en" ? "en" : "ko";
+
   return (
-    <html lang="ko" suppressHydrationWarning>
+    <html lang={initialLang} suppressHydrationWarning>
       <head>
         <link
           rel="stylesheet"
@@ -104,7 +110,7 @@ export default function RootLayout({
       </head>
       <body className="font-[Pretendard,sans-serif] antialiased">
         <SessionProvider>
-          <LangProvider>{children}</LangProvider>
+          <LangProvider initialLang={initialLang}>{children}</LangProvider>
         </SessionProvider>
         <Analytics />
       </body>

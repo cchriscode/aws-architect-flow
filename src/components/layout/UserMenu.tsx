@@ -1,10 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useDict } from "@/lib/i18n/context";
 
-export function UserMenu() {
+interface UserMenuProps {
+  onLoginClick?: () => void;
+}
+
+export function UserMenu({ onLoginClick }: UserMenuProps) {
   const { data: session } = useSession();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -25,7 +29,7 @@ export function UserMenu() {
       <>
         <div className="mx-2.5 h-5 w-px bg-gray-200" />
         <button
-          onClick={() => signIn("google")}
+          onClick={() => onLoginClick?.()}
           className="rounded-lg border-[1.5px] border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-600 transition-colors hover:bg-indigo-100"
         >
           {t.userMenu.login}
@@ -62,7 +66,7 @@ export function UserMenu() {
       {open && (
         <div className="absolute right-0 top-full z-50 mt-1 min-w-[120px] rounded-lg border-[1.5px] border-gray-200 bg-white py-1 shadow-lg">
           <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={() => signOut({ callbackUrl: window.location.href })}
             className="w-full px-3.5 py-2 text-left text-xs text-gray-600 transition-colors hover:bg-gray-50"
           >
             {t.userMenu.logout}

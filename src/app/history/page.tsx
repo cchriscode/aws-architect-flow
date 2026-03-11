@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
+import { LoginModal } from "@/components/auth/LoginModal";
 import { useDict, useLang } from "@/lib/i18n/context";
 import {
   getHistory,
@@ -51,6 +52,7 @@ export default function HistoryPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [loading, setLoading] = useState(true);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -88,7 +90,8 @@ export default function HistoryPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Header />
+      <Header onLoginClick={() => setShowLoginModal(true)} />
+      {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
 
       <div className="mx-auto max-w-[900px] px-7 py-6">
         <div className="mb-4 flex items-center justify-between">
@@ -143,6 +146,7 @@ export default function HistoryPage() {
                             if (e.key === "Enter") commitRename(entry.id);
                             if (e.key === "Escape") setEditingId(null);
                           }}
+                          aria-label={t.history.editNameTooltip}
                           className="w-full rounded-md border border-indigo-300 px-2 py-1 text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-indigo-200"
                         />
                       ) : (

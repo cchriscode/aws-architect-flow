@@ -23,20 +23,27 @@ export default function LoginPage() {
         </p>
 
         {/* Privacy consent checkbox */}
-        <label className="mb-4 flex items-start gap-2 cursor-pointer text-left">
+        <div className="mb-4 flex items-start gap-2 text-left">
           <input
+            id="login-page-agree"
             type="checkbox"
             checked={agreed}
             onChange={(e) => setAgreed(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-indigo-600"
+            className="mt-0.5 h-4 w-4 cursor-pointer rounded border-gray-300 accent-indigo-600"
           />
-          <span className="text-[12px] leading-relaxed text-gray-500">
-            <a href="/privacy" target="_blank" className="font-medium text-indigo-600 underline hover:text-indigo-800">
+          <label htmlFor="login-page-agree" className="cursor-pointer text-[12px] leading-relaxed text-gray-500">
+            <a
+              href="/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-indigo-600 underline hover:text-indigo-800"
+              onClick={(e) => e.stopPropagation()}
+            >
               {t.login.privacyLink}
             </a>
             {t.login.privacyAgree} <span className="text-red-400">{t.login.required}</span>
-          </span>
-        </label>
+          </label>
+        </div>
 
         {/* Google Login */}
         <button
@@ -78,9 +85,11 @@ export default function LoginPage() {
           </button>
         </div>
 
-        <p className="mt-4 text-[11px] text-gray-300">
-          {t.login.guestNotice}
-        </p>
+        <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2">
+          <p className="text-[12px] font-semibold text-amber-700">
+            {t.login.guestNotice}
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -14,6 +14,7 @@ export interface Dict {
     importFile: string;
     share: string;
     resetAll: string;
+    resetConfirm: string;
     linkCopied: string;
     copyFailed: string;
     invalidJSON: string;
@@ -146,6 +147,17 @@ export interface Dict {
     availabilityTarget: string;
     networkArch: string;
     deployStrategy: string;
+    validation: string;
+    validationErrors: (n: number) => string;
+    validationWarnings: (n: number) => string;
+    validationPass: string;
+    nextSteps: string;
+    warningsTitle: string;
+    complexity: string;
+    requiredTeam: string;
+    minDevsBefore: string;
+    minDevsAfter: string;
+    rolloutRoadmap: string;
   };
   stateSummary: {
     title: string;
@@ -156,6 +168,8 @@ export interface Dict {
     desc: string;
     copyBtn: string;
     copied: string;
+    allLabel: string;
+    disclaimer: string;
   };
   diagramView: {
     title: string;
@@ -290,18 +304,38 @@ export interface Dict {
     cityMapDesc: string;
     zoneDescs: Record<string, string>;
     clickToExpand: string;
+    clickRoomForDetails: string;
+    backToCity: string;
+    scene3dDesc: string;
+    back: string;
+    controlsHint: string;
   };
   hero: {
     headline: string;
     subheadline: string;
     features: { icon: string; title: string; desc: string }[];
     cta: string;
+    tabSummary: string;
+    tabDiagram: string;
+    tabCost: (cost: string) => string;
+    tabWafr: string;
+    exampleLabel: string;
+    exampleDesc: string;
+    statCost: string;
+    statWafr: string;
+    statServices: string;
+    statAvailability: string;
   };
   share: {
     designYourOwn: string;
     sharedDesign: string;
     perMonth: string;
     services: string;
+    monthlyCost: string;
+  };
+  errorBoundary: {
+    title: string;
+    tryAgain: string;
   };
   diagram: {
     title: string;

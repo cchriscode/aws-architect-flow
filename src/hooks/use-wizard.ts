@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import type { WizardState } from "@/lib/types";
 import { PHASES, type PhaseDefinition } from "@/data/phases";
 import { buildPhaseQuestions } from "@/lib/questions";
@@ -49,9 +49,12 @@ export function useWizard() {
   const phaseState = state[phase.id] || {};
   const questions = buildPhaseQuestions(phase.id, state, phaseState, lang);
 
-  const allPhaseState = { ...state, [phase.id]: phaseState };
+  const allPhaseState = useMemo(
+    () => ({ ...state, [phase.id]: phaseState }),
+    [state, phase.id, phaseState]
+  );
 
-  const isPhaseComplete = useCallback(() => {
+  const isPhaseComplete = useMemo(() => {
     return questions
       .filter((q) => !q.skip)
       .every((q) => {
@@ -92,6 +95,12 @@ export function useWizard() {
             for (const p of deps.phases) {
               delete updated[p];
             }
+            // Also remove cleared phases from completedPhases
+            setCompletedPhases((prev) => {
+              const next = new Set(prev);
+              for (const p of deps.phases!) next.delete(p);
+              return next;
+            });
           }
         }
       }
@@ -105,13 +114,20 @@ export function useWizard() {
     setCompletedPhases((prev) => new Set([...prev, phase.id]));
     if (phaseIdx < PHASES.length - 1) {
       let nextIdx = phaseIdx + 1;
-      while (nextIdx < PHASES.length - 1) {
+      while (nextIdx < PHASES.length) {
         const nextPhase = PHASES[nextIdx];
         if (nextPhase.skipPhase && nextPhase.skipPhase(updatedState)) {
           nextIdx++;
         } else break;
       }
-      setCurrentPhase(PHASES[nextIdx].id);
+      if (nextIdx < PHASES.length) {
+        setCurrentPhase(PHASES[nextIdx].id);
+      } else {
+        // All remaining phases were skipped → show results
+        const result = generateArchitecture(updatedState, lang);
+        setArch(result);
+        setShowResult(true);
+      }
     } else {
       const result = generateArchitecture(updatedState, lang);
       setArch(result);
@@ -134,6 +150,7 @@ export function useWizard() {
   }
 
   function jumpTo(phaseId: string) {
+    if (!PHASES.some((p) => p.id === phaseId)) return;
     setCurrentPhase(phaseId);
     setShowResult(false);
   }
@@ -144,6 +161,10 @@ export function useWizard() {
     setCurrentPhase("workload");
     setShowResult(false);
     setArch(null);
+  }
+
+  function returnToResults() {
+    setShowResult(true);
   }
 
   function importJSON(data: { state: WizardState; completedPhases: string[] }) {
@@ -163,6 +184,7 @@ export function useWizard() {
 
   // localStorage 자동 저장
   useEffect(() => {
+    if (!hydrated) return;
     try {
       const toSave = {
         currentPhase,
@@ -173,7 +195,7 @@ export function useWizard() {
       };
       localStorage.setItem(SAVE_KEY, JSON.stringify(toSave));
     } catch (e) { console.warn('[wizard] Failed to save state:', e); }
-  }, [currentPhase, state, showResult, arch, completedPhases]);
+  }, [hydrated, currentPhase, state, showResult, arch, completedPhases]);
 
   // URL에서 상태 복원
   useEffect(() => {
@@ -212,5 +234,6 @@ export function useWizard() {
     reset,
     importJSON,
     applyTemplate,
+    returnToResults,
   };
 }

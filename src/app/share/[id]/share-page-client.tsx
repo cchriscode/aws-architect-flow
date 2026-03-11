@@ -8,7 +8,6 @@ import { generateArchitecture } from "@/lib/architecture";
 import { validateState } from "@/lib/validate";
 import { wellArchitectedScore } from "@/lib/wafr";
 import { estimateMonthlyCost } from "@/lib/cost";
-import { generateChecklist } from "@/lib/checklist";
 import { generateCodeSnippets } from "@/lib/code-snippets";
 
 import { SummaryView } from "@/components/result/SummaryView";
@@ -25,7 +24,6 @@ import type { WizardState } from "@/lib/types";
 
 interface SharePageClientProps {
   state: Record<string, unknown>;
-  completedPhases: string[];
   headline: string;
   monthlyCost: number;
   wafrScore: number;
@@ -53,12 +51,7 @@ export function SharePageClient({
     const _wa = wellArchitectedScore(wizardState, lang);
     const _cost = estimateMonthlyCost(wizardState, lang);
 
-    let checklistLabel = t.result.tabs.checklist;
-    try {
-      const cl = generateChecklist(wizardState, lang);
-      checklistLabel = t.result.tabs.checklistPct(0);
-      void cl;
-    } catch { /* ignore */ }
+    const checklistLabel = t.result.tabs.checklist;
 
     let codeLabel = t.result.tabs.code;
     try {
@@ -98,7 +91,7 @@ export function SharePageClient({
             <div className="flex justify-center gap-3">
               <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-center">
                 <div className="text-[10px] text-gray-400">
-                  {lang === "ko" ? "월간 비용" : "Monthly Cost"}
+                  {t.share.monthlyCost}
                 </div>
                 <div className="text-base font-bold text-emerald-600">
                   ${monthlyCost.toLocaleString()}

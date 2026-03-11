@@ -311,19 +311,28 @@ export function generateSecurityGroups(
   if (hasAnyDbSg) {
     const dbInbound: { port: string; from: string }[] = [];
     const srcSg = isServerless ? "lambda_sg" : "app_sg";
-    const srcLabel = isServerless ? _.db_in_app : _.db_in_app;
+    const srcLabel = _.db_in_app;
 
     if (hasRdbms) {
-      const dbPort = dbArr.some((d) => d.includes("pg")) ? "5432" : "3306";
-      dbInbound.push({
-        port: dbPort,
-        from: `${srcSg} (${srcLabel})`,
-      });
-      if (hasCritCert) {
+      const hasPg = dbArr.some((d) => d.includes("pg"));
+      const hasMysql = dbArr.some((d) => d.includes("mysql"));
+      if (hasPg) {
         dbInbound.push({
-          port: dbPort,
-          from: _.db_in_bastion,
+          port: "5432",
+          from: `${srcSg} (${srcLabel} - PostgreSQL)`,
         });
+        if (hasCritCert) {
+          dbInbound.push({ port: "5432", from: _.db_in_bastion });
+        }
+      }
+      if (hasMysql) {
+        dbInbound.push({
+          port: "3306",
+          from: `${srcSg} (${srcLabel} - MySQL)`,
+        });
+        if (hasCritCert) {
+          dbInbound.push({ port: "3306", from: _.db_in_bastion });
+        }
       }
     }
     if (hasDocumentDb) {

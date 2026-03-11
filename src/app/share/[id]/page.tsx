@@ -52,7 +52,6 @@ export default async function SharePage({ params }: Props) {
   return (
     <SharePageClient
       state={share.state as Record<string, unknown>}
-      completedPhases={share.completedPhases as string[]}
       headline={share.headline}
       monthlyCost={share.monthlyCost}
       wafrScore={share.wafrScore}

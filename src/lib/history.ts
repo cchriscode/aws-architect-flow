@@ -76,25 +76,29 @@ export async function saveToHistory(
     }),
   });
 
+  if (!res.ok) throw new Error(`Failed to save history: ${res.status}`);
   const row = await res.json();
   return toHistoryEntry(row);
 }
 
 export async function deleteFromHistory(id: string): Promise<void> {
-  await fetch(`/api/history/${id}`, { method: "DELETE" });
+  const res = await fetch(`/api/history/${id}`, { method: "DELETE" });
+  if (!res.ok) throw new Error(`Failed to delete history: ${res.status}`);
 }
 
 export async function renameHistory(
   id: string,
   newName: string
 ): Promise<void> {
-  await fetch(`/api/history/${id}`, {
+  const res = await fetch(`/api/history/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name: newName }),
   });
+  if (!res.ok) throw new Error(`Failed to rename history: ${res.status}`);
 }
 
 export async function clearHistory(): Promise<void> {
-  await fetch("/api/history", { method: "DELETE" });
+  const res = await fetch("/api/history", { method: "DELETE" });
+  if (!res.ok) throw new Error(`Failed to clear history: ${res.status}`);
 }

@@ -175,7 +175,7 @@ resource "aws_security_group" "cache" {
       "id": "db_sg",
       "inbound": [
         {
-          "from": "app_sg (allow access from app servers only)",
+          "from": "app_sg (allow access from app servers only - PostgreSQL)",
           "port": "5432",
         },
       ],
@@ -436,7 +436,7 @@ resource "aws_security_group" "cache" {
       "id": "db_sg",
       "inbound": [
         {
-          "from": "app_sg (앱 서버에서만 접근 허용)",
+          "from": "app_sg (앱 서버에서만 접근 허용 - PostgreSQL)",
           "port": "5432",
         },
       ],
@@ -689,7 +689,7 @@ resource "aws_security_group" "cache" {
       "id": "db_sg",
       "inbound": [
         {
-          "from": "app_sg (allow access from app servers only)",
+          "from": "app_sg (allow access from app servers only - PostgreSQL)",
           "port": "5432",
         },
         {
@@ -924,7 +924,7 @@ resource "aws_security_group" "cache" {
       "id": "db_sg",
       "inbound": [
         {
-          "from": "app_sg (앱 서버에서만 접근 허용)",
+          "from": "app_sg (앱 서버에서만 접근 허용 - PostgreSQL)",
           "port": "5432",
         },
         {
@@ -1407,7 +1407,7 @@ resource "aws_security_group" "cache" {
       "id": "db_sg",
       "inbound": [
         {
-          "from": "app_sg (allow access from app servers only)",
+          "from": "app_sg (allow access from app servers only - PostgreSQL)",
           "port": "5432",
         },
       ],
@@ -1617,7 +1617,7 @@ resource "aws_security_group" "cache" {
       "id": "db_sg",
       "inbound": [
         {
-          "from": "app_sg (앱 서버에서만 접근 허용)",
+          "from": "app_sg (앱 서버에서만 접근 허용 - PostgreSQL)",
           "port": "5432",
         },
       ],
@@ -1843,7 +1843,7 @@ resource "aws_security_group" "cache" {
       "id": "db_sg",
       "inbound": [
         {
-          "from": "app_sg (allow access from app servers only)",
+          "from": "app_sg (allow access from app servers only - PostgreSQL)",
           "port": "5432",
         },
         {
@@ -2125,7 +2125,7 @@ resource "aws_security_group" "cache" {
       "id": "db_sg",
       "inbound": [
         {
-          "from": "app_sg (앱 서버에서만 접근 허용)",
+          "from": "app_sg (앱 서버에서만 접근 허용 - PostgreSQL)",
           "port": "5432",
         },
         {
@@ -2365,7 +2365,7 @@ resource "aws_security_group" "db" {
       "id": "db_sg",
       "inbound": [
         {
-          "from": "app_sg (allow access from app servers only)",
+          "from": "app_sg (allow access from app servers only - PostgreSQL)",
           "port": "5432",
         },
       ],
@@ -2536,7 +2536,7 @@ resource "aws_security_group" "db" {
       "id": "db_sg",
       "inbound": [
         {
-          "from": "app_sg (앱 서버에서만 접근 허용)",
+          "from": "app_sg (앱 서버에서만 접근 허용 - PostgreSQL)",
           "port": "5432",
         },
       ],
@@ -2618,29 +2618,6 @@ resource "aws_security_group" "lambda" {
     cidr_blocks = ["0.0.0.0/0"]  # Via VPC Endpoint (Secrets Manager, ECR, CloudWatch)
     description = "AWS services via VPC Endpoint"
   }
-  egress {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.db.id]
-    description     = "Lambda to DB"
-  }
-}
-
-# ── DB Security Group
-resource "aws_security_group" "db" {
-  name_prefix = "db-"
-  vpc_id      = module.vpc.vpc_id
-  description = "Database SG -- no internet, app/lambda only"
-
-  ingress {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.lambda.id]
-    description     = "From app only"
-  }
-  # No outbound -- DB only responds (stateful, no explicit allow needed)
 }
 ",
   "groups": [
@@ -2674,27 +2651,10 @@ resource "aws_security_group" "db" {
       "name": "Lambda Security Group",
       "outbound": [
         {
-          "port": "5432",
-          "to": "db_sg (Aurora PG)",
-        },
-        {
           "port": "443",
           "to": "0.0.0.0/0 VPC Endpoint (Secrets Manager, DynamoDB, S3)",
         },
       ],
-    },
-    {
-      "color": "#dc2626",
-      "desc": "DB accessible from app/Lambda only. Internet access fully blocked",
-      "id": "db_sg",
-      "inbound": [
-        {
-          "from": "lambda_sg (allow access from app servers only)",
-          "port": "5432",
-        },
-      ],
-      "name": "Database Security Group",
-      "outbound": [],
     },
   ],
   "iac": "terraform",
@@ -2749,29 +2709,6 @@ resource "aws_security_group" "lambda" {
     cidr_blocks = ["0.0.0.0/0"]  # VPC Endpoint 경유 (Secrets Manager, ECR, CloudWatch)
     description = "AWS services via VPC Endpoint"
   }
-  egress {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.db.id]
-    description     = "Lambda to DB"
-  }
-}
-
-# ── DB Security Group
-resource "aws_security_group" "db" {
-  name_prefix = "db-"
-  vpc_id      = module.vpc.vpc_id
-  description = "Database SG -- no internet, app/lambda only"
-
-  ingress {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.lambda.id]
-    description     = "From app only"
-  }
-  # 아웃바운드 없음 -- DB는 응답만 (stateful이므로 별도 허용 불필요)
 }
 ",
   "groups": [
@@ -2805,27 +2742,10 @@ resource "aws_security_group" "db" {
       "name": "Lambda Security Group",
       "outbound": [
         {
-          "port": "5432",
-          "to": "db_sg (Aurora PG)",
-        },
-        {
           "port": "443",
           "to": "0.0.0.0/0 VPC Endpoint (Secrets Manager, DynamoDB, S3)",
         },
       ],
-    },
-    {
-      "color": "#dc2626",
-      "desc": "DB는 앱/Lambda에서만 접근. 인터넷 접근 완전 차단",
-      "id": "db_sg",
-      "inbound": [
-        {
-          "from": "lambda_sg (앱 서버에서만 접근 허용)",
-          "port": "5432",
-        },
-      ],
-      "name": "Database Security Group",
-      "outbound": [],
     },
   ],
   "iac": "terraform",
@@ -3577,7 +3497,7 @@ resource "aws_security_group" "cache" {
       "id": "db_sg",
       "inbound": [
         {
-          "from": "app_sg (allow access from app servers only)",
+          "from": "app_sg (allow access from app servers only - PostgreSQL)",
           "port": "5432",
         },
       ],
@@ -3808,7 +3728,7 @@ resource "aws_security_group" "cache" {
       "id": "db_sg",
       "inbound": [
         {
-          "from": "app_sg (앱 서버에서만 접근 허용)",
+          "from": "app_sg (앱 서버에서만 접근 허용 - PostgreSQL)",
           "port": "5432",
         },
       ],
@@ -4217,7 +4137,7 @@ resource "aws_security_group" "cache" {
       "id": "db_sg",
       "inbound": [
         {
-          "from": "app_sg (allow access from app servers only)",
+          "from": "app_sg (allow access from app servers only - PostgreSQL)",
           "port": "5432",
         },
       ],
@@ -4427,7 +4347,7 @@ resource "aws_security_group" "cache" {
       "id": "db_sg",
       "inbound": [
         {
-          "from": "app_sg (앱 서버에서만 접근 허용)",
+          "from": "app_sg (앱 서버에서만 접근 허용 - PostgreSQL)",
           "port": "5432",
         },
       ],

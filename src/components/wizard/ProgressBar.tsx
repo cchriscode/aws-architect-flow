@@ -46,38 +46,54 @@ export function ProgressBar({
               className="flex items-center"
               ref={active ? activeRef : undefined}
             >
-              <div
-                onClick={() => done && onJump(p.id)}
-                className={cn(
-                  "flex flex-col items-center gap-1 px-1.5",
-                  done ? "cursor-pointer" : "cursor-default"
-                )}
-              >
-                <div
-                  className={cn(
-                    "flex h-9 w-9 items-center justify-center rounded-full text-[11px] font-bold transition-all md:h-7 md:w-7",
-                    active
-                      ? "border-2 border-indigo-800 bg-indigo-600 text-white"
-                      : done
-                        ? "border-2 border-transparent bg-emerald-600 text-white"
+              {done ? (
+                <button
+                  type="button"
+                  onClick={() => onJump(p.id)}
+                  className="flex cursor-pointer flex-col items-center gap-1 px-1.5"
+                  aria-label={p.label}
+                >
+                  <div
+                    className={cn(
+                      "flex h-9 w-9 items-center justify-center rounded-full text-[11px] font-bold transition-all md:h-7 md:w-7",
+                      active
+                        ? "border-2 border-indigo-800 bg-indigo-600 text-white"
+                        : "border-2 border-transparent bg-emerald-600 text-white"
+                    )}
+                  >
+                    {!active ? "\u2713" : p.no}
+                  </div>
+                  <div
+                    className={cn(
+                      "hidden whitespace-nowrap text-[9px] md:block",
+                      active ? "font-bold text-indigo-600" : "font-normal text-emerald-600"
+                    )}
+                  >
+                    {p.label}
+                  </div>
+                </button>
+              ) : (
+                <div className="flex cursor-default flex-col items-center gap-1 px-1.5">
+                  <div
+                    className={cn(
+                      "flex h-9 w-9 items-center justify-center rounded-full text-[11px] font-bold transition-all md:h-7 md:w-7",
+                      active
+                        ? "border-2 border-indigo-800 bg-indigo-600 text-white"
                         : "border-2 border-transparent bg-gray-200 text-gray-400"
-                  )}
-                >
-                  {done && !active ? "\u2713" : p.no}
+                    )}
+                  >
+                    {p.no}
+                  </div>
+                  <div
+                    className={cn(
+                      "hidden whitespace-nowrap text-[9px] md:block",
+                      active ? "font-bold text-indigo-600" : "font-normal text-gray-400"
+                    )}
+                  >
+                    {p.label}
+                  </div>
                 </div>
-                <div
-                  className={cn(
-                    "hidden whitespace-nowrap text-[9px] md:block",
-                    active
-                      ? "font-bold text-indigo-600"
-                      : done
-                        ? "font-normal text-emerald-600"
-                        : "font-normal text-gray-400"
-                  )}
-                >
-                  {p.label}
-                </div>
-              </div>
+              )}
               {i < phases.length - 1 && (
                 <div
                   className={cn(

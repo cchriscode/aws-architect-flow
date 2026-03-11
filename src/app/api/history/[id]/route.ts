@@ -12,23 +12,28 @@ export async function PATCH(
   }
 
   const { id } = await params;
-  const { name } = await req.json();
+  let body: Record<string, unknown>;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+  const { name } = body as { name?: string };
 
   if (!name?.trim()) {
     return NextResponse.json({ error: "name required" }, { status: 400 });
   }
 
-  // Verify ownership
-  const existing = await prisma.historyEntry.findUnique({ where: { id } });
-  if (!existing || existing.userId !== session.user.id) {
+  // Atomic ownership check + update
+  const { count } = await prisma.historyEntry.updateMany({
+    where: { id, userId: session.user.id },
+    data: { name: name.trim() },
+  });
+  if (count === 0) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const entry = await prisma.historyEntry.update({
-    where: { id },
-    data: { name: name.trim() },
-  });
-
+  const entry = await prisma.historyEntry.findUnique({ where: { id } });
   return NextResponse.json(entry);
 }
 
@@ -43,13 +48,13 @@ export async function DELETE(
 
   const { id } = await params;
 
-  // Verify ownership
-  const existing = await prisma.historyEntry.findUnique({ where: { id } });
-  if (!existing || existing.userId !== session.user.id) {
+  // Atomic ownership check + delete
+  const { count } = await prisma.historyEntry.deleteMany({
+    where: { id, userId: session.user.id },
+  });
+  if (count === 0) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-
-  await prisma.historyEntry.delete({ where: { id } });
 
   return NextResponse.json({ ok: true });
 }

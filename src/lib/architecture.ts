@@ -2,6 +2,7 @@
 import type { WizardState } from "@/lib/types";
 import { toArray, toArrayFiltered, azToNum } from "@/lib/shared";
 import { T } from "./architecture-dict";
+import { wellArchitectedScore } from "@/lib/wafr";
 
 export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko") {
   const s = state;
@@ -860,19 +861,14 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
     ]
   });
 
-  // ── Well-Architected Score ─────────────────────────
-  const hasCert = (s.compliance?.cert || []).some((c: string) => c !== "none");
-  const hasStrictEnc = s.compliance?.encryption === "strict";
-  const waScore = {
-    operational: (s.cicd?.iac && s.cicd?.iac !== "none" && s.cicd?.pipeline && s.cicd?.pipeline !== "none" && (s.cicd?.deploy_strategy === "canary" || s.cicd?.env_count === "four")) ? 5
-      : (s.cicd?.iac && s.cicd?.iac !== "none" && s.cicd?.pipeline && s.cicd?.pipeline !== "none") ? 4
-      : (s.cicd?.iac && s.cicd?.iac !== "none") ? 3 : 2,
-    security: (isCritical && hasCert && hasStrictEnc) ? 5 : (isCritical || (hasCert && isHighAvail)) ? 4 : (s.workload?.data_sensitivity === "sensitive" || hasCert) ? 3 : 2,
-    reliability: (isHighAvail && s.slo?.rto === "lt1min") ? 5 : isHighAvail ? 4 : s.slo?.availability === "99.9" ? 3 : 2,
-    performance: isLargeScale && hasCache ? 5 : isLargeScale ? 4 : hasCache ? 4 : 3,
-    cost: s.cost?.commitment === "3yr" ? 5 : s.cost?.commitment === "1yr" ? 4 : s.cost?.spot_usage !== "no" ? 3 : 2,
-    sustainability: s.compute?.arch_pattern === "serverless" ? 5 : s.compute?.compute_node === "fargate" ? 4 : 3,
-  };
+  // ── Well-Architected Score (delegate to wafr.ts) ──
+  const wafrResult = wellArchitectedScore(state, lang);
+  const toFive = (score: number) => score >= 80 ? 5 : score >= 60 ? 4 : score >= 40 ? 3 : score >= 20 ? 2 : 1;
+  const pillarMap: Record<string, string> = { ops: "operational", sec: "security", rel: "reliability", perf: "performance", cost: "cost", sus: "sustainability" };
+  const waScore: Record<string, number> = {};
+  for (const [k, v] of Object.entries(wafrResult.pillars)) {
+    waScore[pillarMap[k] || k] = toFive(v.score);
+  }
 
   return { layers, waScore };
 }

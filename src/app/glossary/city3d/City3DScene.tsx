@@ -113,16 +113,14 @@ function InteriorView({
             </h3>
             <p className="text-xs text-white/70">
               {terms.length} services —{" "}
-              {lang === "ko"
-                ? "방을 클릭하면 상세 정보를 볼 수 있습니다"
-                : "Click a room for details"}
+              {t.glossary.clickRoomForDetails}
             </p>
           </div>
           <button
             onClick={onBack}
             className="rounded-lg bg-white/20 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-white/30"
           >
-            ← {lang === "ko" ? "도시로 돌아가기" : "Back to City"}
+            ← {t.glossary.backToCity}
           </button>
         </div>
 
@@ -233,9 +231,7 @@ export default function City3DScene({
         {t.glossary.viewIllustration}
       </h2>
       <p className="mt-1 text-xs text-gray-500">
-        {lang === "ko"
-          ? "AWS 서비스를 3D 도시로 시각화. 마우스로 회전/줌, 건물 클릭 → 내부 탐험. 도로 표지판 = 라우트 테이블."
-          : "AWS services as a 3D city. Drag=Rotate, Scroll=Zoom, Click buildings to enter. Road signs = Route Tables."}
+        {t.glossary.scene3dDesc}
       </p>
 
       <div
@@ -321,16 +317,14 @@ export default function City3DScene({
               onClick={handleBack}
               className="rounded-lg bg-white/90 px-3 py-1.5 text-xs font-medium text-gray-700 shadow-md backdrop-blur hover:bg-gray-50"
             >
-              ← {lang === "ko" ? "돌아가기" : "Back"}
+              ← {t.glossary.back}
             </button>
           </div>
         )}
 
         {mode === "city" && (
           <div className="absolute bottom-3 left-3 z-20 rounded-lg bg-black/50 px-3 py-1.5 text-[10px] text-white/90 backdrop-blur">
-            {lang === "ko"
-              ? "🖱 드래그=이동 | 우클릭=회전 | 스크롤=줌 | WASD/화살표=탐색 | 건물클릭=입장"
-              : "🖱 Drag=Pan | Right-drag=Rotate | Scroll=Zoom | WASD/Arrows=Navigate | Click=Enter"}
+            {t.glossary.controlsHint}
           </div>
         )}
       </div>

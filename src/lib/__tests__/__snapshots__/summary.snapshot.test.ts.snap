@@ -93,7 +93,7 @@ exports[`generateSummary snapshots > b2b_saas (en) 1`] = `
   "stats": {
     "availability": "99.95",
     "errors": 0,
-    "monthlyCost": 1388,
+    "monthlyCost": 1581,
     "wafrScore": 85,
     "warnings": 0,
   },
@@ -206,7 +206,7 @@ exports[`generateSummary snapshots > b2b_saas (ko) 1`] = `
   "stats": {
     "availability": "99.95",
     "errors": 0,
-    "monthlyCost": 1388,
+    "monthlyCost": 1581,
     "wafrScore": 85,
     "warnings": 0,
   },
@@ -330,7 +330,7 @@ exports[`generateSummary snapshots > compliance (en) 1`] = `
   "stats": {
     "availability": "99.99",
     "errors": 0,
-    "monthlyCost": 4050,
+    "monthlyCost": 4318,
     "wafrScore": 86,
     "warnings": 1,
   },
@@ -456,7 +456,7 @@ exports[`generateSummary snapshots > compliance (ko) 1`] = `
   "stats": {
     "availability": "99.99",
     "errors": 0,
-    "monthlyCost": 4050,
+    "monthlyCost": 4318,
     "wafrScore": 86,
     "warnings": 1,
   },
@@ -568,8 +568,8 @@ exports[`generateSummary snapshots > data_pipeline (en) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 421,
-    "wafrScore": 75,
+    "monthlyCost": 321,
+    "wafrScore": 74,
     "warnings": 0,
   },
   "teamReqs": {
@@ -676,8 +676,8 @@ exports[`generateSummary snapshots > data_pipeline (ko) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 421,
-    "wafrScore": 75,
+    "monthlyCost": 321,
+    "wafrScore": 74,
     "warnings": 0,
   },
   "teamReqs": {
@@ -784,7 +784,7 @@ exports[`generateSummary snapshots > ecommerce_mvp (en) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 831,
+    "monthlyCost": 891,
     "wafrScore": 78,
     "warnings": 0,
   },
@@ -892,7 +892,7 @@ exports[`generateSummary snapshots > ecommerce_mvp (ko) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 831,
+    "monthlyCost": 891,
     "wafrScore": 78,
     "warnings": 0,
   },
@@ -1016,7 +1016,7 @@ exports[`generateSummary snapshots > eks_full (en) 1`] = `
   "stats": {
     "availability": "99.99",
     "errors": 0,
-    "monthlyCost": 11012,
+    "monthlyCost": 11786,
     "wafrScore": 93,
     "warnings": 2,
   },
@@ -1147,7 +1147,7 @@ exports[`generateSummary snapshots > eks_full (ko) 1`] = `
   "stats": {
     "availability": "99.99",
     "errors": 0,
-    "monthlyCost": 11012,
+    "monthlyCost": 11786,
     "wafrScore": 93,
     "warnings": 2,
   },
@@ -1262,8 +1262,8 @@ exports[`generateSummary snapshots > generic_web_api (en) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 750,
-    "wafrScore": 70,
+    "monthlyCost": 695,
+    "wafrScore": 68,
     "warnings": 0,
   },
   "teamReqs": {
@@ -1370,8 +1370,8 @@ exports[`generateSummary snapshots > generic_web_api (ko) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 750,
-    "wafrScore": 70,
+    "monthlyCost": 695,
+    "wafrScore": 68,
     "warnings": 0,
   },
   "teamReqs": {
@@ -1413,19 +1413,14 @@ exports[`generateSummary snapshots > internal_tool (en) 1`] = `
       "role": "ARM/Graviton2, 512MB~3GB",
     },
     {
-      "icon": "⚙️",
-      "name": "RDS Proxy",
-      "role": "Lambda <-> RDS connection pooling",
+      "icon": "🗄️",
+      "name": "Key-Value NoSQL DB (DynamoDB)",
+      "role": "Single-AZ, On-Demand/Provisioned",
     },
     {
       "icon": "🗄️",
-      "name": "Aurora PostgreSQL",
-      "role": "Single-AZ, private subnet",
-    },
-    {
-      "icon": "🗄️",
-      "name": "AWS Backup",
-      "role": "Backup retention 7 days, cross-region copy",
+      "name": "DynamoDB PITR + Backup",
+      "role": "Point-in-Time Recovery (35 days) + AWS Backup policy",
     },
     {
       "icon": "🗄️",
@@ -1436,6 +1431,11 @@ exports[`generateSummary snapshots > internal_tool (en) 1`] = `
       "icon": "🚀",
       "name": "DNS/Domain Management",
       "role": "Basic A record",
+    },
+    {
+      "icon": "🚀",
+      "name": "AWS Certificate Manager (ACM)",
+      "role": "Auto-issue and renew TLS certificates for ALB/CloudFront",
     },
   ],
   "nextSteps": [
@@ -1478,8 +1478,8 @@ exports[`generateSummary snapshots > internal_tool (en) 1`] = `
   "stats": {
     "availability": "99",
     "errors": 0,
-    "monthlyCost": 139,
-    "wafrScore": 61,
+    "monthlyCost": 90,
+    "wafrScore": 62,
     "warnings": 0,
   },
   "teamReqs": {
@@ -1521,19 +1521,14 @@ exports[`generateSummary snapshots > internal_tool (ko) 1`] = `
       "role": "ARM/Graviton2, 512MB~3GB",
     },
     {
-      "icon": "⚙️",
-      "name": "RDS Proxy",
-      "role": "Lambda ↔ RDS 커넥션 풀링",
+      "icon": "🗄️",
+      "name": "키-값 NoSQL DB (DynamoDB)",
+      "role": "Single-AZ, On-Demand/Provisioned",
     },
     {
       "icon": "🗄️",
-      "name": "Aurora PostgreSQL",
-      "role": "Single-AZ, 프라이빗 서브넷",
-    },
-    {
-      "icon": "🗄️",
-      "name": "AWS Backup",
-      "role": "백업 보존 7일, 크로스 리전 복사",
+      "name": "DynamoDB PITR + Backup",
+      "role": "Point-in-Time Recovery (35일) + AWS Backup 정책",
     },
     {
       "icon": "🗄️",
@@ -1544,6 +1539,11 @@ exports[`generateSummary snapshots > internal_tool (ko) 1`] = `
       "icon": "🚀",
       "name": "DNS/도메인 관리",
       "role": "기본 A레코드",
+    },
+    {
+      "icon": "🚀",
+      "name": "AWS Certificate Manager (ACM)",
+      "role": "ALB·CloudFront TLS 인증서 자동 발급·갱신",
     },
   ],
   "nextSteps": [
@@ -1586,8 +1586,8 @@ exports[`generateSummary snapshots > internal_tool (ko) 1`] = `
   "stats": {
     "availability": "99",
     "errors": 0,
-    "monthlyCost": 139,
-    "wafrScore": 61,
+    "monthlyCost": 90,
+    "wafrScore": 62,
     "warnings": 0,
   },
   "teamReqs": {
@@ -1694,7 +1694,7 @@ exports[`generateSummary snapshots > iot_platform (en) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 955,
+    "monthlyCost": 998,
     "wafrScore": 76,
     "warnings": 0,
   },
@@ -1802,7 +1802,7 @@ exports[`generateSummary snapshots > iot_platform (ko) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 955,
+    "monthlyCost": 998,
     "wafrScore": 76,
     "warnings": 0,
   },
@@ -1910,7 +1910,7 @@ exports[`generateSummary snapshots > minimal (en) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 300,
+    "monthlyCost": 153,
     "wafrScore": 22,
     "warnings": 2,
   },
@@ -2018,7 +2018,7 @@ exports[`generateSummary snapshots > minimal (ko) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 300,
+    "monthlyCost": 153,
     "wafrScore": 22,
     "warnings": 2,
   },
@@ -2126,7 +2126,7 @@ exports[`generateSummary snapshots > realtime_chat (en) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 1203,
+    "monthlyCost": 1261,
     "wafrScore": 75,
     "warnings": 0,
   },
@@ -2234,7 +2234,7 @@ exports[`generateSummary snapshots > realtime_chat (ko) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 1203,
+    "monthlyCost": 1261,
     "wafrScore": 75,
     "warnings": 0,
   },
@@ -2558,7 +2558,7 @@ exports[`generateSummary snapshots > ticketing (en) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 964,
+    "monthlyCost": 1032,
     "wafrScore": 79,
     "warnings": 0,
   },
@@ -2666,7 +2666,7 @@ exports[`generateSummary snapshots > ticketing (ko) 1`] = `
   "stats": {
     "availability": "99.9",
     "errors": 0,
-    "monthlyCost": 964,
+    "monthlyCost": 1032,
     "wafrScore": 79,
     "warnings": 0,
   },

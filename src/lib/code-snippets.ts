@@ -46,7 +46,7 @@ export function generateCodeSnippets(state: WizardState): CodeSnippet[] {
   const isTx        = types.includes("ecommerce") || types.includes("ticketing") || state.workload?.business_model === "transaction";
   const isServerless= archP === "serverless";
   const isEks       = orchest === "eks";
-  const isEcs       = !isEks && !isServerless;
+  const isEcs       = !isEks && archP === "container";
   const isLarge     = dau === "large" || dau === "xlarge";
   const hasCritCert = cert.some((c) => ["pci", "hipaa", "sox"].includes(c));
   const hasPersonal = ["sensitive","critical"].includes(state.workload?.data_sensitivity);

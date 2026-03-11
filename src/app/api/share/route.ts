@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 import { estimateMonthlyCost } from "@/lib/cost";
 import { wellArchitectedScore } from "@/lib/wafr";
 import { generateSummary } from "@/lib/summary";
@@ -8,11 +9,20 @@ import { generateArchitecture } from "@/lib/architecture";
 import type { WizardState } from "@/lib/types";
 
 function generateShortId(): string {
-  return crypto.randomBytes(6).toString("base64url");
+  return crypto.randomBytes(12).toString("base64url");
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  let body: Record<string, unknown>;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
   const { state, completedPhases } = body as {
     state: WizardState;
     completedPhases: string[];

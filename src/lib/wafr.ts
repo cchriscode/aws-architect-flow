@@ -446,7 +446,7 @@ export function wellArchitectedScore(state: WizardState, lang: "ko" | "en" = "ko
 
   const storArr   = toArray(state.data?.storage);
   const isEks = orchest === "eks";
-  const isServerless = archP === "serverless" || archP === "app_runner";
+  const isServerless = archP === "serverless";
   const scalingArr = toArray(scaling);
   const queueArr = toArray(state.integration?.queue_type);
   const mesh     = state.platform?.service_mesh;
