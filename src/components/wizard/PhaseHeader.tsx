@@ -23,7 +23,7 @@ export function PhaseHeader({
   const pct = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
 
   return (
-    <div className="mb-4 rounded-xl border border-gray-200 bg-white px-6 py-5">
+    <div className="sticky top-0 z-20 mb-4 rounded-xl border border-gray-200 bg-white/95 px-6 py-5 backdrop-blur shadow-sm">
       <div className="flex items-center gap-3.5">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border-2 border-indigo-200 bg-indigo-50 text-[22px]">
           {phase.icon}

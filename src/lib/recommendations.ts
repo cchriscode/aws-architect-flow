@@ -253,7 +253,7 @@ export function getRecommendations(
   if (isLarge || isMedPlus)
     R("network","nat_strategy","endpoint",t("💰 대규모 비용 절감","💰 Large-scale cost savings"),t("S3·DynamoDB 트래픽을 NAT GW 없이 직접 라우팅. 대용량 서비스에서 월 수십만원 절감","Route S3/DynamoDB traffic directly without NAT GW. Saves hundreds of dollars/month for high-volume services"));
 
-  if (!types.includes("saas") || !isLarge)
+  if ((!types.includes("saas") || !isLarge) && !isB2B)
     R("network","hybrid","no",t("✨ 퍼블릭 클라우드 전용","✨ Public cloud only"),t("온프레미스 연결 불필요. VPN 설정 없이 단순한 구조 유지","No on-premises connection needed. Maintain simple architecture without VPN setup"));
   if (isB2B && !isXL)
     R("network","hybrid","vpn",t("✨ B2B 사무실 연결","✨ B2B office connectivity"),t("Site-to-Site VPN으로 사무실과 AWS 연결. 구성 빠르고 비용 저렴. 고대역폭 불필요 시","Connect office to AWS with Site-to-Site VPN. Quick setup, low cost. When high bandwidth isn't needed"));
@@ -277,7 +277,7 @@ export function getRecommendations(
     R("compute","arch_pattern","hybrid",t("✨ IoT/데이터 파이프라인 권장","✨ Recommended for IoT/data pipelines"),t("API 서버는 컨테이너, 이벤트/배치 처리는 Lambda. 역할에 맞는 컴퓨팅 선택","Containers for API servers, Lambda for event/batch processing. Choose compute that fits the role"));
   if (isLarge && isMature && !isIoT)
     R("compute","arch_pattern","vm",t("✨ 고성능/특수 워크로드","✨ High-performance/specialized workloads"),t("ML 추론, 게임 서버처럼 GPU나 특수 인스턴스가 필요한 경우에 한해 선택","Choose only when GPU or specialized instances are needed, like ML inference or game servers"));
-  if (isMVP || (exp === "beginner" && !isXL))
+  if ((isMVP || (exp === "beginner" && !isXL)) && !isRT)
     R("compute","arch_pattern","app_runner",t("⭐ MVP+입문자 최적","⭐ Best for MVP+beginners"),t("가장 빠르게 컨테이너 서비스 시작. VPC 설정 불필요, 자동 TLS·스케일링","Fastest way to start a container service. No VPC setup needed, auto TLS and scaling"));
 
   if (begOrSolo || ops === "managed" || (!isLarge && !isEks))
@@ -304,7 +304,7 @@ export function getRecommendations(
     R("compute","scaling","manual",t("✨ 고정 트래픽 절약","✨ Savings for fixed traffic"),t("트래픽이 완전히 예측 가능하면 고정 용량 + Reserved Instance가 가장 저렴","Fixed capacity + Reserved Instances is cheapest when traffic is fully predictable"));
 
   // ── COMPUTE: cost-aware recommendations ───────────────────────
-  if (isCostFirst && !isLarge)
+  if (isCostFirst && !isLarge && state.team?.language !== "spring_boot")
     R("compute","arch_pattern","serverless",t("💰 유휴 비용 0원 최저 비용 아키텍처","💰 Zero idle cost, lowest cost architecture"),t("비용 우선 + 소규모: Lambda는 트래픽 없을 때 비용 0. 가장 저렴한 시작점","Cost first + small scale: Lambda costs zero with no traffic. The cheapest starting point"));
   if (isCostFirst)
     R("compute","compute_node","fargate",t("💰 EC2 대비 관리 비용 제로","💰 Zero management cost vs EC2"),t("비용 우선: Fargate는 EC2 대비 약간 비싸지만 패치·모니터링 인건비 절감. 총 비용(TCO) 최적","Cost first: Fargate is slightly more expensive than EC2 but saves patching/monitoring labor. Optimal TCO"));
@@ -422,7 +422,11 @@ export function getRecommendations(
     R("integration","queue_type","kinesis",t("⭐ 스트리밍 필수","⭐ Required for streaming"),t("초당 수만 IoT 메시지·클릭스트림 처리. 최대 365일 리텐션으로 재처리 가능","Process tens of thousands of IoT messages/clickstreams per second. Up to 365-day retention for reprocessing"));
   if (isXL && (isSaaS || isData))
     R("integration","queue_type","msk",t("✨ 대규모 Kafka 표준","✨ Large-scale Kafka standard"),t("MSK: 하루 수백억 이벤트. Schema Registry 강제로 데이터 계약 보장","MSK: Billions of events per day. Schema Registry enforcement guarantees data contracts"));
-  R("integration","queue_type","amazon_mq",t("✨ 온프레미스 MQ 마이그레이션","✨ On-premises MQ migration"),t("기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장","Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects"));
+  { const hyb = state.network?.hybrid;
+    const hasOnPrem = Array.isArray(hyb) ? hyb.includes("vpn") || hyb.includes("dx") : hyb === "vpn" || hyb === "dx";
+    if (hasOnPrem)
+      R("integration","queue_type","amazon_mq",t("✨ 온프레미스 MQ 마이그레이션","✨ On-premises MQ migration"),t("기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장","Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects"));
+  }
 
   if (!isIoT && !isUltraRPS && exp !== "beginner")
     R("integration","api_type","alb",t("⭐ 대부분 서비스 기본","⭐ Default for most services"),t("ALB만으로 충분합니다. API Gateway는 불필요한 비용과 복잡도를 추가합니다","ALB alone is sufficient. API Gateway adds unnecessary cost and complexity"));
@@ -559,8 +563,7 @@ export function getRecommendations(
     R("platform","ingress","kong",t("✨ API 게이트웨이 통합","✨ API gateway integration"),t("Kong: Rate Limiting·플러그인·개발자 포털이 필요한 대형 API 플랫폼","Kong: For large API platforms that need Rate Limiting, plugins, and developer portals"));
 
   R("platform","service_mesh","none",t("⭐ 대부분 EKS 서비스 충분","⭐ Sufficient for most EKS services"),t("Service Mesh 없이도 Network Policy + mTLS로 충분. 운영 복잡도 최소화","Network Policy + mTLS is sufficient without Service Mesh. Minimize operational complexity"));
-  if (hasCritCert && isXL)
-    R("platform","service_mesh","aws_app_mesh",t("✨ AWS 관리형 메시 권장","✨ AWS managed mesh recommended"),t("App Mesh: Istio보다 운영 단순. AWS X-Ray 통합으로 서비스 간 추적 가능","App Mesh: Simpler operations than Istio. Service-to-service tracing with AWS X-Ray integration"));
+  // App Mesh EOL 2026 — replaced by VPC Lattice (recommended below)
   if (isXL && exp === "senior" && teamSize === "large")
     R("platform","service_mesh","istio",t("✨ 완전한 서비스 메시 필요 시","✨ When full service mesh is needed"),t("mTLS 자동화 + 세밀한 트래픽 제어. 운영 팀 숙련도 필수. 학습 비용 높음","Automated mTLS + fine-grained traffic control. Operations team proficiency required. High learning cost"));
   if (!isEks || exp !== "senior")

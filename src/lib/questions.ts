@@ -431,7 +431,7 @@ export function buildPhaseQuestions(
           q:"회사 사무실이나 기존 온프레미스 서버와 AWS를 연결해야 하나요? (복수 선택 가능)",
           help:"VPN과 전용선을 함께 쓰는 경우도 흔합니다. 예: Direct Connect(주 경로) + Site-to-Site VPN(백업 경로). 연결이 불필요하면 '아니오'만 선택하세요.",
           multi:true, opts:[
-            {v:"no",  l:"아니오 — 클라우드에만 있으면 됩니다",  d:"모든 시스템이 AWS에 있거나, 사내 서버와 연결이 필요 없습니다."},
+            ...(state.network?.subnet_tier !== "private" ? [{v:"no",  l:"아니오 — 클라우드에만 있으면 됩니다",  d:"모든 시스템이 AWS에 있거나, 사내 서버와 연결이 필요 없습니다."}] : []),
             {v:"vpn", l:"VPN으로 연결 (인터넷 경유 암호화)",    d:"인터넷을 암호화된 터널로 연결합니다. 빠르게 구축 가능하고 비용이 저렴하지만 대역폭이 제한됩니다."},
             {v:"dx",  l:"전용선으로 연결 (Direct Connect)",    d:"물리적 전용선을 설치합니다. 안정적이고 빠르지만 개통에 수주~수개월이 걸리고 비용이 높습니다."},
           ]
@@ -486,7 +486,7 @@ export function buildPhaseQuestions(
           id:"orchestration",
           q:"여러 컨테이너를 어떻게 관리할 건가요?",
           help:"컨테이너가 많아지면 '어디서 몇 개를 돌릴지' 자동 관리가 필요합니다. ECS는 AWS 전용으로 단순하고, EKS는 쿠버네티스 업계 표준입니다. 팀 경험에 관계없이 원하는 방식을 선택하세요.",
-          skip: state.compute?.arch_pattern === "serverless" || state.compute?.arch_pattern === "vm",
+          skip: state.compute?.arch_pattern === "serverless" || state.compute?.arch_pattern === "vm" || state.compute?.arch_pattern === "app_runner",
           multi:false,
           opts:[
             {v:"ecs",
@@ -513,7 +513,7 @@ export function buildPhaseQuestions(
           id:"compute_node",
           q:"서버(컴퓨팅 자원)를 어떻게 제공받을 건가요?",
           help:"'내가 서버를 빌려 직접 관리할지', 'AWS가 서버를 알아서 배정해줄지'를 결정합니다. Fargate는 편리하지만 약간 비쌉니다.",
-          skip: state.compute?.arch_pattern === "serverless" || state.compute?.arch_pattern === "vm",
+          skip: state.compute?.arch_pattern === "serverless" || state.compute?.arch_pattern === "vm" || state.compute?.arch_pattern === "app_runner",
           multi:false,
           opts:[
             {v:"fargate",  l:"Fargate — 서버 없이 컨테이너만 배포 (권장)", d:"서버를 신경 쓸 필요가 없습니다. AWS가 필요한 자원을 자동으로 배정합니다. 소·중규모 팀에게 가장 추천합니다."},
@@ -525,7 +525,7 @@ export function buildPhaseQuestions(
           id:"scaling",
           q:"서버 확장 방식은 어떻게 할 건가요? (복수 선택 가능)",
           help:"확장 방식을 여러 개 조합할 수 있습니다. 예: 이벤트성 서비스라면 '스케줄 사전 확장'(이벤트 전 미리 늘림) + 'CPU 기준 자동 확장'(실시간 대응) 둘 다 선택. 평소 트래픽이 일정하다면 CPU 기준 1개로 충분합니다.",
-          skip: state.compute?.arch_pattern === "serverless",
+          skip: state.compute?.arch_pattern === "serverless" || state.compute?.arch_pattern === "app_runner",
           multi:true,
           opts:[
             {v:"ecs_asg",l:"CPU/메모리 기준 자동 확장 (기본)", d:"서버가 바빠지면(CPU 70% 이상) 자동으로 추가됩니다. 가장 보편적인 방식입니다. 거의 모든 서비스에 기본으로 적용합니다."},
@@ -962,8 +962,10 @@ export function buildPhaseQuestions(
           multi:false, opts:[
             {v:"aws_apigw",        l:"AWS API Gateway만 사용 (서버리스·소규모 표준)", d:"인증, 속도제한, CORS를 AWS가 처리합니다. Lambda와 가장 자연스럽게 연결됩니다. ECS에서도 사용 가능하나 비용이 올라갈 수 있습니다."},
             {v:"alb_only",         l:"ALB만 사용 (컨테이너 단순 구성)",                d:"API Gateway 없이 ALB가 바로 컨테이너로 트래픽을 전달합니다. 가장 단순하고 저렴합니다. 인증·속도제한은 앱에서 직접 처리합니다."},
-            ...(!isServerless ? [
+            ...(!isServerless && state.team?.language === "spring_boot" ? [
               {v:"spring_gateway",  l:"Spring Cloud Gateway (Spring Boot 팀 표준)",     d:"Spring Boot 팀이라면 자연스러운 선택입니다. ECS/EKS에 Gateway 서비스를 별도 배포합니다. 라우팅, 필터, 로드밸런싱을 코드로 관리합니다."},
+            ] : []),
+            ...(!isServerless ? [
               {v:"kong",            l:"Kong Gateway (강력한 플러그인 생태계)",            d:"인증, 속도제한, 로깅, 변환을 100개 이상의 플러그인으로 처리합니다. DB(PostgreSQL)가 필요합니다. MSA가 많은 대규모 팀에 적합합니다."},
               {v:"nginx",           l:"NGINX / Envoy (고성능 프록시, 사이드카)",          d:"Istio와 함께 Envoy를 사이드카로 쓰거나, NGINX를 Ingress로 씁니다. 가장 낮은 레이턴시를 자랑합니다."},
             ] : []),
@@ -988,9 +990,9 @@ export function buildPhaseQuestions(
           help:"마이크로서비스 환경에서는 각 서비스의 IP가 계속 바뀝니다. 자동으로 최신 주소를 찾아주는 서비스 디스커버리가 필요합니다.",
           skip: !["medium","large","xlarge"].includes(state.scale?.dau) && !isEks,
           multi:false, opts:[
-            {v:"k8s_dns",          l:"K8s 내장 DNS (EKS 사용 시 자동 제공)",           d:"K8s가 자동으로 서비스 이름 기반 DNS를 제공합니다. EKS를 쓴다면 별도 설정 없이 사용할 수 있습니다."},
+            ...(isEks ? [{v:"k8s_dns",          l:"K8s 내장 DNS (EKS 사용 시 자동 제공)",           d:"K8s가 자동으로 서비스 이름 기반 DNS를 제공합니다. EKS를 쓴다면 별도 설정 없이 사용할 수 있습니다."}] : []),
             {v:"cloud_map",        l:"AWS Cloud Map (ECS·Lambda·EC2 통합 디스커버리)", d:"ECS 서비스를 이름으로 찾아줍니다. ALB와 통합되고 멀티 환경(ECS+Lambda+EC2)을 하나로 관리합니다."},
-            ...(!isServerless ? [
+            ...(!isServerless && state.team?.language === "spring_boot" ? [
               {v:"eureka",         l:"Spring Cloud Eureka (Spring Boot 팀 전통 방식)", d:"Spring Boot 생태계 표준입니다. 별도 Eureka 서버를 ECS/EKS에 배포해야 합니다. Cloud Map이 있으면 불필요할 수 있습니다."},
             ] : []),
           ]
