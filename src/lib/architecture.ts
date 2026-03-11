@@ -79,6 +79,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
       ...(hybridConns.includes("dx")  ? [{ name:"Direct Connect", detail:t("net.dx.detail"), reason:t("net.dx.reason"), cost:lang==="ko"?"포트 시간당 과금":"Billed per port-hour", opt:t("net.dx.opt") }] : []),
       ...(hybridConns.includes("vpn") && hybridConns.includes("dx") ? [{ name:t("net.dual.name"), detail:t("net.dual.detail"), reason:t("net.dual.reason"), cost:t("net.dual.cost"), opt:t("net.dual.opt") }] : []),
       ...(s.network?.account_structure === "org" ? [{ name:"Transit Gateway", detail:t("net.tgwhub.detail"), reason:t("net.tgwhub.reason"), cost:"$0.05/hr + $0.02/GB", opt:t("net.tgwhub.opt") }] : []),
+      ...(s.network?.network_firewall === "network_firewall" ? [{ name:t("net.nfw.name"), detail:t("net.nfw.detail"), reason:t("net.nfw.reason"), cost:t("net.nfw.cost"), opt:t("net.nfw.opt") }] : []),
     ],
     insights:[
       s.network?.subnet_tier === "3tier" ? t("net.insight.3tier") : t("net.insight.default"),
@@ -96,6 +97,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
       { name:"AWS Certificate Manager (ACM)", detail:t("edge.acm.detail"), reason:t("edge.acm.reason"), cost:t("edge.acm.cost"), opt:t("edge.acm.opt") },
       ...(hasCDN ? [{ name:"CloudFront", detail:t("edge.cf.detail"), reason:t("edge.cf.reason"), cost:lang==="ko"?"$0.120/GB (한국, 첫 10TB)":"$0.120/GB (Korea, first 10TB)", opt:t("edge.cf.opt") }] : []),
       ...(s.edge?.waf !== "no" ? [{ name:`WAF${s.edge?.waf === "bot" ? " + Bot Control" : s.edge?.waf === "shield" ? " + Shield Advanced" : ""}`, detail:t("edge.waf.detail"), reason:`OWASP${s.edge?.waf === "bot" ? ", "+t("edge.waf.bot") : ""}${s.edge?.waf === "shield" ? ", "+t("edge.waf.ddos") : ""}`, cost:s.edge?.waf === "shield" ? lang==="ko"?"$3,000/월 고정":"$3,000/mo fixed" : lang==="ko"?"~$20/월+":"~$20/mo+", opt:t("edge.waf.opt") }] : []),
+      ...(s.edge?.cdn === "global_accelerator" ? [{ name:t("edge.ga.name"), detail:t("edge.ga.detail"), reason:t("edge.ga.reason"), cost:t("edge.ga.cost"), opt:t("edge.ga.opt") }] : []),
     ];
     // CloudFront Functions / Lambda@Edge (CDN 선택 시)
     if(hasCDN && (isGlobal || isSaaS || isTicketing || types.includes("ecommerce") || isBtoC)) {
@@ -259,6 +261,10 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
       platformSvcs.push({ name:"Kong Gateway (K8s)", detail:lang==="ko"?"API Gateway + Ingress 통합, KongIngress CRD":"API Gateway + Ingress integration, KongIngress CRD", reason:lang==="ko"?"100+ 플러그인: 인증·속도제한·변환 중앙 관리":"100+ plugins: centralized auth, rate limiting, transformation", cost:lang==="ko"?"Kong OSS 무료, PostgreSQL 필요":"Kong OSS free, PostgreSQL required", opt:lang==="ko"?"DB-less 모드로 단순화 가능. Rate Limiting 플러그인 필수 적용":"Simplify with DB-less mode. Rate Limiting plugin required" });
     } else if(ingress === "traefik") {
       platformSvcs.push({ name:"Traefik Ingress", detail:lang==="ko"?"자동 TLS, IngressRoute CRD":"Auto TLS, IngressRoute CRD", reason:lang==="ko"?"설정 단순, cert-manager 없이 인증서 자동 갱신":"Simple config, auto-renew certs without cert-manager", cost:t("net.vpc.cost"), opt:lang==="ko"?"Dashboard 활성화로 라우팅 규칙 시각화":"Visualize routing rules with Dashboard" });
+    } else if(ingress === "istio_gateway") {
+      platformSvcs.push({ name:t("plat.istiogw.name"), detail:t("plat.istiogw.detail"), reason:t("plat.istiogw.reason"), cost:t("plat.istiogw.cost"), opt:t("plat.istiogw.opt") });
+    } else if(ingress === "gateway_api") {
+      platformSvcs.push({ name:t("plat.gwapi.name"), detail:t("plat.gwapi.detail"), reason:t("plat.gwapi.reason"), cost:t("plat.gwapi.cost"), opt:t("plat.gwapi.opt") });
     }
 
     // 서비스 메시
@@ -282,10 +288,12 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
     if(k8sMon === "prometheus_grafana") {
       platformSvcs.push({ name:"Prometheus Operator", detail:lang==="ko"?"kube-state-metrics + node-exporter 자동 수집":"Auto-collect kube-state-metrics + node-exporter", reason:lang==="ko"?"K8s 표준 메트릭 스택, 무료·상세":"K8s standard metrics stack, free and detailed", cost:lang==="ko"?"무료 (스토리지 비용)":"Free (storage costs)", opt:lang==="ko"?"kube-prometheus-stack Helm 차트로 한 번에 설치":"Install at once with kube-prometheus-stack Helm chart" });
       platformSvcs.push({ name:"Grafana", detail:lang==="ko"?"K8s 전용 대시보드 (ID: 315, 6417)":"K8s dashboards (ID: 315, 6417)", reason:lang==="ko"?"실시간 클러스터·Pod·노드 시각화":"Real-time cluster/Pod/node visualization", cost:lang==="ko"?"무료 (OSS)":"Free (OSS)", opt:lang==="ko"?"Grafana Loki 추가 시 로그도 함께 분석 가능":"Add Grafana Loki for combined log analysis" });
+      platformSvcs.push({ name:t("plat.amp.name"), detail:t("plat.amp.detail"), reason:t("plat.amp.reason"), cost:t("plat.amp.cost"), opt:t("plat.amp.opt") });
     } else if(k8sMon === "cloudwatch") {
       platformSvcs.push({ name:"CloudWatch Container Insights", detail:lang==="ko"?"EKS 노드·Pod·컨테이너 메트릭 자동 수집":"Auto-collect EKS node/Pod/container metrics", reason:lang==="ko"?"추가 설치 없음, EKS 콘솔 통합":"No additional installation, EKS console integrated", cost:lang==="ko"?"$0.30/커스텀 메트릭/월":"$0.30/custom metric/mo", opt:lang==="ko"?"Fluent Bit DaemonSet으로 컨테이너 로그 CloudWatch Logs 전송":"Send container logs to CloudWatch Logs via Fluent Bit DaemonSet" });
     } else if(k8sMon === "hybrid") {
       platformSvcs.push({ name:lang==="ko"?"CloudWatch + Prometheus 혼합":"CloudWatch + Prometheus hybrid", detail:lang==="ko"?"인프라 알람은 CloudWatch, 앱 메트릭은 Prometheus":"CloudWatch for infra alarms, Prometheus for app metrics", reason:lang==="ko"?"각 도구 장점 취합, 대규모 환경 표준":"Best of both tools, standard for large environments", cost:lang==="ko"?"CloudWatch 메트릭 비용 + Prometheus 스토리지":"CloudWatch metric cost + Prometheus storage", opt:lang==="ko"?"Amazon Managed Prometheus(AMP)로 Prometheus 서버 관리 부담 제거":"Eliminate Prometheus server management with Amazon Managed Prometheus (AMP)" });
+      platformSvcs.push({ name:t("plat.amp.name"), detail:t("plat.amp.detail"), reason:t("plat.amp.reason"), cost:t("plat.amp.cost"), opt:t("plat.amp.opt") });
     }
 
     // 공통 K8s 도구
@@ -352,6 +360,13 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
       asStrategy === "hpa_vpa" ? (lang==="ko"?"⚠️ HPA+VPA: VPA를 Recommender 모드로만 사용하고 수동 조정 권장. CPU 기반 HPA와 VPA 동시 적용 금지":"⚠️ HPA+VPA: use VPA in Recommender mode only and adjust manually. Do not apply CPU-based HPA and VPA simultaneously") : "",
       clusterStr === "multi_cluster" ? (lang==="ko"?"멀티 클러스터: EKS 클러스터 간 직접 통신 불가. PrivateLink 또는 VPC Peering으로 서비스 엔드포인트 공유":"Multi-cluster: no direct communication between EKS clusters. Share service endpoints via PrivateLink or VPC Peering") : "",
       lang==="ko"?"kubectl 직접 접근 차단: EKS Access Entry로 IAM 기반 권한만 허용":"Block direct kubectl access: allow only IAM-based permissions via EKS Access Entry",
+      t("plat.podidentity"),
+      t("plat.accessentries"),
+      ingress === "istio_gateway" ? (lang==="ko"?"ALB/NLB → Istio Gateway → VirtualService 체인 구성. Istio 메트릭은 Prometheus로 자동 수집":"ALB/NLB → Istio Gateway → VirtualService chain. Istio metrics auto-collected by Prometheus") : "",
+      mesh === "aws_app_mesh" ? (lang==="ko"?"⚠️ App Mesh는 2026년 9월 지원 종료. VPC Lattice 또는 Istio로 마이그레이션 계획 필요":"⚠️ App Mesh EOL September 2026. Migration plan to VPC Lattice or Istio needed") : "",
+      mesh === "istio" ? (lang==="ko"?"AWS Private CA: Istio mTLS 인증서 발급·갱신 자동화. cert-manager + aws-privateca-issuer 연동으로 내부 TLS 통합 관리":"AWS Private CA: automate Istio mTLS cert issuance/renewal. Unified internal TLS management via cert-manager + aws-privateca-issuer") : "",
+      s.compute?.compute_node === "fargate" ? (lang==="ko"?"⚠️ EKS Fargate 제약: DaemonSet 미지원 (Prometheus node-exporter, Datadog Agent 불가). GPU 미지원. hostNetwork/hostPort 사용 불가. Cilium eBPF 미지원":"⚠️ EKS Fargate limitations: no DaemonSet (no Prometheus node-exporter, Datadog Agent). No GPU. No hostNetwork/hostPort. No Cilium eBPF") : "",
+      (s.compute?.compute_node === "ec2_node" && isK8s) ? (lang==="ko"?"Bottlerocket OS: AWS 제작 컨테이너 전용 OS. 자동 업데이트, 최소 공격면, SELinux 기본 활성. EKS Managed Node Group에서 AMI로 선택 가능":"Bottlerocket OS: AWS-built container-optimized OS. Auto-updates, minimal attack surface, SELinux enabled by default. Selectable as AMI in EKS Managed Node Groups") : "",
     ].filter(Boolean);
 
     if(platformSvcs.length > 0) {
@@ -383,6 +398,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
       python_fastapi:{ name:"Python / FastAPI", detail:lang==="ko"?"타입 힌트, OpenAPI 자동 생성":"Type hints, auto OpenAPI generation", reason:lang==="ko"?"AI/ML 연동 최적, 빠른 개발":"Optimal for AI/ML integration, rapid development", cost:lang==="ko"?"Lambda 256MB 권장":"Lambda 256MB recommended", opt:lang==="ko"?"Lambda Layer로 무거운 패키지(numpy, torch) 분리":"Separate heavy packages (numpy, torch) with Lambda Layers" },
       go:            { name:"Go", detail:lang==="ko"?"정적 바이너리, 메모리 효율 최상":"Static binary, best memory efficiency", reason:lang==="ko"?"컨테이너 이미지 10~15MB, 동시성 강점":"Container image 10-15MB, concurrency strength", cost:lang==="ko"?"Lambda 128MB로 충분, 컨테이너 최소 사이즈":"Lambda 128MB sufficient, minimum container size", opt:lang==="ko"?"multi-stage Docker build로 최종 이미지 최소화":"Minimize final image with multi-stage Docker build" },
       rust:          { name:"Rust", detail:lang==="ko"?"메모리 안전, 제로 코스트 추상화":"Memory safety, zero-cost abstractions", reason:lang==="ko"?"Lambda 콜드스타트 < 1ms, 최소 메모리":"Lambda cold start <1ms, minimal memory", cost:lang==="ko"?"Lambda 64MB로 가능":"Lambda 64MB possible", opt:lang==="ko"?"cargo lambda로 크로스 컴파일. Axum 프레임워크 권장":"Cross-compile with cargo lambda. Axum framework recommended" },
+      dotnet:        { name:".NET / ASP.NET Core", detail:lang==="ko"?"크로스 플랫폼, 고성능 Kestrel":"Cross-platform, high-performance Kestrel", reason:lang==="ko"?"엔터프라이즈 표준, Windows 연동":"Enterprise standard, Windows integration", cost:lang==="ko"?"Lambda 256MB 권장, Native AOT 시 128MB":"Lambda 256MB recommended, 128MB with Native AOT", opt:lang==="ko"?"Lambda Native AOT로 콜드스타트 <100ms. Docker multi-stage build로 이미지 최소화":"Cold start <100ms with Lambda Native AOT. Minimize image with Docker multi-stage build" },
       mixed:         { name:lang==="ko"?"폴리글랏 (다중 언어)":"Polyglot (multi-language)", detail:lang==="ko"?"서비스별 최적 언어 선택":"Optimal language selection per service", reason:lang==="ko"?"각 서비스 특성에 최적화":"Optimized for each service's characteristics", cost:lang==="ko"?"팀 역량 분산 주의":"Beware of team skill fragmentation", opt:lang==="ko"?"공통 라이브러리는 Lambda Layer 또는 내부 패키지로 공유":"Share common libraries via Lambda Layers or internal packages" },
     };
     if(langMap[devLang]) appSvcs.push(langMap[devLang]);
@@ -540,11 +556,20 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
   if(hasCache) {
     if(s.data.cache === "redis" || s.data.cache === "both") {
       dbServices.push({
-        name: "ElastiCache Redis",
+        name: lang==="ko"?"ElastiCache (Valkey/Redis 호환)":"ElastiCache (Valkey/Redis compatible)",
         detail: `${isHighAvail ? "Cluster Mode, Multi-AZ" : "Cluster Mode"}`,
         reason: lang==="ko"?"세션, 좌석 잠금(SET NX), Rate Limit, Pub/Sub 브로드캐스트":"Sessions, seat locking (SET NX), Rate Limit, Pub/Sub broadcast",
         cost: lang==="ko"?"cache.r7g.large: ~$100/월":"cache.r7g.large: ~$100/mo",
         opt: lang==="ko"?"Redis Serverless 옵션: 비활성 시 비용 절감. 반드시 SoT는 DB에 별도 저장":"Redis Serverless option: cost savings when inactive. SoT must be stored separately in DB"
+      });
+    }
+    if(s.data.cache === "redis_serverless") {
+      dbServices.push({
+        name: "ElastiCache Serverless",
+        detail: lang==="ko"?"Valkey/Redis 호환, 자동 스케일링":"Valkey/Redis compatible, auto-scaling",
+        reason: lang==="ko"?"트래픽에 따라 자동 용량 조절, 사용량 예측 불필요":"Auto-scales with traffic, no capacity planning needed",
+        cost: lang==="ko"?"ECPU $0.0034/100만 + 데이터 $0.125/GB/시간":"ECPU $0.0034/1M + data $0.125/GB/hr",
+        opt: lang==="ko"?"기존 Redis/Valkey 클라이언트 100% 호환. 소규모 팀·예측 어려운 트래픽에 최적":"100% compatible with existing Redis/Valkey clients. Optimal for small teams and unpredictable traffic"
       });
     }
     if(s.data.cache === "dax" || s.data.cache === "both") {
@@ -634,6 +659,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
         s.scale?.data_volume === "ptb" ? (lang==="ko"?"수십 TB 이상: S3 Intelligent-Tiering + Lifecycle 정책으로 Glacier 자동 이관 필수 (비용 80% 절감)":"10+ TB: S3 Intelligent-Tiering + Lifecycle policy for auto Glacier migration required (80% cost savings)") : "",
         s.slo?.region === "dr" ? (lang==="ko"?"DR 전략: Aurora Global (보조 리전 읽기 전용) + S3 Cross-Region Replication 설정":"DR strategy: Aurora Global (secondary region read-only) + S3 Cross-Region Replication") : "",
         s.slo?.region === "active" ? (lang==="ko"?"Active-Active: Aurora Global + DynamoDB Global Tables 조합. 리전간 쓰기 충돌 해결 전략 필수":"Active-Active: Aurora Global + DynamoDB Global Tables combo. Cross-region write conflict resolution strategy required") : "",
+        isLargeScale && primaryDbs.some((db: string) => db.startsWith("aurora")) ? (lang==="ko"?"Aurora Limitless Database: 쓰기 수평 확장(자동 샤딩). xlarge 규모에서 단일 Aurora 쓰기 병목 발생 시 검토":"Aurora Limitless Database: horizontal write scaling (auto-sharding). Consider when single Aurora write bottleneck occurs at xlarge scale") : "",
         isGlobal && s.slo?.region === "active" && primaryDbs.includes("dynamodb") ? (lang==="ko"?"DynamoDB Global Tables: 리전간 복제 지연 ~1초. 충돌 방지를 위해 리전별 쓰기 파티셔닝 또는 Last-Writer-Wins 전략 설계 필수":"DynamoDB Global Tables: ~1s cross-region replication delay. Design per-region write partitioning or Last-Writer-Wins strategy to prevent conflicts") : "",
       ].filter(Boolean)
     });
@@ -774,6 +800,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
   secInsights.push(lang==="ko"?"루트 계정에 MFA 즉시 활성화 + 사용 금지":"Enable MFA on root account immediately + prohibit usage");
   secInsights.push(lang==="ko"?"인바운드 0.0.0.0/0은 ALB SG에만. DB/앱 서버는 SG 참조로만 허용":"Inbound 0.0.0.0/0 only on ALB SG. DB/app servers allow only SG references");
   secInsights.push(lang==="ko"?"Network ACL(NACL): Security Group과 함께 서브넷 레벨 방어선 구성. SG는 Stateful, NACL은 Stateless — 이중 방어로 측면 이동(Lateral Movement) 차단":"Network ACL (NACL): subnet-level defense alongside Security Groups. SG is Stateful, NACL is Stateless -- dual defense blocks lateral movement");
+  if(s.compliance?.network_iso === "private") secInsights.push(lang==="ko"?"AWS Verified Access: VPN 없이 제로 트러스트 기반 내부 앱 접근. IAM Identity Center + 디바이스 신뢰 정책으로 조건부 접근 가능":"AWS Verified Access: zero-trust internal app access without VPN. Conditional access via IAM Identity Center + device trust policies");
 
   layers.push({
     id:"security", label:lang==="ko"?"보안":"Security", icon:"🔐", color:"#dc2626", bg:"#fef2f2",

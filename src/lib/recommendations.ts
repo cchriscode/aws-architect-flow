@@ -184,10 +184,14 @@ export function getRecommendations(
 
   if (!hasPersonal && isInternal)
     R("compliance","network_iso","basic",t("✨ 사내 도구 적정","✨ Ideal for internal tools"),t("퍼블릭+프라이빗 기본 분리. Security Group으로 서버 간 접근 제어","Basic public+private separation. Security Groups for inter-server access control"));
+  if (!hasPersonal && !hasCritCert && !isInternal)
+    R("compliance","network_iso","strict",t("⭐ 운영 서비스 기본","⭐ Production service baseline"),t("DB를 프라이빗 서브넷에 격리. 인터넷에서 DB 직접 접근 차단이 운영 환경의 기본입니다","Isolate DB in private subnets. Blocking direct DB access from the internet is the production baseline"));
   if (hasPersonal && !hasCritCert)
     R("compliance","network_iso","strict",t("⭐ 개인정보 서비스 필수","⭐ Required for personal data services"),t("앱+DB 프라이빗 서브넷 완전 격리. 인터넷에서 DB 직접 접근 불가","App+DB fully isolated in private subnets. No direct DB access from the internet"));
   if (hasCritCert || isCritData)
     R("compliance","network_iso","private",t("⭐ 규정 준수 필수","⭐ Required for compliance"),t("VPC Endpoint로 인터넷 없이 AWS 서비스 접근. PCI DSS 네트워크 격리 요건","Access AWS services without internet via VPC Endpoints. Meets PCI DSS network isolation requirements"));
+  if (isInternal && hasPersonal)
+    R("compliance","network_iso","private",t("✨ 완전 격리 사내 시스템","✨ Fully isolated internal system"),t("VPN 또는 DX로만 접근. 인터넷 공개 불필요한 사내 시스템에 최고 보안","Access only via VPN or DX. Maximum security for internal systems that don't need internet exposure"));
 
   // ── SLO ────────────────────────────────────────────────────────
   if ((isInternal || isMVP) && !isTx)
@@ -259,6 +263,15 @@ export function getRecommendations(
     R("network","hybrid","vpn",t("✨ B2B 사무실 연결","✨ B2B office connectivity"),t("Site-to-Site VPN으로 사무실과 AWS 연결. 구성 빠르고 비용 저렴. 고대역폭 불필요 시","Connect office to AWS with Site-to-Site VPN. Quick setup, low cost. When high bandwidth isn't needed"));
   if (isXL || (isB2B && isLarge) || hasCritCert)
     R("network","hybrid","dx",t("⭐ 대규모/보안 필수","⭐ Required for large-scale/security"),t("Direct Connect: 전용 물리 회선으로 안정적 연결. 온프레미스 DB 연동 또는 대용량 전송","Direct Connect: Reliable connection via dedicated physical line. On-premises DB integration or high-volume transfer"));
+
+  // ── NETWORK: network_firewall ────────────────────────────────
+  const acctStruct = state.network?.account_structure;
+  if (acctStruct === "single" && !hasCritCert)
+    R("network","network_firewall","none",t("✨ 소규모 단일 계정 충분","✨ Sufficient for small single-account"),t("Security Group + NACL로 충분. Network Firewall은 멀티 VPC 환경에서 효과적","Security Group + NACL is sufficient. Network Firewall is effective in multi-VPC environments"));
+  if (acctStruct === "org" || hasCritCert)
+    R("network","network_firewall","network_firewall",t("⭐ 멀티 계정/규정 준수 권장","⭐ Recommended for multi-account/compliance"),t("Transit Gateway Inspection VPC 패턴으로 VPC 간 트래픽 중앙 검사. IDS/IPS + 도메인 필터링","Centralized VPC-to-VPC traffic inspection via Transit Gateway Inspection VPC pattern. IDS/IPS + domain filtering"));
+  if (acctStruct === "envs" && !hasCritCert)
+    R("network","network_firewall","none",t("✨ 환경 분리 시 선택적","✨ Optional with env separation"),t("환경별 계정 분리만으로 충분할 수 있음. PCI/HIPAA 요건 시 도입 검토","Account separation per environment may be sufficient. Consider adoption for PCI/HIPAA requirements"));
 
   // ── NETWORK: cost-aware recommendations ───────────────────────
   if (isCostFirst)

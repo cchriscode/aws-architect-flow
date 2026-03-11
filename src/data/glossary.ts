@@ -2900,4 +2900,117 @@ export const GLOSSARY: GlossaryTerm[] = [
       en: "A long-term lease contract. Sign a 1-3 year lease and rent (cost) drops by up to 72%",
     },
   },
+  // ── AWS 레퍼런스 갭 추가 ──
+  {
+    id: "istio-gateway",
+    name: "Istio Gateway",
+    group: "container",
+    badge: "k8s",
+    desc: {
+      ko: "Istio 서비스 메시의 인그레스 게이트웨이. Gateway + VirtualService CRD로 North-South 트래픽을 처리하며 mTLS를 자동 적용.",
+      en: "Istio service mesh ingress gateway. Handles North-South traffic via Gateway + VirtualService CRDs with automatic mTLS.",
+    },
+    placement: "vpc-private",
+    related: ["eks", "alb", "nlb"],
+    analogy: {
+      ko: "도시의 보안 게이트. 외부에서 들어오는 모든 차량(트래픽)을 검사하고 내부 목적지까지 안전한 경로로 안내",
+      en: "The city's secure gate. Inspects all incoming vehicles (traffic) and guides them along safe routes to internal destinations",
+    },
+  },
+  {
+    id: "k8s-gateway-api",
+    name: "K8s Gateway API",
+    group: "container",
+    badge: "k8s",
+    desc: {
+      ko: "K8s 공식 차세대 Ingress 표준. Gateway + HTTPRoute CRD로 역할 분리(인프라팀/개발팀)와 멀티 컨트롤러를 지원.",
+      en: "Official next-gen K8s Ingress standard. Supports role separation (infra/dev teams) and multi-controller via Gateway + HTTPRoute CRDs.",
+    },
+    placement: "vpc-private",
+    related: ["eks", "istio-gateway"],
+    analogy: {
+      ko: "차세대 도시 교통 관리 시스템. 도시 계획자(인프라팀)가 도로를 만들고, 각 구역 관리자(개발팀)가 라우팅 규칙을 설정",
+      en: "Next-gen city traffic management. City planners (infra team) build roads, district managers (dev team) set routing rules",
+    },
+  },
+  {
+    id: "eks-pod-identity",
+    name: "EKS Pod Identity",
+    group: "container",
+    badge: "aws",
+    desc: {
+      ko: "IRSA를 대체하는 EKS 신규 표준. OIDC Provider 없이 IAM 역할을 Pod에 직접 연결. 설정이 훨씬 단순.",
+      en: "New EKS standard replacing IRSA. Directly attaches IAM roles to Pods without OIDC Provider. Much simpler setup.",
+    },
+    placement: "vpc-private",
+    related: ["eks", "iam"],
+    analogy: {
+      ko: "직원 사원증 간소화. 복잡한 인증 절차(OIDC) 없이 부서(Pod)에 직접 출입 권한(IAM 역할)을 부여",
+      en: "Simplified employee badges. Grant access rights (IAM roles) directly to departments (Pods) without complex authentication (OIDC)",
+    },
+  },
+  {
+    id: "network-firewall",
+    name: "AWS Network Firewall",
+    group: "security",
+    badge: "aws",
+    desc: {
+      ko: "VPC 레벨 패킷 검사 방화벽. Suricata 호환 IDS/IPS 규칙과 도메인 필터링으로 트래픽을 중앙 검사.",
+      en: "VPC-level packet inspection firewall. Central traffic inspection with Suricata-compatible IDS/IPS rules and domain filtering.",
+    },
+    placement: "vpc-public",
+    related: ["vpc", "tgw", "waf"],
+    analogy: {
+      ko: "도시 검문소. 모든 차량(패킷)의 내용물을 검사하고, 위험물(악성 트래픽)을 차단하는 중앙 보안 시설",
+      en: "City checkpoint. A central security facility that inspects all vehicle (packet) contents and blocks hazardous materials (malicious traffic)",
+    },
+  },
+  {
+    id: "global-accelerator",
+    name: "Global Accelerator",
+    group: "traffic",
+    badge: "aws",
+    desc: {
+      ko: "Anycast IP 기반 글로벌 가속기. TCP/UDP 트래픽을 AWS 글로벌 백본 네트워크로 최적 경로 전달.",
+      en: "Anycast IP-based global accelerator. Routes TCP/UDP traffic via AWS global backbone network for optimal path delivery.",
+    },
+    placement: "edge",
+    related: ["cloudfront", "nlb", "alb"],
+    analogy: {
+      ko: "전 세계 고속도로 네트워크. 어디서든 가장 가까운 진입로(Anycast)로 들어와 전용 고속도로(AWS 백본)로 빠르게 이동",
+      en: "A global highway network. Enter from the nearest on-ramp (Anycast) anywhere and travel quickly via dedicated highways (AWS backbone)",
+    },
+  },
+  {
+    id: "elasticache-serverless",
+    name: "ElastiCache Serverless",
+    group: "data",
+    badge: "aws",
+    desc: {
+      ko: "Valkey/Redis 호환 서버리스 캐시. 트래픽에 따라 용량이 자동 조절되며 기존 Redis 클라이언트와 호환.",
+      en: "Valkey/Redis-compatible serverless cache. Auto-scales capacity with traffic and is compatible with existing Redis clients.",
+    },
+    placement: "vpc-private",
+    related: ["elasticache", "redis"],
+    analogy: {
+      ko: "자동 확장 임시 창고. 물건(데이터)이 많아지면 창고가 자동으로 커지고, 줄어들면 작아지는 유연한 저장소",
+      en: "Auto-expanding temporary warehouse. The warehouse automatically grows when items (data) increase and shrinks when they decrease",
+    },
+  },
+  {
+    id: "amp",
+    name: "Amazon Managed Prometheus",
+    group: "container",
+    badge: "aws",
+    desc: {
+      ko: "Prometheus 호환 관리형 모니터링 서비스. Prometheus 서버 운영 부담 없이 메트릭 수집·쿼리를 제공하며 HA 자동 보장.",
+      en: "Prometheus-compatible managed monitoring. Provides metric collection and querying without Prometheus server management, with automatic HA.",
+    },
+    placement: "regional-managed",
+    related: ["eks", "cloudwatch", "grafana"],
+    analogy: {
+      ko: "관리형 도시 감시 센터. 감시 카메라(Prometheus)를 도시(AWS)가 운영하므로 직접 센터를 관리할 필요 없음",
+      en: "Managed city surveillance center. The city (AWS) operates the cameras (Prometheus) so you don't need to manage the center yourself",
+    },
+  },
 ];

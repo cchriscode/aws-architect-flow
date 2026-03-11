@@ -31,6 +31,7 @@ const SHAPE_CATALOG: [string, ShapeInfo][] = [
   ["shield",         { shape: "mxgraph.aws4.shield",                     fillColor: "#DD344C", zone: "external", label: "Shield" }],
   ["waf",            { shape: "mxgraph.aws4.waf",                        fillColor: "#DD344C", zone: "external", label: "WAF" }],
   ["lambda@edge",    { shape: "mxgraph.aws4.lambda",                     fillColor: "#ED7100", zone: "external", label: "Lambda@Edge" }],
+  ["global accelerator",{ shape: "mxgraph.aws4.global_accelerator",     fillColor: "#8C4FFF", zone: "external", label: "Global Accelerator" }],
 
   // ── Region (managed, VPC-external) ──
   ["certificate manager", { shape: "mxgraph.aws4.certificate_manager",   fillColor: "#DD344C", zone: "region", label: "ACM" }],
@@ -66,6 +67,7 @@ const SHAPE_CATALOG: [string, ShapeInfo][] = [
 
   // ── Private Data Subnet (cache) ──
   ["elasticache",    { shape: "mxgraph.aws4.elasticache_for_redis",      fillColor: "#C925D1", zone: "data", label: "ElastiCache Redis" }],
+  ["elasticache serverless",{ shape: "mxgraph.aws4.elasticache_for_redis", fillColor: "#C925D1", zone: "data", label: "ElastiCache SL" }],
   ["dax",            { shape: "mxgraph.aws4.dynamodb_dax",               fillColor: "#C925D1", zone: "data", label: "DynamoDB DAX" }],
 
   // ── Private Data Subnet (database) ──
@@ -141,6 +143,7 @@ const SHAPE_CATALOG: [string, ShapeInfo][] = [
   ["transit gateway",{ shape: "mxgraph.aws4.transit_gateway",             fillColor: "#8C4FFF", zone: "region", label: "Transit GW" }],
   ["site-to-site",   { shape: "mxgraph.aws4.vpn_gateway",                fillColor: "#8C4FFF", zone: "region", label: "VPN" }],
   ["direct connect", { shape: "mxgraph.aws4.direct_connect",             fillColor: "#8C4FFF", zone: "region", label: "Direct Connect" }],
+  ["network firewall", { shape: "mxgraph.aws4.network_firewall",        fillColor: "#DD344C", zone: "region", label: "Network FW" }],
   ["vpn + dx",       { shape: "mxgraph.aws4.vpn_gateway",                fillColor: "#8C4FFF", zone: "region", label: "VPN+DX" }],
 
   // ── K8s ecosystem (in-cluster add-ons → app zone, inside EKS cluster container) ──
@@ -163,6 +166,9 @@ const SHAPE_CATALOG: [string, ShapeInfo][] = [
   ["cert-manager",   { shape: "mxgraph.aws4.certificate_manager",        fillColor: "#DD344C", zone: "app", label: "cert-manager" }],
   ["external secrets",{ shape: "mxgraph.aws4.secrets_manager",           fillColor: "#DD344C", zone: "app", label: "Ext Secrets" }],
   ["secrets store csi",{ shape: "mxgraph.aws4.secrets_manager",          fillColor: "#DD344C", zone: "app", label: "Secrets CSI" }],
+  ["istio gateway",    { shape: "mxgraph.aws4.eks",  fillColor: "#ED7100", zone: "app", label: "Istio GW" }],
+  ["gateway api",      { shape: "mxgraph.aws4.eks",  fillColor: "#ED7100", zone: "app", label: "Gateway API" }],
+  ["managed prometheus",{ shape: "mxgraph.aws4.cloudwatch",             fillColor: "#E7157B", zone: "region", label: "AMP" }],
   ["velero",         { shape: "mxgraph.aws4.backup",                     fillColor: "#7AA116", zone: "app", label: "Velero" }],
   ["keda",           { shape: "mxgraph.aws4.auto_scaling2",              fillColor: "#ED7100", zone: "app", label: "KEDA" }],
   ["vpa",            { shape: "mxgraph.aws4.auto_scaling2",              fillColor: "#ED7100", zone: "app", label: "VPA" }],
@@ -174,6 +180,7 @@ const SHAPE_CATALOG: [string, ShapeInfo][] = [
   ["python",         { shape: "mxgraph.aws4.ecs_service",                fillColor: "#ED7100", zone: "appstack", label: "FastAPI" }],
   ["go",             { shape: "mxgraph.aws4.ecs_service",                fillColor: "#ED7100", zone: "appstack", label: "Go" }],
   ["rust",           { shape: "mxgraph.aws4.ecs_service",                fillColor: "#ED7100", zone: "appstack", label: "Rust" }],
+  [".net",            { shape: "mxgraph.aws4.ecs_service",                fillColor: "#ED7100", zone: "appstack", label: ".NET" }],
   ["apollo",         { shape: "mxgraph.aws4.api_gateway",                fillColor: "#E7157B", zone: "appstack", label: "Apollo GraphQL" }],
   ["appsync",        { shape: "mxgraph.aws4.appsync",                    fillColor: "#E7157B", zone: "region", label: "AppSync" }],
   ["grpc",           { shape: "mxgraph.aws4.api_gateway",                fillColor: "#E7157B", zone: "appstack", label: "gRPC" }],

@@ -175,4 +175,36 @@ export const T: Record<string, [string, string]> = {
   "comp.apprunner.detail":["완전관리형 컨테이너 서비스","Fully managed container service"],
   "mesh.lattice.detail":["애플리케이션 레이어 서비스 네트워킹","Application-layer service networking"],
   "ai.bedrock.detail":["관리형 생성형 AI 서비스","Managed generative AI service"],
+  // --- Istio Gateway / Gateway API ---
+  "plat.istiogw.name":["Istio Gateway + VirtualService","Istio Gateway + VirtualService"],
+  "plat.istiogw.detail":["Envoy 기반 인그레스, mTLS 자동 적용","Envoy-based ingress with automatic mTLS"],
+  "plat.istiogw.reason":["Istio 서비스 메시와 통합된 트래픽 관리, 카나리 배포 비율 조정","Integrated traffic management with Istio service mesh, canary deployment ratio adjustment"],
+  "plat.istiogw.cost":["Istio 사이드카 리소스에 포함","Included in Istio sidecar resources"],
+  "plat.istiogw.opt":["Gateway → VirtualService → DestinationRule 체인으로 세밀한 트래픽 제어. 외부 ALB/NLB를 앞에 배치 가능","Fine-grained traffic control via Gateway → VirtualService → DestinationRule chain. External ALB/NLB can be placed in front"],
+  "plat.gwapi.name":["K8s Gateway API","K8s Gateway API"],
+  "plat.gwapi.detail":["Gateway + HTTPRoute CRD (K8s 공식 표준)","Gateway + HTTPRoute CRD (K8s official standard)"],
+  "plat.gwapi.reason":["Ingress 대체, 멀티 컨트롤러 지원, 역할 분리(인프라팀 Gateway, 개발팀 Route)","Ingress replacement, multi-controller support, role separation (infra team: Gateway, dev team: Route)"],
+  "plat.gwapi.cost":["무료 (컨트롤러 구현체에 따라 다름)","Free (varies by controller implementation)"],
+  "plat.gwapi.opt":["Istio, NGINX, Envoy Gateway 중 구현체 선택. ReferenceGrant로 cross-namespace 라우팅","Choose among Istio, NGINX, Envoy Gateway implementations. Cross-namespace routing via ReferenceGrant"],
+  // --- EKS Pod Identity ---
+  "plat.podidentity":["EKS Pod Identity: IRSA 대체 신규 표준. IAM 역할을 Pod에 직접 연결. 설정이 IRSA 대비 훨씬 단순 (OIDC Provider 불필요)","EKS Pod Identity: new standard replacing IRSA. Directly attach IAM roles to Pods. Much simpler setup than IRSA (no OIDC Provider needed)"],
+  "plat.accessentries":["EKS Access Entries: aws-auth ConfigMap 대신 API 기반 접근 관리. 신규 클러스터는 API_AND_CONFIG_MAP 모드 권장","EKS Access Entries: API-based access management replacing aws-auth ConfigMap. API_AND_CONFIG_MAP mode recommended for new clusters"],
+  // --- AMP ---
+  "plat.amp.name":["Amazon Managed Prometheus (AMP)","Amazon Managed Prometheus (AMP)"],
+  "plat.amp.detail":["Prometheus 서버 관리 없는 메트릭 수집·쿼리","Metric collection and querying without managing Prometheus servers"],
+  "plat.amp.reason":["Prometheus 서버 직접 운영 부담 제거, HA 자동 보장","Eliminates Prometheus server management burden, automatic HA"],
+  "plat.amp.cost":["메트릭 샘플 $0.003/1만 + 쿼리 $0.01/1만","Metric samples $0.003/10K + queries $0.01/10K"],
+  "plat.amp.opt":["ADOT Collector로 메트릭 수집 → AMP 전송. Grafana에서 AMP를 데이터 소스로 연결","Collect metrics with ADOT Collector → send to AMP. Connect AMP as data source in Grafana"],
+  // --- Network Firewall ---
+  "net.nfw.name":["AWS Network Firewall","AWS Network Firewall"],
+  "net.nfw.detail":["Suricata 호환 IDS/IPS, 도메인 필터링","Suricata-compatible IDS/IPS, domain filtering"],
+  "net.nfw.reason":["VPC 간 트래픽 중앙 검사, 악성 도메인 차단","Central VPC traffic inspection, malicious domain blocking"],
+  "net.nfw.cost":["$0.395/hr + $0.065/GB","$0.395/hr + $0.065/GB"],
+  "net.nfw.opt":["Transit Gateway Inspection VPC 패턴으로 중앙 집중 배포","Centralized deployment via Transit Gateway Inspection VPC pattern"],
+  // --- Global Accelerator ---
+  "edge.ga.name":["AWS Global Accelerator","AWS Global Accelerator"],
+  "edge.ga.detail":["Anycast IP, TCP/UDP 글로벌 가속","Anycast IP, global TCP/UDP acceleration"],
+  "edge.ga.reason":["글로벌 TCP/UDP 트래픽을 최적 경로로 전달, 고정 IP 제공","Optimal path routing for global TCP/UDP traffic, static IP"],
+  "edge.ga.cost":["$0.025/hr + $0.01/GB","$0.025/hr + $0.01/GB"],
+  "edge.ga.opt":["CloudFront와 상호 보완: HTTP는 CloudFront, TCP/UDP는 Global Accelerator","Complements CloudFront: HTTP via CloudFront, TCP/UDP via Global Accelerator"],
 };

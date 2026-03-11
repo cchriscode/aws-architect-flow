@@ -182,6 +182,12 @@ export function useWizard() {
     setShowResult(true);
   }
 
+  // 페이지 전환 시 스크롤 최상단 이동 (렌더 후 실행)
+  useEffect(() => {
+    if (!hydrated) return;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentPhase, showResult]);
+
   // localStorage 자동 저장
   useEffect(() => {
     if (!hydrated) return;

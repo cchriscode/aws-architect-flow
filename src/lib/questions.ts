@@ -276,6 +276,7 @@ export function buildPhaseQuestions(
           {v:"python_fastapi",   l:"Python / FastAPI·Django (AI/ML 통합, 빠른 개발)", d:"AI/ML 모델 연동이 가장 쉽습니다. FastAPI는 성능이 좋고 타입 힌트를 지원합니다. Lambda에도 잘 맞습니다."},
           {v:"go",               l:"Go (고성능, 적은 메모리, MSA 최적)",              d:"바이너리 하나로 배포되어 컨테이너 이미지가 10MB 수준입니다. 메모리 사용량이 적고 동시 처리 성능이 뛰어납니다. Kubernetes 생태계 도구 대부분이 Go로 작성되어 있습니다."},
           {v:"rust",           l:"Rust (초고성능, 메모리 안전, Lambda 최적)",        d:"Lambda 콜드스타트가 거의 없습니다. 메모리 사용량이 Go의 절반 수준입니다. 학습 곡선이 높아 숙련된 팀에만 권장합니다."},
+          {v:"dotnet",         l:".NET / C# (엔터프라이즈, Windows 레거시 통합)",    d:"ASP.NET Core는 Linux 컨테이너에서도 동작합니다. Lambda .NET 8 Native AOT로 콜드스타트 최소화 가능. 기존 Windows 시스템 통합에 강합니다."},
           {v:"mixed",            l:"혼합 (서비스마다 다른 언어)",                     d:"Python으로 ML API, Go로 고성능 API, Java로 레거시 서비스를 각각 운영합니다. 서비스별 최적화가 가능하지만 팀 역량이 분산됩니다."},
         ]
       },
@@ -436,6 +437,16 @@ export function buildPhaseQuestions(
             {v:"dx",  l:"전용선으로 연결 (Direct Connect)",    d:"물리적 전용선을 설치합니다. 안정적이고 빠르지만 개통에 수주~수개월이 걸리고 비용이 높습니다."},
           ]
         },
+        ...(state.network?.account_structure === "org" || state.compliance?.cert?.includes("pci") || state.compliance?.cert?.includes("hipaa") ? [{
+          id:"network_firewall",
+          q:"VPC 간 또는 인터넷 경계에서 네트워크 트래픽을 심층 검사할 방화벽이 필요한가요?",
+          help:"AWS Network Firewall은 VPC 경계에서 IDS/IPS(침입 탐지·방지), 도메인 필터링, Suricata 규칙 기반 패킷 검사를 수행합니다. WAF가 L7(HTTP) 방화벽이라면 Network Firewall은 L3/L4/L7 모두를 커버하는 네트워크 방화벽입니다.",
+          multi:false, opts:[
+            {v:"none",             l:"없음 — Security Group + NACL로 충분",            d:"Security Group과 NACL로 기본적인 네트워크 격리를 합니다. 소규모 서비스이거나 규정 요건이 없는 경우 충분합니다."},
+            {v:"network_firewall", l:"AWS Network Firewall (IDS/IPS, 도메인 필터링)",  d:"Suricata 호환 규칙으로 악성 트래픽 탐지·차단, 특정 도메인만 허용하는 이그레스 필터링이 가능합니다. PCI DSS, HIPAA 환경에서 요구되는 심층 패킷 검사를 수행합니다."},
+            {v:"third_party",      l:"3rd-party 방화벽 (Palo Alto, Fortinet 등)",      d:"기존 온프레미스에서 사용하던 벤더의 가상 어플라이언스를 AWS에 배포합니다. 기존 정책·규칙을 재사용할 수 있지만 라이선스 비용이 추가됩니다."},
+          ]
+        }] : []),
       ]);
     }
 
@@ -583,7 +594,8 @@ export function buildPhaseQuestions(
           multi:false,
           opts:[
             {v:"no",   l:"캐시 없음 — DB에서 직접 조회",               d:"데이터 양이 적거나 조회 빈도가 낮은 서비스. 단순하고 관리 포인트가 없습니다."},
-            {v:"redis",l:"Redis 캐시 — 빠른 임시 저장소",               d:"세션 관리, 로그인 상태 유지, 좌석 임시 잠금, 초당 요청 제한 등에 활용합니다. 속도가 매우 빠릅니다."},
+            {v:"redis",l:"Redis 캐시 (Valkey/Redis 호환) — 빠른 임시 저장소",               d:"세션 관리, 로그인 상태 유지, 좌석 임시 잠금, 초당 요청 제한 등에 활용합니다. 속도가 매우 빠릅니다. ElastiCache는 Valkey(오픈소스 Redis 포크)를 기본 엔진으로 지원합니다."},
+            {v:"redis_serverless",l:"ElastiCache Serverless — 자동 스케일링 캐시",  d:"용량 계획 없이 자동으로 확장/축소됩니다. 트래픽 변동이 큰 서비스에 적합합니다. 노드 관리가 필요 없지만 안정적 트래픽에서는 프로비저닝 방식이 더 저렴합니다."},
             {v:"memorydb",l:"MemoryDB — 내구성 보장 Redis (기본 DB 가능)", d:"ElastiCache Redis와 달리 트랜잭션 로그로 데이터 영구 보존. 캐시가 아닌 주 DB로 사용 가능합니다. ~20% 더 비쌉니다."},
             ...(Array.isArray(state.data?.primary_db) && state.data.primary_db.includes("dynamodb") ? [
               {v:"dax",  l:"DAX — DynamoDB 전용 캐시",                  d:"DynamoDB 앞에 붙이는 캐시입니다. DAX SDK로 엔드포인트만 변경하면 응답 속도를 마이크로초 수준으로 높입니다."},
@@ -695,6 +707,7 @@ export function buildPhaseQuestions(
             {v:"yes",   l:"CloudFront 사용 — 정적 파일 빠르게 전달",       d:"이미지, JS, CSS를 캐싱해 서버 트래픽을 최대 80% 줄입니다. B2C 서비스라면 거의 필수입니다."},
             {v:"no",    l:"CDN 없음 — 서버에서 직접 전달",                  d:"내부 직원만 쓰는 서비스이거나, API 응답만 있고 정적 파일이 없는 경우입니다."},
             {v:"global",l:"CloudFront + 지역별 다른 오리진 — 글로벌 서비스", d:"국가마다 다른 서버나 콘텐츠를 제공해야 하는 글로벌 서비스입니다."},
+            ...(state.workload?.type && (Array.isArray(state.workload.type) ? (state.workload.type.includes("realtime") || state.workload.type.includes("iot")) : false) ? [{v:"global_accelerator", l:"Global Accelerator — TCP/UDP 고정 IP 가속", d:"Anycast IP로 글로벌 TCP/UDP 트래픽을 최적 경로로 전달합니다. 실시간 게임, IoT, 금융 거래처럼 HTTP가 아닌 TCP/UDP 프로토콜에 최적화되어 있습니다."}] : []),
           ]
         },
         {
@@ -850,6 +863,8 @@ export function buildPhaseQuestions(
             {v:"nginx",            l:"NGINX Ingress Controller (범용, 멀티클라우드)", d:"쿠버네티스 표준에 가장 가깝습니다. AWS 외 다른 클라우드로 이식할 가능성이 있다면 이 쪽이 유리합니다. NLB와 함께 쓰는 패턴이 많습니다."},
             {v:"kong",           l:"Kong (API Gateway + Ingress 통합)",              d:"Ingress + API Gateway 기능(인증, 속도 제한, 플러그인)을 하나로 처리합니다. 마이크로서비스가 많고 API 정책을 중앙에서 관리하고 싶을 때 적합합니다."},
             {v:"traefik",        l:"Traefik (자동 인증서 갱신, 간편 설정)",          d:"설정이 단순하고 cert-manager 없이도 TLS 자동 갱신이 됩니다. 중소 규모 마이크로서비스에 좋습니다."},
+            ...(ps?.service_mesh === "istio" ? [{v:"istio_gateway", l:"Istio Gateway (Istio 서비스 메시 내장 인그레스)", d:"Istio의 Gateway + VirtualService CRD로 North-South 트래픽을 처리합니다. Istio를 이미 사용 중이라면 별도 Ingress Controller 없이 통합 관리가 가능합니다."}] : []),
+            {v:"gateway_api",    l:"K8s Gateway API (차세대 표준)",                  d:"K8s 공식 차세대 Ingress 표준입니다. Istio 1.22+, NGINX, Envoy 등에서 GA 지원. 기존 Ingress를 대체하는 새 API입니다."},
           ]
         },
         {
@@ -859,8 +874,8 @@ export function buildPhaseQuestions(
           multi:false, opts:[
             {v:"none",             l:"없음 — 서비스 메시 미사용 (대부분 팀에 충분)", d:"서비스 간 보안이 덜 중요하거나 팀이 운영 복잡도를 감당하기 어려운 경우입니다. Security Group으로 기본 격리는 됩니다."},
             {v:"vpc_lattice",      l:"VPC Lattice — AWS 네이티브 서비스 간 통신 (최신, 권장)", d:"VPC 간, 계정 간 서비스 통신을 AWS가 관리합니다. App Mesh보다 단순하고 ECS/EKS/Lambda 모두 지원합니다. App Mesh의 대체재입니다."},
-            {v:"aws_app_mesh",     l:"AWS App Mesh (AWS 관리형, 설정 단순, 2026년 지원 종료 예정)",           d:"Envoy 프록시를 AWS가 관리해줍니다. 설정이 Istio보다 단순합니다. AWS X-Ray, CloudWatch와 자동 통합됩니다."},
             {v:"istio",          l:"Istio (업계 표준, 가장 강력)",                    d:"가장 많이 쓰이는 서비스 메시입니다. mTLS, 서킷브레이커, 카나리 배포, 트래픽 미러링을 세밀하게 제어합니다. 러닝 커브가 높고 리소스를 많이 씁니다."},
+            {v:"aws_app_mesh",     l:"AWS App Mesh (⛔ 2026년 지원 종료 — 신규 도입 비권장)",           d:"Envoy 프록시를 AWS가 관리해줍니다. 2026년 9월 지원 종료 예정으로 신규 도입은 비권장합니다. VPC Lattice 또는 Istio로 마이그레이션을 계획하세요."},
           ]
         },
         {
@@ -913,7 +928,7 @@ export function buildPhaseQuestions(
           multi:false, opts:[
             {v:"none",             l:"없음 — Security Group으로만 격리",                  d:"Security Group이 Node 레벨 격리를 제공합니다. Pod 간 세밀한 격리는 없지만 단순합니다."},
             {v:"vpc_cni",          l:"AWS VPC CNI NetworkPolicy (EKS 권장, 추가 설치 불필요)", d:"EKS 1.25+에서 VPC CNI 자체가 NetworkPolicy를 지원합니다. 별도 플러그인 없이 K8s 표준 NetworkPolicy 리소스를 그대로 사용합니다."},
-            {v:"cilium",          l:"Cilium (eBPF 기반, 고성능 + L7 정책)",              d:"eBPF를 사용해 iptables 없이 고성능 네트워크 정책을 적용합니다. HTTP 경로, gRPC 메서드 레벨까지 정책 설정 가능합니다."},
+            ...(state.compute?.compute_node !== "fargate" ? [{v:"cilium",          l:"Cilium (eBPF 기반, 고성능 + L7 정책)",              d:"eBPF를 사용해 iptables 없이 고성능 네트워크 정책을 적용합니다. HTTP 경로, gRPC 메서드 레벨까지 정책 설정 가능합니다. (⚠️ EKS Fargate에서는 eBPF 미지원으로 사용 불가)"}] : []),
           ]
         },
         {

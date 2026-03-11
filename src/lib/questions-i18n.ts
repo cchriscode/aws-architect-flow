@@ -214,6 +214,7 @@ const ko: I18nDict = {
         python_fastapi: { l: "Python / FastAPI·Django (AI/ML 통합, 빠른 개발)", d: "AI/ML 모델 연동이 가장 쉽습니다. FastAPI는 성능이 좋고 타입 힌트를 지원합니다. Lambda에도 잘 맞습니다." },
         go:           { l: "Go (고성능, 적은 메모리, MSA 최적)",              d: "바이너리 하나로 배포되어 컨테이너 이미지가 10MB 수준입니다. 메모리 사용량이 적고 동시 처리 성능이 뛰어납니다. Kubernetes 생태계 도구 대부분이 Go로 작성되어 있습니다." },
         rust:         { l: "Rust (초고성능, 메모리 안전, Lambda 최적)",        d: "Lambda 콜드스타트가 거의 없습니다. 메모리 사용량이 Go의 절반 수준입니다. 학습 곡선이 높아 숙련된 팀에만 권장합니다." },
+        dotnet:       { l: ".NET / C# (엔터프라이즈, Windows 레거시 통합)", d: "ASP.NET Core는 Linux 컨테이너에서도 동작합니다. Lambda .NET 8 Native AOT로 콜드스타트 최소화 가능. 기존 Windows 시스템 통합에 강합니다." },
         mixed:        { l: "혼합 (서비스마다 다른 언어)",                     d: "Python으로 ML API, Go로 고성능 API, Java로 레거시 서비스를 각각 운영합니다. 서비스별 최적화가 가능하지만 팀 역량이 분산됩니다." },
       },
     },
@@ -338,6 +339,14 @@ const ko: I18nDict = {
         dx:  { l: "전용선으로 연결 (Direct Connect)",    d: "물리적 전용선을 설치합니다. 안정적이고 빠르지만 개통에 수주~수개월이 걸리고 비용이 높습니다." },
       },
     },
+    network_firewall: {
+      q: "VPC 간 트래픽을 중앙에서 검사하고 필터링하는 네트워크 방화벽이 필요한가요?",
+      help: "AWS Network Firewall은 VPC 레벨에서 패킷을 검사합니다. Transit Gateway와 함께 사용하면 모든 VPC 간 트래픽을 중앙에서 모니터링할 수 있습니다.",
+      opts: {
+        none:              { l: "없음 — Security Group + NACL로 충분", d: "기본 보안 그룹과 NACL만으로 충분한 환경입니다. 대부분의 단일 VPC 환경에 적합합니다." },
+        network_firewall:  { l: "AWS Network Firewall (중앙 집중 트래픽 검사)", d: "Suricata 호환 IDS/IPS로 VPC 간 트래픽을 중앙에서 검사합니다. 멀티 VPC 환경에서 악성 도메인 차단과 침입 탐지에 사용합니다." },
+      },
+    },
   },
   compute: {
     arch_pattern: {
@@ -410,7 +419,8 @@ const ko: I18nDict = {
       help: "캐시는 DB에 매번 물어보는 대신 자주 쓰는 답을 빠른 메모리에 보관하는 기술입니다. 속도는 10~100배 빨라지고 DB 부하는 줄어듭니다.",
       opts: {
         no:    { l: "캐시 없음 — DB에서 직접 조회",               d: "데이터 양이 적거나 조회 빈도가 낮은 서비스. 단순하고 관리 포인트가 없습니다." },
-        redis:    { l: "Redis 캐시 — 빠른 임시 저장소",               d: "세션 관리, 로그인 상태 유지, 좌석 임시 잠금, 초당 요청 제한 등에 활용합니다. 속도가 매우 빠릅니다." },
+        redis:            { l: "Redis / Valkey 캐시 — 빠른 임시 저장소",               d: "세션 관리, 로그인 상태 유지, 좌석 임시 잠금, 초당 요청 제한 등에 활용합니다. 속도가 매우 빠릅니다." },
+        redis_serverless: { l: "ElastiCache Serverless — 자동 확장 Redis/Valkey", d: "노드 수·크기를 관리할 필요 없이 트래픽에 따라 자동으로 확장·축소됩니다. 예측 불가능한 트래픽 패턴에 적합합니다." },
         memorydb: { l: "MemoryDB — 내구성 보장 Redis (기본 DB 가능)", d: "ElastiCache Redis와 달리 트랜잭션 로그로 데이터 영구 보존. 캐시가 아닌 주 DB로 사용 가능합니다." },
         dax:   { l: "DAX — DynamoDB 전용 캐시",                  d: "DynamoDB 앞에 붙이는 캐시입니다. DAX SDK로 엔드포인트만 변경하면 응답 속도를 마이크로초 수준으로 높입니다." },
         both:  { l: "Redis + DAX 모두 사용",                    d: "복잡한 캐싱이 필요한 대규모 서비스. 두 가지 캐시를 역할별로 활용합니다." },
@@ -499,6 +509,7 @@ const ko: I18nDict = {
         yes:    { l: "CloudFront 사용 — 정적 파일 빠르게 전달",       d: "이미지, JS, CSS를 캐싱해 서버 트래픽을 최대 80% 줄입니다. B2C 서비스라면 거의 필수입니다." },
         no:     { l: "CDN 없음 — 서버에서 직접 전달",                  d: "내부 직원만 쓰는 서비스이거나, API 응답만 있고 정적 파일이 없는 경우입니다." },
         global: { l: "CloudFront + 지역별 다른 오리진 — 글로벌 서비스", d: "국가마다 다른 서버나 콘텐츠를 제공해야 하는 글로벌 서비스입니다." },
+        global_accelerator: { l: "Global Accelerator — TCP/UDP 고정 IP 가속", d: "Anycast IP로 글로벌 TCP/UDP 트래픽을 최적 경로로 전달합니다. 실시간 게임, IoT, 금융 거래처럼 HTTP가 아닌 TCP/UDP 프로토콜에 최적화되어 있습니다." },
       },
     },
     dns: {
@@ -618,6 +629,8 @@ const ko: I18nDict = {
         nginx:          { l: "NGINX Ingress Controller (범용, 멀티클라우드)", d: "쿠버네티스 표준에 가장 가깝습니다. AWS 외 다른 클라우드로 이식할 가능성이 있다면 이 쪽이 유리합니다. NLB와 함께 쓰는 패턴이 많습니다." },
         kong:           { l: "Kong (API Gateway + Ingress 통합)",              d: "Ingress + API Gateway 기능(인증, 속도 제한, 플러그인)을 하나로 처리합니다. 마이크로서비스가 많고 API 정책을 중앙에서 관리하고 싶을 때 적합합니다." },
         traefik:        { l: "Traefik (자동 인증서 갱신, 간편 설정)",          d: "설정이 단순하고 cert-manager 없이도 TLS 자동 갱신이 됩니다. 중소 규모 마이크로서비스에 좋습니다." },
+        istio_gateway:  { l: "Istio Gateway (Istio 서비스 메시 내장 인그레스)", d: "Istio의 Gateway + VirtualService CRD로 North-South 트래픽을 처리합니다. Istio를 이미 사용 중이라면 별도 Ingress Controller 없이 통합 관리가 가능합니다." },
+        gateway_api:    { l: "K8s Gateway API (차세대 표준)",                  d: "K8s 공식 차세대 Ingress 표준입니다. Istio 1.22+, NGINX, Envoy 등에서 GA 지원. 기존 Ingress를 대체하는 새 API입니다." },
       },
     },
     service_mesh: {
@@ -626,8 +639,8 @@ const ko: I18nDict = {
       opts: {
         none:         { l: "없음 — 서비스 메시 미사용 (대부분 팀에 충분)", d: "서비스 간 보안이 덜 중요하거나 팀이 운영 복잡도를 감당하기 어려운 경우입니다. Security Group으로 기본 격리는 됩니다." },
         vpc_lattice:  { l: "VPC Lattice — AWS 네이티브 서비스 간 통신 (최신, 권장)", d: "VPC 간, 계정 간 서비스 통신을 AWS가 관리합니다. App Mesh보다 단순하고 최신입니다." },
-        aws_app_mesh: { l: "AWS App Mesh (AWS 관리형, 설정 단순, 2026년 지원 종료 예정)",           d: "Envoy 프록시를 AWS가 관리해줍니다. 설정이 Istio보다 단순합니다. AWS X-Ray, CloudWatch와 자동 통합됩니다." },
         istio:        { l: "Istio (업계 표준, 가장 강력)",                    d: "가장 많이 쓰이는 서비스 메시입니다. mTLS, 서킷브레이커, 카나리 배포, 트래픽 미러링을 세밀하게 제어합니다. 러닝 커브가 높고 리소스를 많이 씁니다." },
+        aws_app_mesh: { l: "AWS App Mesh (⛔ 2026년 지원 종료 — 신규 도입 비권장)",           d: "Envoy 프록시를 AWS가 관리해줍니다. 2026년 9월 지원 종료 예정으로 신규 도입은 비권장합니다. VPC Lattice 또는 Istio로 마이그레이션을 계획하세요." },
       },
     },
     gitops: {
@@ -955,6 +968,7 @@ const en: I18nDict = {
         python_fastapi: { l: "Python / FastAPI/Django (AI/ML Integration)",         d: "Easiest AI/ML model integration. FastAPI offers good performance and type hints. Works well with Lambda." },
         go:             { l: "Go (High Performance, Low Memory, Microservices Optimal)",      d: "Deploys as a single binary with ~10MB container images. Low memory usage and excellent concurrency. Most Kubernetes ecosystem tools are written in Go." },
         rust:           { l: "Rust (Ultra Performance, Memory Safe, Lambda Optimal)", d: "Nearly zero Lambda cold start. Memory usage is half that of Go. Steep learning curve; recommended only for experienced teams." },
+        dotnet:         { l: ".NET / C# (Enterprise, Windows Legacy Integration)", d: "ASP.NET Core runs on Linux containers too. Lambda .NET 8 Native AOT minimizes cold start. Strong for integrating with existing Windows systems." },
         mixed:          { l: "Mixed (Different Languages per Service)",              d: "Python for ML API, Go for high-performance API, Java for legacy services. Enables per-service optimization but splits team expertise." },
       },
     },
@@ -1079,6 +1093,14 @@ const en: I18nDict = {
         dx:  { l: "Dedicated line (Direct Connect)",                  d: "Install a physical dedicated line. Stable and fast but takes weeks to months to provision and costs more." },
       },
     },
+    network_firewall: {
+      q: "Do you need a network firewall to centrally inspect and filter traffic between VPCs?",
+      help: "AWS Network Firewall inspects packets at the VPC level. When used with Transit Gateway, it enables central monitoring of all inter-VPC traffic.",
+      opts: {
+        none:              { l: "None -- Security Groups + NACLs are sufficient", d: "Basic Security Groups and NACLs are enough. Suitable for most single-VPC environments." },
+        network_firewall:  { l: "AWS Network Firewall (Centralized traffic inspection)", d: "Centrally inspect inter-VPC traffic with Suricata-compatible IDS/IPS. Used for malicious domain blocking and intrusion detection in multi-VPC environments." },
+      },
+    },
   },
   compute: {
     arch_pattern: {
@@ -1151,7 +1173,8 @@ const en: I18nDict = {
       help: "A cache stores frequently used answers in fast memory instead of querying the DB every time. Speed improves 10-100x and DB load decreases.",
       opts: {
         no:    { l: "No cache -- query DB directly",               d: "For services with small data volumes or low query frequency. Simple with no additional management." },
-        redis:    { l: "Redis cache -- fast temporary store",               d: "Used for session management, login state, temporary seat locks, and rate limiting. Extremely fast." },
+        redis:            { l: "Redis / Valkey cache -- fast temporary store",               d: "Used for session management, login state, temporary seat locks, and rate limiting. Extremely fast." },
+        redis_serverless: { l: "ElastiCache Serverless -- auto-scaling Redis/Valkey", d: "No need to manage node count or size -- automatically scales up and down with traffic. Ideal for unpredictable traffic patterns." },
         memorydb: { l: "MemoryDB -- durable Redis (usable as primary DB)", d: "Unlike ElastiCache Redis, preserves data permanently via transaction logs. Can be used as a primary DB, not just cache. ~20% more expensive." },
         dax:   { l: "DAX -- DynamoDB-specific cache",                  d: "A cache placed in front of DynamoDB. Improves response times to microsecond level by switching to the DAX SDK endpoint." },
         both:  { l: "Both Redis + DAX",                    d: "For large-scale services with complex caching needs. Two caches serving different roles." },
@@ -1240,6 +1263,7 @@ const en: I18nDict = {
         yes:    { l: "CloudFront -- fast static file delivery",       d: "Caches images, JS, and CSS to reduce server traffic by up to 80%. Nearly essential for B2C services." },
         no:     { l: "No CDN -- serve directly from servers",                  d: "For internal-only services, or when there are only API responses with no static files." },
         global: { l: "CloudFront + different origins per region -- global service", d: "For global services that need to serve different servers or content per country." },
+        global_accelerator: { l: "Global Accelerator — TCP/UDP static IP acceleration", d: "Routes global TCP/UDP traffic via Anycast IP on optimal paths. Optimized for non-HTTP TCP/UDP protocols like real-time gaming, IoT, and financial transactions." },
       },
     },
     dns: {
@@ -1359,6 +1383,8 @@ const en: I18nDict = {
         nginx:          { l: "NGINX Ingress Controller (Versatile, multi-cloud)", d: "Closest to the Kubernetes standard. Advantageous if there is a possibility of porting to other clouds. Often used with NLB." },
         kong:           { l: "Kong (API Gateway + Ingress combined)",              d: "Handles Ingress + API Gateway features (auth, rate limiting, plugins) in one. Ideal when you have many microservices and want centralized API policy management." },
         traefik:        { l: "Traefik (Auto certificate renewal, easy setup)",          d: "Simple configuration with automatic TLS renewal without cert-manager. Good for small to mid-size microservices." },
+        istio_gateway:  { l: "Istio Gateway (Istio mesh built-in ingress)", d: "Handles North-South traffic via Istio's Gateway + VirtualService CRDs. If already using Istio, unified management without a separate Ingress Controller." },
+        gateway_api:    { l: "K8s Gateway API (Next-gen standard)",         d: "Official next-gen K8s Ingress standard. GA support in Istio 1.22+, NGINX, Envoy, etc. New API replacing legacy Ingress." },
       },
     },
     service_mesh: {
@@ -1367,8 +1393,8 @@ const en: I18nDict = {
       opts: {
         none:         { l: "None -- no service mesh (Sufficient for most teams)", d: "When inter-service security is less critical or the team cannot handle the operational complexity. Security Groups provide basic isolation." },
         vpc_lattice:  { l: "VPC Lattice -- AWS-native inter-service communication (Latest, Recommended)", d: "AWS manages the data plane for cross-VPC and cross-account service communication. Much simpler than App Mesh. Supports ECS/EKS/Lambda." },
-        aws_app_mesh: { l: "AWS App Mesh (AWS managed, simpler setup, EOL Sept 2026)",           d: "AWS manages the Envoy proxies. Simpler configuration than Istio. Auto-integrates with AWS X-Ray and CloudWatch." },
         istio:        { l: "Istio (Industry standard, most powerful)",                    d: "The most widely used service mesh. Fine-grained control over mTLS, circuit breakers, canary deployments, and traffic mirroring. Steep learning curve and high resource usage." },
+        aws_app_mesh: { l: "AWS App Mesh (⛔ EOL 2026 — not recommended for new projects)",           d: "AWS manages the Envoy proxies. End-of-life September 2026. Not recommended for new adoption. Plan migration to VPC Lattice or Istio." },
       },
     },
     gitops: {
