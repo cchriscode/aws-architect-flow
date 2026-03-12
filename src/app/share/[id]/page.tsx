@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const share = await prisma.share.findUnique({ where: { shortId: id } });
 
   if (!share || share.expiresAt < new Date()) {
-    return { title: "Not Found" };
+    return { title: "Not Found", robots: { index: false, follow: false } };
   }
 
   const title = `${share.headline} | ArchFlow`;

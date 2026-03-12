@@ -15,8 +15,47 @@ model User {
   image         String?
   accounts      Account[]
   history       HistoryEntry[] @relation("UserHistory")
+  posts         BlogPost[]
 
   @@map("users")
+}
+
+model BlogCategory {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  slug      String     @unique
+  sortOrder Int        @default(0) @map("sort_order")
+  posts     BlogPost[]
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  @@map("blog_categories")
+}
+
+model BlogPost {
+  id           String        @id @default(uuid())
+  slug         String        @unique
+  title        String
+  content      String        @db.Text
+  excerpt      String        @default("")
+  thumbnailUrl String?       @map("thumbnail_url")
+  tags         String[]
+  categoryId   String?       @map("category_id")
+  category     BlogCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  series       String?
+  seriesOrder  Int?          @map("series_order")
+  published    Boolean       @default(false)
+  publishedAt  DateTime?     @map("published_at")
+  readingTime  Int           @default(1) @map("reading_time")
+  views        Int           @default(0)
+  authorId     String        @map("author_id")
+  author       User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  @@index([published, publishedAt(sort: Desc)])
+  @@index([slug])
+  @@index([categoryId])
+  @@map("blog_posts")
 }
 
 model Account {

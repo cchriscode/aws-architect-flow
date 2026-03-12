@@ -58,30 +58,60 @@ export const metadata: Metadata = {
     images: ["/twitter-image"],
   },
   alternates: {
+    canonical: SITE_URL,
     languages: {
       "ko-KR": SITE_URL,
       "en-US": SITE_URL,
+      "x-default": SITE_URL,
     },
   },
   verification: {
     google: "H-6NTQxrbYjijMfxSlv7b4NJcQAQN-sewk2vpH_tq4Q",
     // naver는 아래 <meta> 태그로 직접 추가
   },
-  icons: { icon: "/favicon.ico" },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+  other: {
+    "theme-color": "#0f172a",
+  },
 };
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  name: "ArchFlow",
-  url: SITE_URL,
-  description:
-    "Free AWS architecture design tool with a 14-step wizard. Generates diagrams, Terraform/CDK code, security groups, cost estimation, and Well-Architected review.",
-  applicationCategory: "DeveloperApplication",
-  operatingSystem: "Web",
-  inLanguage: ["ko", "en"],
-  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-};
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "ArchFlow",
+    url: SITE_URL,
+    description:
+      "Free AWS architecture design tool with a 14-step wizard. Generates diagrams, Terraform/CDK code, security groups, cost estimation, and Well-Architected review.",
+    applicationCategory: "DeveloperApplication",
+    operatingSystem: "Web",
+    inLanguage: ["ko", "en"],
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    author: { "@type": "Organization", name: "ArchFlow" },
+    featureList: [
+      "14-step AWS architecture wizard",
+      "VPC & Subnet designer",
+      "Security Group rule builder",
+      "IAM policy generator",
+      "Terraform / CDK code export",
+      "Monthly cost estimation",
+      "Well-Architected Framework review",
+      "Architecture diagram sharing",
+    ],
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "AWS Glossary", item: `${SITE_URL}/glossary` },
+      { "@type": "ListItem", position: 3, name: "Tech Blog", item: `${SITE_URL}/blog` },
+    ],
+  },
+];
 
 export default async function RootLayout({
   children,

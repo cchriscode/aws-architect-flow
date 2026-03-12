@@ -50,6 +50,12 @@ export function Header({ onLoginClick }: HeaderProps) {
         >
           {t.header.glossaryLink}
         </Link>
+        <Link
+          href="/blog"
+          className="hidden items-center gap-1 rounded-lg border-[1.5px] border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 md:flex"
+        >
+          {t.header.blogLink}
+        </Link>
       </div>
       <div className="flex items-center gap-2">
         {/* Language toggle */}
