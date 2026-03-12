@@ -46,7 +46,7 @@ function MermaidModal({ svg, onClose }: { svg: string; onClose: () => void }) {
     >
       <div
         ref={containerRef}
-        className="relative flex max-h-[92vh] max-w-[92vw] flex-col overflow-hidden rounded-xl bg-white shadow-2xl"
+        className="relative flex h-[92vh] w-[92vw] flex-col overflow-hidden rounded-xl bg-white shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Toolbar */}
