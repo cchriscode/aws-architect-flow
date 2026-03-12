@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useDict } from "@/lib/i18n/context";
 import { PostContent } from "@/components/blog/PostContent";
@@ -7,7 +8,7 @@ import { TableOfContents } from "@/components/blog/TableOfContents";
 import { ShareButtons } from "@/components/blog/ShareButtons";
 import { RelatedPosts } from "@/components/blog/RelatedPosts";
 import { TagPill } from "@/components/blog/TagPill";
-import { Clock, Eye } from "lucide-react";
+import { Clock, Eye, ArrowUp } from "lucide-react";
 
 interface Author {
   name?: string | null;
@@ -47,6 +48,13 @@ interface BlogPostClientProps {
 export function BlogPostClient({ post, relatedPosts }: BlogPostClientProps) {
   const t = useDict();
   const url = typeof window !== "undefined" ? window.location.href : "";
+  const [showTop, setShowTop] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setShowTop(window.scrollY > 400);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <article className="mx-auto max-w-[900px] px-7 py-6">
@@ -134,6 +142,15 @@ export function BlogPostClient({ post, relatedPosts }: BlogPostClientProps) {
             viewsLabel={t.blog.views}
           />
         </>
+      )}
+      {/* Scroll to top */}
+      {showTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-6 right-6 z-40 rounded-full bg-indigo-600 p-3 text-white shadow-lg transition-all hover:bg-indigo-700 active:scale-95"
+        >
+          <ArrowUp className="h-5 w-5" />
+        </button>
       )}
     </article>
   );

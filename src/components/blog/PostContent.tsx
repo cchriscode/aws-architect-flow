@@ -26,20 +26,33 @@ function MermaidModal({ svg, onClose }: { svg: string; onClose: () => void }) {
       onClick={onClose}
     >
       <div
-        className="relative max-h-[90vh] max-w-[90vw] overflow-auto rounded-xl bg-white p-6 shadow-2xl"
+        className="relative max-h-[90vh] max-w-[90vw] overflow-auto rounded-xl bg-white p-8 pt-12 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute right-3 top-3 rounded-full bg-gray-100 p-1.5 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-700"
+          className="absolute right-3 top-3 z-10 rounded-full bg-gray-100 p-1.5 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-700"
         >
           <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
             <path d="M18 6 6 18M6 6l12 12" />
           </svg>
         </button>
         <div
-          className="flex justify-center [&_svg]:max-h-[80vh] [&_svg]:w-auto"
-          dangerouslySetInnerHTML={{ __html: svg }}
+          className="flex min-h-[200px] min-w-[300px] items-center justify-center"
+          ref={(el) => {
+            if (!el) return;
+            el.innerHTML = svg;
+            const svgEl = el.querySelector("svg");
+            if (svgEl) {
+              svgEl.removeAttribute("width");
+              svgEl.removeAttribute("height");
+              svgEl.style.maxWidth = "100%";
+              svgEl.style.maxHeight = "80vh";
+              svgEl.style.width = "auto";
+              svgEl.style.height = "auto";
+              svgEl.style.minWidth = "400px";
+            }
+          }}
         />
       </div>
     </div>
