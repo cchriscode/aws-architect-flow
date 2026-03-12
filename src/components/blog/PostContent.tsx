@@ -6,54 +6,83 @@ import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import type { Components } from "react-markdown";
 
-/* ── Mermaid lightbox modal ── */
+/* ── Mermaid lightbox modal with zoom ── */
 function MermaidModal({ svg, onClose }: { svg: string; onClose: () => void }) {
+  const [scale, setScale] = useState(1);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const zoomIn = () => setScale((s) => Math.min(s + 0.25, 3));
+  const zoomOut = () => setScale((s) => Math.max(s - 0.25, 0.5));
+  const zoomReset = () => setScale(1);
+
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
+      if (e.key === "+" || e.key === "=") zoomIn();
+      if (e.key === "-") zoomOut();
+      if (e.key === "0") zoomReset();
+    };
+    const handleWheel = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        setScale((s) => Math.min(Math.max(s - e.deltaY * 0.002, 0.5), 3));
+      }
     };
     document.addEventListener("keydown", handleKey);
+    const container = containerRef.current;
+    container?.addEventListener("wheel", handleWheel, { passive: false });
     document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", handleKey);
+      container?.removeEventListener("wheel", handleWheel);
       document.body.style.overflow = "";
     };
   }, [onClose]);
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       onClick={onClose}
     >
       <div
-        className="relative max-h-[90vh] max-w-[90vw] overflow-auto rounded-xl bg-white p-8 pt-12 shadow-2xl"
+        ref={containerRef}
+        className="relative flex max-h-[92vh] max-w-[92vw] flex-col overflow-hidden rounded-xl bg-white shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          onClick={onClose}
-          className="absolute right-3 top-3 z-10 rounded-full bg-gray-100 p-1.5 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-700"
-        >
-          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-            <path d="M18 6 6 18M6 6l12 12" />
-          </svg>
-        </button>
-        <div
-          className="flex min-h-[200px] min-w-[300px] items-center justify-center"
-          ref={(el) => {
-            if (!el) return;
-            el.innerHTML = svg;
-            const svgEl = el.querySelector("svg");
-            if (svgEl) {
-              svgEl.removeAttribute("width");
-              svgEl.removeAttribute("height");
-              svgEl.style.maxWidth = "100%";
-              svgEl.style.maxHeight = "80vh";
-              svgEl.style.width = "auto";
-              svgEl.style.height = "auto";
-              svgEl.style.minWidth = "400px";
-            }
-          }}
-        />
+        {/* Toolbar */}
+        <div className="flex items-center justify-between border-b border-gray-200 px-4 py-2">
+          <div className="flex items-center gap-1.5">
+            <button onClick={zoomOut} className="rounded-lg px-2 py-1 text-sm font-bold text-gray-600 hover:bg-gray-100">−</button>
+            <button onClick={zoomReset} className="rounded-lg px-2 py-1 text-xs font-medium text-gray-500 hover:bg-gray-100">{Math.round(scale * 100)}%</button>
+            <button onClick={zoomIn} className="rounded-lg px-2 py-1 text-sm font-bold text-gray-600 hover:bg-gray-100">+</button>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-full p-1.5 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+          >
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        {/* SVG content */}
+        <div className="flex-1 overflow-auto p-6">
+          <div
+            style={{ transform: `scale(${scale})`, transformOrigin: "top center", transition: "transform 0.15s ease" }}
+            ref={(el) => {
+              if (!el || el.childElementCount > 0) return;
+              el.innerHTML = svg;
+              const svgEl = el.querySelector("svg");
+              if (svgEl) {
+                svgEl.removeAttribute("width");
+                svgEl.removeAttribute("height");
+                svgEl.style.maxWidth = "100%";
+                svgEl.style.height = "auto";
+                svgEl.style.minWidth = "400px";
+              }
+            }}
+          />
+        </div>
       </div>
     </div>
   );
