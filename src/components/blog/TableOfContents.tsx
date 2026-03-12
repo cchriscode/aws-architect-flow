@@ -1,29 +1,11 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 
 interface TocItem {
   id: string;
   text: string;
   level: number;
-}
-
-function extractHeadings(markdown: string): TocItem[] {
-  const headings: TocItem[] = [];
-  const lines = markdown.split("\n");
-  for (const line of lines) {
-    const match = line.match(/^(#{1,3})\s+(.+)$/);
-    if (match) {
-      const level = match[1].length;
-      const text = match[2].replace(/[*_`\[\]]/g, "");
-      const id = text
-        .toLowerCase()
-        .replace(/[^a-z0-9가-힣\s-]/g, "")
-        .replace(/\s+/g, "-");
-      headings.push({ id, text, level });
-    }
-  }
-  return headings;
 }
 
 interface TableOfContentsProps {
@@ -32,10 +14,33 @@ interface TableOfContentsProps {
 }
 
 export function TableOfContents({ content, label }: TableOfContentsProps) {
-  const headings = useMemo(() => extractHeadings(content), [content]);
+  const [headings, setHeadings] = useState<TocItem[]>([]);
   const [activeId, setActiveId] = useState("");
 
+  /* Read actual heading IDs from the rendered DOM (set by rehype-slug) */
   useEffect(() => {
+    const timer = setTimeout(() => {
+      const root = document.querySelector(".prose-custom");
+      if (!root) return;
+      const els = root.querySelectorAll("h1, h2, h3");
+      const items: TocItem[] = [];
+      els.forEach((el) => {
+        if (el.id) {
+          items.push({
+            id: el.id,
+            text: el.textContent ?? "",
+            level: parseInt(el.tagName[1], 10),
+          });
+        }
+      });
+      setHeadings(items);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [content]);
+
+  /* Scroll-spy via IntersectionObserver */
+  useEffect(() => {
+    if (headings.length === 0) return;
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -46,12 +51,10 @@ export function TableOfContents({ content, label }: TableOfContentsProps) {
       },
       { rootMargin: "-80px 0px -70% 0px" },
     );
-
     for (const h of headings) {
       const el = document.getElementById(h.id);
       if (el) observer.observe(el);
     }
-
     return () => observer.disconnect();
   }, [headings]);
 

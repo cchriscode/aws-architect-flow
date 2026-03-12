@@ -4,7 +4,6 @@ import { useEffect, useRef, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import type { Components } from "react-markdown";
 
 /* ── Mermaid block ── */
@@ -83,7 +82,7 @@ function PreBlock({
 
   return (
     <pre
-      className="my-4 overflow-x-auto rounded-lg border border-gray-200 bg-gray-950 p-4 text-xs"
+      className="my-4 overflow-x-auto rounded-lg border border-green-200 bg-green-50 p-4 text-xs text-gray-800"
       {...props}
     >
       {children}
@@ -181,7 +180,7 @@ export function PostContent({ content }: PostContentProps) {
     <div className="prose-custom">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeSlug, [rehypeAutolinkHeadings, { behavior: "wrap" }]]}
+        rehypePlugins={[rehypeSlug]}
         components={components}
       >
         {content}
