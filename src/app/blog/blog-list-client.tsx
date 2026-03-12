@@ -12,6 +12,7 @@ interface Post {
   excerpt: string;
   thumbnailUrl?: string | null;
   tags: string[];
+  category?: { id: string; name: string; slug: string } | null;
   publishedAt: string | null;
   readingTime: number;
   views: number;
@@ -153,6 +154,7 @@ export function BlogListClient({
             <PostCard
               key={post.id}
               {...post}
+              categorySlug={post.category?.slug}
               readingTimeLabel={t.blog.readingTime}
               viewsLabel={t.blog.views}
             />

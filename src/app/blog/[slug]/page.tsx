@@ -1,93 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { Header } from "@/components/layout/Header";
-import { LoginModal } from "@/components/auth/LoginModal";
-import { BlogPostClient } from "./blog-post-client";
+import { useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 
-interface Author {
-  name?: string | null;
-  image?: string | null;
-}
-
-interface Post {
-  id: string;
-  slug: string;
-  title: string;
-  content: string;
-  excerpt: string;
-  tags: string[];
-  publishedAt: string | null;
-  readingTime: number;
-  views: number;
-  author: Author;
-}
-
-interface RelatedPost {
-  slug: string;
-  title: string;
-  excerpt: string;
-  thumbnailUrl?: string | null;
-  tags: string[];
-  publishedAt: string | null;
-  readingTime: number;
-  views: number;
-  author?: Author | null;
-}
-
-export default function BlogPostPage() {
+/** Backward-compatible redirect: /blog/[slug] → /blog/[category]/[slug] */
+export default function BlogPostRedirect() {
   const params = useParams();
   const slug = params.slug as string;
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [post, setPost] = useState<Post | null>(null);
-  const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
-  const [notFound, setNotFound] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     fetch(`/api/blog/${slug}`)
-      .then((r) => {
-        if (!r.ok) {
-          setNotFound(true);
-          return null;
-        }
-        return r.json();
-      })
+      .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        if (!data) return;
-        setPost(data);
-
-        // Fetch related posts by tag
-        if (data.tags?.length > 0) {
-          fetch(`/api/blog?tag=${encodeURIComponent(data.tags[0])}`)
-            .then((r) => r.json())
-            .then((d) => {
-              setRelatedPosts(
-                d.posts
-                  .filter((p: { slug: string }) => p.slug !== slug)
-                  .slice(0, 3),
-              );
-            });
+        if (data) {
+          const catSlug = data.category?.slug || "posts";
+          router.replace(`/blog/${catSlug}/${slug}`);
         }
       });
-  }, [slug]);
+  }, [slug, router]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header onLoginClick={() => setShowLoginModal(true)} />
-      {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
-
-      {notFound ? (
-        <div className="flex flex-col items-center py-20">
-          <p className="text-sm font-bold text-gray-500">Post not found</p>
-        </div>
-      ) : post ? (
-        <BlogPostClient post={post} relatedPosts={relatedPosts} />
-      ) : (
-        <div className="flex justify-center py-20">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
-        </div>
-      )}
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
     </div>
   );
 }

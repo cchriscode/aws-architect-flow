@@ -8,6 +8,7 @@ interface RelatedPost {
   excerpt: string;
   thumbnailUrl?: string | null;
   tags: string[];
+  category?: { id: string; name: string; slug: string } | null;
   publishedAt: string | null;
   readingTime: number;
   views: number;
@@ -37,6 +38,7 @@ export function RelatedPosts({
           <PostCard
             key={post.slug}
             {...post}
+            categorySlug={post.category?.slug}
             readingTimeLabel={readingTimeLabel}
             viewsLabel={viewsLabel}
           />
