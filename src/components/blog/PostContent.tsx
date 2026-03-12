@@ -1,10 +1,95 @@
 "use client";
 
+import { useEffect, useRef, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import type { Components } from "react-markdown";
+
+/* ── Mermaid block ── */
+function MermaidBlock({ chart }: { chart: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    import("mermaid").then((m) => {
+      if (cancelled) return;
+      m.default.initialize({
+        startOnLoad: false,
+        theme: "neutral",
+        fontFamily: "Pretendard, sans-serif",
+      });
+      const id = `mermaid-${Math.random().toString(36).slice(2, 9)}`;
+      m.default.render(id, chart).then(({ svg }) => {
+        if (!cancelled && ref.current) {
+          ref.current.innerHTML = svg;
+        }
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [chart]);
+
+  return (
+    <div
+      ref={ref}
+      className="my-4 flex justify-center overflow-x-auto rounded-lg border border-gray-200 bg-white p-4"
+    />
+  );
+}
+
+/* ── Markdown components ── */
+function CodeBlock({
+  className,
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLElement> & { children?: React.ReactNode }) {
+  const isInline = !className;
+  if (isInline) {
+    return (
+      <code
+        className="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-mono text-indigo-700"
+        {...props}
+      >
+        {children}
+      </code>
+    );
+  }
+  return (
+    <code className={`${className ?? ""} text-xs`} {...props}>
+      {children}
+    </code>
+  );
+}
+
+function PreBlock({
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLPreElement> & { children?: React.ReactNode }) {
+  // Detect mermaid code block
+  const child = children as React.ReactElement<{
+    className?: string;
+    children?: string;
+  }> | undefined;
+  if (child?.props?.className === "language-mermaid") {
+    const chart =
+      typeof child.props.children === "string"
+        ? child.props.children.trim()
+        : "";
+    return <MermaidBlock chart={chart} />;
+  }
+
+  return (
+    <pre
+      className="my-4 overflow-x-auto rounded-lg border border-gray-200 bg-gray-950 p-4 text-xs"
+      {...props}
+    >
+      {children}
+    </pre>
+  );
+}
 
 const components: Components = {
   h1: ({ children, ...props }) => (
@@ -45,38 +130,11 @@ const components: Components = {
       {children}
     </blockquote>
   ),
-  code: ({ className, children, ...props }) => {
-    const isInline = !className;
-    if (isInline) {
-      return (
-        <code
-          className="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-mono text-indigo-700"
-          {...props}
-        >
-          {children}
-        </code>
-      );
-    }
-    return (
-      <code className={`${className ?? ""} text-xs`} {...props}>
-        {children}
-      </code>
-    );
-  },
-  pre: ({ children, ...props }) => (
-    <pre
-      className="my-4 overflow-x-auto rounded-lg border border-gray-200 bg-gray-950 p-4 text-xs"
-      {...props}
-    >
-      {children}
-    </pre>
-  ),
+  code: CodeBlock as Components["code"],
+  pre: PreBlock as Components["pre"],
   table: ({ children, ...props }) => (
     <div className="my-4 overflow-x-auto">
-      <table
-        className="w-full border-collapse text-sm"
-        {...props}
-      >
+      <table className="w-full border-collapse text-sm" {...props}>
         {children}
       </table>
     </div>
