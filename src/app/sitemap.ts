@@ -16,12 +16,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const posts = await prisma.blogPost.findMany({
       where: { published: true },
-      select: { slug: true, updatedAt: true },
+      select: { slug: true, updatedAt: true, category: { select: { slug: true } } },
       orderBy: { publishedAt: "desc" },
     });
 
     blogPages = posts.map((post) => ({
-      url: `${SITE_URL}/blog/${post.slug}`,
+      url: `${SITE_URL}/blog/${post.category?.slug || "etc"}/${post.slug}`,
       lastModified: post.updatedAt.toISOString(),
       changeFrequency: "weekly" as const,
       priority: 0.7,

@@ -18,6 +18,7 @@ interface Post {
   content: string;
   excerpt: string;
   tags: string[];
+  category?: { id: string; name: string; slug: string } | null;
   publishedAt: string | null;
   readingTime: number;
   views: number;
@@ -30,6 +31,7 @@ interface RelatedPost {
   excerpt: string;
   thumbnailUrl?: string | null;
   tags: string[];
+  category?: { id: string; name: string; slug: string } | null;
   publishedAt: string | null;
   readingTime: number;
   views: number;
@@ -57,7 +59,6 @@ export default function BlogPostPage() {
         if (!data) return;
         setPost(data);
 
-        // Fetch related posts by tag
         if (data.tags?.length > 0) {
           fetch(`/api/blog?tag=${encodeURIComponent(data.tags[0])}`)
             .then((r) => r.json())
