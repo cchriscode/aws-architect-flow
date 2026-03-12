@@ -38,7 +38,7 @@ export function BlogListClient({
   const [posts, setPosts] = useState(initialPosts);
   const [nextCursor, setNextCursor] = useState(initialNextCursor);
   const [activeTag, setActiveTag] = useState(initialTag ?? "");
-  const [sort, setSort] = useState<"latest" | "popular">("latest");
+  const [sort, setSort] = useState<"latest" | "oldest" | "popular">("latest");
   const [loading, setLoading] = useState(false);
 
   // Sync when parent changes posts via category switch
@@ -75,7 +75,7 @@ export function BlogListClient({
     setLoading(false);
   };
 
-  const handleSortChange = async (newSort: "latest" | "popular") => {
+  const handleSortChange = async (newSort: "latest" | "oldest" | "popular") => {
     setSort(newSort);
     setLoading(true);
     const data = await fetchPosts({ tag: activeTag, categoryId: activeCategoryId, sortBy: newSort });
@@ -125,14 +125,14 @@ export function BlogListClient({
         )}
         <div className="flex shrink-0 gap-1.5">
           <button
-            onClick={() => handleSortChange("latest")}
+            onClick={() => handleSortChange(sort === "latest" ? "oldest" : "latest")}
             className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-              sort === "latest"
+              sort === "latest" || sort === "oldest"
                 ? "bg-indigo-600 text-white"
                 : "border-[1.5px] border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
             }`}
           >
-            {t.blog.sortLatest}
+            {sort === "oldest" ? t.blog.sortOldest : t.blog.sortLatest}
           </button>
           <button
             onClick={() => handleSortChange("popular")}

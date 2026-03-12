@@ -17,7 +17,9 @@ export async function GET(req: NextRequest) {
     const orderBy =
       sort === "popular"
         ? { views: "desc" as const }
-        : { publishedAt: "desc" as const };
+        : sort === "oldest"
+          ? { publishedAt: "asc" as const }
+          : { publishedAt: "desc" as const };
 
     const posts = await prisma.blogPost.findMany({
       where,

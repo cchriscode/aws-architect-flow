@@ -488,6 +488,7 @@ export const en: Dict = {
     allCategories: "All",
     allTags: "All",
     sortLatest: "Latest",
+    sortOldest: "Oldest",
     sortPopular: "Popular",
     readingTime: (min) => `${min} min read`,
     views: (n) => `${n.toLocaleString()} views`,

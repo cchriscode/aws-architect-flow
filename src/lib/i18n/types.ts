@@ -379,6 +379,7 @@ export interface Dict {
     allCategories: string;
     allTags: string;
     sortLatest: string;
+    sortOldest: string;
     sortPopular: string;
     readingTime: (min: number) => string;
     views: (n: number) => string;

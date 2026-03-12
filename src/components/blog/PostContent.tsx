@@ -68,7 +68,7 @@ function MermaidModal({ svg, onClose }: { svg: string; onClose: () => void }) {
         {/* SVG content */}
         <div className="flex-1 overflow-auto p-6">
           <div
-            style={{ transform: `scale(${scale})`, transformOrigin: "top center", transition: "transform 0.15s ease" }}
+            style={{ width: `${scale * 100}%`, transition: "width 0.15s ease", margin: "0 auto" }}
             ref={(el) => {
               if (!el || el.childElementCount > 0) return;
               el.innerHTML = svg;
@@ -76,9 +76,8 @@ function MermaidModal({ svg, onClose }: { svg: string; onClose: () => void }) {
               if (svgEl) {
                 svgEl.removeAttribute("width");
                 svgEl.removeAttribute("height");
-                svgEl.style.maxWidth = "100%";
+                svgEl.style.width = "100%";
                 svgEl.style.height = "auto";
-                svgEl.style.minWidth = "400px";
               }
             }}
           />
