@@ -19,7 +19,6 @@ interface Post {
   title: string;
   content: string;
   tags: string[];
-  category?: { id: string; name: string; slug: string } | null;
   publishedAt: string | null;
   readingTime: number;
   views: number;
@@ -32,7 +31,6 @@ interface RelatedPost {
   excerpt: string;
   thumbnailUrl?: string | null;
   tags: string[];
-  category?: { id: string; name: string; slug: string } | null;
   publishedAt: string | null;
   readingTime: number;
   views: number;

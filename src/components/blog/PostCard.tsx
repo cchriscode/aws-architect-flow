@@ -10,7 +10,6 @@ interface PostCardProps {
   excerpt: string;
   thumbnailUrl?: string | null;
   tags: string[];
-  categorySlug?: string | null;
   publishedAt: string | null;
   readingTime: number;
   views: number;
@@ -25,7 +24,6 @@ export function PostCard({
   excerpt,
   thumbnailUrl,
   tags,
-  categorySlug,
   publishedAt,
   readingTime,
   views,
@@ -34,7 +32,7 @@ export function PostCard({
 }: PostCardProps) {
   return (
     <Link
-      href={`/blog/${categorySlug || "posts"}/${slug}`}
+      href={`/blog/${slug}`}
       className="group block rounded-xl border-[1.5px] border-gray-200 bg-white transition-colors hover:border-indigo-300"
     >
       {thumbnailUrl && (
