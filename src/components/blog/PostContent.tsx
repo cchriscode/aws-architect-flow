@@ -1,14 +1,56 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import type { Components } from "react-markdown";
 
+/* ── Mermaid lightbox modal ── */
+function MermaidModal({ svg, onClose }: { svg: string; onClose: () => void }) {
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", handleKey);
+      document.body.style.overflow = "";
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6"
+      onClick={onClose}
+    >
+      <div
+        className="relative max-h-[90vh] max-w-[90vw] overflow-auto rounded-xl bg-white p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute right-3 top-3 rounded-full bg-gray-100 p-1.5 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-700"
+        >
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+        <div
+          className="flex justify-center [&_svg]:max-h-[80vh] [&_svg]:w-auto"
+          dangerouslySetInnerHTML={{ __html: svg }}
+        />
+      </div>
+    </div>
+  );
+}
+
 /* ── Mermaid block ── */
 function MermaidBlock({ chart }: { chart: string }) {
   const ref = useRef<HTMLDivElement>(null);
+  const [svgHtml, setSvgHtml] = useState("");
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -21,8 +63,9 @@ function MermaidBlock({ chart }: { chart: string }) {
       });
       const id = `mermaid-${Math.random().toString(36).slice(2, 9)}`;
       m.default.render(id, chart).then(({ svg }) => {
-        if (!cancelled && ref.current) {
-          ref.current.innerHTML = svg;
+        if (!cancelled) {
+          setSvgHtml(svg);
+          if (ref.current) ref.current.innerHTML = svg;
         }
       });
     });
@@ -32,10 +75,15 @@ function MermaidBlock({ chart }: { chart: string }) {
   }, [chart]);
 
   return (
-    <div
-      ref={ref}
-      className="my-4 flex justify-center overflow-x-auto rounded-lg border border-gray-200 bg-white p-4"
-    />
+    <>
+      <div
+        ref={ref}
+        onClick={() => svgHtml && setOpen(true)}
+        title="클릭하면 크게 볼 수 있습니다"
+        className="my-4 flex cursor-pointer justify-center overflow-x-auto rounded-lg border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md"
+      />
+      {open && <MermaidModal svg={svgHtml} onClose={() => setOpen(false)} />}
+    </>
   );
 }
 
