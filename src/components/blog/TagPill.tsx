@@ -10,7 +10,7 @@ interface TagPillProps {
 }
 
 export function TagPill({ tag, active, onClick, href }: TagPillProps) {
-  const cls = `inline-block rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+  const cls = `inline-block whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
     active
       ? "bg-indigo-600 text-white"
       : "border-[1.5px] border-gray-200 bg-white text-gray-600 hover:bg-gray-50"

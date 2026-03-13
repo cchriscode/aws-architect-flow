@@ -1,71 +1,57 @@
-"use client";
+import type { Metadata } from "next";
+import { prisma } from "@/lib/prisma";
+import { cookies } from "next/headers";
+import { LANG_COOKIE } from "@/lib/i18n/context";
+import { BlogPostPageClient } from "./blog-post-page-client";
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { Header } from "@/components/layout/Header";
-import { LoginModal } from "@/components/auth/LoginModal";
-import { useLang } from "@/lib/i18n/context";
-import { BlogPostClient } from "./blog-post-client";
+const SITE_URL = "https://archflow-aws.online";
 
-export default function BlogPostPage() {
-  const params = useParams<{ category: string; slug: string }>();
-  const { lang } = useLang();
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [post, setPost] = useState<any>(null);
-  const [relatedPosts, setRelatedPosts] = useState<any[]>([]);
-  const [notFound, setNotFound] = useState(false);
+interface Props {
+  params: Promise<{ category: string; slug: string }>;
+}
 
-  useEffect(() => {
-    if (!params?.category || !params?.slug) return;
+function toDbSlug(category: string, slug: string) {
+  return category !== "etc" ? `${category}-${slug}` : slug;
+}
 
-    setNotFound(false);
-    setPost(null);
-    const dbSlug = params.category !== "etc" ? `${params.category}-${params.slug}` : params.slug;
-    fetch(`/api/blog/${dbSlug}`)
-      .then((r) => {
-        if (!r.ok) { setNotFound(true); return null; }
-        return r.json();
-      })
-      .then((data) => {
-        if (!data) return;
-        setPost(data);
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { category, slug } = await params;
+  const dbSlug = toDbSlug(category, slug);
 
-        // Fetch related posts
-        if (data.tags?.length > 0) {
-          fetch(`/api/blog?tag=${encodeURIComponent(data.tags[0])}`)
-            .then((r) => r.ok ? r.json() : { posts: [] })
-            .then((d) => {
-              setRelatedPosts(
-                (d.posts || []).filter((p: any) => p.slug !== data.slug).slice(0, 3)
-              );
-            })
-            .catch(() => {});
-        }
-      })
-      .catch(() => setNotFound(true));
-  }, [params?.category, params?.slug, lang]);
+  const cookieStore = await cookies();
+  const locale = cookieStore.get(LANG_COOKIE)?.value === "en" ? "en" : "ko";
 
-  if (notFound) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Header onLoginClick={() => setShowLoginModal(true)} />
-        {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
-        <div className="flex justify-center py-20 text-gray-500">Post not found</div>
-      </div>
-    );
-  }
+  const post = await prisma.blogPost.findFirst({
+    where: { slug: dbSlug, published: true, locale },
+    select: { title: true, excerpt: true, thumbnailUrl: true, tags: true },
+  });
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <Header onLoginClick={() => setShowLoginModal(true)} />
-      {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
-      {post ? (
-        <BlogPostClient post={post} relatedPosts={relatedPosts} />
-      ) : (
-        <div className="flex justify-center py-20">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
-        </div>
-      )}
-    </div>
-  );
+  if (!post) return { title: "Post not found" };
+
+  return {
+    title: post.title,
+    description: post.excerpt,
+    keywords: post.tags,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      url: `${SITE_URL}/blog/${category}/${slug}`,
+      type: "article",
+      ...(post.thumbnailUrl ? { images: [{ url: post.thumbnailUrl }] } : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+      ...(post.thumbnailUrl ? { images: [post.thumbnailUrl] } : {}),
+    },
+    alternates: {
+      canonical: `${SITE_URL}/blog/${category}/${slug}`,
+    },
+  };
+}
+
+export default async function BlogPostPage({ params }: Props) {
+  const { category, slug } = await params;
+  return <BlogPostPageClient category={category} slug={slug} />;
 }
