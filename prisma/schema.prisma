@@ -33,7 +33,7 @@ model BlogCategory {
 
 model BlogPost {
   id           String        @id @default(uuid())
-  slug         String        @unique
+  slug         String
   title        String
   content      String        @db.Text
   excerpt      String        @default("")
@@ -52,6 +52,7 @@ model BlogPost {
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
 
+  @@unique([categoryId, slug])
   @@index([published, publishedAt(sort: Desc)])
   @@index([slug])
   @@index([categoryId])

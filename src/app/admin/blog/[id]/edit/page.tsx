@@ -34,12 +34,7 @@ export default function AdminEditPostPage() {
       .then((posts: PostData[]) => {
         const found = posts.find((p) => p.id === id);
         if (found) {
-          fetch(`/api/blog/${found.slug}`)
-            .then((r) => (r.ok ? r.json() : null))
-            .then((data) => {
-              if (data) setPost(data);
-              else setPost(found);
-            });
+          setPost(found);
         }
       });
   }, [id]);

@@ -40,6 +40,7 @@ interface RelatedPost {
 
 export default function BlogPostPage() {
   const params = useParams();
+  const category = params.category as string;
   const slug = params.slug as string;
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [post, setPost] = useState<Post | null>(null);
@@ -47,7 +48,7 @@ export default function BlogPostPage() {
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/blog/${slug}`)
+    fetch(`/api/blog/${category}/${slug}`)
       .then((r) => {
         if (!r.ok) {
           setNotFound(true);
