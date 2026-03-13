@@ -10,19 +10,14 @@ interface Props {
   params: Promise<{ category: string; slug: string }>;
 }
 
-function toDbSlug(category: string, slug: string) {
-  return category !== "etc" ? `${category}-${slug}` : slug;
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category, slug } = await params;
-  const dbSlug = toDbSlug(category, slug);
 
   const cookieStore = await cookies();
   const locale = cookieStore.get(LANG_COOKIE)?.value === "en" ? "en" : "ko";
 
   const post = await prisma.blogPost.findFirst({
-    where: { slug: dbSlug, published: true, locale },
+    where: { slug, published: true, locale },
     select: { title: true, excerpt: true, thumbnailUrl: true, tags: true },
   });
 

@@ -34,7 +34,7 @@ export function PostCard({
 }: PostCardProps) {
   return (
     <Link
-      href={`/blog/${categorySlug || "etc"}/${categorySlug && slug.startsWith(categorySlug + "-") ? slug.slice(categorySlug.length + 1) : slug}`}
+      href={`/blog/${categorySlug || "etc"}/${slug}`}
       className="group block rounded-xl border-[1.5px] border-gray-200 bg-white transition-colors hover:border-indigo-300"
     >
       {thumbnailUrl && (

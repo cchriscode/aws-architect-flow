@@ -21,8 +21,7 @@ export function BlogPostPageClient({ category, slug }: Props) {
   useEffect(() => {
     setNotFound(false);
     setPost(null);
-    const dbSlug = category !== "etc" ? `${category}-${slug}` : slug;
-    fetch(`/api/blog/${dbSlug}`)
+    fetch(`/api/blog/${slug}`)
       .then((r) => {
         if (!r.ok) { setNotFound(true); return null; }
         return r.json();
