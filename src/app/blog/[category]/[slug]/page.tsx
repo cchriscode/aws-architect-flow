@@ -1,150 +1,66 @@
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { BlogPostShell } from "./blog-post-shell";
+"use client";
 
-const SITE_URL = "https://archflow-aws.online";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { Header } from "@/components/layout/Header";
+import { LoginModal } from "@/components/auth/LoginModal";
+import { BlogPostClient } from "./blog-post-client";
 
-interface Params {
-  category: string;
-  slug: string;
-}
+export default function BlogPostPage() {
+  const params = useParams<{ category: string; slug: string }>();
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [post, setPost] = useState<any>(null);
+  const [relatedPosts, setRelatedPosts] = useState<any[]>([]);
+  const [notFound, setNotFound] = useState(false);
 
-async function getPost(categorySlug: string, slug: string) {
-  const category = await prisma.blogCategory.findUnique({
-    where: { slug: categorySlug },
-  });
-  if (!category) return null;
+  useEffect(() => {
+    if (!params?.category || !params?.slug) return;
 
-  const post = await prisma.blogPost.findFirst({
-    where: { slug, categoryId: category.id, published: true },
-    include: {
-      author: { select: { name: true, image: true } },
-      category: { select: { id: true, name: true, slug: true } },
-    },
-  });
-  return post;
-}
+    fetch(`/api/blog/${params.category}/${params.slug}`)
+      .then((r) => {
+        if (!r.ok) { setNotFound(true); return null; }
+        return r.json();
+      })
+      .then((data) => {
+        if (!data) return;
+        setPost(data);
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<Params>;
-}): Promise<Metadata> {
-  const { category, slug } = await params;
-  const post = await getPost(category, slug);
-  if (!post) return { title: "Post not found" };
+        // Fetch related posts
+        if (data.tags?.length > 0) {
+          fetch(`/api/blog?tag=${encodeURIComponent(data.tags[0])}`)
+            .then((r) => r.ok ? r.json() : { posts: [] })
+            .then((d) => {
+              setRelatedPosts(
+                (d.posts || []).filter((p: any) => p.slug !== data.slug).slice(0, 3)
+              );
+            })
+            .catch(() => {});
+        }
+      })
+      .catch(() => setNotFound(true));
+  }, [params?.category, params?.slug]);
 
-  const title = post.title;
-  const description = post.excerpt || `${post.title} — DevOps 강의`;
-  const url = `${SITE_URL}/blog/${category}/${slug}`;
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      url,
-      siteName: "ArchFlow",
-      type: "article",
-      publishedTime: post.publishedAt?.toISOString(),
-      authors: post.author.name ? [post.author.name] : undefined,
-      tags: post.tags,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-    },
-    alternates: {
-      canonical: url,
-    },
-  };
-}
-
-export default async function BlogPostPage({
-  params,
-}: {
-  params: Promise<Params>;
-}) {
-  const { category, slug } = await params;
-  const post = await getPost(category, slug);
-  if (!post) notFound();
-
-  // Increment views (fire and forget)
-  prisma.blogPost
-    .update({ where: { id: post.id }, data: { views: { increment: 1 } } })
-    .catch(() => {});
-
-  // Fetch related posts
-  const relatedPosts =
-    post.tags.length > 0
-      ? await prisma.blogPost.findMany({
-          where: {
-            published: true,
-            tags: { hasSome: post.tags },
-            id: { not: post.id },
-          },
-          take: 3,
-          orderBy: { publishedAt: "desc" },
-          select: {
-            slug: true,
-            title: true,
-            excerpt: true,
-            thumbnailUrl: true,
-            tags: true,
-            category: { select: { id: true, name: true, slug: true } },
-            publishedAt: true,
-            readingTime: true,
-            views: true,
-            author: { select: { name: true, image: true } },
-          },
-        })
-      : [];
-
-  // JSON-LD for the article
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: post.title,
-    description: post.excerpt,
-    url: `${SITE_URL}/blog/${category}/${slug}`,
-    datePublished: post.publishedAt?.toISOString(),
-    dateModified: post.updatedAt.toISOString(),
-    author: {
-      "@type": "Person",
-      name: post.author.name || "ArchFlow",
-    },
-    publisher: {
-      "@type": "Organization",
-      name: "ArchFlow",
-      url: SITE_URL,
-    },
-    wordCount: post.content.length,
-    timeRequired: `PT${post.readingTime}M`,
-  };
-
-  // Serialize dates for client component
-  const serializedPost = {
-    ...post,
-    publishedAt: post.publishedAt?.toISOString() ?? null,
-    createdAt: post.createdAt.toISOString(),
-    updatedAt: post.updatedAt.toISOString(),
-  };
-
-  const serializedRelated = relatedPosts.map((p) => ({
-    ...p,
-    publishedAt: p.publishedAt?.toISOString() ?? null,
-  }));
+  if (notFound) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header onLoginClick={() => setShowLoginModal(true)} />
+        {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
+        <div className="flex justify-center py-20 text-gray-500">Post not found</div>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <BlogPostShell post={serializedPost} relatedPosts={serializedRelated} />
-    </>
+    <div className="min-h-screen bg-gray-50">
+      <Header onLoginClick={() => setShowLoginModal(true)} />
+      {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
+      {post ? (
+        <BlogPostClient post={post} relatedPosts={relatedPosts} />
+      ) : (
+        <div className="flex justify-center py-20">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
+        </div>
+      )}
+    </div>
   );
 }
