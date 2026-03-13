@@ -8,15 +8,15 @@ export async function GET(
   try {
     const { slug } = await params;
 
-    const post = await prisma.blogPost.findUnique({
-      where: { slug },
+    const post = await prisma.blogPost.findFirst({
+      where: { slug, published: true },
       include: {
         author: { select: { name: true, image: true } },
         category: { select: { id: true, name: true, slug: true } },
       },
     });
 
-    if (!post || !post.published) {
+    if (!post) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
