@@ -7,9 +7,10 @@ export async function GET(
 ) {
   try {
     const { slug } = await params;
+    const locale = _req.cookies.get("archflow_lang")?.value === "en" ? "en" : "ko";
 
     const post = await prisma.blogPost.findFirst({
-      where: { slug, published: true },
+      where: { slug, published: true, locale },
       include: {
         author: { select: { name: true, image: true } },
         category: { select: { id: true, name: true, slug: true } },

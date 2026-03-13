@@ -38,7 +38,7 @@ export function BlogListClient({
   const [posts, setPosts] = useState(initialPosts);
   const [nextCursor, setNextCursor] = useState(initialNextCursor);
   const [activeTag, setActiveTag] = useState(initialTag ?? "");
-  const [sort, setSort] = useState<"latest" | "oldest" | "popular" | "name-asc" | "name-desc">("latest");
+  const [sort, setSort] = useState<"latest" | "oldest" | "popular" | "name-asc" | "name-desc">("name-asc");
   const [loading, setLoading] = useState(false);
 
   // Sync when parent changes posts via category switch

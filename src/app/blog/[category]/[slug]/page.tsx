@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { LoginModal } from "@/components/auth/LoginModal";
+import { useLang } from "@/lib/i18n/context";
 import { BlogPostClient } from "./blog-post-client";
 
 export default function BlogPostPage() {
   const params = useParams<{ category: string; slug: string }>();
+  const { lang } = useLang();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [post, setPost] = useState<any>(null);
   const [relatedPosts, setRelatedPosts] = useState<any[]>([]);
@@ -16,7 +18,10 @@ export default function BlogPostPage() {
   useEffect(() => {
     if (!params?.category || !params?.slug) return;
 
-    fetch(`/api/blog/${params.category}/${params.slug}`)
+    setNotFound(false);
+    setPost(null);
+    const dbSlug = params.category !== "etc" ? `${params.category}-${params.slug}` : params.slug;
+    fetch(`/api/blog/${dbSlug}`)
       .then((r) => {
         if (!r.ok) { setNotFound(true); return null; }
         return r.json();
@@ -38,7 +43,7 @@ export default function BlogPostPage() {
         }
       })
       .catch(() => setNotFound(true));
-  }, [params?.category, params?.slug]);
+  }, [params?.category, params?.slug, lang]);
 
   if (notFound) {
     return (

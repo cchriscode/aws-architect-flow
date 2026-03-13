@@ -3,11 +3,12 @@ import { isAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
 
 // Public: list all categories
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const locale = req.cookies.get("archflow_lang")?.value === "en" ? "en" : "ko";
     const categories = await prisma.blogCategory.findMany({
       orderBy: { sortOrder: "asc" },
-      include: { _count: { select: { posts: { where: { published: true } } } } },
+      include: { _count: { select: { posts: { where: { published: true, locale } } } } },
     });
     return NextResponse.json(categories);
   } catch {

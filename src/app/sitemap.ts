@@ -21,7 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
 
     blogPages = posts.map((post) => ({
-      url: `${SITE_URL}/blog/${post.category?.slug || "etc"}/${post.slug}`,
+      url: `${SITE_URL}/blog/${post.category?.slug || "etc"}/${post.category?.slug && post.slug.startsWith(post.category.slug + "-") ? post.slug.slice(post.category.slug.length + 1) : post.slug}`,
       lastModified: post.updatedAt.toISOString(),
       changeFrequency: "weekly" as const,
       priority: 0.7,

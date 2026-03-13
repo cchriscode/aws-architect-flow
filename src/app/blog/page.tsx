@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { LoginModal } from "@/components/auth/LoginModal";
-import { useDict } from "@/lib/i18n/context";
+import { useDict, useLang } from "@/lib/i18n/context";
 import { BlogListClient } from "./blog-list-client";
 import { Pencil, FolderOpen } from "lucide-react";
 
@@ -32,6 +32,7 @@ interface Post {
 
 export default function BlogPage() {
   const t = useDict();
+  const { lang } = useLang();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeCategoryId, setActiveCategoryId] = useState("");
@@ -43,8 +44,9 @@ export default function BlogPage() {
   } | null>(null);
 
   useEffect(() => {
+    setActiveCategoryId("");
     Promise.all([
-      fetch("/api/blog").then((r) => (r.ok ? r.json() : { posts: [], nextCursor: null })),
+      fetch("/api/blog?sort=name-asc").then((r) => (r.ok ? r.json() : { posts: [], nextCursor: null })),
       fetch("/api/blog/categories").then((r) => (r.ok ? r.json() : [])),
       fetch("/api/blog/admin/check").then((r) => r.json()).catch(() => ({ admin: false })),
     ]).then(([blogData, categories, adminData]) => {
@@ -59,7 +61,7 @@ export default function BlogPage() {
       });
       setIsAdmin(adminData.admin === true);
     });
-  }, []);
+  }, [lang]);
 
   const handleCategoryChange = async (catId: string) => {
     setActiveCategoryId(catId);
