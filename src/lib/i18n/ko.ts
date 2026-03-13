@@ -484,6 +484,8 @@ export const ko: Dict = {
     allTags: "전체",
     sortLatest: "최신순",
     sortOldest: "오래된순",
+    sortName: "이름순 ↑",
+    sortNameDesc: "이름순 ↓",
     sortPopular: "인기순",
     readingTime: (min) => `${min}분 읽기`,
     views: (n) => `조회 ${n.toLocaleString()}`,

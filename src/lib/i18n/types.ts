@@ -380,6 +380,8 @@ export interface Dict {
     allTags: string;
     sortLatest: string;
     sortOldest: string;
+    sortName: string;
+    sortNameDesc: string;
     sortPopular: string;
     readingTime: (min: number) => string;
     views: (n: number) => string;
