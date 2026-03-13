@@ -39,7 +39,6 @@ model BlogPost {
   excerpt      String        @default("")
   thumbnailUrl String?       @map("thumbnail_url")
   tags         String[]
-  locale       String        @default("ko")
   categoryId   String?       @map("category_id")
   category     BlogCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   series       String?
@@ -53,11 +52,10 @@ model BlogPost {
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
 
-  @@unique([categoryId, slug, locale])
+  @@unique([categoryId, slug])
   @@index([published, publishedAt(sort: Desc)])
   @@index([slug])
   @@index([categoryId])
-  @@index([locale])
   @@map("blog_posts")
 }
 

@@ -10,8 +10,7 @@ export async function GET(req: NextRequest) {
     const cursor = searchParams.get("cursor");
     const limit = 12;
 
-    const locale = req.cookies.get("archflow_lang")?.value === "en" ? "en" : "ko";
-    const where: Record<string, unknown> = { published: true, locale };
+    const where: Record<string, unknown> = { published: true };
     if (tag) where.tags = { has: tag };
     if (categoryId) where.categoryId = categoryId;
 
