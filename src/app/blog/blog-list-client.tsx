@@ -163,8 +163,16 @@ export function BlogListClient({
           {posts.map((post) => (
             <PostCard
               key={post.id}
-              {...post}
+              slug={post.slug}
+              title={post.title}
+              excerpt={post.excerpt}
+              thumbnailUrl={post.thumbnailUrl}
+              tags={post.tags ?? []}
               categorySlug={post.category?.slug}
+              publishedAt={post.publishedAt}
+              readingTime={post.readingTime ?? 1}
+              views={post.views ?? 0}
+              author={post.author}
               readingTimeLabel={t.blog.readingTime}
               viewsLabel={t.blog.views}
             />

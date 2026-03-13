@@ -68,6 +68,7 @@ export default function BlogPage() {
     try {
       const params = new URLSearchParams();
       if (catId) params.set("categoryId", catId);
+      params.set("sort", "name-asc");
       const res = await fetch(`/api/blog?${params}`);
       if (res.ok) {
         const blogData = await res.json();
