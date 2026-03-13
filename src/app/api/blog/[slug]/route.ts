@@ -8,9 +8,15 @@ export async function GET(
   try {
     const { slug } = await params;
     const locale = _req.cookies.get("archflow_lang")?.value === "en" ? "en" : "ko";
+    const categorySlug = _req.nextUrl.searchParams.get("category");
+
+    const where: Record<string, unknown> = { slug, published: true, locale };
+    if (categorySlug && categorySlug !== "etc") {
+      where.category = { slug: categorySlug };
+    }
 
     const post = await prisma.blogPost.findFirst({
-      where: { slug, published: true, locale },
+      where,
       include: {
         author: { select: { name: true, image: true } },
         category: { select: { id: true, name: true, slug: true } },

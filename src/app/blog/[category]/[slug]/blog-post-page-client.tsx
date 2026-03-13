@@ -21,7 +21,7 @@ export function BlogPostPageClient({ category, slug }: Props) {
   useEffect(() => {
     setNotFound(false);
     setPost(null);
-    fetch(`/api/blog/${slug}`)
+    fetch(`/api/blog/${slug}?category=${encodeURIComponent(category)}`)
       .then((r) => {
         if (!r.ok) { setNotFound(true); return null; }
         return r.json();

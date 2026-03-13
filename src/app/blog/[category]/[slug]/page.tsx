@@ -16,8 +16,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const cookieStore = await cookies();
   const locale = cookieStore.get(LANG_COOKIE)?.value === "en" ? "en" : "ko";
 
+  const where: Record<string, unknown> = { slug, published: true, locale };
+  if (category !== "etc") {
+    where.category = { slug: category };
+  }
+
   const post = await prisma.blogPost.findFirst({
-    where: { slug, published: true, locale },
+    where,
     select: { title: true, excerpt: true, thumbnailUrl: true, tags: true },
   });
 
