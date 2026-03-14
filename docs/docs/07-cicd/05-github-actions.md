@@ -1210,6 +1210,48 @@ jobs:
 | 중첩 호출 | 최대 4단계 | 최대 10단계 |
 | 용도 | 전체 CI/CD 파이프라인 재사용 | 반복되는 Step 묶음 재사용 |
 
+#### 왜 Reusable Workflows와 Composite Actions가 중요한가?
+
+**DRY 원칙 (Don't Repeat Yourself)**과 **보안 강화** 두 측면에서 핵심적이에요.
+
+```
+DRY 관점:
+  ❌ Before: 10개 저장소에 같은 CI/CD YAML을 복사-붙여넣기
+     → 변경 시 10곳 모두 수정 필요
+     → 실수로 일부만 수정하면 환경 불일치 발생
+     → "이 저장소는 왜 다르게 동작하죠?" 문제
+
+  ✅ After: 공유 워크플로우 1개를 10개 저장소에서 호출
+     → 변경 시 1곳만 수정
+     → 모든 저장소가 동일한 파이프라인 보장
+     → 보안 스캔, 배포 절차가 일관적으로 적용
+
+보안 관점:
+  ✅ 중앙 관리되는 보안 정책을 모든 저장소에 강제
+  ✅ 승인된 배포 워크플로우만 사용 가능 (변조 방지)
+  ✅ Secret 관리가 한 곳에서 통제됨
+  ✅ 감사(Audit) 추적이 용이
+```
+
+**실무 패턴: 조직 공용 워크플로우 저장소**
+
+```
+my-org/
+├── shared-workflows/                    # 공용 워크플로우 저장소
+│   └── .github/workflows/
+│       ├── reusable-ci.yml              # 표준 CI 파이프라인
+│       ├── reusable-docker-build.yml    # Docker 빌드 + 푸시
+│       ├── reusable-deploy-ecs.yml      # ECS 배포 (OIDC 포함)
+│       └── reusable-security-scan.yml   # 보안 스캔 (SAST + SCA)
+├── service-a/                           # 개별 서비스 저장소
+│   └── .github/workflows/
+│       └── ci.yml                       # uses: my-org/shared-workflows/...
+├── service-b/
+│   └── .github/workflows/
+│       └── ci.yml                       # 동일한 공용 워크플로우 호출
+└── service-c/
+```
+
 ---
 
 ### 13. OIDC로 AWS 배포하기

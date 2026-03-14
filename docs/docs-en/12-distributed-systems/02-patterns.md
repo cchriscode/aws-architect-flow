@@ -524,6 +524,173 @@ sequenceDiagram
 
 > **Practical Tip**: If 3 steps or less and simple, use Choreography. If 4+ steps or complex logic, use Orchestration. Many teams start with Choreography, then migrate to Orchestration as complexity grows.
 
+#### Temporal.io: Production Implementation of the Saga Pattern
+
+[Temporal](https://temporal.io/) is a CNCF Sandbox project that provides a **Durable Execution** platform for reliably running complex workflows like the Saga pattern in distributed systems. Instead of implementing message queues, state management, and retry logic yourself, Temporal handles all of this for you.
+
+```
+What is Durable Execution?
+
+  Traditional Approach (DIY):
+    Code runs → server crashes → state lost → no idea where it failed
+    → Must implement checkpoints, retries, state persistence yourself
+
+  Temporal Approach:
+    Code runs → server crashes → Temporal preserves state → resumes exactly where it stopped
+    → Write normal code, Temporal guarantees durability
+
+  Core Concepts:
+  ┌──────────────────────────────────────────────────────────┐
+  │ Workflow  = Entire business process (full order flow)    │
+  │ Activity  = Individual work unit (payment, inventory)    │
+  │ Worker    = Process that executes Workflows/Activities   │
+  │ Task Queue = Queue from which Workers pull work          │
+  └──────────────────────────────────────────────────────────┘
+```
+
+Implementing the Saga pattern as a Temporal Workflow simplifies compensation transaction management:
+
+```python
+# order_workflow.py - Temporal Workflow definition
+from temporalio import workflow
+from temporalio.common import RetryPolicy
+from datetime import timedelta
+
+@workflow.defn
+class OrderSagaWorkflow:
+    """Order processing Saga - Temporal auto-handles state and compensation"""
+
+    @workflow.run
+    async def run(self, order: dict) -> dict:
+        # Compensation stack (executed in reverse on failure)
+        compensations = []
+
+        try:
+            # Step 1: Process payment
+            payment = await workflow.execute_activity(
+                process_payment,
+                args=[order["payment_info"]],
+                start_to_close_timeout=timedelta(seconds=30),
+                retry_policy=RetryPolicy(maximum_attempts=3),
+            )
+            compensations.append(("refund_payment", payment["payment_id"]))
+
+            # Step 2: Reserve inventory
+            reservation = await workflow.execute_activity(
+                reserve_inventory,
+                args=[order["items"]],
+                start_to_close_timeout=timedelta(seconds=10),
+            )
+            compensations.append(("release_inventory", reservation["reservation_id"]))
+
+            # Step 3: Create shipment
+            shipment = await workflow.execute_activity(
+                create_shipment,
+                args=[order["shipping_info"]],
+                start_to_close_timeout=timedelta(seconds=15),
+            )
+
+            return {"status": "completed", "shipment_id": shipment["id"]}
+
+        except Exception as e:
+            # On failure, execute compensations in reverse order
+            for compensation_name, compensation_id in reversed(compensations):
+                await workflow.execute_activity(
+                    compensation_name,
+                    args=[compensation_id],
+                    start_to_close_timeout=timedelta(seconds=30),
+                )
+            return {"status": "failed", "reason": str(e)}
+```
+
+```python
+# activities.py - Individual activity definitions
+from temporalio import activity
+
+@activity.defn
+async def process_payment(payment_info: dict) -> dict:
+    """Process payment - Temporal auto-retries on failure"""
+    # Actual payment gateway API call
+    result = await payment_gateway.charge(payment_info)
+    return {"payment_id": result.id, "amount": result.amount}
+
+@activity.defn
+async def reserve_inventory(items: list) -> dict:
+    """Reserve inventory"""
+    reservation = await inventory_service.reserve(items)
+    return {"reservation_id": reservation.id}
+
+@activity.defn
+async def refund_payment(payment_id: str) -> None:
+    """Refund payment (compensation transaction)"""
+    await payment_gateway.refund(payment_id)
+
+@activity.defn
+async def release_inventory(reservation_id: str) -> None:
+    """Release inventory reservation (compensation transaction)"""
+    await inventory_service.release(reservation_id)
+```
+
+```python
+# worker.py - Run the Worker
+from temporalio.client import Client
+from temporalio.worker import Worker
+
+async def main():
+    client = await Client.connect("localhost:7233")
+
+    worker = Worker(
+        client,
+        task_queue="order-saga",
+        workflows=[OrderSagaWorkflow],
+        activities=[
+            process_payment,
+            reserve_inventory,
+            create_shipment,
+            refund_payment,
+            release_inventory,
+        ],
+    )
+    await worker.run()
+```
+
+```
+DIY Saga vs Temporal:
+
+┌─────────────────────┬──────────────────────┬──────────────────────┐
+│ Aspect              │ DIY (Build Yourself) │ Temporal             │
+├─────────────────────┼──────────────────────┼──────────────────────┤
+│ State Management    │ DB + state machine   │ Automatic (Event     │
+│                     │ manually             │ Sourcing)            │
+│ Retry Logic         │ Build yourself       │ Declare RetryPolicy  │
+│ Compensation Txns   │ Track/execute        │ Natural try/except   │
+│                     │ manually             │ handling             │
+│ Timeout Mgmt        │ Timers + schedulers  │ timeout parameter    │
+│ Visibility          │ Parse logs           │ Real-time workflow   │
+│                     │                      │ state in Web UI      │
+│ Failure Recovery    │ Implement            │ Automatic (Durable   │
+│                     │ checkpoints          │ Execution)           │
+│ Code Complexity     │ Very high            │ Regular code level   │
+│ Infra Dependencies  │ Message queue + DB + │ Temporal Server      │
+│                     │ scheduler            │ (or Temporal Cloud)  │
+│ Best Scale          │ Simple 2-3 step      │ Complex multi-step   │
+│                     │ workflows            │ business workflows   │
+└─────────────────────┴──────────────────────┴──────────────────────┘
+
+Consider Temporal When:
+  • Saga has 5+ steps with complex compensation logic
+  • Workflow execution takes minutes to hours
+  • Must resume from exact failure point on crash
+  • Need real-time workflow execution monitoring
+  • Existing message queue implementation is too hard to debug
+
+Temporal Alternatives:
+  • AWS Step Functions: AWS-native, serverless
+  • Azure Durable Functions: Azure ecosystem
+  • Camunda: BPMN-based, enterprise
+  • Restate: Newer Durable Execution platform
+```
+
 ---
 
 ### 5. Resilience Patterns

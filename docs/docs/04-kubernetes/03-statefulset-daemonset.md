@@ -626,6 +626,146 @@ kubectl delete cronjob daily-backup
 
 ---
 
+## 🔍 상세 설명 — 네이티브 사이드카 컨테이너 (K8s 1.29+)
+
+### 네이티브 사이드카란?
+
+K8s 1.29부터 **Init Container에 `restartPolicy: Always`를 선언**하면 사이드카 컨테이너로 동작해요. 기존에는 사이드카 패턴을 일반 컨테이너로 구현했는데, 시작/종료 순서를 보장할 수 없어서 문제가 많았어요.
+
+```mermaid
+flowchart LR
+    subgraph "기존 사이드카 패턴 (문제 있음)"
+        MAIN1["앱 컨테이너"]
+        SIDE1["사이드카 컨테이너<br/>(일반 컨테이너)"]
+        MAIN1 --- SIDE1
+    end
+
+    subgraph "네이티브 사이드카 (K8s 1.29+)"
+        INIT_SC["사이드카 컨테이너<br/>(Init + restartPolicy: Always)<br/>앱보다 먼저 시작!<br/>앱보다 나중에 종료!"]
+        MAIN2["앱 컨테이너"]
+        INIT_SC -->|"먼저 시작"| MAIN2
+    end
+
+    style INIT_SC fill:#3498db,color:#fff
+    style MAIN2 fill:#2ecc71,color:#fff
+```
+
+### 기존 사이드카 vs 네이티브 사이드카
+
+| 항목 | 기존 사이드카 | 네이티브 사이드카 (1.29+) |
+|------|-------------|------------------------|
+| **선언 위치** | `containers[]` | `initContainers[]` + `restartPolicy: Always` |
+| **시작 순서** | 보장 안 됨 (동시 시작) | **앱 컨테이너보다 먼저 시작** |
+| **종료 순서** | 보장 안 됨 (동시 종료) | **앱 컨테이너보다 나중에 종료** |
+| **Job 호환** | Job 완료를 방해 (사이드카가 안 죽음) | **앱 완료 후 사이드카도 정리** |
+| **리소스** | Pod requests에 합산 | Init Container 방식으로 계산 (더 효율적) |
+
+### YAML 예시 — 로그 수집기 사이드카
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-with-log-sidecar
+spec:
+  initContainers:
+  # ⭐ 네이티브 사이드카: restartPolicy: Always가 핵심!
+  - name: log-collector
+    image: fluent/fluent-bit:latest
+    restartPolicy: Always              # ← 이것이 네이티브 사이드카!
+    volumeMounts:
+    - name: shared-logs
+      mountPath: /var/log/app
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "64Mi"
+      limits:
+        memory: "128Mi"
+
+  containers:
+  - name: app
+    image: myapp:v1.0
+    volumeMounts:
+    - name: shared-logs
+      mountPath: /var/log/app
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "256Mi"
+
+  volumes:
+  - name: shared-logs
+    emptyDir: {}
+```
+
+```bash
+# 동작 순서:
+# 1. log-collector (사이드카) 시작 → Ready
+# 2. app (메인) 시작
+# 3. Pod 종료 시: app 먼저 종료 → log-collector 나중에 종료
+#    → 마지막 로그까지 안전하게 수집!
+
+# 기존 방식의 문제:
+# → 앱이 시작되는데 로그 수집기가 아직 안 뜸 → 초기 로그 유실!
+# → Pod 종료 시 로그 수집기가 먼저 죽음 → 마지막 로그 유실!
+```
+
+### YAML 예시 — 프록시 사이드카 (Envoy)
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-with-proxy
+spec:
+  initContainers:
+  # 프록시 사이드카 — 앱보다 먼저 시작해야 네트워크가 준비됨
+  - name: envoy-proxy
+    image: envoyproxy/envoy:v1.30
+    restartPolicy: Always
+    ports:
+    - containerPort: 15001
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+      limits:
+        memory: "256Mi"
+
+  containers:
+  - name: app
+    image: myapp:v1.0
+    env:
+    - name: HTTP_PROXY
+      value: "http://localhost:15001"
+```
+
+### 네이티브 사이드카의 장점 정리
+
+```bash
+# 1. 시작 순서 보장
+#    → 프록시/로그 수집기가 앱보다 먼저 준비
+#    → 앱이 시작할 때 이미 사이드카가 Ready 상태!
+
+# 2. 종료 순서 보장
+#    → 앱이 먼저 종료 → 사이드카가 나중에 정리
+#    → 마지막 로그/메트릭/트레이스까지 안전하게 전송
+
+# 3. Job/CronJob과 호환
+#    → 기존: Job 완료 후에도 사이드카가 계속 실행 → Job이 안 끝남!
+#    → 네이티브: 메인 컨테이너 완료 → 사이드카도 자동 종료
+
+# 4. 리소스 효율성
+#    → Init Container 방식으로 리소스가 계산되어 더 효율적
+
+# ⚠️ 주의:
+# → K8s 1.29 이상 필요 (1.28에서는 SidecarContainers feature gate 활성화 필요)
+# → 서비스 메시(Istio 등)에서도 점진적으로 네이티브 사이드카 지원 중
+```
+
+---
+
 ## 💻 실습 예제
 
 ### 실습 1: StatefulSet 특성 관찰

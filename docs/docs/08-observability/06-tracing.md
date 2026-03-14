@@ -267,7 +267,9 @@ sequenceDiagram
 
 #### OpenTelemetry란?
 
-OpenTelemetry(줄여서 OTel)는 **Trace, Metric, Log를 수집하는 오픈 소스 표준 프레임워크**예요. CNCF(Cloud Native Computing Foundation) 프로젝트로, Kubernetes 다음으로 활발한 프로젝트예요.
+OpenTelemetry(줄여서 OTel)는 **Trace, Metric, Log를 수집하는 오픈 소스 표준 프레임워크**예요. 2024년 3월에 **CNCF 졸업(Graduated) 프로젝트**로 승격되었으며, 이는 Kubernetes, Prometheus, Envoy에 이은 관측 가능성 분야 최초의 졸업 프로젝트예요. Kubernetes 다음으로 가장 활발한 CNCF 프로젝트이기도 해요. 졸업 이후 2년이 지난 현재, OTel은 사실상의 옵저버빌리티 표준으로 자리잡았어요.
+
+> **왜 졸업이 중요한가?** CNCF 졸업은 프로젝트가 프로덕션 환경에서 검증되었고, 성숙한 거버넌스와 커뮤니티를 갖추었다는 공식 인증이에요. Kubernetes, Prometheus, Envoy와 같은 레벨이에요.
 
 예전에는 Jaeger 클라이언트, Zipkin 클라이언트, Datadog 클라이언트 등 **벤더마다 다른 SDK**를 사용했어요. OpenTelemetry는 이걸 하나로 통합했어요.
 
@@ -473,6 +475,91 @@ Agent + Gateway:      [App] → [Agent] → [Gateway] → [Backend]
                            로컬 버퍼링    샘플링/처리/라우팅
 ```
 
+#### Traces + Metrics + Logs 통합 (3 Pillars 연결)
+
+OTel의 핵심 가치는 세 가지 신호를 **하나의 SDK와 프로토콜로 통합**하는 거예요. `trace_id`를 공유하면 Metrics-Logs-Traces를 자유롭게 오갈 수 있어요.
+
+```yaml
+# OTel Collector에서 3 Pillars를 동시에 처리하는 설정
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp/tempo]         # Traces → Grafana Tempo
+    metrics:
+      receivers: [otlp, prometheus]
+      processors: [memory_limiter, batch]
+      exporters: [prometheusremotewrite]  # Metrics → Prometheus/Mimir
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [loki]               # Logs → Grafana Loki
+```
+
+```
+3 Pillars 연결 흐름:
+
+  Grafana Dashboard에서:
+  1. Metrics 대시보드에서 에러율 급증 확인
+     → "Exemplars" 클릭 → 해당 시점의 Trace로 이동
+  2. Trace에서 병목 서비스 확인
+     → Span의 trace_id로 관련 Logs 자동 필터링
+  3. Logs에서 정확한 에러 원인 확인
+     → Root Cause 파악 완료!
+
+  핵심: trace_id가 Metrics, Logs, Traces를 연결하는 접착제 역할
+```
+
+#### 기존 Jaeger/Zipkin에서 OTel 마이그레이션
+
+이미 Jaeger나 Zipkin을 쓰고 있다면, OTel로 단계적으로 마이그레이션할 수 있어요.
+
+```
+마이그레이션 전략 (단계적 전환):
+
+Phase 1: Collector를 프록시로 사용 (코드 변경 없음)
+  [기존 앱] → [Jaeger SDK] → [OTel Collector] → [Jaeger Backend]
+  → Collector가 Jaeger 프로토콜을 수신하고 그대로 전달
+  → 기존 SDK를 그대로 사용하면서 Collector만 추가
+
+Phase 2: SDK를 OTel로 교체 (서비스별 점진적)
+  [앱] → [OTel SDK] → [OTel Collector] → [Jaeger Backend]
+  → 서비스 하나씩 OTel SDK로 교체
+  → 백엔드는 아직 Jaeger 유지
+
+Phase 3: 백엔드를 Tempo/자체 선택으로 전환
+  [앱] → [OTel SDK] → [OTel Collector] → [Tempo / 선택한 백엔드]
+  → Collector의 exporter 설정만 변경
+  → 앱 코드 변경 불필요!
+```
+
+```yaml
+# Phase 1 Collector 설정: Jaeger 수신 → Jaeger 전달
+receivers:
+  jaeger:                    # 기존 Jaeger SDK가 보내는 데이터 수신
+    protocols:
+      thrift_http:
+        endpoint: "0.0.0.0:14268"
+      grpc:
+        endpoint: "0.0.0.0:14250"
+  otlp:                      # 새로운 OTel SDK가 보내는 데이터도 수신
+    protocols:
+      grpc:
+        endpoint: "0.0.0.0:4317"
+
+exporters:
+  otlp/jaeger:               # 기존 Jaeger 백엔드로 전달
+    endpoint: "jaeger:4317"
+
+service:
+  pipelines:
+    traces:
+      receivers: [jaeger, otlp]      # 둘 다 수신
+      processors: [batch]
+      exporters: [otlp/jaeger]
+```
+
 ---
 
 ### 5. 자동 계측(Auto-Instrumentation) vs 수동 계측(Manual Instrumentation)
@@ -522,7 +609,38 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
 | gRPC | gRPC 클라이언트/서버 호출 |
 | 외부 HTTP 호출 | requests, axios, HttpClient 호출 |
 
-#### 수동 계측 — 비즈니스 로직 트레이싱
+#### OTEL 환경 변수 표준
+
+모든 OTel SDK는 `OTEL_` 접두사의 환경 변수로 설정할 수 있어요. 코드 수정 없이 배포 환경에서 설정을 변경할 수 있는 강력한 방법이에요.
+
+```bash
+# 공통 OTel 환경 변수 (모든 언어 SDK에서 동일하게 적용)
+export OTEL_SERVICE_NAME=order-service             # 서비스 이름 (필수)
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317  # Collector 주소
+export OTEL_EXPORTER_OTLP_PROTOCOL=grpc            # 프로토콜 (grpc | http/protobuf)
+export OTEL_TRACES_SAMPLER=parentbased_traceidratio # 샘플링 전략
+export OTEL_TRACES_SAMPLER_ARG=0.1                 # 10% 샘플링
+export OTEL_RESOURCE_ATTRIBUTES=deployment.environment=production,service.version=1.2.0
+export OTEL_LOG_LEVEL=info                         # SDK 로그 레벨
+```
+
+```yaml
+# Kubernetes에서 환경 변수로 OTel 설정 (Deployment 예시)
+spec:
+  containers:
+    - name: order-service
+      env:
+        - name: OTEL_SERVICE_NAME
+          value: "order-service"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector.observability:4317"
+        - name: OTEL_TRACES_SAMPLER
+          value: "parentbased_traceidratio"
+        - name: OTEL_TRACES_SAMPLER_ARG
+          value: "0.1"
+```
+
+#### 수동 계측 -- 비즈니스 로직 트레이싱
 
 자동 계측은 인프라 수준의 호출을 잡아주지만, **비즈니스 로직**은 수동으로 계측해야 해요.
 

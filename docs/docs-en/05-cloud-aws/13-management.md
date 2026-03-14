@@ -877,6 +877,92 @@ aws ssm describe-instance-information \
 
 ---
 
+## AWS GenAI Services (2023~)
+
+AWS has been rapidly integrating **generative AI capabilities** into management and operations services. Here are two key services you should know from an operations perspective.
+
+### Amazon Bedrock
+
+Bedrock is a fully managed service that **provides multiple AI models through a unified API**. Instead of hosting or training models yourself, you can use AI capabilities with simple API calls.
+
+```
+Bedrock Core Concepts:
+
+┌──────────────────────────────────────────┐
+│             Amazon Bedrock               │
+├──────────────────────────────────────────┤
+│  Foundation Models (FM)                  │
+│  ├ Anthropic Claude (text/code)          │
+│  ├ Amazon Titan (text/image/embeddings)  │
+│  ├ Meta Llama (open-source LLM)          │
+│  ├ Stability AI (image generation)       │
+│  └ Cohere (text/embeddings)              │
+├──────────────────────────────────────────┤
+│  Key Features                            │
+│  ├ Model Access — Call FMs via API       │
+│  ├ Knowledge Bases — Build RAG pipelines │
+│  ├ Agents — AI agents with tool use      │
+│  ├ Guardrails — Content filtering/safety │
+│  └ Fine-tuning — Custom model training   │
+└──────────────────────────────────────────┘
+```
+
+**When you encounter Bedrock in operations:**
+
+- Monitor Bedrock invocation volume/latency/error rates in CloudWatch
+- Audit which models were called and when via CloudTrail
+- Restrict model access per team using IAM policies
+- Cost management: per-token billing by model (input/output tokens billed separately)
+
+### Amazon Q
+
+Amazon Q is AWS's **AI assistant** product family. Different products serve different use cases.
+
+```
+Amazon Q Product Family:
+
+┌─────────────────────┬────────────────────────────────────────┐
+│ Product             │ Role                                   │
+├─────────────────────┼────────────────────────────────────────┤
+│ Amazon Q Developer  │ Code generation/review/transform (IDE) │
+│ Amazon Q Business   │ Enterprise data Q&A (RAG)              │
+│ Amazon Q in Console │ AWS console Q&A / troubleshooting      │
+│ Amazon Q in Connect │ Contact center AI responses            │
+└─────────────────────┴────────────────────────────────────────┘
+```
+
+**Useful Amazon Q features from an operations perspective:**
+
+- **Q in Console**: Answers questions like "Why can't this EC2 connect?"
+- **Q Developer**: Code review, security vulnerability scanning, Java 8 to 17 migration automation
+- **CloudWatch integration**: Summarizes anomaly detection results in natural language
+
+### GenAI Security Considerations
+
+```
+Security Checklist for GenAI Service Operations:
+
+✅ Restrict model access scope with IAM policies
+   - Limit bedrock:InvokeModel permission to specific model ARNs
+   - High-cost/high-performance models: approved teams only
+
+✅ Data Privacy
+   - Bedrock does NOT retrain models on customer data
+   - Use VPC Endpoints to keep traffic within AWS network
+   - Configure Guardrails to filter sensitive information (PII)
+
+✅ Cost Management
+   - Token-based billing → Track usage via CloudWatch metrics
+   - Provision throughput per Bedrock model for cost predictability
+   - Set Budgets alarms to detect AI cost spikes
+
+✅ Auditing
+   - CloudTrail records all Bedrock API calls
+   - Track who called which model and when
+```
+
+---
+
 ## 📝 Summary
 
 ```

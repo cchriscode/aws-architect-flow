@@ -627,6 +627,146 @@ kubectl delete cronjob daily-backup
 
 ---
 
+## 🔍 Detailed Explanation — Native Sidecar Containers (K8s 1.29+)
+
+### What are Native Sidecars?
+
+Starting with K8s 1.29, **declaring `restartPolicy: Always` on an Init Container** makes it behave as a sidecar container. Previously, sidecar patterns were implemented using regular containers, which caused many issues because startup/shutdown ordering could not be guaranteed.
+
+```mermaid
+flowchart LR
+    subgraph "Traditional Sidecar Pattern (Problematic)"
+        MAIN1["App Container"]
+        SIDE1["Sidecar Container<br/>(regular container)"]
+        MAIN1 --- SIDE1
+    end
+
+    subgraph "Native Sidecar (K8s 1.29+)"
+        INIT_SC["Sidecar Container<br/>(Init + restartPolicy: Always)<br/>Starts before app!<br/>Stops after app!"]
+        MAIN2["App Container"]
+        INIT_SC -->|"starts first"| MAIN2
+    end
+
+    style INIT_SC fill:#3498db,color:#fff
+    style MAIN2 fill:#2ecc71,color:#fff
+```
+
+### Traditional vs Native Sidecar
+
+| Item | Traditional Sidecar | Native Sidecar (1.29+) |
+|------|-------------------|----------------------|
+| **Declaration** | `containers[]` | `initContainers[]` + `restartPolicy: Always` |
+| **Startup Order** | Not guaranteed (start together) | **Starts before app container** |
+| **Shutdown Order** | Not guaranteed (stop together) | **Stops after app container** |
+| **Job Compatibility** | Blocks Job completion (sidecar keeps running) | **Sidecar cleaned up after app completes** |
+| **Resources** | Added to Pod requests sum | Calculated as Init Container (more efficient) |
+
+### YAML Example — Log Collector Sidecar
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-with-log-sidecar
+spec:
+  initContainers:
+  # ⭐ Native sidecar: restartPolicy: Always is the key!
+  - name: log-collector
+    image: fluent/fluent-bit:latest
+    restartPolicy: Always              # ← This makes it a native sidecar!
+    volumeMounts:
+    - name: shared-logs
+      mountPath: /var/log/app
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "64Mi"
+      limits:
+        memory: "128Mi"
+
+  containers:
+  - name: app
+    image: myapp:v1.0
+    volumeMounts:
+    - name: shared-logs
+      mountPath: /var/log/app
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "256Mi"
+
+  volumes:
+  - name: shared-logs
+    emptyDir: {}
+```
+
+```bash
+# Execution order:
+# 1. log-collector (sidecar) starts → Ready
+# 2. app (main) starts
+# 3. On Pod shutdown: app stops first → log-collector stops after
+#    → Last logs safely collected!
+
+# Problems with traditional approach:
+# → App starts but log collector not ready yet → initial logs lost!
+# → On Pod shutdown, log collector dies first → final logs lost!
+```
+
+### YAML Example — Proxy Sidecar (Envoy)
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-with-proxy
+spec:
+  initContainers:
+  # Proxy sidecar — must start before app so network is ready
+  - name: envoy-proxy
+    image: envoyproxy/envoy:v1.30
+    restartPolicy: Always
+    ports:
+    - containerPort: 15001
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+      limits:
+        memory: "256Mi"
+
+  containers:
+  - name: app
+    image: myapp:v1.0
+    env:
+    - name: HTTP_PROXY
+      value: "http://localhost:15001"
+```
+
+### Native Sidecar Advantages Summary
+
+```bash
+# 1. Guaranteed startup order
+#    → Proxy/log collector ready before app starts
+#    → Sidecar is already in Ready state when app begins!
+
+# 2. Guaranteed shutdown order
+#    → App stops first → sidecar cleans up after
+#    → Last logs/metrics/traces safely transmitted
+
+# 3. Job/CronJob compatible
+#    → Old way: sidecar keeps running after Job completes → Job never finishes!
+#    → Native: main container completes → sidecar auto-terminates
+
+# 4. Resource efficiency
+#    → Resources calculated as Init Container style (more efficient)
+
+# ⚠️ Notes:
+# → Requires K8s 1.29+ (1.28 needs SidecarContainers feature gate enabled)
+# → Service meshes (Istio, etc.) are gradually adopting native sidecar support
+```
+
+---
+
 ## 💻 Hands-On Practice
 
 ### Exercise 1: Observe StatefulSet Characteristics

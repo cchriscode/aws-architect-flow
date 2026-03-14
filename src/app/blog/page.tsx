@@ -44,12 +44,18 @@ export default function BlogPage() {
   } | null>(null);
 
   useEffect(() => {
-    setActiveCategoryId("");
     Promise.all([
-      fetch("/api/blog?sort=name-asc").then((r) => (r.ok ? r.json() : { posts: [], nextCursor: null })),
       fetch("/api/blog/categories").then((r) => (r.ok ? r.json() : [])),
       fetch("/api/blog/admin/check").then((r) => r.json()).catch(() => ({ admin: false })),
-    ]).then(([blogData, categories, adminData]) => {
+    ]).then(async ([categories, adminData]) => {
+      setIsAdmin(adminData.admin === true);
+      const firstCatId = categories.length > 0 ? categories[0].id : "";
+      setActiveCategoryId(firstCatId);
+      const params = new URLSearchParams();
+      if (firstCatId) params.set("categoryId", firstCatId);
+      params.set("sort", "name-asc");
+      const res = await fetch(`/api/blog?${params}`);
+      const blogData = res.ok ? await res.json() : { posts: [], nextCursor: null };
       const allTags = Array.from(
         new Set(blogData.posts.flatMap((p: Post) => p.tags)),
       ) as string[];
@@ -59,7 +65,6 @@ export default function BlogPage() {
         allTags,
         categories,
       });
-      setIsAdmin(adminData.admin === true);
     });
   }, [lang]);
 
@@ -96,19 +101,9 @@ export default function BlogPage() {
             <div className="sticky top-20">
               <p className="mb-2 flex items-center gap-1.5 text-xs font-bold text-gray-500">
                 <FolderOpen className="h-3.5 w-3.5" />
-                {t.blog.allCategories}
+                {t.blog.categoryLabel}
               </p>
               <nav className="space-y-0.5">
-                <button
-                  onClick={() => handleCategoryChange("")}
-                  className={`block w-full rounded-lg px-3 py-2 text-left text-xs font-medium transition-colors ${
-                    activeCategoryId === ""
-                      ? "bg-indigo-50 text-indigo-700"
-                      : "text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  {t.blog.allCategories}
-                </button>
                 {data.categories.map((cat) => (
                   <button
                     key={cat.id}
@@ -154,7 +149,6 @@ export default function BlogPage() {
                 onChange={(e) => handleCategoryChange(e.target.value)}
                 className="w-full rounded-lg border-[1.5px] border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400"
               >
-                <option value="">{t.blog.allCategories}</option>
                 {data.categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
                     {cat.name} {cat._count ? `(${cat._count.posts})` : ""}

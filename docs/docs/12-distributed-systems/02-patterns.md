@@ -524,6 +524,173 @@ sequenceDiagram
 
 > **실무 팁:** 단계가 3개 이하이고 단순하면 Choreography, 4개 이상이거나 비즈니스 로직이 복잡하면 Orchestration을 추천해요. 많은 팀이 처음에 Choreography로 시작했다가 복잡해지면 Orchestration으로 전환해요.
 
+#### Temporal.io: Saga 패턴의 프로덕션 구현
+
+[Temporal](https://temporal.io/)은 CNCF Sandbox 프로젝트로, 분산 시스템에서 Saga 패턴과 같은 복잡한 워크플로를 안정적으로 실행할 수 있게 해주는 **Durable Execution** 플랫폼이에요. 직접 메시지 큐, 상태 관리, 재시도 로직을 구현하는 대신 Temporal이 이를 모두 처리해줘요.
+
+```
+Durable Execution이란?
+
+  기존 방식 (DIY):
+    코드 실행 → 서버 크래시 → 상태 유실 → 어디서 실패했는지 모름
+    → 직접 체크포인트, 재시도, 상태 저장 구현 필요
+
+  Temporal 방식:
+    코드 실행 → 서버 크래시 → Temporal이 상태 보존 → 정확히 중단 지점에서 재개
+    → 일반 코드처럼 작성하면 Temporal이 내구성 보장
+
+  핵심 개념:
+  ┌──────────────────────────────────────────────────────────┐
+  │ Workflow  = 전체 비즈니스 프로세스 (주문 처리 전체 흐름) │
+  │ Activity  = 개별 작업 단위 (결제, 재고 확인, 배송 등)   │
+  │ Worker    = Workflow/Activity를 실행하는 프로세스        │
+  │ Task Queue = Worker가 작업을 가져가는 큐                 │
+  └──────────────────────────────────────────────────────────┘
+```
+
+Saga 패턴을 Temporal Workflow로 구현하면 보상 트랜잭션 관리가 단순해져요:
+
+```python
+# order_workflow.py - Temporal Workflow 정의
+from temporalio import workflow
+from temporalio.common import RetryPolicy
+from datetime import timedelta
+
+@workflow.defn
+class OrderSagaWorkflow:
+    """주문 처리 Saga - Temporal이 상태 관리와 보상을 자동 처리"""
+
+    @workflow.run
+    async def run(self, order: dict) -> dict:
+        # 보상 작업 스택 (실패 시 역순으로 실행)
+        compensations = []
+
+        try:
+            # 1단계: 결제
+            payment = await workflow.execute_activity(
+                process_payment,
+                args=[order["payment_info"]],
+                start_to_close_timeout=timedelta(seconds=30),
+                retry_policy=RetryPolicy(maximum_attempts=3),
+            )
+            compensations.append(("refund_payment", payment["payment_id"]))
+
+            # 2단계: 재고 확인 및 예약
+            reservation = await workflow.execute_activity(
+                reserve_inventory,
+                args=[order["items"]],
+                start_to_close_timeout=timedelta(seconds=10),
+            )
+            compensations.append(("release_inventory", reservation["reservation_id"]))
+
+            # 3단계: 배송 생성
+            shipment = await workflow.execute_activity(
+                create_shipment,
+                args=[order["shipping_info"]],
+                start_to_close_timeout=timedelta(seconds=15),
+            )
+
+            return {"status": "completed", "shipment_id": shipment["id"]}
+
+        except Exception as e:
+            # 실패 시 보상 트랜잭션 역순 실행
+            for compensation_name, compensation_id in reversed(compensations):
+                await workflow.execute_activity(
+                    compensation_name,
+                    args=[compensation_id],
+                    start_to_close_timeout=timedelta(seconds=30),
+                )
+            return {"status": "failed", "reason": str(e)}
+```
+
+```python
+# activities.py - 개별 작업 정의
+from temporalio import activity
+
+@activity.defn
+async def process_payment(payment_info: dict) -> dict:
+    """결제 처리 - 실패 시 Temporal이 자동 재시도"""
+    # 실제 PG사 API 호출
+    result = await payment_gateway.charge(payment_info)
+    return {"payment_id": result.id, "amount": result.amount}
+
+@activity.defn
+async def reserve_inventory(items: list) -> dict:
+    """재고 예약"""
+    reservation = await inventory_service.reserve(items)
+    return {"reservation_id": reservation.id}
+
+@activity.defn
+async def refund_payment(payment_id: str) -> None:
+    """결제 환불 (보상 트랜잭션)"""
+    await payment_gateway.refund(payment_id)
+
+@activity.defn
+async def release_inventory(reservation_id: str) -> None:
+    """재고 예약 해제 (보상 트랜잭션)"""
+    await inventory_service.release(reservation_id)
+```
+
+```python
+# worker.py - Worker 실행
+from temporalio.client import Client
+from temporalio.worker import Worker
+
+async def main():
+    client = await Client.connect("localhost:7233")
+
+    worker = Worker(
+        client,
+        task_queue="order-saga",
+        workflows=[OrderSagaWorkflow],
+        activities=[
+            process_payment,
+            reserve_inventory,
+            create_shipment,
+            refund_payment,
+            release_inventory,
+        ],
+    )
+    await worker.run()
+```
+
+```
+DIY Saga vs Temporal 비교:
+
+┌─────────────────────┬──────────────────────┬──────────────────────┐
+│ 항목                │ DIY (직접 구현)       │ Temporal             │
+├─────────────────────┼──────────────────────┼──────────────────────┤
+│ 상태 관리           │ DB + 상태 머신 직접   │ 자동 (Event Sourcing)│
+│                     │ 구현 필요             │                      │
+│ 재시도 로직         │ 직접 구현             │ RetryPolicy 선언만   │
+│ 보상 트랜잭션       │ 직접 추적/실행        │ try/except로 자연스럽│
+│                     │                      │ 게 처리              │
+│ 타임아웃 관리       │ 타이머 + 스케줄러     │ timeout 파라미터     │
+│ 가시성              │ 로그 파싱 필요        │ Web UI에서 실시간    │
+│                     │                      │ 워크플로 상태 확인   │
+│ 장애 복구           │ 체크포인트 직접 구현  │ 자동 (Durable        │
+│                     │                      │ Execution)           │
+│ 코드 복잡도         │ 매우 높음             │ 일반 코드 수준       │
+│ 인프라 의존성       │ 메시지 큐 + DB +      │ Temporal Server      │
+│                     │ 스케줄러              │ (또는 Temporal Cloud)│
+│ 적합한 규모         │ 단순한 2-3단계        │ 복잡한 다단계        │
+│                     │ 워크플로              │ 비즈니스 워크플로    │
+└─────────────────────┴──────────────────────┴──────────────────────┘
+
+Temporal을 고려해야 하는 경우:
+  • Saga 단계가 5개 이상이고 보상 로직이 복잡
+  • 워크플로 실행이 수 분~수 시간 이상 걸림
+  • 장애 시 정확한 지점에서 재개해야 함
+  • 워크플로 실행 상태를 실시간으로 모니터링해야 함
+  • 기존 메시지 큐 기반 구현이 디버깅하기 너무 어려움
+
+Temporal 대안:
+  • AWS Step Functions: AWS 네이티브, 서버리스
+  • Azure Durable Functions: Azure 생태계
+  • Camunda: BPMN 기반, 엔터프라이즈
+  • Restate: 새로운 Durable Execution 플랫폼
+```
+
 ---
 
 ### 5. 복원력(Resilience) 패턴

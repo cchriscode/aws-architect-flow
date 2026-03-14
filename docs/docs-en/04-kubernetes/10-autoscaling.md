@@ -548,6 +548,148 @@ kubectl logs -n karpenter -l app.kubernetes.io/name=karpenter --tail 10
 # Karpenter: 30s~2min (direct EC2 → faster!)
 ```
 
+### Karpenter Consolidation — Auto-Merge Underutilized Nodes
+
+Karpenter's **Consolidation** feature automatically detects underutilized nodes, moves Pods to other nodes, and removes empty ones. This is key to cost optimization.
+
+```bash
+# When consolidation is needed:
+# → 3 nodes with sparse Pods → each node at 20% utilization
+# → 1 node would suffice, but 3 are running → cost waste!
+# → Consolidation: pack Pods onto 1 node, remove the other 2!
+
+# How consolidation works:
+# 1. Analyze per-node utilization
+# 2. Check if Pods can move to other nodes
+# 3. If possible, drain Pods to other nodes
+# 4. Remove empty node → terminate EC2 → cost savings!
+```
+
+```yaml
+# Karpenter NodePool — Consolidation configuration
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: default
+spec:
+  template:
+    spec:
+      requirements:
+      - key: kubernetes.io/arch
+        operator: In
+        values: ["amd64", "arm64"]
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values: ["on-demand", "spot"]
+      - key: karpenter.k8s.aws/instance-category
+        operator: In
+        values: ["c", "m", "r"]
+      nodeClassRef:
+        name: default
+
+  limits:
+    cpu: "100"
+    memory: "400Gi"
+
+  disruption:
+    # ⭐ Consolidation policy
+    consolidationPolicy: WhenUnderutilized  # Auto-merge when underutilized!
+    # WhenUnderutilized: auto-consolidate nodes with low usage
+    # WhenEmpty: only remove empty nodes (more conservative)
+
+    consolidateAfter: 30s                   # Consolidate after 30s of underutilization
+    expireAfter: 720h                       # Replace nodes every 30d (security patches)
+```
+
+```bash
+# Watch consolidation in action
+kubectl get nodeclaims -w
+# NAME          TYPE           ZONE              READY   AGE
+# default-abc   m5.2xlarge     ap-northeast-2a   True    5d    ← Low utilization
+# default-def   m5.xlarge      ap-northeast-2b   True    3d
+# default-ghi   m5.xlarge      ap-northeast-2c   True    1d
+
+# Karpenter logs:
+# "consolidating node, replacing with cheaper alternative"
+# "cordoning node ip-10-0-1-50"
+# "draining node ip-10-0-1-50"
+# "terminated instance i-0abc123"
+# "launched new instance i-0def456, type=m5.xlarge"
+# → Replaced m5.2xlarge with m5.xlarge! (right-sized)
+
+# Karpenter consolidates in 2 ways:
+# 1. Delete: move Pods to existing nodes, then remove node
+# 2. Replace: swap to a smaller, more efficient instance type
+```
+
+#### Spot Instances + Consolidation Best Practices
+
+```yaml
+# Considerations when using Spot with Consolidation
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: spot-workloads
+spec:
+  template:
+    spec:
+      requirements:
+      # ⭐ Spot diversity = stability! Allow many instance types
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values: ["spot"]
+      - key: karpenter.k8s.aws/instance-category
+        operator: In
+        values: ["c", "m", "r"]
+      - key: karpenter.k8s.aws/instance-generation
+        operator: Gt
+        values: ["4"]                    # Allow various generations → better Spot availability
+
+  disruption:
+    consolidationPolicy: WhenUnderutilized
+    consolidateAfter: 60s               # Slightly more buffer for Spot (60s)
+
+---
+# On-Demand NodePool (for critical workloads)
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: critical-workloads
+spec:
+  template:
+    spec:
+      requirements:
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values: ["on-demand"]           # Critical workloads on On-Demand!
+
+  disruption:
+    consolidationPolicy: WhenEmpty      # Only remove empty nodes (conservative)
+```
+
+```bash
+# Spot + Consolidation cost impact example:
+#
+# Before optimization:
+# → On-Demand m5.xlarge x10 = $1,382/month
+#
+# After Spot + Consolidation:
+# → Spot m5.xlarge x6 (avg) = $250/month
+# → On-Demand m5.xlarge x2 (critical) = $276/month
+# → Total: $526/month (62% savings!)
+#
+# Spot only (no Consolidation):
+# → Spot m5.xlarge x8 = $334/month
+# → On-Demand m5.xlarge x2 = $276/month
+# → Total: $610/month
+# → Consolidation alone saves additional 14%!
+
+# ⚠️ Consolidation caution:
+# 1. Always set PDB (PodDisruptionBudget) → guarantee minimum availability
+# 2. Use do-not-disrupt annotation to protect specific nodes
+# 3. Frequent consolidation causes app restarts → adjust stabilization time
+```
+
 ---
 
 ## 🔍 Detailed Explanation — KEDA (Event-Based Scaling)

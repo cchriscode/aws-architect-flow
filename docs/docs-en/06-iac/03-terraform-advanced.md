@@ -192,6 +192,186 @@ Typical workflow:
 
 ---
 
+## terraform test — Native Testing Framework (1.6+)
+
+Starting with Terraform 1.6, the **`terraform test`** command was officially introduced. Previously, you needed external tools like Terratest (Go) or Kitchen-Terraform (Ruby), but now you can **test infrastructure code using only HCL**.
+
+### Why Is This Needed?
+
+```
+Problems with existing approaches:
+
+1. External tool dependency — Go or Ruby runtime required
+2. Learning overhead — Must learn another language besides HCL
+3. Slow feedback — Can only test by creating actual resources
+
+terraform test advantages:
+
+1. HCL native — No additional language needed
+2. Plan mode support — Validate without creating resources (fast and free)
+3. Easy CI/CD integration — Just one command: terraform test
+```
+
+### Test File Structure
+
+Test files use the `*.tftest.hcl` extension and go in the project root or `tests/` directory.
+
+```hcl
+# tests/vpc.tftest.hcl
+
+# === Plan mode test (validate without creating resources) ===
+run "vpc_cidr_is_valid" {
+  command = plan    # Run plan only, no actual creation
+
+  assert {
+    condition     = aws_vpc.main.cidr_block == "10.0.0.0/16"
+    error_message = "VPC CIDR block must be 10.0.0.0/16"
+  }
+}
+
+run "subnet_count_is_correct" {
+  command = plan
+
+  assert {
+    condition     = length(aws_subnet.private) == 3
+    error_message = "Expected 3 private subnets"
+  }
+}
+
+# === Apply mode test (create real resources then validate) ===
+run "ec2_instance_has_correct_tags" {
+  command = apply   # Create real resources, auto-destroyed after test
+
+  variables {
+    environment = "test"
+    instance_type = "t3.micro"
+  }
+
+  assert {
+    condition     = aws_instance.web.tags["Environment"] == "test"
+    error_message = "Instance must have Environment=test tag"
+  }
+}
+```
+
+### Core Syntax
+
+```
+terraform test components:
+
+┌─────────────────────────────────────────────────┐
+│  *.tftest.hcl file                              │
+│                                                 │
+│  run "test_name" {                              │
+│    command = plan | apply   # Execution mode     │
+│                                                 │
+│    variables {              # Override variables │
+│      key = "value"                              │
+│    }                                            │
+│                                                 │
+│    assert {                 # Conditions (multiple ok) │
+│      condition     = <bool expression>          │
+│      error_message = "failure message"          │
+│    }                                            │
+│  }                                              │
+└─────────────────────────────────────────────────┘
+
+command types:
+  plan  — Fast and free, sufficient for most validations
+  apply — Create then validate, auto-destroy after test
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+terraform test
+
+# Run specific test file
+terraform test -filter=tests/vpc.tftest.hcl
+
+# Verbose output
+terraform test -verbose
+```
+
+### Using terraform test in CI/CD
+
+```yaml
+# GitHub Actions example
+- name: Terraform Test
+  run: |
+    terraform init
+    terraform test    # Plan mode tests have zero cost/time overhead
+```
+
+```
+Position in CI/CD pipeline:
+
+On PR creation:
+  terraform fmt -check → terraform validate → terraform test → terraform plan
+                                                  ↑
+                                          Plan mode tests go here!
+                                          (fast and free)
+
+After main merge:
+  terraform apply
+```
+
+**Practical tip**: Plan mode tests alone can handle most static validations -- variable checks, CIDR ranges, tag rules, resource counts. Use apply mode only when you truly need integration testing.
+
+---
+
+## OpenTofu — Open-Source Fork of Terraform
+
+### Background
+
+In August 2023, HashiCorp changed Terraform's license from **MPL 2.0 to BSL (Business Source License)**. BSL restricts using Terraform in competing services.
+
+In response, **OpenTofu** was created as an open-source fork under the Linux Foundation.
+
+```
+License Change Timeline:
+
+2023.08  HashiCorp announces Terraform license change to BSL
+2023.09  OpenTF (now OpenTofu) fork project starts
+2023.09  Joins Linux Foundation
+2024.01  OpenTofu 1.6.0 GA release (Terraform 1.6 compatible)
+2024~    OpenTofu begins adding independent features (state encryption, etc.)
+```
+
+### Terraform vs OpenTofu
+
+| Comparison | Terraform | OpenTofu |
+|-----------|-----------|----------|
+| **License** | BSL 1.1 (restrictive) | MPL 2.0 (open-source) |
+| **Governance** | HashiCorp (acquired by IBM) | Linux Foundation |
+| **CLI Compatibility** | Reference | Based on Terraform 1.6, high compatibility |
+| **Provider Compat** | Reference | Uses same providers |
+| **State Format** | Reference | Compatible (+ native state encryption) |
+| **Registry** | registry.terraform.io | registry.opentofu.org |
+| **Commercial Support** | Terraform Cloud/Enterprise | Community + third-party |
+
+### Which Should You Choose?
+
+```
+Selection Guide:
+
+Stay with Terraform if:
+  ├ Already using Terraform Cloud/Enterprise
+  ├ Enterprise requiring official HashiCorp support
+  └ Existing CI/CD pipelines tightly coupled to Terraform
+
+Consider OpenTofu if:
+  ├ Open-source license is mandatory per org policy
+  ├ Want to reduce vendor lock-in
+  ├ Need OpenTofu-exclusive features like state encryption
+  └ Starting a new project with freedom to choose
+```
+
+**Practical tip**: The Module, State, Backend, and Workspace concepts taught in this lecture **apply equally to both Terraform and OpenTofu**. HCL syntax, providers, and core commands are the same, so this lecture's content is valid regardless of which tool you choose.
+
+---
+
 ## Common Mistakes
 
 1. **Commit state to Git** - Use .gitignore and remote backend
@@ -212,6 +392,8 @@ Typical workflow:
 | Workspace | Environment isolation | Directory approach preferred |
 | Import | Legacy resource management | Use import block |
 | Cloud | Enterprise features | Adopt as team grows |
+| terraform test | HCL native testing (1.6+) | Plan mode for fast static validation |
+| OpenTofu | Terraform open-source fork | Same HCL/providers, different license |
 
 ---
 

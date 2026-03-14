@@ -503,28 +503,102 @@ spec:
 
 ---
 
-## 🔍 상세 설명 — Gateway API (K8s 차세대 표준)
+## 🔍 상세 설명 — Gateway API (K8s 커뮤니티 권장 표준)
 
-[API Gateway 강의](../02-networking/13-api-gateway)에서 개념을 봤으니 여기서는 실전 설정에 집중할게요.
+Gateway API는 2024년에 **v1.0 GA(stable)**에 도달한 K8s 커뮤니티 공식 권장 표준이에요. Ingress의 후속으로, [API Gateway 강의](../02-networking/13-api-gateway)에서 개념을 봤으니 여기서는 실전 설정에 집중할게요.
 
-### Gateway API vs Ingress
+> **새 프로젝트를 시작한다면 Gateway API를 사용하세요.** Ingress는 레거시 호환 목적으로 유지되지만, K8s SIG-Network는 Gateway API를 적극 권장하고 있어요.
 
-```bash
-# Ingress의 한계:
-# 1. HTTP/HTTPS만 (TCP/UDP 안 됨)
-# 2. 어노테이션이 벤더마다 다름 (nginx.ingress.* vs alb.ingress.*)
-# 3. 트래픽 분배(가중치) 네이티브 지원 안 됨
-# 4. 역할 분리가 어려움 (인프라팀 vs 개발팀)
+### Gateway API 구조 — 역할 기반 분리
 
-# Gateway API 장점:
-# 1. HTTP, TCP, UDP, gRPC, TLS 모두 지원
-# 2. 표준화된 API (벤더 독립)
-# 3. 트래픽 가중치 네이티브 (카나리 배포!)
-# 4. 역할 분리: GatewayClass(인프라) → Gateway(플랫폼) → HTTPRoute(개발)
+```mermaid
+flowchart TD
+    INFRA["인프라팀<br/>GatewayClass 관리"]
+    PLATFORM["플랫폼팀<br/>Gateway 관리"]
+    DEV["개발팀<br/>HTTPRoute 관리"]
+
+    INFRA --> GC["GatewayClass<br/>(어떤 컨트롤러 사용?)"]
+    GC --> GW["Gateway<br/>(리스너, TLS, 포트)"]
+    PLATFORM --> GW
+    GW --> HR["HTTPRoute<br/>(호스트/경로/가중치)"]
+    DEV --> HR
+
+    HR --> SVC1["Service v1"]
+    HR --> SVC2["Service v2"]
+
+    style GC fill:#e67e22,color:#fff
+    style GW fill:#3498db,color:#fff
+    style HR fill:#2ecc71,color:#fff
 ```
 
+```bash
+# Ingress는 하나의 리소스에 인프라/플랫폼/개발 설정이 전부 섞여 있음
+# → 어노테이션이 벤더마다 다르고, 역할 분리가 어려움
+
+# Gateway API는 3계층으로 역할을 명확히 분리:
+# GatewayClass: 인프라팀 — 어떤 컨트롤러를 쓸지 (AWS ALB, Istio, Envoy 등)
+# Gateway:      플랫폼팀 — 리스너(포트, TLS), 네트워크 설정
+# HTTPRoute:    개발팀   — 경로/호스트 매핑, 트래픽 분배
+```
+
+### Gateway API vs Ingress 비교표
+
+| 항목 | Ingress | Gateway API |
+|------|---------|-------------|
+| **상태** | 레거시 (유지보수만) | **GA v1.0+ (권장 표준)** |
+| **프로토콜** | HTTP/HTTPS만 | HTTP, HTTPS, TCP, UDP, gRPC, TLS |
+| **트래픽 분배** | 네이티브 미지원 (어노테이션 필요) | **네이티브 weight 지원** |
+| **역할 분리** | 불가 (하나의 리소스) | GatewayClass/Gateway/Route 분리 |
+| **벤더 독립성** | 벤더별 어노테이션 | **표준화된 API 스펙** |
+| **확장성** | 어노테이션으로만 | CRD 기반 확장 (Policy 등) |
+| **컨트롤러 지원** | Nginx, ALB, Traefik 등 | Istio, Envoy, Cilium, ALB, Nginx 등 |
+| **채택** | 기존 프로젝트 대부분 | 신규 프로젝트, 서비스 메시 연동 |
+
+### GatewayClass + Gateway 설정
+
 ```yaml
-# HTTPRoute — 가중치 기반 카나리 배포
+# GatewayClass — 인프라팀이 관리
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: aws-alb
+spec:
+  controllerName: gateway.networking.k8s.io/aws-alb   # 사용할 컨트롤러
+  description: "AWS ALB Gateway Controller"
+
+---
+# Gateway — 플랫폼팀이 관리
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: production-gateway
+  namespace: gateway-system
+spec:
+  gatewayClassName: aws-alb            # ⭐ 위에서 정의한 GatewayClass
+  listeners:
+  - name: https
+    protocol: HTTPS
+    port: 443
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - name: tls-cert
+        kind: Secret
+    allowedRoutes:
+      namespaces:
+        from: Selector
+        selector:
+          matchLabels:
+            gateway-access: "true"     # 이 라벨이 있는 네임스페이스만 Route 연결 가능
+  - name: http
+    protocol: HTTP
+    port: 80
+```
+
+### HTTPRoute — 가중치 기반 카나리 배포
+
+```yaml
+# HTTPRoute — 개발팀이 관리
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -548,6 +622,79 @@ spec:
     - name: api-service-v2
       port: 80
       weight: 10                       # 10% → 새 버전 (카나리!)
+```
+
+```bash
+# 카나리 배포 과정:
+# 1단계: weight 90/10 → 10% 트래픽을 새 버전으로
+# 2단계: 모니터링 확인 후 weight 70/30
+# 3단계: 문제 없으면 weight 0/100 → 완전 전환!
+# 롤백: weight 100/0 → 즉시 기존 버전으로!
+
+# Ingress에서는 이런 가중치 분배가 어노테이션 해킹이 필요했지만,
+# Gateway API에서는 표준 스펙으로 깔끔하게 지원!
+
+# HTTPRoute 확인
+kubectl get httproutes -n production
+# NAME        HOSTNAMES             AGE
+# api-route   ["api.example.com"]   5d
+
+kubectl describe httproute api-route -n production
+```
+
+### HTTPRoute 고급 — 헤더 기반 라우팅
+
+```yaml
+# 특정 헤더가 있으면 새 버전으로 라우팅 (개발자 테스트용)
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: api-route-canary
+  namespace: production
+spec:
+  parentRefs:
+  - name: production-gateway
+    namespace: gateway-system
+  hostnames:
+  - "api.example.com"
+  rules:
+  # 규칙 1: x-canary: true 헤더 → v2로
+  - matches:
+    - headers:
+      - name: x-canary
+        value: "true"
+    backendRefs:
+    - name: api-service-v2
+      port: 80
+  # 규칙 2: 나머지 → v1으로
+  - backendRefs:
+    - name: api-service-v1
+      port: 80
+```
+
+### 새 프로젝트에서 Gateway API 시작하기
+
+```bash
+# 1. Gateway API CRD 설치
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/standard-install.yaml
+
+# 2. 컨트롤러 설치 (예: Envoy Gateway)
+helm install eg oci://docker.io/envoyproxy/gateway-helm \
+    --version v1.2.0 -n envoy-gateway-system --create-namespace
+
+# 3. GatewayClass, Gateway, HTTPRoute 순서로 생성
+
+# 지원 컨트롤러 목록:
+# - Istio          (서비스 메시 연동 최강)
+# - Envoy Gateway  (경량, CNCF 프로젝트)
+# - Cilium         (eBPF 기반, 고성능)
+# - AWS ALB        (EKS 네이티브)
+# - Nginx Gateway  (Nginx Inc. 공식)
+# - Traefik        (v3+)
+
+# ⚠️ 기존 프로젝트 마이그레이션:
+# → Ingress와 Gateway API는 공존 가능
+# → 점진적으로 HTTPRoute를 추가하고, Ingress를 제거
 ```
 
 ---

@@ -679,6 +679,167 @@ kubectl patch k8sallowedrepos prod-allowed-repos \
 
 ---
 
+### 3.5 CEL ValidatingAdmissionPolicy — Webhook 없는 정책 검증 (K8s 1.26+)
+
+OPA/Gatekeeper는 강력하지만 **외부 Webhook 서버가 필요**해요. K8s 1.26부터 도입되고 **1.30에서 stable**이 된 `ValidatingAdmissionPolicy`는 **CEL(Common Expression Language)**을 사용해서 Webhook 없이 API Server 내장으로 정책을 검증해요.
+
+#### CEL이 왜 중요한가?
+
+```bash
+# OPA/Gatekeeper의 한계:
+# 1. Webhook 서버가 필요 → 추가 인프라 관리 부담
+# 2. Webhook 장애 시 → Pod 생성이 차단되거나 우회됨
+# 3. Rego 언어 학습 필요 → 러닝 커브가 높음
+# 4. 네트워크 지연 → 모든 요청이 Webhook을 거쳐야 함
+
+# CEL ValidatingAdmissionPolicy 장점:
+# 1. API Server 내장 → 별도 서버 불필요!
+# 2. CEL 표현식 → 간결하고 직관적
+# 3. 네트워크 홉 없음 → 더 빠른 검증
+# 4. K8s 네이티브 → 별도 설치 없이 사용 가능 (1.30+)
+```
+
+#### OPA Gatekeeper vs CEL 비교
+
+| 항목 | OPA/Gatekeeper | CEL ValidatingAdmissionPolicy |
+|------|---------------|------------------------------|
+| **아키텍처** | Webhook 서버 필요 | **API Server 내장** |
+| **언어** | Rego (전용 언어) | **CEL (간결한 표현식)** |
+| **설치** | Helm으로 별도 설치 | **K8s 1.30+ 기본 내장** |
+| **성능** | Webhook 네트워크 홉 | **내장이라 더 빠름** |
+| **복잡한 정책** | 매우 유연 (Rego의 강점) | 단순~중간 수준 적합 |
+| **에코시스템** | 방대한 정책 라이브러리 | 아직 성장 중 |
+| **장애 영향** | Webhook 장애 시 위험 | API Server와 동일 라이프사이클 |
+| **추천** | 복잡한 커스텀 정책 | **단순 검증 규칙** |
+
+> **실무 채택 현황 (2026년 기준):** CEL ValidatingAdmissionPolicy는 Kubernetes 1.30(2024)에서 Stable이 되었지만, 프로덕션 환경에서는 아직 OPA/Gatekeeper가 지배적이에요. Gatekeeper는 수년간 축적된 정책 라이브러리와 에코시스템이 있고, 대부분의 조직이 이미 운영 중이기 때문이에요. **새 클러스터에서 단순한 검증 규칙**은 CEL로 시작하고, **복잡한 정책이나 기존 Gatekeeper 환경**은 계속 Gatekeeper를 사용하는 것이 현실적이에요. 두 방식은 공존할 수 있어요.
+
+#### 예시 1: 이미지 레지스트리 제한
+
+```yaml
+# ValidatingAdmissionPolicy — 허용된 레지스트리만 사용
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: restrict-image-registry
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - apiGroups: [""]
+      apiVersions: ["v1"]
+      operations: ["CREATE", "UPDATE"]
+      resources: ["pods"]
+  validations:
+  - expression: >-
+      object.spec.containers.all(c,
+        c.image.startsWith('myregistry.io/') ||
+        c.image.startsWith('gcr.io/my-project/')
+      )
+    message: "모든 컨테이너 이미지는 myregistry.io/ 또는 gcr.io/my-project/에서 가져와야 합니다."
+    reason: Invalid
+
+---
+# ValidatingAdmissionPolicyBinding — 어디에 적용할지
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: restrict-image-registry-binding
+spec:
+  policyName: restrict-image-registry
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        environment: production        # production 라벨이 있는 네임스페이스에만
+```
+
+#### 예시 2: 리소스 제한 강제
+
+```yaml
+# 모든 컨테이너에 CPU/메모리 requests와 limits 필수
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: require-resource-limits
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - apiGroups: [""]
+      apiVersions: ["v1"]
+      operations: ["CREATE", "UPDATE"]
+      resources: ["pods"]
+  validations:
+  - expression: >-
+      object.spec.containers.all(c,
+        has(c.resources) &&
+        has(c.resources.requests) &&
+        has(c.resources.limits) &&
+        has(c.resources.requests.cpu) &&
+        has(c.resources.requests.memory) &&
+        has(c.resources.limits.memory)
+      )
+    message: "모든 컨테이너에 CPU requests, memory requests, memory limits가 설정되어야 합니다."
+```
+
+#### 예시 3: latest 태그 금지
+
+```yaml
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: deny-latest-tag
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - apiGroups: [""]
+      apiVersions: ["v1"]
+      operations: ["CREATE", "UPDATE"]
+      resources: ["pods"]
+  validations:
+  - expression: >-
+      object.spec.containers.all(c,
+        c.image.contains(':') && !c.image.endsWith(':latest')
+      )
+    message: "이미지에 :latest 태그를 사용하거나 태그를 생략할 수 없습니다. 정확한 버전을 지정하세요."
+```
+
+```bash
+# CEL 정책 테스트
+kubectl apply -f deny-latest-tag.yaml
+kubectl apply -f deny-latest-tag-binding.yaml
+
+# 테스트
+kubectl run test --image=nginx -n production
+# Error: admission webhook denied the request:
+# "이미지에 :latest 태그를 사용하거나 태그를 생략할 수 없습니다."
+
+kubectl run test --image=nginx:1.25 -n production
+# pod/test created   ← 통과!
+```
+
+#### CEL vs Gatekeeper 사용 가이드
+
+```bash
+# CEL ValidatingAdmissionPolicy 사용:
+# → 단순한 필드 검증 (이미지 태그, 레이블, 리소스 제한)
+# → Webhook 인프라를 관리하고 싶지 않을 때
+# → K8s 1.30+ 환경
+
+# OPA/Gatekeeper 사용:
+# → 복잡한 정책 로직 (외부 데이터 참조, 복잡한 조건)
+# → 기존 Rego 정책 라이브러리 활용
+# → K8s 1.30 이전 환경
+# → 감사(audit) 기능이 필요할 때
+
+# 실무 추천:
+# → 둘 다 공존 가능! 단순 규칙은 CEL, 복잡한 규칙은 Gatekeeper
+```
+
+---
+
 ### 4. Falco — 런타임 보안 모니터링
 
 빌드 시점(이미지 스캔)과 배포 시점(PSS/Gatekeeper)에서 검사해도, **실행 중에 발생하는 위협**은 잡을 수 없어요:

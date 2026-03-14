@@ -652,6 +652,102 @@ Q4. Kubernetes? → Yes: Prometheus de facto standard | No: CloudWatch/Datadog A
 
 ---
 
+### 8. The Rise of eBPF-Based Monitoring
+
+#### What is eBPF?
+
+eBPF (extended Berkeley Packet Filter) is a technology that allows **safely running code inside the Linux kernel**. It provides kernel-level visibility with a fundamentally different approach from traditional monitoring.
+
+> **Analogy**: If traditional monitoring is CCTV (fixed locations only), eBPF is like an **X-ray machine** (seeing through walls). Without modifying application code, you can observe all system calls, network packets, and file I/O at the OS kernel level.
+
+```
+eBPF vs Traditional Agent-Based Monitoring:
+
+┌──────────────────────────────────────────────────────────┐
+│  Traditional Approach (Agent-based)                       │
+│  [App Code] → [SDK/Agent inserted] → [Collector] → [Backend] │
+│  • Must install SDK in app or attach sidecar              │
+│  • Different agent needed per language/framework          │
+│  • Agent can impact app performance                       │
+│  • Hard to add instrumentation to legacy apps             │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────┐
+│  eBPF Approach (Kernel Level)                             │
+│  [App Code] (no changes)                                  │
+│  [Linux Kernel] → [eBPF Program] → [Collector] → [Backend] │
+│  • No app code changes needed (zero-instrumentation)      │
+│  • Applies identically to all languages/frameworks        │
+│  • Very low overhead (runs inside kernel)                 │
+│  • Can collect L3/L4/L7 network data                      │
+└──────────────────────────────────────────────────────────┘
+```
+
+#### Cilium Hubble: Network Observability
+
+Cilium is an eBPF-based CNI (Container Network Interface), and **Hubble** is Cilium's network observability layer.
+
+```
+Visibility provided by Hubble:
+
+  L3/L4 (Network/Transport Layer):
+  • Track TCP/UDP connections between Pods
+  • Detect packet drops, connection failures
+  • Track NetworkPolicy violations
+
+  L7 (Application Layer):
+  • HTTP request/response (method, path, status code)
+  • gRPC call tracing
+  • DNS query monitoring
+  • Kafka message tracking
+
+  Service Map:
+  • Auto-generate inter-service dependency graphs
+  • Real-time traffic flow visualization
+  • Measure latency between services
+```
+
+```bash
+# Hubble CLI example: observe HTTP requests
+hubble observe --protocol http --namespace production
+
+# Track DNS queries for a specific service
+hubble observe --type l7 --protocol dns --to-pod order-service
+
+# Detect network policy violations
+hubble observe --verdict DROPPED
+```
+
+#### Pixie: Application Performance Monitoring Without Instrumentation
+
+Pixie (now owned by New Relic, CNCF Sandbox) uses eBPF to monitor application performance **without SDK installation or code changes**.
+
+```
+Pixie's core capabilities:
+  • Auto-trace HTTP/gRPC requests (Golden Signals: Rate, Error, Duration)
+  • Auto-capture database queries (MySQL, PostgreSQL, Cassandra)
+  • CPU profiling (auto-generated flamegraphs)
+  • Network traffic analysis
+  • Everything works without any app code changes
+```
+
+#### eBPF vs Traditional Agent-Based Monitoring Comparison
+
+| Comparison | Agent-based (OTel, etc.) | eBPF-based (Cilium, Pixie) |
+|-----------|----------------------|--------------------------|
+| **Installation** | Integrate SDK/agent into app | Deploy kernel module/DaemonSet |
+| **Code changes** | Required (even auto-instrumentation adds dependencies) | None (zero-instrumentation) |
+| **Language support** | Per-language SDK needed | Same for all languages |
+| **Network visibility** | Limited (L7 only) | Full L3/L4/L7 |
+| **Business metrics** | Can add custom Spans/metrics | Limited to infrastructure level |
+| **Overhead** | Medium (SDK overhead) | Very low |
+| **Maturity** | High (production proven) | Rapidly growing |
+| **Recommended for** | Business logic observability | Infrastructure/network observability |
+
+> **Key point**: eBPF and traditional agent approaches are **complementary, not competing**. The ideal setup is tracking business logic with OTel while monitoring network and infrastructure with eBPF.
+
+---
+
 ## 💻 Hands-On Practice
 
 ### Exercise 1: Design Structured Logs

@@ -480,7 +480,7 @@ export const ko: Dict = {
     title: "기술 블로그",
     subtitle: "AWS 아키텍처와 클라우드 엔지니어링 인사이트",
     searchPlaceholder: "글 검색...",
-    allCategories: "전체",
+    categoryLabel: "카테고리",
     allTags: "전체",
     sortLatest: "최신순",
     sortOldest: "오래된순",

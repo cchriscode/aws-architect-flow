@@ -1185,16 +1185,135 @@ spec:
     tags: ["latest", "dev", "test"]
 ```
 
-#### Kyverno vs OPA Gatekeeper Comparison
+#### Kyverno Deep Dive — K8s-Native Policy Engine
+
+Unlike OPA Gatekeeper, Kyverno lets you write policies **in pure YAML without learning Rego**. Since policies are defined as K8s resource patterns, any engineer familiar with K8s can start using it immediately.
+
+```
+Kyverno's 3 Policy Types:
+
+1. Validating
+   → "Reject deployment if this condition is not met"
+   → Examples: Ban latest tag, require resource limits
+
+2. Mutating
+   → "Auto-inject/modify settings on deployment"
+   → Examples: Auto-add SecurityContext, auto-assign labels
+
+3. Generating
+   → "Auto-create companion resources when a resource is created"
+   → Examples: Auto-create NetworkPolicy when Namespace is created
+```
+
+```yaml
+# === Kyverno Production Policy Examples ===
+
+# 1. Allow only approved image registries (Validating)
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-image-registries
+  annotations:
+    policies.kyverno.io/title: Restrict Image Registries
+    policies.kyverno.io/severity: high
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: validate-registries
+      match:
+        any:
+          - resources:
+              kinds: ["Pod"]
+      validate:
+        message: >-
+          Only approved registries allowed:
+          123456789.dkr.ecr.ap-northeast-2.amazonaws.com, gcr.io/distroless
+        pattern:
+          spec:
+            containers:
+              - image: "123456789.dkr.ecr.ap-northeast-2.amazonaws.com/* | gcr.io/distroless/*"
+
+---
+# 2. Require mandatory labels (Validating)
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-labels
+spec:
+  validationFailureAction: Enforce
+  rules:
+    - name: check-required-labels
+      match:
+        any:
+          - resources:
+              kinds: ["Deployment", "StatefulSet"]
+      validate:
+        message: "Labels app, team, and env are required."
+        pattern:
+          metadata:
+            labels:
+              app: "?*"
+              team: "?*"
+              env: "production | staging | dev"
+
+---
+# 3. Auto-generate NetworkPolicy on Namespace creation (Generating)
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: generate-default-networkpolicy
+spec:
+  rules:
+    - name: default-deny
+      match:
+        any:
+          - resources:
+              kinds: ["Namespace"]
+      generate:
+        apiVersion: networking.k8s.io/v1
+        kind: NetworkPolicy
+        name: default-deny-all
+        namespace: "{{request.object.metadata.name}}"
+        data:
+          spec:
+            podSelector: {}
+            policyTypes:
+              - Ingress
+              - Egress
+```
+
+#### Kyverno vs OPA Gatekeeper Detailed Comparison
 
 | | Kyverno | OPA Gatekeeper |
 |------|---------|----------------|
 | **Policy Language** | YAML (low learning curve) | Rego (high learning curve) |
+| **Policy Authoring** | K8s resource pattern matching | General-purpose logic programming |
 | **Mutate Support** | Native (auto-transform) | Limited (Assign/Modify) |
 | **Generate Support** | Native (auto-create resources) | Not supported |
-| **Complex Logic** | Limited | Powerful (Rego's logic expressiveness) |
-| **Community Policies** | Kyverno Policy Library | Gatekeeper Library |
-| **Real-world Recommendation** | Small/medium, prefer K8s-native | Large scale, already use OPA |
+| **Image Verification** | Native cosign/Notary support | Requires external tooling |
+| **Complex Logic** | Limited (simple pattern matching) | Powerful (Rego's logic expressiveness) |
+| **External Data** | API Call support | OPA data source integration |
+| **Resource Usage** | Relatively lightweight | Memory-heavy with Audit feature |
+| **Community Policies** | Kyverno Policy Library (150+) | Gatekeeper Library |
+| **CNCF Status** | CNCF Incubating | CNCF Graduated |
+| **Recommendation** | Small/medium, prefer K8s-native | Large scale, already use OPA, complex logic |
+
+```
+Selection Guide:
+
+"30 or fewer policies + K8s team" → Kyverno
+  → Only need to know YAML, powerful Mutate/Generate
+  → Native image signature verification
+
+"100+ policies + complex org rules" → OPA Gatekeeper
+  → Express complex business logic in Rego
+  → Use OPA beyond K8s (Terraform, API Gateway)
+
+"First time with both?" → Start with Kyverno
+  → Much lower learning cost, covers 80% of use cases
+  → Can switch to or run alongside OPA Gatekeeper later
+```
 
 ---
 

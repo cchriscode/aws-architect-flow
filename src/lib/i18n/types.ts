@@ -376,7 +376,7 @@ export interface Dict {
     title: string;
     subtitle: string;
     searchPlaceholder: string;
-    allCategories: string;
+    categoryLabel: string;
     allTags: string;
     sortLatest: string;
     sortOldest: string;

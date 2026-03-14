@@ -664,6 +664,167 @@ kubectl patch k8sallowedrepos prod-allowed-repos \
 
 ---
 
+### 3.5 CEL ValidatingAdmissionPolicy — Policy Validation Without Webhooks (K8s 1.26+)
+
+OPA/Gatekeeper is powerful but **requires an external Webhook server**. `ValidatingAdmissionPolicy`, introduced in K8s 1.26 and **stable since 1.30**, uses **CEL (Common Expression Language)** to validate policies natively within the API Server without any Webhook.
+
+#### Why CEL Matters
+
+```bash
+# OPA/Gatekeeper limitations:
+# 1. Webhook server needed → extra infrastructure to manage
+# 2. Webhook failure → Pod creation blocked or bypassed
+# 3. Rego language → steep learning curve
+# 4. Network latency → every request goes through Webhook
+
+# CEL ValidatingAdmissionPolicy advantages:
+# 1. Built into API Server → no separate server!
+# 2. CEL expressions → concise and intuitive
+# 3. No network hops → faster validation
+# 4. K8s native → no installation needed (1.30+)
+```
+
+#### OPA Gatekeeper vs CEL Comparison
+
+| Item | OPA/Gatekeeper | CEL ValidatingAdmissionPolicy |
+|------|---------------|------------------------------|
+| **Architecture** | Webhook server required | **Built into API Server** |
+| **Language** | Rego (dedicated language) | **CEL (concise expressions)** |
+| **Installation** | Separate Helm install | **Built into K8s 1.30+** |
+| **Performance** | Webhook network hop | **Built-in, faster** |
+| **Complex Policies** | Very flexible (Rego's strength) | Suited for simple to medium |
+| **Ecosystem** | Large policy library | Still growing |
+| **Failure Impact** | Webhook failure = risk | Same lifecycle as API Server |
+| **Recommendation** | Complex custom policies | **Simple validation rules** |
+
+> **Production Adoption Status (as of 2026):** CEL ValidatingAdmissionPolicy became Stable in Kubernetes 1.30 (2024), but OPA/Gatekeeper still dominates production environments. Gatekeeper has years of accumulated policy libraries and ecosystem, and most organizations already run it in production. The practical approach: use **CEL for simple validation rules on new clusters**, and **continue using Gatekeeper for complex policies or existing environments**. The two approaches can coexist.
+
+#### Example 1: Restrict Image Registry
+
+```yaml
+# ValidatingAdmissionPolicy — allow only approved registries
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: restrict-image-registry
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - apiGroups: [""]
+      apiVersions: ["v1"]
+      operations: ["CREATE", "UPDATE"]
+      resources: ["pods"]
+  validations:
+  - expression: >-
+      object.spec.containers.all(c,
+        c.image.startsWith('myregistry.io/') ||
+        c.image.startsWith('gcr.io/my-project/')
+      )
+    message: "All container images must come from myregistry.io/ or gcr.io/my-project/."
+    reason: Invalid
+
+---
+# ValidatingAdmissionPolicyBinding — where to apply
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: restrict-image-registry-binding
+spec:
+  policyName: restrict-image-registry
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        environment: production        # Only namespaces with production label
+```
+
+#### Example 2: Enforce Resource Limits
+
+```yaml
+# Require CPU/memory requests and limits on all containers
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: require-resource-limits
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - apiGroups: [""]
+      apiVersions: ["v1"]
+      operations: ["CREATE", "UPDATE"]
+      resources: ["pods"]
+  validations:
+  - expression: >-
+      object.spec.containers.all(c,
+        has(c.resources) &&
+        has(c.resources.requests) &&
+        has(c.resources.limits) &&
+        has(c.resources.requests.cpu) &&
+        has(c.resources.requests.memory) &&
+        has(c.resources.limits.memory)
+      )
+    message: "All containers must have CPU requests, memory requests, and memory limits set."
+```
+
+#### Example 3: Forbid latest Tag
+
+```yaml
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: deny-latest-tag
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - apiGroups: [""]
+      apiVersions: ["v1"]
+      operations: ["CREATE", "UPDATE"]
+      resources: ["pods"]
+  validations:
+  - expression: >-
+      object.spec.containers.all(c,
+        c.image.contains(':') && !c.image.endsWith(':latest')
+      )
+    message: "Images cannot use :latest tag or omit tag. Specify an exact version."
+```
+
+```bash
+# Test CEL policy
+kubectl apply -f deny-latest-tag.yaml
+kubectl apply -f deny-latest-tag-binding.yaml
+
+# Test
+kubectl run test --image=nginx -n production
+# Error: admission webhook denied the request:
+# "Images cannot use :latest tag or omit tag. Specify an exact version."
+
+kubectl run test --image=nginx:1.25 -n production
+# pod/test created   ← Passes!
+```
+
+#### CEL vs Gatekeeper Usage Guide
+
+```bash
+# Use CEL ValidatingAdmissionPolicy when:
+# → Simple field validation (image tags, labels, resource limits)
+# → Don't want to manage Webhook infrastructure
+# → K8s 1.30+ environment
+
+# Use OPA/Gatekeeper when:
+# → Complex policy logic (external data references, complex conditions)
+# → Leveraging existing Rego policy libraries
+# → Pre-K8s 1.30 environments
+# → Need audit functionality
+
+# Real-world recommendation:
+# → Both can coexist! Simple rules with CEL, complex rules with Gatekeeper
+```
+
+---
+
 ### 4. Falco — Runtime Security Monitoring
 
 Build-time (image scan) and deploy-time (PSS/Gatekeeper) checks miss **threats that happen at runtime**:

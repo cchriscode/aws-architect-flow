@@ -503,28 +503,102 @@ spec:
 
 ---
 
-## 🔍 Detailed Explanation — Gateway API (K8s Next-Gen Standard)
+## 🔍 Detailed Explanation — Gateway API (K8s Community Recommended Standard)
 
-You already saw the concept in the [API Gateway lecture](../02-networking/13-api-gateway), so let's focus on practical setup here.
+Gateway API reached **v1.0 GA (stable)** in 2024 and is the official K8s community recommended standard. As the successor to Ingress, you already saw the concept in the [API Gateway lecture](../02-networking/13-api-gateway), so let's focus on practical setup here.
 
-### Gateway API vs Ingress
+> **For new projects, use Gateway API.** Ingress is maintained for legacy compatibility only, and K8s SIG-Network actively recommends Gateway API.
 
-```bash
-# Ingress limitations:
-# 1. HTTP/HTTPS only (no TCP/UDP)
-# 2. Annotations vary by vendor (nginx.ingress.* vs alb.ingress.*)
-# 3. No native traffic splitting (weights)
-# 4. Hard to separate concerns (infrastructure team vs dev team)
+### Gateway API Architecture — Role-Based Separation
 
-# Gateway API advantages:
-# 1. Support HTTP, TCP, UDP, gRPC, TLS
-# 2. Standardized API (vendor-independent)
-# 3. Native traffic weights (canary deployments!)
-# 4. Role separation: GatewayClass(infra) → Gateway(platform) → HTTPRoute(dev)
+```mermaid
+flowchart TD
+    INFRA["Infrastructure Team<br/>Manage GatewayClass"]
+    PLATFORM["Platform Team<br/>Manage Gateway"]
+    DEV["Development Team<br/>Manage HTTPRoute"]
+
+    INFRA --> GC["GatewayClass<br/>(Which controller?)"]
+    GC --> GW["Gateway<br/>(Listeners, TLS, ports)"]
+    PLATFORM --> GW
+    GW --> HR["HTTPRoute<br/>(host/path/weights)"]
+    DEV --> HR
+
+    HR --> SVC1["Service v1"]
+    HR --> SVC2["Service v2"]
+
+    style GC fill:#e67e22,color:#fff
+    style GW fill:#3498db,color:#fff
+    style HR fill:#2ecc71,color:#fff
 ```
 
+```bash
+# Ingress mixes infra/platform/dev config into one resource
+# → Annotations differ per vendor, hard to separate concerns
+
+# Gateway API separates into 3 clear layers:
+# GatewayClass: Infra team  — which controller (AWS ALB, Istio, Envoy, etc.)
+# Gateway:      Platform team — listeners (ports, TLS), network config
+# HTTPRoute:    Dev team     — path/host mapping, traffic splitting
+```
+
+### Gateway API vs Ingress Comparison
+
+| Item | Ingress | Gateway API |
+|------|---------|-------------|
+| **Status** | Legacy (maintenance only) | **GA v1.0+ (recommended standard)** |
+| **Protocols** | HTTP/HTTPS only | HTTP, HTTPS, TCP, UDP, gRPC, TLS |
+| **Traffic Splitting** | No native support (needs annotations) | **Native weight support** |
+| **Role Separation** | Not possible (single resource) | GatewayClass/Gateway/Route separated |
+| **Vendor Independence** | Vendor-specific annotations | **Standardized API spec** |
+| **Extensibility** | Annotations only | CRD-based extensions (Policy, etc.) |
+| **Controller Support** | Nginx, ALB, Traefik, etc. | Istio, Envoy, Cilium, ALB, Nginx, etc. |
+| **Adoption** | Most existing projects | New projects, service mesh integration |
+
+### GatewayClass + Gateway Setup
+
 ```yaml
-# HTTPRoute — Weight-based canary deployment
+# GatewayClass — managed by infrastructure team
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: aws-alb
+spec:
+  controllerName: gateway.networking.k8s.io/aws-alb   # Controller to use
+  description: "AWS ALB Gateway Controller"
+
+---
+# Gateway — managed by platform team
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: production-gateway
+  namespace: gateway-system
+spec:
+  gatewayClassName: aws-alb            # ⭐ GatewayClass defined above
+  listeners:
+  - name: https
+    protocol: HTTPS
+    port: 443
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - name: tls-cert
+        kind: Secret
+    allowedRoutes:
+      namespaces:
+        from: Selector
+        selector:
+          matchLabels:
+            gateway-access: "true"     # Only namespaces with this label can attach Routes
+  - name: http
+    protocol: HTTP
+    port: 80
+```
+
+### HTTPRoute — Weight-Based Canary Deployment
+
+```yaml
+# HTTPRoute — managed by development team
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -548,6 +622,79 @@ spec:
     - name: api-service-v2
       port: 80
       weight: 10                       # 10% → new version (canary!)
+```
+
+```bash
+# Canary deployment flow:
+# Step 1: weight 90/10 → 10% traffic to new version
+# Step 2: Monitor, then weight 70/30
+# Step 3: If OK, weight 0/100 → full switch!
+# Rollback: weight 100/0 → instant revert!
+
+# With Ingress, weight-based splitting required annotation hacks,
+# but Gateway API supports it cleanly as part of the standard spec!
+
+# Check HTTPRoute
+kubectl get httproutes -n production
+# NAME        HOSTNAMES             AGE
+# api-route   ["api.example.com"]   5d
+
+kubectl describe httproute api-route -n production
+```
+
+### HTTPRoute Advanced — Header-Based Routing
+
+```yaml
+# Route to new version if specific header present (developer testing)
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: api-route-canary
+  namespace: production
+spec:
+  parentRefs:
+  - name: production-gateway
+    namespace: gateway-system
+  hostnames:
+  - "api.example.com"
+  rules:
+  # Rule 1: x-canary: true header → route to v2
+  - matches:
+    - headers:
+      - name: x-canary
+        value: "true"
+    backendRefs:
+    - name: api-service-v2
+      port: 80
+  # Rule 2: everything else → route to v1
+  - backendRefs:
+    - name: api-service-v1
+      port: 80
+```
+
+### Getting Started with Gateway API in New Projects
+
+```bash
+# 1. Install Gateway API CRDs
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/standard-install.yaml
+
+# 2. Install controller (e.g., Envoy Gateway)
+helm install eg oci://docker.io/envoyproxy/gateway-helm \
+    --version v1.2.0 -n envoy-gateway-system --create-namespace
+
+# 3. Create GatewayClass, Gateway, HTTPRoute in order
+
+# Supported controllers:
+# - Istio          (best service mesh integration)
+# - Envoy Gateway  (lightweight, CNCF project)
+# - Cilium         (eBPF-based, high performance)
+# - AWS ALB        (EKS native)
+# - Nginx Gateway  (Nginx Inc. official)
+# - Traefik        (v3+)
+
+# ⚠️ Migrating existing projects:
+# → Ingress and Gateway API can coexist
+# → Gradually add HTTPRoutes, then remove Ingress resources
 ```
 
 ---

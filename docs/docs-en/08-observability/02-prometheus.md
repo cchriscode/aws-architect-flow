@@ -653,6 +653,137 @@ Use Recording Rule in Alert:
 
 ### 8. Remote Write/Read & Long-term Storage
 
+#### Prometheus Local TSDB Limitations
+
+Prometheus's local TSDB is single-node storage. In production environments, you run into several limitations.
+
+```
+Local TSDB Limitations:
+
+1. Single Node Constraint
+   • Retention period limited by disk capacity (default 15 days)
+   • Metric data can be lost on server failure
+   • Only vertical scaling possible (bigger disk, more memory)
+
+2. No Global View
+   • Cannot combine data from multiple Prometheus instances
+   • Cannot see the full picture in multi-cluster/multi-region setups
+   • Queries like "What's the error rate across all global services?" are impossible
+
+3. No Long-term Analysis
+   • Want to compare with data from 6 months ago, but it's already deleted
+   • Need historical data for capacity planning
+   • Cannot meet compliance requirements for long-term retention
+
+When is remote storage needed?
+  ✅ When you have multiple Prometheus instances (multi-cluster)
+  ✅ When metrics need to be retained for more than 15 days
+  ✅ When data loss on Prometheus failure is unacceptable
+  ✅ When global queries (query data from multiple clusters at once) are needed
+  ✅ When compliance requires 1+ year retention
+```
+
+#### Remote Write/Read API
+
+Prometheus integrates with external storage through **Remote Write API** and **Remote Read API**.
+
+```yaml
+# prometheus.yml — Remote Write configuration
+global:
+  scrape_interval: 15s
+
+remote_write:
+  - url: "http://mimir:9009/api/v1/push"   # Send to remote storage
+    queue_config:
+      capacity: 10000          # Internal queue size
+      max_shards: 30           # Parallel send shards
+      max_samples_per_send: 5000  # Max samples per batch
+    write_relabel_configs:
+      - source_labels: [__name__]
+        regex: "go_.*"          # Don't send go_ metrics (cost reduction)
+        action: drop
+
+remote_read:
+  - url: "http://mimir:9009/prometheus/api/v1/read"
+    read_recent: false         # Recent data from local, only old data from remote
+```
+
+```
+Remote Write Operation Flow:
+
+  Prometheus                   Remote Storage
+  ┌──────────┐                ┌──────────────┐
+  │ Scrape   │                │              │
+  │   ↓      │                │  Mimir /     │
+  │ Local    │──Remote Write──│  Thanos /    │──→ S3/GCS
+  │ TSDB ↓   │  (HTTP POST)  │  Cortex      │   (Long-term)
+  │ PromQL   │                │              │
+  └──────────┘                └──────────────┘
+
+  • Remote Write: Prometheus sends collected samples to remote in real-time
+  • Remote Read: When PromQL queries data not available locally, fetch from remote
+  • WAL-based: Buffer in WAL during network failure, resend later
+```
+
+#### Grafana Mimir: Large-Scale Metrics Storage
+
+Grafana Mimir is the successor to Cortex and serves as a **large-scale Prometheus-compatible long-term storage**.
+
+```
+Mimir Key Features:
+  • Prometheus Remote Write API compatible
+  • Horizontal scaling: Can handle billions of active time-series
+  • Native multi-tenancy: Data isolation per team/service
+  • Long-term storage on S3/GCS/Azure Blob
+  • 100% PromQL compatible
+  • Simple setup: Can start in single-binary mode
+```
+
+```yaml
+# Start Mimir with Docker Compose
+services:
+  mimir:
+    image: grafana/mimir:latest
+    command: ["-config.file=/etc/mimir/mimir.yaml"]
+    ports:
+      - "9009:9009"
+    volumes:
+      - ./mimir.yaml:/etc/mimir/mimir.yaml
+
+# mimir.yaml minimal config
+# multitenancy_enabled: false
+# blocks_storage:
+#   backend: s3
+#   s3:
+#     endpoint: s3.amazonaws.com
+#     bucket_name: my-mimir-data
+#     region: ap-northeast-2
+# compactor:
+#   data_dir: /tmp/mimir/compactor
+# store_gateway:
+#   sharding_ring:
+#     replication_factor: 1
+```
+
+#### Thanos: Global Query + Long-term Retention
+
+Thanos uses a **sidecar approach** that attaches to existing Prometheus instances, adding long-term storage and global queries with minimal changes to your existing setup.
+
+```
+Thanos Core Components:
+
+  Sidecar     — Sits beside Prometheus, uploads data to object storage
+  Store GW    — Queries historical data from object storage
+  Querier     — Unified query across multiple Prometheus + Store GW
+  Compactor   — Compresses/downsamples blocks in object storage
+  Ruler       — Runs global Alert/Recording Rules
+
+Advantages: Extend without changing existing Prometheus setup
+Disadvantages: Many components increase operational complexity
+```
+
+#### Cortex vs Mimir vs Thanos Comparison
+
 ```mermaid
 flowchart LR
     subgraph "Short-term Storage (15 days)"
@@ -682,7 +813,22 @@ flowchart LR
 | **Global View** | Querier integrates | Self-provided | Self-provided |
 | **Difficulty** | Intermediate | Low~Intermediate | High |
 | **Multi-tenant** | Limited | Native | Native |
-| **Trend** | Stable | Rapidly growing | Moving to Mimir |
+| **Existing setup change** | Minimal (just add sidecar) | Add remote_write to Prometheus | Add remote_write to Prometheus |
+| **Backend storage** | S3, GCS, Azure Blob | S3, GCS, Azure Blob | S3, GCS, Azure Blob, DynamoDB |
+| **Downsampling** | Automatic (5min, 1hour) | None (keeps original) | None |
+| **Developed by** | Improbable → CNCF Incubating | Grafana Labs | WeaveWorks → CNCF |
+| **Trend** | Stable, widely adopted | Rapidly growing, Cortex successor | Moving to Mimir |
+
+```
+Which to choose?
+
+  Want minimal changes to existing Prometheus  → Thanos
+  Building new or using Grafana ecosystem     → Mimir
+  Already using Cortex                        → Consider migrating to Mimir
+
+  Common: Object storage (S3/GCS) is required,
+          100% PromQL compatible so existing dashboards/alerts work as-is
+```
 
 ---
 

@@ -653,6 +653,137 @@ Alert에서 Recording Rule 활용:
 
 ### 8. Remote Write/Read & 장기 보관
 
+#### Prometheus 로컬 TSDB의 한계
+
+Prometheus의 로컬 TSDB는 단일 노드 스토리지예요. 프로덕션 환경에서는 여러 한계에 부딪혀요.
+
+```
+로컬 TSDB 한계:
+
+1. 단일 노드 제한
+   • 디스크 용량에 따라 보존 기간이 제한됨 (기본 15일)
+   • 서버 장애 시 메트릭 데이터 유실 가능
+   • 수직 확장만 가능 (더 큰 디스크, 더 많은 메모리)
+
+2. 글로벌 뷰 불가
+   • 여러 Prometheus 인스턴스의 데이터를 합쳐 볼 수 없음
+   • 멀티 클러스터/멀티 리전 환경에서 전체 그림을 못 봄
+   • "전 세계 서비스의 에러율은?" 같은 쿼리가 불가능
+
+3. 장기 분석 불가
+   • 6개월 전 데이터와 비교하고 싶지만 이미 삭제됨
+   • 용량 계획(Capacity Planning)에 과거 데이터 필요
+   • 규정 준수(Compliance)를 위한 장기 보관 요구사항 충족 불가
+
+언제 원격 스토리지가 필요한가?
+  ✅ 여러 Prometheus 인스턴스가 있을 때 (멀티 클러스터)
+  ✅ 15일 이상 메트릭을 보관해야 할 때
+  ✅ Prometheus 장애 시에도 데이터가 유실되면 안 될 때
+  ✅ 글로벌 쿼리 (여러 클러스터의 데이터를 한 번에 조회)가 필요할 때
+  ✅ 규정 준수를 위해 1년 이상 보관이 필요할 때
+```
+
+#### Remote Write/Read API
+
+Prometheus는 **Remote Write API**와 **Remote Read API**를 통해 외부 스토리지와 연동해요.
+
+```yaml
+# prometheus.yml — Remote Write 설정
+global:
+  scrape_interval: 15s
+
+remote_write:
+  - url: "http://mimir:9009/api/v1/push"   # 원격 스토리지로 전송
+    queue_config:
+      capacity: 10000          # 내부 큐 크기
+      max_shards: 30           # 병렬 전송 샤드 수
+      max_samples_per_send: 5000  # 배치당 최대 샘플
+    write_relabel_configs:
+      - source_labels: [__name__]
+        regex: "go_.*"          # go_ 메트릭은 전송하지 않음 (비용 절감)
+        action: drop
+
+remote_read:
+  - url: "http://mimir:9009/prometheus/api/v1/read"
+    read_recent: false         # 최근 데이터는 로컬에서, 오래된 것만 원격 조회
+```
+
+```
+Remote Write 동작 흐름:
+
+  Prometheus                   Remote Storage
+  ┌──────────┐                ┌──────────────┐
+  │ Scrape   │                │              │
+  │   ↓      │                │  Mimir /     │
+  │ 로컬 TSDB│──Remote Write──│  Thanos /    │──→ S3/GCS
+  │   ↓      │  (HTTP POST)  │  Cortex      │   (장기 보관)
+  │ PromQL   │                │              │
+  └──────────┘                └──────────────┘
+
+  • Remote Write: Prometheus가 수집한 샘플을 실시간으로 원격 전송
+  • Remote Read: PromQL 쿼리 시 로컬에 없는 데이터를 원격에서 가져옴
+  • WAL 기반: 네트워크 장애 시 WAL에 버퍼링 후 재전송
+```
+
+#### Grafana Mimir: 대규모 메트릭 스토리지
+
+Grafana Mimir는 Cortex의 후속 프로젝트로, **대규모 Prometheus 호환 장기 스토리지**예요.
+
+```
+Mimir 핵심 특징:
+  • Prometheus Remote Write API 호환
+  • 수평 확장: 수십억 개의 활성 시계열 처리 가능
+  • 네이티브 멀티테넌트: 팀/서비스별 데이터 격리
+  • S3/GCS/Azure Blob에 장기 보관
+  • PromQL 100% 호환
+  • 간단한 구성: 단일 바이너리 모드로 시작 가능
+```
+
+```yaml
+# Docker Compose로 Mimir 시작하기
+services:
+  mimir:
+    image: grafana/mimir:latest
+    command: ["-config.file=/etc/mimir/mimir.yaml"]
+    ports:
+      - "9009:9009"
+    volumes:
+      - ./mimir.yaml:/etc/mimir/mimir.yaml
+
+# mimir.yaml 최소 설정
+# multitenancy_enabled: false
+# blocks_storage:
+#   backend: s3
+#   s3:
+#     endpoint: s3.amazonaws.com
+#     bucket_name: my-mimir-data
+#     region: ap-northeast-2
+# compactor:
+#   data_dir: /tmp/mimir/compactor
+# store_gateway:
+#   sharding_ring:
+#     replication_factor: 1
+```
+
+#### Thanos: 글로벌 쿼리 + 장기 보존
+
+Thanos는 기존 Prometheus에 **사이드카를 붙이는 방식**으로, 기존 환경을 최소한으로 변경하면서 장기 보관과 글로벌 쿼리를 추가해요.
+
+```
+Thanos 핵심 구성 요소:
+
+  Sidecar     — Prometheus 옆에 붙어서 데이터를 오브젝트 스토리지로 업로드
+  Store GW    — 오브젝트 스토리지의 과거 데이터를 쿼리
+  Querier     — 여러 Prometheus + Store GW의 데이터를 통합 쿼리
+  Compactor   — 오브젝트 스토리지의 블록을 압축/다운샘플링
+  Ruler       — 글로벌 Alert/Recording Rules 실행
+
+장점: 기존 Prometheus를 그대로 유지하면서 확장
+단점: 구성 요소가 많아 운영 복잡도 증가
+```
+
+#### Cortex vs Mimir vs Thanos 비교표
+
 ```mermaid
 flowchart LR
     subgraph "단기 보관 (15일)"
@@ -682,7 +813,22 @@ flowchart LR
 | **글로벌 뷰** | Querier가 통합 | 자체 글로벌 뷰 | 자체 글로벌 뷰 |
 | **난이도** | 중간 | 낮음~중간 | 높음 |
 | **멀티테넌트** | 제한적 | 네이티브 | 네이티브 |
-| **추세** | 안정적 | 빠르게 성장 | Mimir로 이동 중 |
+| **기존 환경 변경** | 최소 (사이드카만 추가) | Prometheus에 remote_write 설정 추가 | Prometheus에 remote_write 설정 추가 |
+| **백엔드 스토리지** | S3, GCS, Azure Blob | S3, GCS, Azure Blob | S3, GCS, Azure Blob, DynamoDB |
+| **다운샘플링** | 자동 (5분, 1시간) | 없음 (원본 보관) | 없음 |
+| **개발 주체** | Improbable → CNCF Incubating | Grafana Labs | WeaveWorks → CNCF |
+| **추세** | 안정적, 대규모 채택 | 빠르게 성장, Cortex 후속 | Mimir로 이동 중 |
+
+```
+어떤 걸 선택할까?
+
+  기존 Prometheus를 최소한으로 변경하고 싶다면  → Thanos
+  새로 구축하거나 Grafana 생태계를 쓴다면       → Mimir
+  이미 Cortex를 쓰고 있다면                    → Mimir로 마이그레이션 검토
+
+  공통: 오브젝트 스토리지(S3/GCS)가 필수이고,
+        PromQL 100% 호환으로 기존 대시보드/알람을 그대로 사용 가능
+```
 
 ---
 

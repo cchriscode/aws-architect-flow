@@ -1210,6 +1210,48 @@ jobs:
 | Nesting depth | Max 4 levels | Max 10 levels |
 | Use case | Reuse entire CI/CD pipelines | Reuse repeated Step groups |
 
+#### Why Are Reusable Workflows and Composite Actions Important?
+
+They are critical from both **DRY principle (Don't Repeat Yourself)** and **security hardening** perspectives.
+
+```
+DRY Perspective:
+  ❌ Before: Copy-paste the same CI/CD YAML across 10 repositories
+     → Must update all 10 places when making changes
+     → Partial updates cause environment inconsistencies
+     → "Why does this repo behave differently?" problems
+
+  ✅ After: 1 shared workflow called from 10 repositories
+     → Update only 1 place
+     → Guarantees identical pipeline across all repos
+     → Security scans and deploy procedures applied consistently
+
+Security Perspective:
+  ✅ Centrally managed security policies enforced across all repos
+  ✅ Only approved deploy workflows can be used (tamper-proof)
+  ✅ Secret management controlled from a single location
+  ✅ Easy audit trail tracking
+```
+
+**Production Pattern: Organization Shared Workflow Repository**
+
+```
+my-org/
+├── shared-workflows/                    # Shared workflows repository
+│   └── .github/workflows/
+│       ├── reusable-ci.yml              # Standard CI pipeline
+│       ├── reusable-docker-build.yml    # Docker build + push
+│       ├── reusable-deploy-ecs.yml      # ECS deploy (with OIDC)
+│       └── reusable-security-scan.yml   # Security scan (SAST + SCA)
+├── service-a/                           # Individual service repository
+│   └── .github/workflows/
+│       └── ci.yml                       # uses: my-org/shared-workflows/...
+├── service-b/
+│   └── .github/workflows/
+│       └── ci.yml                       # Calls the same shared workflow
+└── service-c/
+```
+
 ---
 
 ### 13. Deploy to AWS with OIDC

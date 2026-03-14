@@ -1135,26 +1135,96 @@ Rootly Features:
     • Free tier for startups
 ```
 
+#### FireHydrant
+
+A tool that unifies status page management and incident management in a single platform. Handle internal incident response and external communication simultaneously.
+
+```
+FireHydrant Features:
+
+  🌐 Status Page Integration (Strength)
+    • Auto-update status page on incident declaration
+    • Component-level status management (API, Dashboard, Auth, etc.)
+    • Auto-send customer subscription notifications
+    • Internal incident ↔ external status page linkage
+
+  🎭 Role-Based Incident Management
+    • Auto-assign roles: Incident Commander, Communications Lead, etc.
+    • Role-specific checklists auto-provided
+    • Runbook-to-role mapping
+
+  📋 Retrospective Automation
+    • Auto-generate timeline (from Slack messages + status changes)
+    • Auto-aggregate impact analysis (downtime, affected customers)
+    • Action items → Jira/Shortcut auto-sync
+
+  🔗 Service Catalog
+    • Service ownership and dependency mapping
+    • Auto-identify related services on incident
+    • Change event tracking (deployment → incident correlation)
+```
+
+#### 2024-2025 Incident Management Platform Trends
+
+Traditional on-call-focused tools (PagerDuty, OpsGenie) and next-generation incident management platforms (Incident.io, Rootly, FireHydrant) solve fundamentally different problems.
+
+```
+Traditional Tools (PagerDuty, OpsGenie):
+  "Who receives the alert?" → On-call, escalation, alert routing
+
+Next-Gen Platforms (Incident.io, Rootly, FireHydrant):
+  "How do we manage incidents effectively?" → Collaboration, automation, learning
+
+  2024-2025 Key Trends:
+  ┌─────────────────────────────────────────────────────────────┐
+  │ 1. AI-Powered Automation                                    │
+  │    • Incident.io: AI suggests similar past incidents        │
+  │    • Rootly: AI auto-drafts post-mortems                    │
+  │    • FireHydrant: AI-based impact scope estimation          │
+  │                                                             │
+  │ 2. Platform Engineering Integration                         │
+  │    • Auto-link service catalog to incidents                 │
+  │    • Backstage / Port / OpsLevel integration                │
+  │    • Deployment events → incident correlation analysis      │
+  │                                                             │
+  │ 3. Composable Architecture                                  │
+  │    • PagerDuty (alerting) + Incident.io (management) combo │
+  │    • On-call tools and incident management as separate      │
+  │    • API-based integration for best-of-breed setup          │
+  └─────────────────────────────────────────────────────────────┘
+```
+
 #### Tool Comparison
 
 ```
-┌──────────────┬────────────┬─────────────┬──────────────┬────────────┐
-│   Feature    │ PagerDuty  │ OpsGenie    │ Incident.io  │ Rootly     │
-├──────────────┼────────────┼─────────────┼──────────────┼────────────┤
-│ On-call      │ ⭐⭐⭐⭐⭐ │ ⭐⭐⭐⭐    │ ⭐⭐⭐       │ ⭐⭐⭐     │
-│ Escalation   │ ⭐⭐⭐⭐⭐ │ ⭐⭐⭐⭐    │ ⭐⭐⭐       │ ⭐⭐⭐     │
-│ Slack Integ  │ ⭐⭐⭐     │ ⭐⭐⭐      │ ⭐⭐⭐⭐⭐   │ ⭐⭐⭐⭐⭐ │
-│ Workflow     │ ⭐⭐⭐⭐   │ ⭐⭐⭐      │ ⭐⭐⭐⭐     │ ⭐⭐⭐⭐⭐ │
-│ Post-mortem  │ ⭐⭐⭐     │ ⭐⭐⭐⭐    │ ⭐⭐⭐⭐⭐   │ ⭐⭐⭐⭐   │
-│ Analytics    │ ⭐⭐⭐⭐⭐ │ ⭐⭐⭐      │ ⭐⭐⭐⭐     │ ⭐⭐⭐⭐   │
-│ Price        │ $$$        │ $$          │ $$$          │ $$         │
-│ Best For     │ Enterprise │ Atlassian   │ Slack-first  │ Startups   │
-└──────────────┴────────────┴─────────────┴──────────────┴────────────┘
+┌──────────────┬────────────┬─────────────┬──────────────┬────────────┬──────────────┐
+│   Feature    │ PagerDuty  │ OpsGenie    │ Incident.io  │ Rootly     │ FireHydrant  │
+├──────────────┼────────────┼─────────────┼──────────────┼────────────┼──────────────┤
+│ On-call      │ ⭐⭐⭐⭐⭐ │ ⭐⭐⭐⭐    │ ⭐⭐⭐       │ ⭐⭐⭐     │ ⭐⭐⭐       │
+│ Escalation   │ ⭐⭐⭐⭐⭐ │ ⭐⭐⭐⭐    │ ⭐⭐⭐       │ ⭐⭐⭐     │ ⭐⭐⭐       │
+│ Slack Integ  │ ⭐⭐⭐     │ ⭐⭐⭐      │ ⭐⭐⭐⭐⭐   │ ⭐⭐⭐⭐⭐ │ ⭐⭐⭐⭐     │
+│ Workflow     │ ⭐⭐⭐⭐   │ ⭐⭐⭐      │ ⭐⭐⭐⭐     │ ⭐⭐⭐⭐⭐ │ ⭐⭐⭐⭐     │
+│ Post-mortem  │ ⭐⭐⭐     │ ⭐⭐⭐⭐    │ ⭐⭐⭐⭐⭐   │ ⭐⭐⭐⭐   │ ⭐⭐⭐⭐⭐   │
+│ Status Page  │ ⭐⭐       │ ⭐⭐        │ ⭐⭐⭐       │ ⭐⭐⭐     │ ⭐⭐⭐⭐⭐   │
+│ AI Features  │ ⭐⭐⭐     │ ⭐⭐        │ ⭐⭐⭐⭐     │ ⭐⭐⭐⭐   │ ⭐⭐⭐       │
+│ Analytics    │ ⭐⭐⭐⭐⭐ │ ⭐⭐⭐      │ ⭐⭐⭐⭐     │ ⭐⭐⭐⭐   │ ⭐⭐⭐⭐     │
+│ Price        │ $$$        │ $$          │ $$$          │ $$         │ $$$          │
+│ Best For     │ Enterprise │ Atlassian   │ Slack-first  │ Startups   │ Customer-    │
+│              │            │   teams     │   teams      │            │  facing svc  │
+└──────────────┴────────────┴─────────────┴──────────────┴────────────┴──────────────┘
 
-Recommended Combinations:
-  Small team (5-15): OpsGenie or Rootly
-  Medium team (15-50): PagerDuty + Incident.io
-  Large team (50+): PagerDuty + Incident.io + custom integrations
+Recommended Combinations (2024-2025):
+  Small team (5-15):  Rootly (free tier) or OpsGenie
+  Medium team (15-50): PagerDuty (on-call) + Incident.io (management)
+  Large team (50+):   PagerDuty + Incident.io + FireHydrant (status page)
+  Customer-facing:    FireHydrant (status page integration is key)
+
+Selection Guide:
+  • On-call/escalation is top priority → PagerDuty
+  • Already in Atlassian ecosystem → OpsGenie
+  • Want everything in Slack → Incident.io
+  • Workflow automation is key → Rootly
+  • External status page + incident integration → FireHydrant
 ```
 
 ---

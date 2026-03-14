@@ -771,6 +771,51 @@ aws eks list-addons --cluster-name production
 
 ---
 
+#### EKS Auto Mode (2024)
+
+EKS Auto Mode is a **fully managed EKS experience** announced in 2024. Previously, you had to manage worker nodes yourself even when using EKS -- choosing instance types, setting up node groups, configuring auto-scaling, and maintaining Karpenter. **Auto Mode handles all of this automatically**.
+
+**Traditional EKS vs EKS Auto Mode Comparison:**
+
+| Category | Traditional EKS | EKS Auto Mode |
+|---|---|---|
+| **Control Plane** | AWS managed | AWS managed |
+| **Worker Nodes** | User managed (node groups, Karpenter) | **AWS managed** |
+| **Scaling** | Manual ASG or Karpenter setup | **Automatic** |
+| **Instance Selection** | User specifies | **AWS auto-optimizes** |
+| **Add-ons Management** | Manual install/update | **Automatically included** |
+| **OS Patching** | User responsibility | **AWS handles** |
+| **Operational Burden** | Medium-high | **Minimal** |
+
+**When to use EKS Auto Mode?**
+
+```
+Decision Tree:
+
+Want K8s but don't want node management?
+├─ Yes → EKS Auto Mode
+└─ No, need fine control → Traditional EKS + Karpenter
+
+Team has dedicated K8s operations staff?
+├─ Yes → Traditional EKS (more optimization options)
+└─ No → EKS Auto Mode (reduce ops burden)
+
+Need specific instance types (GPU, Graviton, etc.)?
+├─ Auto Mode supports GPU/Graviton → Still works
+└─ Requires very specific configs → Traditional EKS
+```
+
+**EKS Computing Options Selection Guide:**
+
+| Option | Best For | Trade-off |
+|---|---|---|
+| **Managed Node Group** | Standard workloads, EC2 control needed | Must manage scaling yourself |
+| **Fargate** | Batch/lightweight, no node mgmt wanted | No DaemonSet, limited GPU support |
+| **Karpenter** | Complex scaling needs, cost optimization | Setup/maintenance complexity |
+| **Auto Mode** | Teams wanting K8s without ops overhead | Less fine-grained control |
+
+---
+
 ### 5. ECS vs EKS Selection Criteria
 
 This question comes up in interviews and real work. There's no "right" answer — **it depends on your situation**.

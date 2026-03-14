@@ -394,12 +394,73 @@ steps:
 
 #### SLSA Framework (Supply-chain Levels for Software Artifacts)
 
+SLSA(발음: "살사")는 소프트웨어 공급망 보안 성숙도를 측정하는 프레임워크예요. Google이 시작했고, OpenSSF(Open Source Security Foundation)에서 관리해요.
+
+> **비유**: 식품 안전 등급과 비슷해요. 식당에 "위생 등급 A"가 붙어 있으면, 정해진 기준을 통과했다는 뜻이죠. SLSA도 마찬가지로 "이 소프트웨어는 Level 3 기준을 충족했으니 빌드 과정이 변조되지 않았어요"라고 증명해요.
+
 ```
 SLSA 레벨:
 Level 3: 격리된 빌드, 변조 방지, 소스 검증
 Level 2: 서명된 출처 증명 (호스팅 빌드 서비스)
 Level 1: 빌드 과정 문서화, 출처 증명 생성
 Level 0: 보호 없음
+```
+
+| SLSA Level | 요구사항 | 보호 대상 | 예시 |
+|------------|---------|----------|------|
+| **Level 0** | 없음 | 없음 | 로컬에서 빌드 후 수동 배포 |
+| **Level 1** | 빌드 프로세스 문서화, 출처 증명(provenance) 자동 생성 | 변조된 패키지가 아닌지 확인 가능 | GitHub Actions에서 `slsa-github-generator` 사용 |
+| **Level 2** | 호스팅된 빌드 서비스 사용, 서명된 출처 증명 | 빌드 서비스의 신뢰성 보장 | GitHub Actions + Sigstore 서명 |
+| **Level 3** | 격리된 빌드 환경, 소스/빌드 통합 검증, 변조 방지 보장 | 내부자 위협까지 방어 | 빌드 시스템이 완전히 격리된 환경에서 실행 |
+
+```yaml
+# GitHub Actions에서 SLSA Level 3 출처 증명 생성
+name: SLSA Build
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      digest: ${{ steps.hash.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci && npm run build
+      - name: Generate artifact hash
+        id: hash
+        run: |
+          sha256sum dist/app.tar.gz | awk '{print $1}' > digest.txt
+          echo "digest=$(cat digest.txt)" >> "$GITHUB_OUTPUT"
+
+  # SLSA GitHub Generator가 출처 증명서를 자동 생성
+  provenance:
+    needs: build
+    permissions:
+      actions: read
+      id-token: write
+      contents: write
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
+    with:
+      base64-subjects: "${{ needs.build.outputs.digest }}"
+```
+
+#### Sigstore: 키 없는 서명 (Keyless Signing)
+
+Sigstore는 소프트웨어 서명을 위한 오픈소스 인프라예요. 가장 혁신적인 점은 **키리스 서명(Keyless Signing)**이에요 -- 개인 키를 관리할 필요가 없어요.
+
+```
+Sigstore 구성 요소:
+
+  Cosign   — 컨테이너 이미지 서명/검증 도구
+  Fulcio   — 단기 인증서 발급 CA (Certificate Authority)
+  Rekor    — 변조 불가능한 서명 기록 투명성 로그
+
+동작 원리:
+  1. cosign sign 실행
+  2. GitHub OIDC 토큰으로 Fulcio에서 단기 인증서 발급 (10분)
+  3. 인증서로 이미지 서명
+  4. 서명 기록이 Rekor 투명성 로그에 영구 기록
+  5. 인증서 자동 만료 → 키 관리 불필요!
 ```
 
 #### Sigstore / cosign — 이미지 서명
@@ -446,6 +507,75 @@ jobs:
       --predicate trivy-results.json \
       ghcr.io/my-org/my-app@${{ steps.build.outputs.digest }}
 ```
+
+#### 통합 파이프라인: SBOM 생성 + 서명 + 검증
+
+실무에서는 SBOM 생성, 이미지 서명, 취약점 스캔을 하나의 파이프라인으로 통합해요.
+
+```yaml
+# .github/workflows/secure-build.yml
+name: Secure Build Pipeline
+on:
+  push:
+    branches: [main]
+
+jobs:
+  secure-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write    # OIDC + cosign 서명에 필요
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1. Docker 이미지 빌드 + 푸시
+      - uses: docker/build-push-action@v5
+        id: build
+        with:
+          push: true
+          tags: ghcr.io/my-org/my-app:${{ github.sha }}
+
+      # 2. SBOM 생성 (Syft)
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: ghcr.io/my-org/my-app:${{ github.sha }}
+          format: cyclonedx-json
+          output-file: sbom.cdx.json
+
+      # 3. 이미지 서명 (Cosign keyless)
+      - uses: sigstore/cosign-installer@v3
+      - name: Sign image
+        run: cosign sign --yes ghcr.io/my-org/my-app@${{ steps.build.outputs.digest }}
+
+      # 4. SBOM을 이미지에 첨부 + 서명
+      - name: Attach and sign SBOM
+        run: |
+          cosign attach sbom --sbom sbom.cdx.json \
+            ghcr.io/my-org/my-app@${{ steps.build.outputs.digest }}
+          cosign sign --yes --attachment sbom \
+            ghcr.io/my-org/my-app@${{ steps.build.outputs.digest }}
+
+      # 5. 취약점 스캔 (Trivy)
+      - name: Scan for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ghcr.io/my-org/my-app:${{ github.sha }}
+          format: json
+          output: trivy-results.json
+          severity: CRITICAL,HIGH
+
+      # 6. 취약점 결과를 증명서로 첨부
+      - name: Attest vulnerability scan
+        run: |
+          cosign attest --yes --type vuln \
+            --predicate trivy-results.json \
+            ghcr.io/my-org/my-app@${{ steps.build.outputs.digest }}
+```
+
+> **핵심**: 이 파이프라인을 통과한 이미지는 "누가, 언제, 무엇으로, 어떤 의존성과 함께 빌드했는지"가 모두 암호학적으로 증명돼요. 배포 시 `cosign verify`로 서명을 검증하면 변조된 이미지가 프로덕션에 배포되는 것을 방지할 수 있어요.
 
 ---
 

@@ -267,7 +267,9 @@ The key is: **Trace ID remains the same throughout the entire request**, and **e
 
 #### What is OpenTelemetry?
 
-OpenTelemetry (shortened to OTel) is an **open-source standard framework for collecting Trace, Metric, and Log data**. It's a CNCF project and one of the most active projects after Kubernetes.
+OpenTelemetry (shortened to OTel) is an **open-source standard framework for collecting Trace, Metric, and Log data**. It was promoted to a **CNCF Graduated project in March 2024**, making it the first Graduated project in the observability space, following Kubernetes, Prometheus, and Envoy. It's also the most active CNCF project after Kubernetes. Two years since graduation, OTel has firmly established itself as the de facto observability standard.
+
+> **Why does Graduation matter?** CNCF Graduation is an official certification that a project has been proven in production environments and has mature governance and community. It puts OTel at the same level as Kubernetes, Prometheus, and Envoy.
 
 Previously, different vendors had different SDKs: Jaeger client, Zipkin client, Datadog client. OpenTelemetry unified all of these.
 
@@ -473,6 +475,91 @@ Agent + Gateway:         [App] → [Agent] → [Gateway] → [Backend]
                            Local buffering  Sampling/Processing/Routing
 ```
 
+#### Traces + Metrics + Logs Integration (3 Pillars Connected)
+
+OTel's core value is **unifying all three signals with a single SDK and protocol**. By sharing `trace_id`, you can freely navigate between Metrics, Logs, and Traces.
+
+```yaml
+# OTel Collector config handling all 3 Pillars simultaneously
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp/tempo]         # Traces → Grafana Tempo
+    metrics:
+      receivers: [otlp, prometheus]
+      processors: [memory_limiter, batch]
+      exporters: [prometheusremotewrite]  # Metrics → Prometheus/Mimir
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [loki]               # Logs → Grafana Loki
+```
+
+```
+3 Pillars Connection Flow:
+
+  In Grafana Dashboard:
+  1. Notice error rate spike in Metrics dashboard
+     → Click "Exemplars" → Jump to Trace at that point in time
+  2. Identify bottleneck service in Trace
+     → Auto-filter related Logs using span's trace_id
+  3. Find exact error cause in Logs
+     → Root Cause identified!
+
+  Key: trace_id acts as the glue connecting Metrics, Logs, and Traces
+```
+
+#### Migrating from Jaeger/Zipkin to OTel
+
+If you are already using Jaeger or Zipkin, you can migrate to OTel incrementally.
+
+```
+Migration Strategy (Phased Transition):
+
+Phase 1: Use Collector as proxy (no code changes)
+  [Existing App] → [Jaeger SDK] → [OTel Collector] → [Jaeger Backend]
+  → Collector receives Jaeger protocol and forwards as-is
+  → Keep existing SDK, just add Collector
+
+Phase 2: Replace SDK with OTel (service by service)
+  [App] → [OTel SDK] → [OTel Collector] → [Jaeger Backend]
+  → Replace OTel SDK one service at a time
+  → Backend still Jaeger
+
+Phase 3: Switch backend to Tempo/choice
+  [App] → [OTel SDK] → [OTel Collector] → [Tempo / chosen backend]
+  → Only change Collector exporter config
+  → No app code changes needed!
+```
+
+```yaml
+# Phase 1 Collector config: Receive Jaeger → Forward to Jaeger
+receivers:
+  jaeger:                    # Receive data from existing Jaeger SDK
+    protocols:
+      thrift_http:
+        endpoint: "0.0.0.0:14268"
+      grpc:
+        endpoint: "0.0.0.0:14250"
+  otlp:                      # Also receive from new OTel SDK
+    protocols:
+      grpc:
+        endpoint: "0.0.0.0:4317"
+
+exporters:
+  otlp/jaeger:               # Forward to existing Jaeger backend
+    endpoint: "jaeger:4317"
+
+service:
+  pipelines:
+    traces:
+      receivers: [jaeger, otlp]      # Receive both
+      processors: [batch]
+      exporters: [otlp/jaeger]
+```
+
 ---
 
 ### 5. Auto-Instrumentation vs Manual Instrumentation
@@ -522,7 +609,38 @@ What auto-instrumentation automatically captures:
 | gRPC | gRPC client/server calls |
 | External HTTP calls | requests, axios, HttpClient calls |
 
-#### Manual Instrumentation — Tracing Business Logic
+#### OTEL Environment Variable Standard
+
+All OTel SDKs can be configured via `OTEL_` prefixed environment variables. This is a powerful way to change settings in the deployment environment without code changes.
+
+```bash
+# Common OTel environment variables (apply identically across all language SDKs)
+export OTEL_SERVICE_NAME=order-service             # Service name (required)
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317  # Collector address
+export OTEL_EXPORTER_OTLP_PROTOCOL=grpc            # Protocol (grpc | http/protobuf)
+export OTEL_TRACES_SAMPLER=parentbased_traceidratio # Sampling strategy
+export OTEL_TRACES_SAMPLER_ARG=0.1                 # 10% sampling
+export OTEL_RESOURCE_ATTRIBUTES=deployment.environment=production,service.version=1.2.0
+export OTEL_LOG_LEVEL=info                         # SDK log level
+```
+
+```yaml
+# OTel config via environment variables in Kubernetes (Deployment example)
+spec:
+  containers:
+    - name: order-service
+      env:
+        - name: OTEL_SERVICE_NAME
+          value: "order-service"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector.observability:4317"
+        - name: OTEL_TRACES_SAMPLER
+          value: "parentbased_traceidratio"
+        - name: OTEL_TRACES_SAMPLER_ARG
+          value: "0.1"
+```
+
+#### Manual Instrumentation -- Tracing Business Logic
 
 Auto-instrumentation captures infrastructure-level calls, but **business logic** requires manual instrumentation.
 

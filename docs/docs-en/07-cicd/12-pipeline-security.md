@@ -394,12 +394,73 @@ steps:
 
 #### SLSA Framework (Supply-chain Levels for Software Artifacts)
 
+SLSA (pronounced "salsa") is a framework for measuring software supply chain security maturity. It was started by Google and is managed by the OpenSSF (Open Source Security Foundation).
+
+> **Analogy**: Think of food safety ratings. When a restaurant has a "Hygiene Grade A" sticker, it means they passed defined criteria. SLSA works similarly -- "This software meets Level 3 standards, so the build process was not tampered with."
+
 ```
 SLSA Levels:
 Level 3: Isolated build, tampering prevention, source verification
 Level 2: Signed provenance (hosted build service)
 Level 1: Build process documentation, provenance generation
 Level 0: No protection
+```
+
+| SLSA Level | Requirements | What It Protects | Example |
+|------------|-------------|------------------|---------|
+| **Level 0** | None | None | Build locally and deploy manually |
+| **Level 1** | Documented build process, auto-generated provenance | Verify package is not tampered | Use `slsa-github-generator` in GitHub Actions |
+| **Level 2** | Hosted build service, signed provenance | Build service trustworthiness | GitHub Actions + Sigstore signing |
+| **Level 3** | Isolated build environment, source/build integrated verification, tamper-proof guarantee | Defends against insider threats | Build system runs in fully isolated environment |
+
+```yaml
+# Generate SLSA Level 3 provenance in GitHub Actions
+name: SLSA Build
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      digest: ${{ steps.hash.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci && npm run build
+      - name: Generate artifact hash
+        id: hash
+        run: |
+          sha256sum dist/app.tar.gz | awk '{print $1}' > digest.txt
+          echo "digest=$(cat digest.txt)" >> "$GITHUB_OUTPUT"
+
+  # SLSA GitHub Generator automatically creates provenance attestation
+  provenance:
+    needs: build
+    permissions:
+      actions: read
+      id-token: write
+      contents: write
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
+    with:
+      base64-subjects: "${{ needs.build.outputs.digest }}"
+```
+
+#### Sigstore: Keyless Signing
+
+Sigstore is an open-source infrastructure for software signing. Its most innovative feature is **Keyless Signing** -- no need to manage private keys.
+
+```
+Sigstore Components:
+
+  Cosign   — Container image signing/verification tool
+  Fulcio   — Short-lived certificate issuing CA (Certificate Authority)
+  Rekor    — Tamper-proof signature record transparency log
+
+How it works:
+  1. Run cosign sign
+  2. Fulcio issues short-lived certificate (10 min) via GitHub OIDC token
+  3. Sign image with the certificate
+  4. Signature record permanently stored in Rekor transparency log
+  5. Certificate auto-expires → No key management needed!
 ```
 
 #### Sigstore / cosign — Image Signing
@@ -446,6 +507,75 @@ jobs:
       --predicate trivy-results.json \
       ghcr.io/my-org/my-app@${{ steps.build.outputs.digest }}
 ```
+
+#### Integrated Pipeline: SBOM Generation + Signing + Verification
+
+In practice, SBOM generation, image signing, and vulnerability scanning are integrated into a single pipeline.
+
+```yaml
+# .github/workflows/secure-build.yml
+name: Secure Build Pipeline
+on:
+  push:
+    branches: [main]
+
+jobs:
+  secure-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write    # Required for OIDC + cosign signing
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1. Docker image build + push
+      - uses: docker/build-push-action@v5
+        id: build
+        with:
+          push: true
+          tags: ghcr.io/my-org/my-app:${{ github.sha }}
+
+      # 2. Generate SBOM (Syft)
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: ghcr.io/my-org/my-app:${{ github.sha }}
+          format: cyclonedx-json
+          output-file: sbom.cdx.json
+
+      # 3. Sign image (Cosign keyless)
+      - uses: sigstore/cosign-installer@v3
+      - name: Sign image
+        run: cosign sign --yes ghcr.io/my-org/my-app@${{ steps.build.outputs.digest }}
+
+      # 4. Attach SBOM to image + sign
+      - name: Attach and sign SBOM
+        run: |
+          cosign attach sbom --sbom sbom.cdx.json \
+            ghcr.io/my-org/my-app@${{ steps.build.outputs.digest }}
+          cosign sign --yes --attachment sbom \
+            ghcr.io/my-org/my-app@${{ steps.build.outputs.digest }}
+
+      # 5. Vulnerability scan (Trivy)
+      - name: Scan for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ghcr.io/my-org/my-app:${{ github.sha }}
+          format: json
+          output: trivy-results.json
+          severity: CRITICAL,HIGH
+
+      # 6. Attach vulnerability results as attestation
+      - name: Attest vulnerability scan
+        run: |
+          cosign attest --yes --type vuln \
+            --predicate trivy-results.json \
+            ghcr.io/my-org/my-app@${{ steps.build.outputs.digest }}
+```
+
+> **Key point**: Images that pass this pipeline have cryptographic proof of "who built it, when, with what, and with which dependencies." Verifying signatures with `cosign verify` at deployment time prevents tampered images from reaching production.
 
 ---
 

@@ -280,6 +280,136 @@ flowchart TD
 | 4단계: 마이크로세그멘테이션 | 워크로드 단위 네트워크 격리 | Service Mesh, Calico, Cilium |
 | 5단계: 지속적 모니터링 | 실시간 위협 탐지, 행동 분석 | SIEM, Falco, GuardDuty |
 
+#### BeyondCorp 모델 — Google의 Zero Trust 구현
+
+Google이 2014년에 발표한 **BeyondCorp**은 Zero Trust의 대표적인 실제 구현 모델이에요. "기업 네트워크 안에 있다고 신뢰하지 않는다"는 원칙을 Google 전사적으로 적용한 아키텍처예요.
+
+```
+BeyondCorp 핵심 구성요소:
+
+1. 디바이스 인벤토리 서비스
+   → 회사가 관리하는 모든 디바이스를 등록하고 상태를 추적
+   → 패치 수준, 암호화 여부, 인증서 상태 확인
+
+2. 사용자/그룹 데이터베이스
+   → 직원의 역할, 부서, 권한 등급 관리
+
+3. 신뢰 추론 엔진 (Trust Inference Engine)
+   → 디바이스 상태 + 사용자 신원 + 시간/위치 → 신뢰 점수 계산
+   → "최신 패치 + 회사 디바이스 + 2FA 완료" = 높은 신뢰
+
+4. 접근 프록시 (Access Proxy)
+   → 모든 내부 서비스 앞에 위치
+   → 신뢰 점수 기반으로 접근 허용/거부
+
+흐름:
+  사용자 → Access Proxy → 신뢰 추론 엔진 → 접근 허용/거부
+          (VPN 불필요!)
+
+→ VPN 없이도 카페, 집, 공항 어디서든 동일한 보안 수준으로 접근 가능!
+```
+
+#### SPIFFE / SPIRE — 워크로드 ID 기반 Zero Trust
+
+클라우드 네이티브 환경에서 Zero Trust를 구현하려면 **워크로드(Pod, 컨테이너, VM)에 ID를 부여**해야 해요. SPIFFE와 SPIRE가 이 문제를 해결해요.
+
+```
+SPIFFE (Secure Production Identity Framework For Everyone):
+  → CNCF 졸업 프로젝트
+  → 워크로드에 암호학적으로 검증 가능한 ID를 부여하는 "표준(사양)"
+  → ID 형식: spiffe://trust-domain/workload-identifier
+  → 예: spiffe://example.com/ns/production/sa/order-service
+
+SPIRE (SPIFFE Runtime Environment):
+  → SPIFFE 표준의 프로덕션 구현체
+  → 워크로드에 자동으로 X.509 인증서(SVID) 발급
+  → 인증서 자동 교체 (short-lived, 보통 1시간)
+  → 별도의 시크릿 관리 불필요!
+```
+
+```
+SPIRE 아키텍처:
+
+┌─────────────────────────────────────────────┐
+│  SPIRE Server (신뢰의 루트)                  │
+│  ├── 워크로드 등록 정보 관리                   │
+│  ├── SVID(X.509 인증서) 발급                  │
+│  └── 노드/워크로드 검증 (Attestation)          │
+└──────────────┬──────────────────────────────┘
+               │
+    ┌──────────┼──────────┐
+    ▼          ▼          ▼
+┌────────┐ ┌────────┐ ┌────────┐
+│ SPIRE  │ │ SPIRE  │ │ SPIRE  │
+│ Agent  │ │ Agent  │ │ Agent  │
+│(Node1) │ │(Node2) │ │(Node3) │
+│  ↓     │ │  ↓     │ │  ↓     │
+│워크로드│ │워크로드│ │워크로드│
+│(SVID   │ │(SVID   │ │(SVID   │
+│ 발급)  │ │ 발급)  │ │ 발급)  │
+└────────┘ └────────┘ └────────┘
+
+→ 각 워크로드는 SVID(SPIFFE Verifiable Identity Document)를 받아
+  다른 워크로드와 mTLS 통신을 자동으로 수행해요!
+```
+
+```yaml
+# SPIRE를 활용한 K8s 워크로드 등록 예시
+# spire-registration.yaml
+
+# 1. SPIRE Server 등록 엔트리: 주문 서비스
+apiVersion: spire.spiffe.io/v1alpha1
+kind: ClusterSPIFFEID
+metadata:
+  name: order-service
+spec:
+  spiffeIDTemplate: "spiffe://example.com/ns/{{ .PodMeta.Namespace }}/sa/{{ .PodSpec.ServiceAccountName }}"
+  podSelector:
+    matchLabels:
+      app: order-service
+  namespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: production
+```
+
+```
+기존 인증서 관리 vs SPIFFE/SPIRE:
+
+기존 방식 (수동/cert-manager):
+  ├── 인증서를 수동 또는 cert-manager로 발급
+  ├── Secret으로 Pod에 마운트
+  ├── 만료 전 갱신 필요 (놓치면 장애!)
+  └── 서비스 간 인증서 신뢰 관계 수동 설정
+
+SPIFFE/SPIRE 방식:
+  ├── 워크로드가 자동으로 SVID 수신
+  ├── 1시간마다 자동 교체 (short-lived)
+  ├── 서비스 간 mTLS 자동 설정
+  ├── 시크릿 마운트 불필요
+  └── Istio, Envoy, Consul 등과 네이티브 통합
+
+→ SPIRE는 Istio의 기본 ID 시스템으로도 사용 가능해요!
+  (Istio + SPIRE 통합 = 더 강력한 워크로드 ID 관리)
+```
+
+```
+전통적 네트워크 경계 보안 vs Zero Trust 상세 비교:
+
+┌───────────────────┬─────────────────────┬────────────────────────┐
+│      구분          │  네트워크 경계 보안   │  Zero Trust             │
+├───────────────────┼─────────────────────┼────────────────────────┤
+│ 신뢰 모델         │ 내부 = 신뢰          │ 아무것도 신뢰하지 않음    │
+│ 인증 기준         │ 네트워크 위치 (IP)    │ ID + 디바이스 + 컨텍스트 │
+│ 접근 제어         │ 방화벽 (L3/L4)       │ ID 기반 정책 (L7)        │
+│ 횡이동 방어       │ 어려움               │ 마이크로세그멘테이션      │
+│ 원격 근무         │ VPN 필수             │ VPN 불필요 (BeyondCorp)  │
+│ 워크로드 간 보안   │ 네트워크 격리만       │ SPIFFE/SPIRE + mTLS     │
+│ 인증서 관리       │ 수동 / cert-manager  │ SPIRE 자동 발급/교체     │
+│ 침해 시 영향      │ 전체 네트워크 노출    │ 침해 범위 최소화         │
+│ 도입 복잡도       │ 낮음                 │ 높음 (점진적 도입 필수)   │
+└───────────────────┴─────────────────────┴────────────────────────┘
+```
+
 ---
 
 ### 3. mTLS (Mutual TLS — 상호 TLS)

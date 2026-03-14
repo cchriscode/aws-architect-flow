@@ -769,6 +769,60 @@ aws eks list-addons --cluster-name production
 # }
 ```
 
+#### EKS Auto Mode (2024)
+
+EKS Auto Mode는 2024년에 발표된 **완전 관리형 EKS 경험**이에요. 기존 EKS가 Control Plane만 관리해줬다면, Auto Mode는 **Worker Node까지 AWS가 자동으로 관리**해줘요. 노드 프로비저닝, 스케일링, 업그레이드, 보안 패치까지 전부 자동이에요.
+
+```
+기존 EKS:
+  Control Plane = AWS 관리
+  Worker Node   = 사용자 관리 (Node Group, Karpenter 등 직접 설정)
+
+EKS Auto Mode:
+  Control Plane = AWS 관리
+  Worker Node   = AWS 자동 관리 (프로비저닝, 스케일링, 패치 모두 자동)
+```
+
+**기존 EKS vs EKS Auto Mode 비교:**
+
+| 항목 | 기존 EKS | EKS Auto Mode |
+|------|---------|---------------|
+| **Control Plane** | AWS 관리 | AWS 관리 |
+| **Worker Node 관리** | 사용자 직접 관리 | AWS 자동 관리 |
+| **노드 프로비저닝** | Managed Node Group 또는 Karpenter 설정 필요 | 자동 (Pod 요구사항에 맞춰 프로비저닝) |
+| **OS 패치/업그레이드** | 사용자가 AMI 업데이트 | AWS가 자동 처리 |
+| **스케일링** | Cluster Autoscaler/Karpenter 설정 필요 | 자동 스케일링 내장 |
+| **커스터마이징** | 인스턴스 타입, AMI, 부트스트랩 스크립트 등 자유로움 | 제한적 (AWS가 최적화) |
+| **비용** | Control Plane + EC2 비용 | Control Plane + 자동 관리 컴퓨팅 비용 |
+| **운영 부담** | 중~높음 | 낮음 |
+
+**언제 EKS Auto Mode를 쓸까?**
+
+```
+EKS Auto Mode 적합:
+├─ "K8s는 쓰고 싶은데 노드 관리가 부담이에요"
+├─ "Karpenter 설정이 복잡해요"
+├─ "보안 패치를 빠르게 자동 적용하고 싶어요"
+├─ "소규모 팀이라 인프라 운영에 시간을 쓰기 어려워요"
+└─ "Fargate처럼 서버리스 느낌이지만 K8s 생태계는 필요해요"
+
+기존 EKS 유지가 나은 경우:
+├─ "특정 인스턴스 타입(GPU, Graviton)을 직접 선택해야 해요"
+├─ "커스텀 AMI나 부트스트랩 스크립트가 필요해요"
+├─ "노드 레벨의 세밀한 제어가 필요해요"
+└─ "기존 Karpenter/Node Group 설정이 잘 돌아가고 있어요"
+```
+
+**EKS 컴퓨팅 옵션 선택 가이드:**
+
+| 기준 | Managed Node Group | Fargate | Karpenter | Auto Mode |
+|------|-------------------|---------|-----------|-----------|
+| **관리 부담** | 중간 | 낮음 | 중간 | 낮음 |
+| **커스터마이징** | 높음 | 낮음 | 높음 | 제한적 |
+| **비용 최적화** | 수동 (Spot 설정 가능) | Pod 단위 과금 | 자동 (Spot + 최적 인스턴스) | 자동 |
+| **GPU 지원** | 지원 | 미지원 | 지원 | 제한적 |
+| **적합한 경우** | 안정적 워크로드 | 배치/가변 트래픽 | 대규모 + 비용 최적화 | 운영 최소화 |
+
 ---
 
 ### 5. ECS vs EKS 선택 기준

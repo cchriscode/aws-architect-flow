@@ -221,6 +221,108 @@ Poetry:
   ❌ 학습 곡선
 ```
 
+#### uv (차세대 Python 패키지 매니저)
+
+[astral-sh/uv](https://github.com/astral-sh/uv)는 Rust로 작성된 초고속 Python 패키지 매니저예요. pip, pip-tools, virtualenv, Poetry의 기능을 하나로 통합하면서 10-100배 빠른 속도를 제공해요.
+
+```bash
+# uv 설치
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Python 버전 관리 (pyenv 대체)
+uv python install 3.12
+uv python install 3.13
+uv python list
+
+# 새 프로젝트 생성 (pyproject.toml 자동 생성)
+uv init devops-tools
+cd devops-tools
+
+# 패키지 추가
+uv add boto3 requests paramiko click pyyaml
+uv add --dev pytest ruff mypy
+
+# 스크립트 실행 (가상 환경 자동 관리)
+uv run python my_script.py
+uv run pytest
+
+# 기존 requirements.txt에서 마이그레이션
+uv pip compile requirements.in -o requirements.txt
+uv pip sync requirements.txt
+
+# lock 파일 생성 및 동기화
+uv lock
+uv sync
+```
+
+uv가 생성하는 `pyproject.toml`은 PEP 621 표준을 완전히 따라요:
+
+```toml
+[project]
+name = "devops-tools"
+version = "0.1.0"
+description = "DevOps 자동화 도구"
+requires-python = ">=3.12"
+dependencies = [
+    "boto3>=1.35.0",
+    "requests>=2.32.0",
+    "paramiko>=3.5.0",
+    "click>=8.1.0",
+    "pyyaml>=6.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+]
+
+[tool.uv]
+# Python 버전 고정
+python = "3.12"
+```
+
+> **Python 3.12+ 권장 이유:**
+> - **성능 향상**: CPython 3.12는 3.11 대비 5% 추가 성능 향상, 3.13은 실험적 JIT 컴파일러 도입
+> - **에러 메시지 개선**: 더 친절한 에러 트레이스백 (3.11+), 타입 힌트 관련 에러 개선 (3.12+)
+> - **타입 힌트 진화**: `type` 키워드 (3.12), `TypeVar` 개선, `typing.override` 데코레이터
+> - **보안**: 기본 hashlib이 OpenSSL 3.0+ 기반, `ssl` 모듈 보안 강화
+> - **DevOps 관련**: `tomllib` 내장 (3.11+), `pathlib` 개선, 향상된 `asyncio`
+
+**venv + pip vs Poetry vs uv 비교:**
+
+```
+venv + pip:
+  ✅ Python 내장, 설치 불필요
+  ✅ 단순한 스크립트에 적합
+  ❌ lock 파일 없음 (버전 고정 어려움)
+  ❌ 의존성 해결이 불완전
+  ❌ 느린 패키지 설치 속도
+
+Poetry:
+  ✅ lock 파일로 정확한 버전 고정
+  ✅ 패키지 배포(PyPI publish) 지원
+  ✅ 그룹별 의존성 관리
+  ❌ 별도 설치 필요 (Python으로 작성)
+  ❌ 대규모 프로젝트에서 느린 의존성 해결
+  ❌ PEP 621 부분 지원 (자체 [tool.poetry] 섹션)
+
+uv:
+  ✅ 10-100x 빠른 패키지 설치/해결
+  ✅ pip, virtualenv, pyenv 올인원 대체
+  ✅ PEP 621 완전 준수 (표준 pyproject.toml)
+  ✅ lock 파일 + 크로스 플랫폼 해결
+  ✅ Python 버전 관리 내장
+  ❌ 상대적으로 새로운 도구 (2024~)
+  ❌ PyPI publish는 아직 발전 중
+
+실무 권장:
+  개인 스크립트/학습 → venv + pip
+  기존 프로젝트 유지보수 → Poetry
+  신규 프로젝트 (2024~) → uv (추천)
+```
+
 ---
 
 ### 2. boto3: AWS SDK로 클라우드 자동화

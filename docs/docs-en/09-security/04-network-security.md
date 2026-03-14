@@ -281,6 +281,136 @@ Microsegmentation:
 | Stage 4: Microsegmentation | Network isolation by workload | Service Mesh, Calico, Cilium |
 | Stage 5: Continuous Monitoring | Real-time threat detection, behavior analysis | SIEM, Falco, GuardDuty |
 
+#### BeyondCorp Model — Google's Zero Trust Implementation
+
+Google published **BeyondCorp** in 2014 as the definitive real-world implementation of Zero Trust. The architecture enforces the principle "don't trust just because you're on the corporate network" across all of Google.
+
+```
+BeyondCorp Core Components:
+
+1. Device Inventory Service
+   → Register and track all company-managed devices
+   → Verify patch level, encryption status, certificate state
+
+2. User/Group Database
+   → Manage employee roles, departments, privilege levels
+
+3. Trust Inference Engine
+   → Device state + user identity + time/location → calculate trust score
+   → "Latest patches + company device + 2FA complete" = high trust
+
+4. Access Proxy
+   → Sits in front of all internal services
+   → Allow/deny access based on trust score
+
+Flow:
+  User → Access Proxy → Trust Inference Engine → Allow/Deny
+        (No VPN needed!)
+
+→ Same security level from coffee shop, home, or airport — without VPN!
+```
+
+#### SPIFFE / SPIRE — Workload Identity-Based Zero Trust
+
+To implement Zero Trust in cloud-native environments, you need to **assign identity to workloads (Pods, containers, VMs)**. SPIFFE and SPIRE solve this problem.
+
+```
+SPIFFE (Secure Production Identity Framework For Everyone):
+  → CNCF Graduated project
+  → A "standard (specification)" for assigning cryptographically verifiable IDs to workloads
+  → ID format: spiffe://trust-domain/workload-identifier
+  → Example: spiffe://example.com/ns/production/sa/order-service
+
+SPIRE (SPIFFE Runtime Environment):
+  → Production implementation of the SPIFFE standard
+  → Automatically issues X.509 certificates (SVIDs) to workloads
+  → Automatic certificate rotation (short-lived, typically 1 hour)
+  → No separate secret management needed!
+```
+
+```
+SPIRE Architecture:
+
+┌─────────────────────────────────────────────┐
+│  SPIRE Server (Root of Trust)                │
+│  ├── Manages workload registration entries    │
+│  ├── Issues SVIDs (X.509 certificates)       │
+│  └── Node/workload attestation               │
+└──────────────┬──────────────────────────────┘
+               │
+    ┌──────────┼──────────┐
+    ▼          ▼          ▼
+┌────────┐ ┌────────┐ ┌────────┐
+│ SPIRE  │ │ SPIRE  │ │ SPIRE  │
+│ Agent  │ │ Agent  │ │ Agent  │
+│(Node1) │ │(Node2) │ │(Node3) │
+│  ↓     │ │  ↓     │ │  ↓     │
+│Workload│ │Workload│ │Workload│
+│(SVID   │ │(SVID   │ │(SVID   │
+│issued) │ │issued) │ │issued) │
+└────────┘ └────────┘ └────────┘
+
+→ Each workload receives an SVID (SPIFFE Verifiable Identity Document)
+  and automatically performs mTLS communication with other workloads!
+```
+
+```yaml
+# SPIRE K8s workload registration example
+# spire-registration.yaml
+
+# 1. SPIRE Server registration entry: Order service
+apiVersion: spire.spiffe.io/v1alpha1
+kind: ClusterSPIFFEID
+metadata:
+  name: order-service
+spec:
+  spiffeIDTemplate: "spiffe://example.com/ns/{{ .PodMeta.Namespace }}/sa/{{ .PodSpec.ServiceAccountName }}"
+  podSelector:
+    matchLabels:
+      app: order-service
+  namespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: production
+```
+
+```
+Traditional cert management vs SPIFFE/SPIRE:
+
+Traditional (manual / cert-manager):
+  ├── Issue certificates manually or via cert-manager
+  ├── Mount as Secrets into Pods
+  ├── Must renew before expiry (miss it = outage!)
+  └── Manually configure trust between services
+
+SPIFFE/SPIRE approach:
+  ├── Workloads automatically receive SVIDs
+  ├── Auto-rotated every hour (short-lived)
+  ├── mTLS between services auto-configured
+  ├── No secret mounting needed
+  └── Native integration with Istio, Envoy, Consul
+
+→ SPIRE can also be used as Istio's identity system!
+  (Istio + SPIRE = stronger workload identity management)
+```
+
+```
+Traditional Perimeter Security vs Zero Trust Detailed Comparison:
+
+┌───────────────────┬─────────────────────┬────────────────────────┐
+│      Aspect        │  Perimeter Security  │  Zero Trust             │
+├───────────────────┼─────────────────────┼────────────────────────┤
+│ Trust Model       │ Internal = Trusted   │ Trust nothing           │
+│ Auth Basis        │ Network location(IP) │ ID + Device + Context  │
+│ Access Control    │ Firewall (L3/L4)     │ ID-based policy (L7)   │
+│ Lateral Movement  │ Difficult to prevent │ Microsegmentation      │
+│ Remote Work       │ VPN required         │ No VPN (BeyondCorp)    │
+│ Workload Security │ Network isolation    │ SPIFFE/SPIRE + mTLS    │
+│ Cert Management   │ Manual/cert-manager  │ SPIRE auto-issue/rotate│
+│ Breach Impact     │ Entire network       │ Minimized blast radius │
+│ Adoption Effort   │ Low                  │ High (gradual rollout) │
+└───────────────────┴─────────────────────┴────────────────────────┘
+```
+
 ---
 
 ### 3. mTLS (Mutual TLS)

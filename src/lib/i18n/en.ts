@@ -485,7 +485,7 @@ export const en: Dict = {
     title: "Tech Blog",
     subtitle: "AWS Architecture & Cloud Engineering Insights",
     searchPlaceholder: "Search posts...",
-    allCategories: "All",
+    categoryLabel: "Categories",
     allTags: "All",
     sortLatest: "Latest",
     sortOldest: "Oldest",

@@ -547,6 +547,148 @@ kubectl logs -n karpenter -l app.kubernetes.io/name=karpenter --tail 10
 # Karpenter: 30초~2분 (EC2 직접 → 더 빠름!)
 ```
 
+### Karpenter Consolidation — 비효율 노드 자동 통합
+
+Karpenter의 **Consolidation** 기능은 비효율적으로 사용되는 노드를 자동으로 감지하고, Pod를 다른 노드로 이동시킨 후 빈 노드를 제거해요. 비용 최적화의 핵심이에요.
+
+```bash
+# Consolidation이 필요한 상황:
+# → 노드 3개에 Pod가 듬성듬성 → 각 노드 사용률 20%
+# → 사실 노드 1개면 충분한데 3개가 돌고 있음 → 비용 낭비!
+# → Consolidation: Pod를 1개 노드로 모으고 나머지 2개 제거!
+
+# Consolidation 동작 방식:
+# 1. 노드별 사용률 분석
+# 2. Pod를 다른 노드로 이동 가능한지 확인
+# 3. 가능하면 Pod를 이동 (drain)
+# 4. 빈 노드 제거 → EC2 종료 → 비용 절감!
+```
+
+```yaml
+# Karpenter NodePool — Consolidation 설정
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: default
+spec:
+  template:
+    spec:
+      requirements:
+      - key: kubernetes.io/arch
+        operator: In
+        values: ["amd64", "arm64"]
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values: ["on-demand", "spot"]
+      - key: karpenter.k8s.aws/instance-category
+        operator: In
+        values: ["c", "m", "r"]
+      nodeClassRef:
+        name: default
+
+  limits:
+    cpu: "100"
+    memory: "400Gi"
+
+  disruption:
+    # ⭐ Consolidation 정책
+    consolidationPolicy: WhenUnderutilized  # 사용률 낮으면 자동 통합!
+    # WhenUnderutilized: 사용률이 낮은 노드를 자동으로 통합
+    # WhenEmpty: 빈 노드만 제거 (더 보수적)
+
+    consolidateAfter: 30s                   # 30초 동안 비효율 상태가 지속되면 통합
+    expireAfter: 720h                       # 30일마다 노드 교체 (보안 패치)
+```
+
+```bash
+# Consolidation 동작 관찰
+kubectl get nodeclaims -w
+# NAME          TYPE           ZONE              READY   AGE
+# default-abc   m5.2xlarge     ap-northeast-2a   True    5d    ← 사용률 낮음
+# default-def   m5.xlarge      ap-northeast-2b   True    3d
+# default-ghi   m5.xlarge      ap-northeast-2c   True    1d
+
+# Karpenter 로그:
+# "consolidating node, replacing with cheaper alternative"
+# "cordoning node ip-10-0-1-50"
+# "draining node ip-10-0-1-50"
+# "terminated instance i-0abc123"
+# "launched new instance i-0def456, type=m5.xlarge"
+# → m5.2xlarge를 m5.xlarge로 교체! (더 적합한 크기로)
+
+# Karpenter는 2가지 방식으로 통합:
+# 1. 삭제 (Delete): Pod를 다른 기존 노드로 이동 후 노드 제거
+# 2. 교체 (Replace): 더 작고 효율적인 인스턴스로 교체
+```
+
+#### Spot 인스턴스 + Consolidation 베스트 프랙티스
+
+```yaml
+# Spot과 Consolidation을 함께 쓸 때 주의사항
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: spot-workloads
+spec:
+  template:
+    spec:
+      requirements:
+      # ⭐ Spot 다양성 = 안정성! 여러 인스턴스 타입 허용
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values: ["spot"]
+      - key: karpenter.k8s.aws/instance-category
+        operator: In
+        values: ["c", "m", "r"]
+      - key: karpenter.k8s.aws/instance-generation
+        operator: Gt
+        values: ["4"]                    # 다양한 세대 허용 → Spot 확보율 UP
+
+  disruption:
+    consolidationPolicy: WhenUnderutilized
+    consolidateAfter: 60s               # Spot은 조금 더 여유 (60초)
+
+---
+# On-Demand 노드풀 (중요 워크로드용)
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: critical-workloads
+spec:
+  template:
+    spec:
+      requirements:
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values: ["on-demand"]           # 중요 워크로드는 On-Demand!
+
+  disruption:
+    consolidationPolicy: WhenEmpty      # 빈 노드만 제거 (보수적)
+```
+
+```bash
+# Spot + Consolidation 비용 효과 예시:
+#
+# 최적화 전:
+# → On-Demand m5.xlarge x10 = $1,382/월
+#
+# Spot + Consolidation 후:
+# → Spot m5.xlarge x6 (평균) = $250/월
+# → On-Demand m5.xlarge x2 (중요 워크로드) = $276/월
+# → 총: $526/월 (62% 절감!)
+#
+# Consolidation 없이 Spot만:
+# → Spot m5.xlarge x8 = $334/월
+# → On-Demand m5.xlarge x2 = $276/월
+# → 총: $610/월
+# → Consolidation만으로 추가 14% 절감!
+
+# ⚠️ Consolidation 주의사항:
+# 1. PDB(PodDisruptionBudget)를 반드시 설정 → 최소 가용성 보장
+# 2. do-not-disrupt 어노테이션으로 특정 노드 보호 가능
+# 3. 빈번한 통합은 앱 재시작을 유발 → stabilization 시간 조정
+```
+
 ---
 
 ## 🔍 상세 설명 — KEDA (이벤트 기반 스케일링)

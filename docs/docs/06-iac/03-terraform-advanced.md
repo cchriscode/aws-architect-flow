@@ -2068,6 +2068,186 @@ No changes. Your infrastructure matches the configuration.
 
 ---
 
+## terraform test — 네이티브 테스트 프레임워크 (1.6+)
+
+Terraform 1.6부터 **`terraform test`** 명령어가 정식 도입됐어요. 기존에는 Terratest(Go), Kitchen-Terraform(Ruby) 같은 외부 도구를 써야 했는데, 이제 **HCL만으로 인프라 코드를 테스트**할 수 있어요.
+
+### 왜 필요한가요?
+
+```
+기존 방식의 문제:
+
+1. 외부 도구 의존 — Go나 Ruby 런타임 필요
+2. 학습 부담 — HCL 외에 다른 언어를 배워야 함
+3. 느린 피드백 — 실제 리소스를 생성해야만 테스트 가능
+
+terraform test의 장점:
+
+1. HCL 네이티브 — 추가 언어 불필요
+2. Plan 모드 지원 — 리소스 생성 없이 검증 가능 (빠르고 무료)
+3. CI/CD 통합 쉬움 — terraform test 한 줄이면 충분
+```
+
+### 테스트 파일 구조
+
+테스트 파일은 `*.tftest.hcl` 확장자를 사용하고, 프로젝트 루트나 `tests/` 디렉토리에 배치해요.
+
+```hcl
+# tests/vpc.tftest.hcl
+
+# === Plan 모드 테스트 (리소스 생성 없이 검증) ===
+run "vpc_cidr_is_valid" {
+  command = plan    # plan만 실행, 실제 생성 안 함
+
+  assert {
+    condition     = aws_vpc.main.cidr_block == "10.0.0.0/16"
+    error_message = "VPC CIDR block must be 10.0.0.0/16"
+  }
+}
+
+run "subnet_count_is_correct" {
+  command = plan
+
+  assert {
+    condition     = length(aws_subnet.private) == 3
+    error_message = "Expected 3 private subnets"
+  }
+}
+
+# === Apply 모드 테스트 (실제 리소스 생성 후 검증) ===
+run "ec2_instance_has_correct_tags" {
+  command = apply   # 실제 리소스 생성 후 검증, 테스트 후 자동 삭제
+
+  variables {
+    environment = "test"
+    instance_type = "t3.micro"
+  }
+
+  assert {
+    condition     = aws_instance.web.tags["Environment"] == "test"
+    error_message = "Instance must have Environment=test tag"
+  }
+}
+```
+
+### 핵심 문법
+
+```
+terraform test 구성 요소:
+
+┌─────────────────────────────────────────────────┐
+│  *.tftest.hcl 파일                               │
+│                                                  │
+│  run "테스트_이름" {                              │
+│    command = plan | apply   # 실행 모드          │
+│                                                  │
+│    variables {              # 테스트용 변수 오버라이드 │
+│      key = "value"                               │
+│    }                                             │
+│                                                  │
+│    assert {                 # 검증 조건 (여러 개 가능) │
+│      condition     = <bool 표현식>               │
+│      error_message = "실패 시 메시지"             │
+│    }                                             │
+│  }                                               │
+└─────────────────────────────────────────────────┘
+
+command 종류:
+  plan  — 빠르고 비용 없음, 대부분의 검증에 충분
+  apply — 실제 생성 후 검증, 테스트 후 자동 destroy
+```
+
+### 실행 방법
+
+```bash
+# 모든 테스트 실행
+terraform test
+
+# 특정 테스트 파일만 실행
+terraform test -filter=tests/vpc.tftest.hcl
+
+# 상세 출력
+terraform test -verbose
+```
+
+### CI/CD에서 terraform test 활용
+
+```yaml
+# GitHub Actions 예시
+- name: Terraform Test
+  run: |
+    terraform init
+    terraform test    # plan 모드 테스트는 비용/시간 부담 없음
+```
+
+```
+CI/CD 파이프라인에서의 위치:
+
+PR 생성 시:
+  terraform fmt -check → terraform validate → terraform test → terraform plan
+                                                  ↑
+                                          plan 모드 테스트는 여기서!
+                                          (빠르고 비용 없음)
+
+main merge 후:
+  terraform apply
+```
+
+**실무 팁**: Plan 모드 테스트만으로도 변수 검증, CIDR 범위, 태그 규칙, 리소스 개수 등 대부분의 정적 검증이 가능해요. Apply 모드는 통합 테스트가 정말 필요할 때만 사용하세요.
+
+---
+
+## OpenTofu — Terraform의 오픈소스 포크
+
+### 배경
+
+2023년 8월, HashiCorp가 Terraform의 라이선스를 **MPL 2.0에서 BSL (Business Source License)로 변경**했어요. BSL은 경쟁 서비스에서 Terraform을 사용하는 것을 제한하는 라이선스예요.
+
+이에 대응해서 Linux Foundation 산하에 **OpenTofu**라는 오픈소스 포크가 만들어졌어요.
+
+```
+라이선스 변경 타임라인:
+
+2023.08  HashiCorp, Terraform 라이선스를 BSL로 변경 발표
+2023.09  OpenTF (현 OpenTofu) 포크 프로젝트 시작
+2023.09  Linux Foundation에 합류
+2024.01  OpenTofu 1.6.0 GA 릴리스 (Terraform 1.6 호환)
+2024~    OpenTofu 독자 기능 추가 시작 (state encryption 등)
+```
+
+### Terraform vs OpenTofu
+
+| 비교 항목 | Terraform | OpenTofu |
+|-----------|-----------|----------|
+| **라이선스** | BSL 1.1 (제한적) | MPL 2.0 (오픈소스) |
+| **관리 주체** | HashiCorp (IBM 인수) | Linux Foundation |
+| **CLI 호환성** | 기준 | Terraform 1.6 기반, 높은 호환성 |
+| **Provider 호환** | 기준 | 동일 Provider 사용 가능 |
+| **State 형식** | 기준 | 호환 (+ State 암호화 자체 지원) |
+| **Registry** | registry.terraform.io | registry.opentofu.org |
+| **상용 지원** | Terraform Cloud/Enterprise | 커뮤니티 + 서드파티 |
+
+### 어떤 걸 선택해야 할까?
+
+```
+선택 가이드:
+
+Terraform을 유지해야 하는 경우:
+  ├ Terraform Cloud/Enterprise를 이미 사용 중
+  ├ HashiCorp 공식 지원이 필요한 엔터프라이즈
+  └ 기존 CI/CD 파이프라인이 Terraform에 강하게 결합
+
+OpenTofu를 고려해야 하는 경우:
+  ├ 오픈소스 라이선스가 조직 정책상 필수
+  ├ 벤더 종속을 줄이고 싶은 경우
+  ├ State 암호화 같은 OpenTofu 전용 기능이 필요
+  └ 신규 프로젝트에서 자유롭게 선택 가능한 경우
+```
+
+**실무 팁**: 이 강의에서 배우는 Module, State, Backend, Workspace 개념은 **Terraform과 OpenTofu 모두에 동일하게 적용**돼요. HCL 문법, Provider, 핵심 명령어도 같기 때문에 어떤 도구를 선택하든 이 강의의 내용은 유효해요.
+
+---
+
 ## ⚠️ 자주 하는 실수
 
 ### 실수 1: State 파일을 Git에 커밋
@@ -2196,6 +2376,8 @@ No changes. Your infrastructure matches the configuration.
 | **Terraform Cloud** | 원격 실행 + 정책 관리 | 팀 규모가 커지면 도입 검토 |
 | **Terragrunt** | Terraform의 DRY 래퍼 | 반복 설정이 많을 때 도입 |
 | **CI/CD** | Plan → Review → Apply | PR에 Plan 결과 자동 코멘트 |
+| **terraform test** | HCL 네이티브 테스트 (1.6+) | Plan 모드로 빠른 정적 검증 |
+| **OpenTofu** | Terraform 오픈소스 포크 | 동일 HCL/Provider, 라이선스가 다름 |
 
 ### 명령어 치트시트
 
@@ -2213,6 +2395,8 @@ No changes. Your infrastructure matches the configuration.
 | `terraform workspace select <name>` | Workspace 전환 |
 | `terraform workspace show` | 현재 Workspace 확인 |
 | `terraform force-unlock <id>` | Lock 강제 해제 (비상용) |
+| `terraform test` | 테스트 실행 (.tftest.hcl) |
+| `terraform test -filter=<file>` | 특정 테스트 파일만 실행 |
 
 ### 학습 체크리스트
 

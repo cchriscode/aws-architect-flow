@@ -1185,16 +1185,135 @@ spec:
     tags: ["latest", "dev", "test"]
 ```
 
-#### Kyverno vs OPA Gatekeeper 비교
+#### Kyverno 심화 — K8s 네이티브 정책 엔진
+
+Kyverno는 OPA Gatekeeper와 달리 **Rego 언어를 배울 필요 없이 YAML만으로** 정책을 작성할 수 있어요. K8s 리소스 형태 그대로 정책을 정의하기 때문에 K8s에 익숙한 엔지니어라면 바로 사용할 수 있어요.
+
+```
+Kyverno의 3가지 정책 유형:
+
+1. Validating (검증)
+   → "이 조건을 만족하지 않으면 배포 거부"
+   → 예: latest 태그 금지, resource limits 필수
+
+2. Mutating (변형)
+   → "배포 시 자동으로 설정을 주입/변경"
+   → 예: SecurityContext 자동 추가, 라벨 자동 부여
+
+3. Generating (생성)
+   → "리소스 생성 시 다른 리소스를 자동으로 함께 생성"
+   → 예: Namespace 생성 시 NetworkPolicy 자동 생성, 기본 ResourceQuota 생성
+```
+
+```yaml
+# === Kyverno 실무 정책 예시 모음 ===
+
+# 1. 허용된 이미지 레지스트리만 허용 (Validating)
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-image-registries
+  annotations:
+    policies.kyverno.io/title: 이미지 레지스트리 제한
+    policies.kyverno.io/severity: high
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: validate-registries
+      match:
+        any:
+          - resources:
+              kinds: ["Pod"]
+      validate:
+        message: >-
+          허용된 레지스트리만 사용 가능합니다:
+          123456789.dkr.ecr.ap-northeast-2.amazonaws.com, gcr.io/distroless
+        pattern:
+          spec:
+            containers:
+              - image: "123456789.dkr.ecr.ap-northeast-2.amazonaws.com/* | gcr.io/distroless/*"
+
+---
+# 2. 필수 라벨 강제 (Validating)
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-labels
+spec:
+  validationFailureAction: Enforce
+  rules:
+    - name: check-required-labels
+      match:
+        any:
+          - resources:
+              kinds: ["Deployment", "StatefulSet"]
+      validate:
+        message: "app, team, env 라벨이 필수입니다."
+        pattern:
+          metadata:
+            labels:
+              app: "?*"
+              team: "?*"
+              env: "production | staging | dev"
+
+---
+# 3. Namespace 생성 시 NetworkPolicy 자동 생성 (Generating)
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: generate-default-networkpolicy
+spec:
+  rules:
+    - name: default-deny
+      match:
+        any:
+          - resources:
+              kinds: ["Namespace"]
+      generate:
+        apiVersion: networking.k8s.io/v1
+        kind: NetworkPolicy
+        name: default-deny-all
+        namespace: "{{request.object.metadata.name}}"
+        data:
+          spec:
+            podSelector: {}
+            policyTypes:
+              - Ingress
+              - Egress
+```
+
+#### Kyverno vs OPA Gatekeeper 상세 비교
 
 | 구분 | Kyverno | OPA Gatekeeper |
 |------|---------|----------------|
 | **정책 언어** | YAML (학습 곡선 낮음) | Rego (학습 곡선 높음) |
+| **정책 작성 방식** | K8s 리소스 패턴 매칭 | 범용 논리 프로그래밍 |
 | **Mutate 지원** | 기본 지원 (자동 변형) | 제한적 (Assign/Modify) |
 | **Generate 지원** | 기본 지원 (리소스 자동 생성) | 미지원 |
-| **복잡한 로직** | 제한적 | 강력 (Rego의 논리 표현력) |
-| **커뮤니티 정책** | Kyverno Policy Library | Gatekeeper Library |
-| **실무 추천** | 중소 규모, K8s 네이티브 선호 | 대규모, 이미 OPA 사용 중 |
+| **이미지 검증** | cosign/Notary 네이티브 지원 | 외부 도구 필요 |
+| **복잡한 로직** | 제한적 (단순 패턴 매칭 중심) | 강력 (Rego의 논리 표현력) |
+| **외부 데이터 참조** | API Call 지원 | OPA 데이터 소스 연동 |
+| **리소스 사용량** | 상대적으로 가벼움 | Audit 기능으로 메모리 많이 사용 |
+| **커뮤니티 정책** | Kyverno Policy Library (150+) | Gatekeeper Library |
+| **CNCF 상태** | CNCF Incubating | CNCF Graduated |
+| **실무 추천** | 중소 규모, K8s 네이티브 선호 | 대규모, 이미 OPA 사용 중, 복잡한 로직 |
+
+```
+선택 가이드:
+
+"정책 30개 이하 + K8s 팀" → Kyverno
+  → YAML만 알면 되고, Mutate/Generate가 강력
+  → 이미지 서명 검증을 기본 지원
+
+"정책 100개 이상 + 복잡한 조직 규칙" → OPA Gatekeeper
+  → Rego로 복잡한 비즈니스 로직 표현 가능
+  → K8s 외 다른 시스템(Terraform, API Gateway)에도 OPA 활용 가능
+
+"둘 다 처음이면?" → Kyverno부터 시작
+  → 학습 비용이 훨씬 낮고, 80%의 사용 사례를 커버
+  → 나중에 필요하면 OPA Gatekeeper로 전환/병행 가능
+```
 
 ---
 
