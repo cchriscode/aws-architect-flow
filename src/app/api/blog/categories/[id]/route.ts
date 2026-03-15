@@ -2,6 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 import { isAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
 
+// Admin: update category sortOrder
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  if (!(await isAdmin())) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const { id } = await params;
+  const { sortOrder } = await req.json();
+
+  const updated = await prisma.blogCategory.update({
+    where: { id },
+    data: { sortOrder },
+  });
+
+  return NextResponse.json(updated);
+}
+
 // Admin: delete category
 export async function DELETE(
   _req: NextRequest,

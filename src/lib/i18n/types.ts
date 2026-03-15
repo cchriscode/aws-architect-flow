@@ -429,6 +429,14 @@ export interface Dict {
       noCategoriesDesc: string;
       noPostsTitle: string;
       noPostsDesc: string;
+      statsTitle: string;
+      totalPosts: string;
+      publishedPosts: string;
+      draftPosts: string;
+      totalViews: string;
+      allTab: string;
+      moveUp: string;
+      moveDown: string;
     };
   };
   diagram: {

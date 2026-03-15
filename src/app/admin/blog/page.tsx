@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDict } from "@/lib/i18n/context";
-import { Trash2, Pencil, Plus } from "lucide-react";
+import { Trash2, Pencil, Plus, ChevronUp, ChevronDown } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { LoginModal } from "@/components/auth/LoginModal";
 
@@ -17,6 +17,7 @@ interface Post {
   views: number;
   tags: string[];
   createdAt: string;
+  categoryId: string | null;
 }
 
 interface Category {
@@ -36,6 +37,7 @@ export default function AdminBlogPage() {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [addingCategory, setAddingCategory] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -47,6 +49,18 @@ export default function AdminBlogPage() {
       setLoading(false);
     });
   }, []);
+
+  const totalPosts = posts.length;
+  const publishedPosts = posts.filter((p) => p.published).length;
+  const draftPosts = posts.filter((p) => !p.published).length;
+  const totalViews = posts.reduce((sum, p) => sum + p.views, 0);
+
+  const filteredPosts =
+    activeTab === null
+      ? posts
+      : activeTab === "uncategorized"
+        ? posts.filter((p) => !p.categoryId)
+        : posts.filter((p) => p.categoryId === activeTab);
 
   const togglePublish = async (post: Post) => {
     await fetch(`/api/blog/admin/${post.id}`, {
@@ -87,7 +101,39 @@ export default function AdminBlogPage() {
     if (!confirm(t.blog.admin.deleteCategoryConfirm)) return;
     await fetch(`/api/blog/categories/${cat.id}`, { method: "DELETE" });
     setCategories((prev) => prev.filter((c) => c.id !== cat.id));
+    if (activeTab === cat.id) setActiveTab(null);
   };
+
+  const moveCategoryOrder = async (index: number, direction: "up" | "down") => {
+    const swapIndex = direction === "up" ? index - 1 : index + 1;
+    if (swapIndex < 0 || swapIndex >= categories.length) return;
+
+    const sorted = [...categories].sort((a, b) => a.sortOrder - b.sortOrder);
+    const current = sorted[index];
+    const target = sorted[swapIndex];
+
+    const newCategories = categories.map((c) => {
+      if (c.id === current.id) return { ...c, sortOrder: target.sortOrder };
+      if (c.id === target.id) return { ...c, sortOrder: current.sortOrder };
+      return c;
+    });
+    setCategories(newCategories);
+
+    await Promise.all([
+      fetch(`/api/blog/categories/${current.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sortOrder: target.sortOrder }),
+      }),
+      fetch(`/api/blog/categories/${target.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sortOrder: current.sortOrder }),
+      }),
+    ]);
+  };
+
+  const sortedCategories = [...categories].sort((a, b) => a.sortOrder - b.sortOrder);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -113,6 +159,28 @@ export default function AdminBlogPage() {
           </div>
         ) : (
           <>
+            {/* Stats Cards */}
+            <div className="mt-6 grid grid-cols-4 gap-3">
+              {[
+                { label: t.blog.admin.totalPosts, value: totalPosts, color: "text-gray-900" },
+                { label: t.blog.admin.publishedPosts, value: publishedPosts, color: "text-green-600" },
+                { label: t.blog.admin.draftPosts, value: draftPosts, color: "text-gray-500" },
+                { label: t.blog.admin.totalViews, value: totalViews.toLocaleString(), color: "text-indigo-600" },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  className="rounded-xl border-[1.5px] border-gray-200 bg-white px-4 py-3"
+                >
+                  <p className="text-[11px] font-medium text-gray-400">
+                    {stat.label}
+                  </p>
+                  <p className={`mt-1 text-lg font-bold ${stat.color}`}>
+                    {stat.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+
             {/* Category Management */}
             <section className="mt-6">
               <h2 className="text-sm font-bold text-gray-700">
@@ -146,7 +214,7 @@ export default function AdminBlogPage() {
                 </p>
               ) : (
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {categories.map((cat) => (
+                  {sortedCategories.map((cat, idx) => (
                     <div
                       key={cat.id}
                       className="flex items-center gap-1.5 rounded-lg border-[1.5px] border-gray-200 bg-white px-3 py-1.5"
@@ -159,6 +227,22 @@ export default function AdminBlogPage() {
                           ({cat._count.posts})
                         </span>
                       )}
+                      <button
+                        onClick={() => moveCategoryOrder(idx, "up")}
+                        disabled={idx === 0}
+                        className="rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 disabled:opacity-30"
+                        title={t.blog.admin.moveUp}
+                      >
+                        <ChevronUp className="h-3 w-3" />
+                      </button>
+                      <button
+                        onClick={() => moveCategoryOrder(idx, "down")}
+                        disabled={idx === sortedCategories.length - 1}
+                        className="rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 disabled:opacity-30"
+                        title={t.blog.admin.moveDown}
+                      >
+                        <ChevronDown className="h-3 w-3" />
+                      </button>
                       <button
                         onClick={() => deleteCategory(cat)}
                         className="ml-0.5 rounded p-0.5 text-gray-400 hover:bg-red-50 hover:text-red-500"
@@ -174,8 +258,48 @@ export default function AdminBlogPage() {
             {/* Divider */}
             <hr className="my-6 border-gray-200" />
 
+            {/* Category Tab Bar */}
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                onClick={() => setActiveTab(null)}
+                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                  activeTab === null
+                    ? "bg-indigo-600 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                {t.blog.admin.allTab} ({posts.length})
+              </button>
+              {sortedCategories.map((cat) => {
+                const count = posts.filter((p) => p.categoryId === cat.id).length;
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => setActiveTab(cat.id)}
+                    className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                      activeTab === cat.id
+                        ? "bg-indigo-600 text-white"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    }`}
+                  >
+                    {cat.name} ({count})
+                  </button>
+                );
+              })}
+              <button
+                onClick={() => setActiveTab("uncategorized")}
+                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                  activeTab === "uncategorized"
+                    ? "bg-indigo-600 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                미분류 ({posts.filter((p) => !p.categoryId).length})
+              </button>
+            </div>
+
             {/* Posts list */}
-            {posts.length === 0 ? (
+            {filteredPosts.length === 0 ? (
               <div className="mt-4 flex flex-col items-center rounded-xl border-[1.5px] border-dashed border-gray-300 py-12">
                 <p className="text-sm font-bold text-gray-500">
                   {t.blog.admin.noPostsTitle}
@@ -185,8 +309,8 @@ export default function AdminBlogPage() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-2">
-                {posts.map((post) => (
+              <div className="mt-3 space-y-2">
+                {filteredPosts.map((post) => (
                   <div
                     key={post.id}
                     className="flex items-center justify-between rounded-xl border-[1.5px] border-gray-200 bg-white px-4 py-3"
