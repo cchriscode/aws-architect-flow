@@ -4,14 +4,14 @@ const path = require('path');
 
 const prisma = new PrismaClient();
 const DOCS_DIR = path.join(__dirname, '..', 'docs', 'docs');
-const AUTHOR_ID = 'ddd1156d-cfa9-4848-8e39-a40e4180edd7';
+const AUTHOR_ID = '2173ef86-0f8d-4fe7-9438-d39bf362dcc2';
 
 const CATEGORY_MAP = {
   '01-linux':               { name: 'Linux',               slug: 'linux'               },
   '02-networking':          { name: 'Networking',           slug: 'networking'           },
-  '03-containers':          { name: 'Docker',               slug: 'docker'               },
-  '04-kubernetes':          { name: 'Kubernetes',           slug: 'k8s'                  },
-  '05-cloud-aws':           { name: 'AWS',                  slug: 'aws'                  },
+  '03-containers':          { name: 'Docker',               slug: 'containers'           },
+  '04-kubernetes':          { name: 'Kubernetes',           slug: 'kubernetes'            },
+  '05-cloud-aws':           { name: 'AWS',                  slug: 'cloud-aws'             },
   '06-iac':                 { name: 'IaC',                  slug: 'iac'                  },
   '07-cicd':                { name: 'CI/CD',                slug: 'cicd'                 },
   '08-observability':       { name: 'Observability',        slug: 'observability'        },

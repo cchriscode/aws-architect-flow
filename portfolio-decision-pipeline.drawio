@@ -1,0 +1,362 @@
+<mxfile host="app.diagrams.net" agent="Claude" version="26.0.0">
+  <diagram name="Decision Pipeline" id="pipeline-main">
+    <mxGraphModel dx="2200" dy="1600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ========== TITLE ========== -->
+        <mxCell id="title" value="AWS Architecture Decision Engine — Pipeline Overview" style="text;html=1;fontSize=22;fontStyle=1;fontColor=#1e293b;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="200" y="-30" width="900" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="14-Phase Wizard → 13-Layer Architecture → 9 Analysis Engines → 10 Result Views" style="text;html=1;fontSize=12;fontColor=#64748b;align=center;" vertex="1" parent="1">
+          <mxGeometry x="200" y="10" width="900" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- ========== SECTION A: USER INPUT (14 PHASES) ========== -->
+        <mxCell id="grp-phases" value="A. User Input — 14-Phase Wizard" style="swimlane;startSize=28;fontSize=13;fontStyle=1;fillColor=#f0f9ff;strokeColor=#3b82f6;fontColor=#1e40af;rounded=1;arcSize=8;swimlaneLine=0;" vertex="1" parent="1">
+          <mxGeometry x="0" y="50" width="1300" height="310" as="geometry" />
+        </mxCell>
+
+        <!-- Row 1: Phases 1-7 (Always shown) -->
+        <mxCell id="ph1" value="&lt;b&gt;1&lt;/b&gt;&lt;br&gt;workload&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;서비스 정의&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;fontSize=11;verticalAlign=middle;" vertex="1" parent="grp-phases">
+          <mxGeometry x="20" y="45" width="95" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="ph2" value="&lt;b&gt;2&lt;/b&gt;&lt;br&gt;team&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;팀/운영&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;fontSize=11;" vertex="1" parent="grp-phases">
+          <mxGeometry x="130" y="45" width="95" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="ph3" value="&lt;b&gt;3&lt;/b&gt;&lt;br&gt;scale&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;규모/트래픽&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;fontSize=11;" vertex="1" parent="grp-phases">
+          <mxGeometry x="240" y="45" width="95" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="ph4" value="&lt;b&gt;4&lt;/b&gt;&lt;br&gt;compliance&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;보안/규정&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;fontSize=11;" vertex="1" parent="grp-phases">
+          <mxGeometry x="350" y="45" width="95" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="ph5" value="&lt;b&gt;5&lt;/b&gt;&lt;br&gt;slo&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;가용성/SLA&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;fontSize=11;" vertex="1" parent="grp-phases">
+          <mxGeometry x="460" y="45" width="95" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="ph6" value="&lt;b&gt;6&lt;/b&gt;&lt;br&gt;cost&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;비용 전략&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;fontSize=11;" vertex="1" parent="grp-phases">
+          <mxGeometry x="570" y="45" width="95" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="ph7" value="&lt;b&gt;7&lt;/b&gt;&lt;br&gt;data&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;데이터 저장&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;fontSize=11;" vertex="1" parent="grp-phases">
+          <mxGeometry x="680" y="45" width="95" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows Row 1 -->
+        <mxCell id="a12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#94a3b8;strokeWidth=1;" edge="1" parent="grp-phases" source="ph1" target="ph2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#94a3b8;strokeWidth=1;" edge="1" parent="grp-phases" source="ph2" target="ph3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#94a3b8;strokeWidth=1;" edge="1" parent="grp-phases" source="ph3" target="ph4"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a45" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#94a3b8;strokeWidth=1;" edge="1" parent="grp-phases" source="ph4" target="ph5"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a56" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#94a3b8;strokeWidth=1;" edge="1" parent="grp-phases" source="ph5" target="ph6"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a67" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#94a3b8;strokeWidth=1;" edge="1" parent="grp-phases" source="ph6" target="ph7"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Row 2: Phases 8-14 (with conditionals) -->
+        <mxCell id="ph8" value="&lt;b&gt;8&lt;/b&gt;&lt;br&gt;compute&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;컴퓨트 선택&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontSize=11;" vertex="1" parent="grp-phases">
+          <mxGeometry x="20" y="140" width="95" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="ph9" value="&lt;b&gt;9&lt;/b&gt;&lt;br&gt;platform&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#dc2626&quot;&gt;EKS일 때만&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef2f2;strokeColor=#ef4444;fontSize=11;dashed=1;dashPattern=8 4;" vertex="1" parent="grp-phases">
+          <mxGeometry x="175" y="140" width="95" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="ph10" value="&lt;b&gt;10&lt;/b&gt;&lt;br&gt;network&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;네트워크&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;fontSize=11;" vertex="1" parent="grp-phases">
+          <mxGeometry x="330" y="140" width="95" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="ph11" value="&lt;b&gt;11&lt;/b&gt;&lt;br&gt;integration&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;서비스 연결&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;fontSize=11;" vertex="1" parent="grp-phases">
+          <mxGeometry x="470" y="140" width="95" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="ph12" value="&lt;b&gt;12&lt;/b&gt;&lt;br&gt;appstack&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#dc2626&quot;&gt;단독VM만 제외&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef2f2;strokeColor=#ef4444;fontSize=11;dashed=1;dashPattern=8 4;" vertex="1" parent="grp-phases">
+          <mxGeometry x="610" y="140" width="95" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="ph13" value="&lt;b&gt;13&lt;/b&gt;&lt;br&gt;edge&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;CDN/WAF&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;fontSize=11;" vertex="1" parent="grp-phases">
+          <mxGeometry x="750" y="140" width="95" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="ph14" value="&lt;b&gt;14&lt;/b&gt;&lt;br&gt;cicd&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;배포/운영&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;fontSize=11;" vertex="1" parent="grp-phases">
+          <mxGeometry x="890" y="140" width="95" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows Row 1→2 and Row 2 -->
+        <mxCell id="a78" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#94a3b8;strokeWidth=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="grp-phases" source="ph7" target="ph8">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="728" y="115" /><mxPoint x="68" y="115" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a89" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#ef4444;strokeWidth=1;dashed=1;dashPattern=6 4;" edge="1" parent="grp-phases" source="ph8" target="ph9"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a910" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#94a3b8;strokeWidth=1;" edge="1" parent="grp-phases" source="ph9" target="ph10"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a1011" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#94a3b8;strokeWidth=1;" edge="1" parent="grp-phases" source="ph10" target="ph11"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a1112" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#ef4444;strokeWidth=1;dashed=1;dashPattern=6 4;" edge="1" parent="grp-phases" source="ph11" target="ph12"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a1213" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#94a3b8;strokeWidth=1;" edge="1" parent="grp-phases" source="ph12" target="ph13"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a1314" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#94a3b8;strokeWidth=1;" edge="1" parent="grp-phases" source="ph13" target="ph14"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Skip logic bypass arrows -->
+        <mxCell id="skip9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#94a3b8;strokeWidth=1;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="grp-phases" source="ph8" target="ph10">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="135" y="167" /><mxPoint x="135" y="127" /><mxPoint x="315" y="127" /><mxPoint x="315" y="167" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="skip9-label" value="&lt;font style=&quot;font-size:8px;color:#94a3b8&quot;&gt;orchestration ≠ eks&lt;/font&gt;" style="text;html=1;align=center;" vertex="1" parent="grp-phases">
+          <mxGeometry x="160" y="115" width="120" height="15" as="geometry" />
+        </mxCell>
+
+        <mxCell id="skip12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#94a3b8;strokeWidth=1;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="grp-phases" source="ph11" target="ph13">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="585" y="167" /><mxPoint x="585" y="127" /><mxPoint x="735" y="127" /><mxPoint x="735" y="167" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="skip12-label" value="&lt;font style=&quot;font-size:8px;color:#94a3b8&quot;&gt;vm &amp;amp;&amp;amp; orchestration=none&lt;/font&gt;" style="text;html=1;align=center;" vertex="1" parent="grp-phases">
+          <mxGeometry x="600" y="115" width="120" height="15" as="geometry" />
+        </mxCell>
+
+        <!-- Dependency Cascade Box -->
+        <mxCell id="dep-box" value="&lt;b style=&quot;font-size:10px&quot;&gt;Dependency Cascade (CLEAR_DEPS)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;compute.arch_pattern 변경 → orchestration, compute_node, scaling 초기화 + platform 전체 삭제&lt;br&gt;compute.orchestration 변경 → platform 전체 삭제&lt;br&gt;integration.sync_async 변경 → queue_type 초기화&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7ed;strokeColor=#f97316;fontSize=10;align=left;spacingLeft=8;spacingRight=8;" vertex="1" parent="grp-phases">
+          <mxGeometry x="20" y="215" width="500" height="75" as="geometry" />
+        </mxCell>
+
+        <!-- State Persist Box -->
+        <mxCell id="state-box" value="&lt;b style=&quot;font-size:10px&quot;&gt;State Management&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;useWizard() → WizardState (Record&amp;lt;phaseId, Record&amp;lt;questionId, value&amp;gt;&amp;gt;)&lt;br&gt;localStorage 자동 저장 (aws_arch_designer_v1)&lt;br&gt;completedPhases: Set&amp;lt;string&amp;gt; — 진행도 추적&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#22c55e;fontSize=10;align=left;spacingLeft=8;spacingRight=8;" vertex="1" parent="grp-phases">
+          <mxGeometry x="540" y="215" width="380" height="75" as="geometry" />
+        </mxCell>
+
+        <!-- Output from phases -->
+        <mxCell id="wizard-output" value="&lt;b&gt;allPhaseState&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;WizardState&lt;/font&gt;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#e0e7ff;strokeColor=#6366f1;fontSize=11;fontColor=#3730a3;" vertex="1" parent="grp-phases">
+          <mxGeometry x="1040" y="130" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="a14-out" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6366f1;strokeWidth=2;" edge="1" parent="grp-phases" source="ph14" target="wizard-output"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- ========== SECTION B: ARCHITECTURE GENERATION ========== -->
+        <mxCell id="grp-arch" value="B. Architecture Generation — generateArchitecture(state)" style="swimlane;startSize=28;fontSize=13;fontStyle=1;fillColor=#f0fdf4;strokeColor=#22c55e;fontColor=#166534;rounded=1;arcSize=8;swimlaneLine=0;" vertex="1" parent="1">
+          <mxGeometry x="0" y="400" width="650" height="285" as="geometry" />
+        </mxCell>
+
+        <!-- 14 Architecture Layers in 2 columns -->
+        <mxCell id="ly1" value="1. org 계정/조직" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#374151;fontColor=#ffffff;fontSize=10;strokeColor=#1f2937;" vertex="1" parent="grp-arch">
+          <mxGeometry x="20" y="40" width="140" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ly2" value="2. network 네트워크" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#4f46e5;fontColor=#ffffff;fontSize=10;strokeColor=#3730a3;" vertex="1" parent="grp-arch">
+          <mxGeometry x="20" y="72" width="140" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ly3" value="3. edge 엣지/CDN" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0891b2;fontColor=#ffffff;fontSize=10;strokeColor=#0e7490;" vertex="1" parent="grp-arch">
+          <mxGeometry x="20" y="104" width="140" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ly4" value="4. compute 컴퓨트" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#059669;fontColor=#ffffff;fontSize=10;strokeColor=#047857;" vertex="1" parent="grp-arch">
+          <mxGeometry x="20" y="136" width="140" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ly5" value="5. platform K8s" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#7c3aed;fontColor=#ffffff;fontSize=10;strokeColor=#6d28d9;dashed=1;" vertex="1" parent="grp-arch">
+          <mxGeometry x="20" y="168" width="140" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ly6" value="6. appstack 앱 스택" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#c026d3;fontColor=#ffffff;fontSize=10;strokeColor=#a21caf;dashed=1;" vertex="1" parent="grp-arch">
+          <mxGeometry x="20" y="200" width="140" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ly7" value="7. data 데이터 저장" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#7c3aed;fontColor=#ffffff;fontSize=10;strokeColor=#6d28d9;" vertex="1" parent="grp-arch">
+          <mxGeometry x="20" y="232" width="140" height="28" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ly8" value="8. messaging 메시징" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d97706;fontColor=#ffffff;fontSize=10;strokeColor=#b45309;" vertex="1" parent="grp-arch">
+          <mxGeometry x="180" y="40" width="140" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ly9" value="9. batch 배치 처리" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d97706;fontColor=#ffffff;fontSize=10;strokeColor=#b45309;" vertex="1" parent="grp-arch">
+          <mxGeometry x="180" y="72" width="140" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ly10" value="10. dr 재해복구" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dc2626;fontColor=#ffffff;fontSize=10;strokeColor=#b91c1c;" vertex="1" parent="grp-arch">
+          <mxGeometry x="180" y="104" width="140" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ly11" value="11. security 보안" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dc2626;fontColor=#ffffff;fontSize=10;strokeColor=#b91c1c;" vertex="1" parent="grp-arch">
+          <mxGeometry x="180" y="136" width="140" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ly12" value="12. observability 관측성" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#374151;fontColor=#ffffff;fontSize=10;strokeColor=#1f2937;" vertex="1" parent="grp-arch">
+          <mxGeometry x="180" y="168" width="140" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ly13" value="13. cicd CI/CD" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0891b2;fontColor=#ffffff;fontSize=10;strokeColor=#0e7490;" vertex="1" parent="grp-arch">
+          <mxGeometry x="180" y="200" width="140" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ly14" value="14. cost 비용 최적화" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#059669;fontColor=#ffffff;fontSize=10;strokeColor=#047857;" vertex="1" parent="grp-arch">
+          <mxGeometry x="180" y="232" width="140" height="28" as="geometry" />
+        </mxCell>
+
+        <!-- Service card structure -->
+        <mxCell id="svc-struct" value="&lt;b style=&quot;font-size:10px&quot;&gt;각 Service 구조&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#475569&quot;&gt;{&lt;br&gt;&amp;nbsp;&amp;nbsp;name: &quot;Aurora MySQL&quot;&lt;br&gt;&amp;nbsp;&amp;nbsp;detail: &quot;r6g.xlarge, Multi-AZ&quot;&lt;br&gt;&amp;nbsp;&amp;nbsp;reason: &quot;높은 트랜잭션 워크로드&quot;&lt;br&gt;&amp;nbsp;&amp;nbsp;cost: &quot;$340/mo&quot;&lt;br&gt;&amp;nbsp;&amp;nbsp;opt: &quot;RI 적용 시 35% 절감&quot;&lt;br&gt;&amp;nbsp;&amp;nbsp;insights: [...]&lt;br&gt;}&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#cbd5e1;fontSize=10;align=left;spacingLeft=10;spacingRight=10;" vertex="1" parent="grp-arch">
+          <mxGeometry x="360" y="40" width="260" height="145" as="geometry" />
+        </mxCell>
+
+        <!-- Logic example -->
+        <mxCell id="logic-ex" value="&lt;b style=&quot;font-size:10px&quot;&gt;조건 분기 예시 (3,600줄 규칙 엔진)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#475569&quot;&gt;ticketing + flash + ultra RPS&lt;br&gt;→ DynamoDB + Redis + SQS FIFO + Fargate burst&lt;br&gt;&lt;br&gt;serverless + RDS(non-DynamoDB)&lt;br&gt;→ RDS Proxy 자동 추가 (Lambda 커넥션 풀링)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontSize=10;align=left;spacingLeft=10;spacingRight=10;" vertex="1" parent="grp-arch">
+          <mxGeometry x="360" y="195" width="260" height="75" as="geometry" />
+        </mxCell>
+
+        <!-- ========== SECTION C: 9 ANALYSIS ENGINES ========== -->
+        <mxCell id="grp-engines" value="C. 9 Analysis Engines (병렬 실행)" style="swimlane;startSize=28;fontSize=13;fontStyle=1;fillColor=#fdf4ff;strokeColor=#a855f7;fontColor=#7e22ce;rounded=1;arcSize=8;swimlaneLine=0;" vertex="1" parent="1">
+          <mxGeometry x="680" y="400" width="620" height="285" as="geometry" />
+        </mxCell>
+
+        <mxCell id="eng1" value="&lt;b&gt;validateState&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;89개 규칙 검증&lt;br&gt;error / warning&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef2f2;strokeColor=#ef4444;fontSize=10;" vertex="1" parent="grp-engines">
+          <mxGeometry x="20" y="40" width="130" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="eng2" value="&lt;b&gt;estimateMonthlyCost&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;min/mid/max 비용&lt;br&gt;8개 카테고리 분류&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#22c55e;fontSize=10;" vertex="1" parent="grp-engines">
+          <mxGeometry x="165" y="40" width="130" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="eng3" value="&lt;b&gt;wellArchitectedScore&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;5 Pillar 점수&lt;br&gt;Ops/Sec/Rel/Perf/Cost&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#3b82f6;fontSize=10;" vertex="1" parent="grp-engines">
+          <mxGeometry x="310" y="40" width="135" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="eng4" value="&lt;b&gt;getRecommendations&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;253개 규칙 기반&lt;br&gt;컨텍스트별 배지&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fefce8;strokeColor=#eab308;fontSize=10;" vertex="1" parent="grp-engines">
+          <mxGeometry x="460" y="40" width="130" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="eng5" value="&lt;b&gt;generateChecklist&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;11단계 구현 가이드&lt;br&gt;critical / optional&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f3ff;strokeColor=#8b5cf6;fontSize=10;" vertex="1" parent="grp-engines">
+          <mxGeometry x="20" y="108" width="130" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="eng6" value="&lt;b&gt;generateSecurityGroups&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;Terraform / CDK 코드&lt;br&gt;인바운드/아웃바운드 룰&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff1f2;strokeColor=#f43f5e;fontSize=10;" vertex="1" parent="grp-engines">
+          <mxGeometry x="165" y="108" width="130" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="eng7" value="&lt;b&gt;generateCodeSnippets&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;~40개 IaC 템플릿&lt;br&gt;Terraform + CDK&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdfa;strokeColor=#14b8a6;fontSize=10;" vertex="1" parent="grp-engines">
+          <mxGeometry x="310" y="108" width="135" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="eng8" value="&lt;b&gt;checkGuardrails&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;실시간 경고&lt;br&gt;경험 + 컨텍스트 기반&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7ed;strokeColor=#f97316;fontSize=10;" vertex="1" parent="grp-engines">
+          <mxGeometry x="460" y="108" width="130" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="eng9" value="&lt;b&gt;generateSummary&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;헤드라인 + 팀 요구사항&lt;br&gt;롤아웃 플랜&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#10b981;fontSize=10;" vertex="1" parent="grp-engines">
+          <mxGeometry x="20" y="176" width="130" height="52" as="geometry" />
+        </mxCell>
+
+        <!-- Validation rule examples -->
+        <mxCell id="rule-ex" value="&lt;b style=&quot;font-size:10px&quot;&gt;검증 규칙 예시&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#dc2626&quot;&gt;ERROR: 99.99% SLA + 단일 AZ&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#dc2626&quot;&gt;ERROR: PCI-DSS + 2-tier 네트워크&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#f59e0b&quot;&gt;WARN: EKS + 초급팀&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#f59e0b&quot;&gt;WARN: Spot + 트랜잭션 처리&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef2f2;strokeColor=#fca5a5;fontSize=10;align=left;spacingLeft=8;" vertex="1" parent="grp-engines">
+          <mxGeometry x="180" y="176" width="230" height="85" as="geometry" />
+        </mxCell>
+
+        <!-- Cost method -->
+        <mxCell id="cost-method" value="&lt;b style=&quot;font-size:10px&quot;&gt;비용 산출 로직&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#475569&quot;&gt;DAU 스케일 배수 × 서비스별 단가&lt;br&gt;× 할인(RI/SP/Spot) = min~max&lt;br&gt;서울 리전(ap-northeast-2) 가격 기준&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#86efac;fontSize=10;align=left;spacingLeft=8;" vertex="1" parent="grp-engines">
+          <mxGeometry x="430" y="176" width="170" height="85" as="geometry" />
+        </mxCell>
+
+        <!-- ========== SECTION D: RESULT VIEW (10 TABS) ========== -->
+        <mxCell id="grp-result" value="D. Result View — 10 Tabs in 4 Groups" style="swimlane;startSize=28;fontSize=13;fontStyle=1;fillColor=#fefce8;strokeColor=#eab308;fontColor=#854d0e;rounded=1;arcSize=8;swimlaneLine=0;" vertex="1" parent="1">
+          <mxGeometry x="0" y="720" width="1300" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- Group 1: Overview -->
+        <mxCell id="rg1-label" value="&lt;b&gt;Overview&lt;/b&gt;" style="text;html=1;fontSize=9;fontColor=#854d0e;" vertex="1" parent="grp-result">
+          <mxGeometry x="20" y="32" width="60" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="tab1" value="summary&lt;br&gt;&lt;font style=&quot;font-size:8px;color:#64748b&quot;&gt;요약 대시보드&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#facc15;fontSize=10;" vertex="1" parent="grp-result">
+          <mxGeometry x="20" y="50" width="110" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="tab2" value="cards&lt;br&gt;&lt;font style=&quot;font-size:8px;color:#64748b&quot;&gt;서비스 상세 카드&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#facc15;fontSize=10;" vertex="1" parent="grp-result">
+          <mxGeometry x="140" y="50" width="110" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="tab3" value="diagram&lt;br&gt;&lt;font style=&quot;font-size:8px;color:#64748b&quot;&gt;Draw.io 다이어그램&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#facc15;fontSize=10;" vertex="1" parent="grp-result">
+          <mxGeometry x="260" y="50" width="110" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- Group 2: Risk -->
+        <mxCell id="rg2-label" value="&lt;b&gt;Risk &amp; Security&lt;/b&gt;" style="text;html=1;fontSize=9;fontColor=#854d0e;" vertex="1" parent="grp-result">
+          <mxGeometry x="400" y="32" width="90" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="tab4" value="validate&lt;br&gt;&lt;font style=&quot;font-size:8px;color:#64748b&quot;&gt;검증 결과&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#f87171;fontSize=10;" vertex="1" parent="grp-result">
+          <mxGeometry x="400" y="50" width="100" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="tab5" value="wafr&lt;br&gt;&lt;font style=&quot;font-size:8px;color:#64748b&quot;&gt;Well-Architected&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#f87171;fontSize=10;" vertex="1" parent="grp-result">
+          <mxGeometry x="510" y="50" width="105" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="tab6" value="sg&lt;br&gt;&lt;font style=&quot;font-size:8px;color:#64748b&quot;&gt;Security Groups&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#f87171;fontSize=10;" vertex="1" parent="grp-result">
+          <mxGeometry x="625" y="50" width="100" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- Group 3: Cost -->
+        <mxCell id="rg3-label" value="&lt;b&gt;Cost&lt;/b&gt;" style="text;html=1;fontSize=9;fontColor=#854d0e;" vertex="1" parent="grp-result">
+          <mxGeometry x="755" y="32" width="40" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="tab7" value="cost&lt;br&gt;&lt;font style=&quot;font-size:8px;color:#64748b&quot;&gt;비용 추정&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#4ade80;fontSize=10;" vertex="1" parent="grp-result">
+          <mxGeometry x="755" y="50" width="100" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- Group 4: Implementation -->
+        <mxCell id="rg4-label" value="&lt;b&gt;Implementation&lt;/b&gt;" style="text;html=1;fontSize=9;fontColor=#854d0e;" vertex="1" parent="grp-result">
+          <mxGeometry x="885" y="32" width="100" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="tab8" value="checklist&lt;br&gt;&lt;font style=&quot;font-size:8px;color:#64748b&quot;&gt;구현 체크리스트&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#818cf8;fontSize=10;" vertex="1" parent="grp-result">
+          <mxGeometry x="885" y="50" width="110" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="tab9" value="code&lt;br&gt;&lt;font style=&quot;font-size:8px;color:#64748b&quot;&gt;IaC 코드 스니펫&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#818cf8;fontSize=10;" vertex="1" parent="grp-result">
+          <mxGeometry x="1005" y="50" width="110" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- Save/Share -->
+        <mxCell id="tab10" value="&lt;b&gt;Save / Share&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:8px;color:#64748b&quot;&gt;DB 저장 · 공유 URL&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1f5f9;strokeColor=#94a3b8;fontSize=10;" vertex="1" parent="grp-result">
+          <mxGeometry x="1150" y="50" width="120" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- ========== MAIN FLOW ARROWS (between sections) ========== -->
+
+        <!-- A → B: allPhaseState feeds architecture generation -->
+        <mxCell id="flow-ab" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#6366f1;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="wizard-output" target="grp-arch">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1110" y="385" /><mxPoint x="325" y="385" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow-ab-label" value="&lt;font style=&quot;font-size:9px;color:#6366f1&quot;&gt;allPhaseState&lt;/font&gt;" style="text;html=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="600" y="373" width="80" height="15" as="geometry" />
+        </mxCell>
+
+        <!-- A → C: allPhaseState feeds analysis engines -->
+        <mxCell id="flow-ac" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#a855f7;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="wizard-output" target="grp-engines">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1110" y="390" /><mxPoint x="990" y="390" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow-ac-label" value="&lt;font style=&quot;font-size:9px;color:#a855f7&quot;&gt;allPhaseState&lt;/font&gt;" style="text;html=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="373" width="80" height="15" as="geometry" />
+        </mxCell>
+
+        <!-- B → D: layers feed result tabs -->
+        <mxCell id="flow-bd" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#22c55e;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.2;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="grp-arch" target="grp-result">
+          <mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="flow-bd-label" value="&lt;font style=&quot;font-size:9px;color:#22c55e&quot;&gt;{ layers[], insights[] }&lt;/font&gt;" style="text;html=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="200" y="698" width="130" height="15" as="geometry" />
+        </mxCell>
+
+        <!-- C → D: analysis results feed result tabs -->
+        <mxCell id="flow-cd" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#a855f7;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.8;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="grp-engines" target="grp-result">
+          <mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="flow-cd-label" value="&lt;font style=&quot;font-size:9px;color:#a855f7&quot;&gt;scores, costs, issues, snippets...&lt;/font&gt;" style="text;html=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="880" y="698" width="180" height="15" as="geometry" />
+        </mxCell>
+
+        <!-- ========== LEGEND ========== -->
+        <mxCell id="legend" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#e2e8f0;" vertex="1" parent="1">
+          <mxGeometry x="0" y="870" width="1300" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="leg-title" value="&lt;b&gt;Legend&lt;/b&gt;" style="text;html=1;fontSize=10;fontColor=#1e293b;" vertex="1" parent="1">
+          <mxGeometry x="15" y="875" width="50" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" value="" style="rounded=1;fillColor=#dbeafe;strokeColor=#3b82f6;" vertex="1" parent="1">
+          <mxGeometry x="80" y="880" width="16" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1t" value="&lt;font style=&quot;font-size:9px&quot;&gt;상시 Phase&lt;/font&gt;" style="text;html=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="877" width="65" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" value="" style="rounded=1;fillColor=#fef2f2;strokeColor=#ef4444;dashed=1;dashPattern=6 4;" vertex="1" parent="1">
+          <mxGeometry x="180" y="880" width="16" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2t" value="&lt;font style=&quot;font-size:9px&quot;&gt;조건부 Phase&lt;/font&gt;" style="text;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="877" width="75" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3" value="" style="rounded=1;fillColor=#fef3c7;strokeColor=#f59e0b;" vertex="1" parent="1">
+          <mxGeometry x="290" y="880" width="16" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3t" value="&lt;font style=&quot;font-size:9px&quot;&gt;핵심 분기점 (compute)&lt;/font&gt;" style="text;html=1;" vertex="1" parent="1">
+          <mxGeometry x="310" y="877" width="120" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4" value="" style="rounded=0;fillColor=#374151;strokeColor=#1f2937;" vertex="1" parent="1">
+          <mxGeometry x="450" y="880" width="16" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4t" value="&lt;font style=&quot;font-size:9px&quot;&gt;Architecture Layer&lt;/font&gt;" style="text;html=1;" vertex="1" parent="1">
+          <mxGeometry x="470" y="877" width="100" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg5t" value="&lt;font style=&quot;font-size:9px;color:#6366f1&quot;&gt;━━ 데이터 흐름&lt;/font&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font style=&quot;font-size:9px;color:#94a3b8&quot;&gt;╌╌ 조건부 스킵&lt;/font&gt;" style="text;html=1;" vertex="1" parent="1">
+          <mxGeometry x="590" y="877" width="200" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Tech stack note -->
+        <mxCell id="tech-note" value="&lt;font style=&quot;font-size:9px;color:#64748b&quot;&gt;Tech: Next.js 16 · TypeScript · React 19 · Prisma · PostgreSQL(Neon) · NextAuth v5 · Vercel · Tailwind CSS 4&lt;/font&gt;" style="text;html=1;align=right;" vertex="1" parent="1">
+          <mxGeometry x="800" y="898" width="500" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

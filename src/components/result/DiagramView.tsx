@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import type { Architecture, ArchService, WizardState } from "@/lib/types";
 import { generateDiagramXml } from "@/lib/diagram-xml";
+import { generateDiagramXmlH } from "@/lib/diagram-xml-horizontal";
 import { useDict } from "@/lib/i18n/context";
 
 const SVC_MAP: [string, string, string, string][] = [
@@ -439,8 +440,14 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
   const z = buildDiagramZones(arch);
   const subnetTier = state.network?.subnet_tier || "2tier";
   const [viewMode, setViewMode] = useState<"card" | "drawio">("drawio");
+  const [orientation, setOrientation] = useState<"vertical" | "horizontal">("vertical");
 
-  const diagramXml = useMemo(() => generateDiagramXml(arch, state), [arch, state]);
+  const diagramXml = useMemo(
+    () => orientation === "horizontal"
+      ? generateDiagramXmlH(arch, state)
+      : generateDiagramXml(arch, state),
+    [arch, state, orientation]
+  );
 
   const downloadDrawio = () => {
     const blob = new Blob([diagramXml], { type: "application/xml" });
@@ -505,6 +512,22 @@ export function DiagramView({ arch, state }: DiagramViewProps) {
               {td.drawioView}
             </button>
           </div>
+          {viewMode === "drawio" && (
+            <div className="flex rounded-md border border-gray-300 text-[11px] font-bold">
+              <button
+                onClick={() => setOrientation("vertical")}
+                className={`rounded-l-md px-3 py-1.5 transition-colors ${orientation === "vertical" ? "bg-emerald-600 text-white" : "bg-white text-gray-600 hover:bg-gray-100"}`}
+              >
+                {td.vertical}
+              </button>
+              <button
+                onClick={() => setOrientation("horizontal")}
+                className={`rounded-r-md px-3 py-1.5 transition-colors ${orientation === "horizontal" ? "bg-emerald-600 text-white" : "bg-white text-gray-600 hover:bg-gray-100"}`}
+              >
+                {td.horizontal}
+              </button>
+            </div>
+          )}
           <button
             onClick={openInDrawio}
             className="rounded-md border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-[11px] font-bold text-emerald-700 transition-colors hover:bg-emerald-100"

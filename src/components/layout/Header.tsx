@@ -34,7 +34,7 @@ export function Header({ onLoginClick }: HeaderProps) {
         </Link>
         <Link
           href="/history"
-          className="ml-2 hidden items-center gap-1 rounded-lg border-[1.5px] border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 md:flex"
+          className="ml-2 flex items-center gap-1 rounded-lg border-[1.5px] border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
         >
           <ClipboardList className="h-3.5 w-3.5 text-gray-500" />
           {t.header.historyLink}
@@ -46,13 +46,13 @@ export function Header({ onLoginClick }: HeaderProps) {
         </Link>
         <Link
           href="/glossary"
-          className="hidden items-center gap-1 rounded-lg border-[1.5px] border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 md:flex"
+          className="flex items-center gap-1 rounded-lg border-[1.5px] border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
         >
           {t.header.glossaryLink}
         </Link>
         <Link
           href="/blog"
-          className="hidden items-center gap-1 rounded-lg border-[1.5px] border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 md:flex"
+          className="flex items-center gap-1 rounded-lg border-[1.5px] border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
         >
           {t.header.blogLink}
         </Link>

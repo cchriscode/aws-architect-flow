@@ -158,10 +158,6 @@ exports[`getRecommendations snapshots > b2b_saas (en) 1`] = `
     "badge": "✨ Batch unnecessary",
     "reason": "Real-time processing alone is sufficient. Add EventBridge Scheduler when settlement/reports are needed later",
   },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ On-premises MQ migration",
-    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
-  },
   "integration.queue_type.eventbridge": {
     "badge": "✨ Recommended for event routing",
     "reason": "200+ AWS service integrations. Minimize inter-service coupling with event rule-based routing",
@@ -182,10 +178,6 @@ exports[`getRecommendations snapshots > b2b_saas (en) 1`] = `
     "badge": "⭐ Production service standard",
     "reason": "Optimal cost point for 99.9-99.95% availability. AZ failure resilience at the cost of 2 NAT GWs",
   },
-  "network.hybrid.no": {
-    "badge": "✨ Public cloud only",
-    "reason": "No on-premises connection needed. Maintain simple architecture without VPN setup",
-  },
   "network.hybrid.vpn": {
     "badge": "✨ B2B office connectivity",
     "reason": "Connect office to AWS with Site-to-Site VPN. Quick setup, low cost. When high bandwidth isn't needed",
@@ -197,6 +189,10 @@ exports[`getRecommendations snapshots > b2b_saas (en) 1`] = `
   "network.nat_strategy.per_az": {
     "badge": "⭐ Required for high availability",
     "reason": "Independent NAT GW per AZ: One AZ's NAT failure doesn't affect other AZs",
+  },
+  "network.network_firewall.none": {
+    "badge": "✨ Optional with env separation",
+    "reason": "Account separation per environment may be sufficient. Consider adoption for PCI/HIPAA requirements",
   },
   "network.subnet_tier.2tier": {
     "badge": "⭐ Standard for most services",
@@ -483,10 +479,6 @@ exports[`getRecommendations snapshots > b2b_saas (ko) 1`] = `
     "badge": "✨ 배치 불필요",
     "reason": "실시간 처리만으로 충분. 추후 정산·리포트 필요 시 EventBridge Scheduler 추가",
   },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ 온프레미스 MQ 마이그레이션",
-    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
-  },
   "integration.queue_type.eventbridge": {
     "badge": "✨ 이벤트 라우팅 권장",
     "reason": "200+ AWS 서비스 통합. 이벤트 규칙 기반 라우팅으로 서비스 간 결합도 최소화",
@@ -507,10 +499,6 @@ exports[`getRecommendations snapshots > b2b_saas (ko) 1`] = `
     "badge": "⭐ 운영 서비스 표준",
     "reason": "99.9~99.95% 가용성 달성의 최적 비용점. NAT GW 2개 비용으로 AZ 장애 대응",
   },
-  "network.hybrid.no": {
-    "badge": "✨ 퍼블릭 클라우드 전용",
-    "reason": "온프레미스 연결 불필요. VPN 설정 없이 단순한 구조 유지",
-  },
   "network.hybrid.vpn": {
     "badge": "✨ B2B 사무실 연결",
     "reason": "Site-to-Site VPN으로 사무실과 AWS 연결. 구성 빠르고 비용 저렴. 고대역폭 불필요 시",
@@ -522,6 +510,10 @@ exports[`getRecommendations snapshots > b2b_saas (ko) 1`] = `
   "network.nat_strategy.per_az": {
     "badge": "⭐ 고가용성 필수",
     "reason": "AZ별 독립 NAT GW: 하나의 AZ NAT 장애가 다른 AZ에 영향 없음",
+  },
+  "network.network_firewall.none": {
+    "badge": "✨ 환경 분리 시 선택적",
+    "reason": "환경별 계정 분리만으로 충분할 수 있음. PCI/HIPAA 요건 시 도입 검토",
   },
   "network.subnet_tier.2tier": {
     "badge": "⭐ 대부분 서비스 표준",
@@ -832,10 +824,6 @@ exports[`getRecommendations snapshots > compliance (en) 1`] = `
     "badge": "✨ Complex workflows",
     "reason": "Complex state management for order-payment-inventory-shipping. Visual workflows + automated retries",
   },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ On-premises MQ migration",
-    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
-  },
   "integration.queue_type.sns": {
     "badge": "✨ Standard for multi-system notifications",
     "reason": "Deliver order completion events simultaneously to inventory, shipping, and analytics systems. Fan-out pattern basics",
@@ -871,6 +859,10 @@ exports[`getRecommendations snapshots > compliance (en) 1`] = `
   "network.nat_strategy.per_az": {
     "badge": "⭐ Required for high availability",
     "reason": "Independent NAT GW per AZ: One AZ's NAT failure doesn't affect other AZs",
+  },
+  "network.network_firewall.network_firewall": {
+    "badge": "⭐ Recommended for multi-account/compliance",
+    "reason": "Centralized VPC-to-VPC traffic inspection via Transit Gateway Inspection VPC pattern. IDS/IPS + domain filtering",
   },
   "network.subnet_tier.3tier": {
     "badge": "⭐ Required for compliance",
@@ -1197,10 +1189,6 @@ exports[`getRecommendations snapshots > compliance (ko) 1`] = `
     "badge": "✨ 복잡한 워크플로우",
     "reason": "주문-결제-재고-배송의 복잡한 상태 관리. 시각적 워크플로우 + 재시도 자동화",
   },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ 온프레미스 MQ 마이그레이션",
-    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
-  },
   "integration.queue_type.sns": {
     "badge": "✨ 멀티 시스템 알림 표준",
     "reason": "주문 완료 이벤트를 재고·배송·분석 시스템에 동시 전달. Fan-out 패턴의 기본",
@@ -1236,6 +1224,10 @@ exports[`getRecommendations snapshots > compliance (ko) 1`] = `
   "network.nat_strategy.per_az": {
     "badge": "⭐ 고가용성 필수",
     "reason": "AZ별 독립 NAT GW: 하나의 AZ NAT 장애가 다른 AZ에 영향 없음",
+  },
+  "network.network_firewall.network_firewall": {
+    "badge": "⭐ 멀티 계정/규정 준수 권장",
+    "reason": "Transit Gateway Inspection VPC 패턴으로 VPC 간 트래픽 중앙 검사. IDS/IPS + 도메인 필터링",
   },
   "network.subnet_tier.3tier": {
     "badge": "⭐ 규정 준수 필수",
@@ -1430,6 +1422,10 @@ exports[`getRecommendations snapshots > data_pipeline (en) 1`] = `
     "badge": "✨ Ideal for public data services",
     "reason": "HTTPS alone is sufficient. DB encryption can be enabled anytime at no additional cost",
   },
+  "compliance.network_iso.strict": {
+    "badge": "⭐ Production service baseline",
+    "reason": "Isolate DB in private subnets. Blocking direct DB access from the internet is the production baseline",
+  },
   "compute.arch_pattern.container": {
     "badge": "⭐ Standard for most services",
     "reason": "Environment consistency with Docker containers. Zero server management with ECS Fargate. AWS recommended default",
@@ -1542,10 +1538,6 @@ exports[`getRecommendations snapshots > data_pipeline (en) 1`] = `
     "badge": "⭐ Large-scale ETL service",
     "reason": "AWS Glue: Spark-based serverless ETL. Auto-manage schemas with Data Catalog. Essential for data lake setup",
   },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ On-premises MQ migration",
-    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
-  },
   "integration.queue_type.eventbridge": {
     "badge": "✨ Recommended for event routing",
     "reason": "200+ AWS service integrations. Minimize inter-service coupling with event rule-based routing",
@@ -1573,6 +1565,10 @@ exports[`getRecommendations snapshots > data_pipeline (en) 1`] = `
   "network.nat_strategy.endpoint": {
     "badge": "💰 Save $43-100+/mo by eliminating NAT GW",
     "reason": "Cost first: Route S3/DynamoDB traffic directly via VPC Endpoint without NAT. Significant savings for high-volume services",
+  },
+  "network.network_firewall.none": {
+    "badge": "✨ Optional with env separation",
+    "reason": "Account separation per environment may be sufficient. Consider adoption for PCI/HIPAA requirements",
   },
   "network.subnet_tier.2tier": {
     "badge": "⭐ Standard for most services",
@@ -1743,6 +1739,10 @@ exports[`getRecommendations snapshots > data_pipeline (ko) 1`] = `
     "badge": "✨ 공개 데이터 서비스 적정",
     "reason": "HTTPS만으로 충분. DB 암호화는 비용 추가 없이 언제든 켤 수 있습니다",
   },
+  "compliance.network_iso.strict": {
+    "badge": "⭐ 운영 서비스 기본",
+    "reason": "DB를 프라이빗 서브넷에 격리. 인터넷에서 DB 직접 접근 차단이 운영 환경의 기본입니다",
+  },
   "compute.arch_pattern.container": {
     "badge": "⭐ 대부분 서비스 표준",
     "reason": "Docker 컨테이너로 환경 일관성. ECS Fargate로 서버 관리 제로. AWS 권장 기본",
@@ -1855,10 +1855,6 @@ exports[`getRecommendations snapshots > data_pipeline (ko) 1`] = `
     "badge": "⭐ 대용량 ETL 서비스",
     "reason": "AWS Glue: Spark 기반 서버리스 ETL. 데이터 카탈로그로 스키마 자동 관리. 데이터 레이크 구성에 필수",
   },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ 온프레미스 MQ 마이그레이션",
-    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
-  },
   "integration.queue_type.eventbridge": {
     "badge": "✨ 이벤트 라우팅 권장",
     "reason": "200+ AWS 서비스 통합. 이벤트 규칙 기반 라우팅으로 서비스 간 결합도 최소화",
@@ -1886,6 +1882,10 @@ exports[`getRecommendations snapshots > data_pipeline (ko) 1`] = `
   "network.nat_strategy.endpoint": {
     "badge": "💰 NAT GW 제거로 월 $43~100+ 절감",
     "reason": "비용 우선: VPC Endpoint로 S3·DynamoDB 트래픽을 NAT 없이 직접 라우팅. 대용량 서비스에서 큰 절감",
+  },
+  "network.network_firewall.none": {
+    "badge": "✨ 환경 분리 시 선택적",
+    "reason": "환경별 계정 분리만으로 충분할 수 있음. PCI/HIPAA 요건 시 도입 검토",
   },
   "network.subnet_tier.2tier": {
     "badge": "⭐ 대부분 서비스 표준",
@@ -2184,10 +2184,6 @@ exports[`getRecommendations snapshots > ecommerce_mvp (en) 1`] = `
     "badge": "✨ Post-event batch",
     "reason": "Run settlement and statistics aggregation as ECS Tasks after events. Reuse ECS cluster",
   },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ On-premises MQ migration",
-    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
-  },
   "integration.queue_type.sqs": {
     "badge": "⭐ Standard for order/payment processing",
     "reason": "SQS FIFO: Guaranteed order sequence + exactly-once processing. AWS e-commerce reference standard",
@@ -2211,6 +2207,10 @@ exports[`getRecommendations snapshots > ecommerce_mvp (en) 1`] = `
   "network.hybrid.no": {
     "badge": "✨ Public cloud only",
     "reason": "No on-premises connection needed. Maintain simple architecture without VPN setup",
+  },
+  "network.network_firewall.none": {
+    "badge": "✨ Optional with env separation",
+    "reason": "Account separation per environment may be sufficient. Consider adoption for PCI/HIPAA requirements",
   },
   "network.subnet_tier.3tier": {
     "badge": "⭐ Required for compliance",
@@ -2537,10 +2537,6 @@ exports[`getRecommendations snapshots > ecommerce_mvp (ko) 1`] = `
     "badge": "✨ 이벤트 후 배치",
     "reason": "이벤트 종료 후 정산·통계 집계를 ECS Task로 실행. ECS 클러스터 재사용",
   },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ 온프레미스 MQ 마이그레이션",
-    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
-  },
   "integration.queue_type.sqs": {
     "badge": "⭐ 주문/결제 처리 표준",
     "reason": "SQS FIFO: 주문 순서 보장 + 정확히 1회 처리 보장. AWS 이커머스 레퍼런스 표준",
@@ -2564,6 +2560,10 @@ exports[`getRecommendations snapshots > ecommerce_mvp (ko) 1`] = `
   "network.hybrid.no": {
     "badge": "✨ 퍼블릭 클라우드 전용",
     "reason": "온프레미스 연결 불필요. VPN 설정 없이 단순한 구조 유지",
+  },
+  "network.network_firewall.none": {
+    "badge": "✨ 환경 분리 시 선택적",
+    "reason": "환경별 계정 분리만으로 충분할 수 있음. PCI/HIPAA 요건 시 도입 검토",
   },
   "network.subnet_tier.3tier": {
     "badge": "⭐ 규정 준수 필수",
@@ -2966,6 +2966,10 @@ exports[`getRecommendations snapshots > eks_full (en) 1`] = `
     "badge": "⭐ Required for high availability",
     "reason": "Independent NAT GW per AZ: One AZ's NAT failure doesn't affect other AZs",
   },
+  "network.network_firewall.network_firewall": {
+    "badge": "⭐ Recommended for multi-account/compliance",
+    "reason": "Centralized VPC-to-VPC traffic inspection via Transit Gateway Inspection VPC pattern. IDS/IPS + domain filtering",
+  },
   "network.subnet_tier.3tier": {
     "badge": "⭐ Required for compliance",
     "reason": "Public + Private + Isolated (DB-only): Meets PCI DSS CDE isolation, HIPAA data protection requirements",
@@ -3041,10 +3045,6 @@ exports[`getRecommendations snapshots > eks_full (en) 1`] = `
   "platform.pod_security.opa_gatekeeper": {
     "badge": "✨ Complex custom policies",
     "reason": "Unlimited custom policies with Rego language. Standard for large platform teams but high learning cost",
-  },
-  "platform.service_mesh.aws_app_mesh": {
-    "badge": "✨ AWS managed mesh recommended",
-    "reason": "App Mesh: Simpler operations than Istio. Service-to-service tracing with AWS X-Ray integration",
   },
   "platform.service_mesh.istio": {
     "badge": "✨ When full service mesh is needed",
@@ -3379,6 +3379,10 @@ exports[`getRecommendations snapshots > eks_full (ko) 1`] = `
     "badge": "⭐ 고가용성 필수",
     "reason": "AZ별 독립 NAT GW: 하나의 AZ NAT 장애가 다른 AZ에 영향 없음",
   },
+  "network.network_firewall.network_firewall": {
+    "badge": "⭐ 멀티 계정/규정 준수 권장",
+    "reason": "Transit Gateway Inspection VPC 패턴으로 VPC 간 트래픽 중앙 검사. IDS/IPS + 도메인 필터링",
+  },
   "network.subnet_tier.3tier": {
     "badge": "⭐ 규정 준수 필수",
     "reason": "퍼블릭+프라이빗+격리(DB전용): PCI DSS CDE 격리, HIPAA 데이터 보호 요건 충족",
@@ -3454,10 +3458,6 @@ exports[`getRecommendations snapshots > eks_full (ko) 1`] = `
   "platform.pod_security.opa_gatekeeper": {
     "badge": "✨ 복잡한 커스텀 정책",
     "reason": "Rego 언어로 무한한 커스텀 정책. 대형 플랫폼 팀의 표준이지만 학습 비용 높음",
-  },
-  "platform.service_mesh.aws_app_mesh": {
-    "badge": "✨ AWS 관리형 메시 권장",
-    "reason": "App Mesh: Istio보다 운영 단순. AWS X-Ray 통합으로 서비스 간 추적 가능",
   },
   "platform.service_mesh.istio": {
     "badge": "✨ 완전한 서비스 메시 필요 시",
@@ -3692,10 +3692,6 @@ exports[`getRecommendations snapshots > generic_web_api (en) 1`] = `
     "badge": "✨ Batch unnecessary",
     "reason": "Real-time processing alone is sufficient. Add EventBridge Scheduler when settlement/reports are needed later",
   },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ On-premises MQ migration",
-    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
-  },
   "network.account_structure.single": {
     "badge": "✨ Ideal for small scale",
     "reason": "Start with single account + per-environment namespaces. Migrate to multi-account as team grows",
@@ -3715,6 +3711,10 @@ exports[`getRecommendations snapshots > generic_web_api (en) 1`] = `
   "network.nat_strategy.endpoint": {
     "badge": "💰 Save $43-100+/mo by eliminating NAT GW",
     "reason": "Cost first: Route S3/DynamoDB traffic directly via VPC Endpoint without NAT. Significant savings for high-volume services",
+  },
+  "network.network_firewall.none": {
+    "badge": "✨ Optional with env separation",
+    "reason": "Account separation per environment may be sufficient. Consider adoption for PCI/HIPAA requirements",
   },
   "network.subnet_tier.2tier": {
     "badge": "⭐ Standard for most services",
@@ -3989,10 +3989,6 @@ exports[`getRecommendations snapshots > generic_web_api (ko) 1`] = `
     "badge": "✨ 배치 불필요",
     "reason": "실시간 처리만으로 충분. 추후 정산·리포트 필요 시 EventBridge Scheduler 추가",
   },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ 온프레미스 MQ 마이그레이션",
-    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
-  },
   "network.account_structure.single": {
     "badge": "✨ 소규모 적정",
     "reason": "단일 계정 + 환경별 네임스페이스로 시작. 팀 성장 후 멀티 계정으로 마이그레이션",
@@ -4012,6 +4008,10 @@ exports[`getRecommendations snapshots > generic_web_api (ko) 1`] = `
   "network.nat_strategy.endpoint": {
     "badge": "💰 NAT GW 제거로 월 $43~100+ 절감",
     "reason": "비용 우선: VPC Endpoint로 S3·DynamoDB 트래픽을 NAT 없이 직접 라우팅. 대용량 서비스에서 큰 절감",
+  },
+  "network.network_firewall.none": {
+    "badge": "✨ 환경 분리 시 선택적",
+    "reason": "환경별 계정 분리만으로 충분할 수 있음. PCI/HIPAA 요건 시 도입 검토",
   },
   "network.subnet_tier.2tier": {
     "badge": "⭐ 대부분 서비스 표준",
@@ -4286,10 +4286,6 @@ exports[`getRecommendations snapshots > internal_tool (en) 1`] = `
     "badge": "✨ Batch unnecessary",
     "reason": "Real-time processing alone is sufficient. Add EventBridge Scheduler when settlement/reports are needed later",
   },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ On-premises MQ migration",
-    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
-  },
   "integration.sync_async.sync_only": {
     "badge": "✨ Suitable for simple services",
     "reason": "Simple request-process-response structure. Fast development without async complexity",
@@ -4313,6 +4309,10 @@ exports[`getRecommendations snapshots > internal_tool (en) 1`] = `
   "network.nat_strategy.endpoint": {
     "badge": "💰 Save $43-100+/mo by eliminating NAT GW",
     "reason": "Cost first: Route S3/DynamoDB traffic directly via VPC Endpoint without NAT. Significant savings for high-volume services",
+  },
+  "network.network_firewall.none": {
+    "badge": "✨ Sufficient for small single-account",
+    "reason": "Security Group + NACL is sufficient. Network Firewall is effective in multi-VPC environments",
   },
   "network.subnet_tier.2tier": {
     "badge": "⭐ Standard for most services",
@@ -4587,10 +4587,6 @@ exports[`getRecommendations snapshots > internal_tool (ko) 1`] = `
     "badge": "✨ 배치 불필요",
     "reason": "실시간 처리만으로 충분. 추후 정산·리포트 필요 시 EventBridge Scheduler 추가",
   },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ 온프레미스 MQ 마이그레이션",
-    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
-  },
   "integration.sync_async.sync_only": {
     "badge": "✨ 단순 서비스 적합",
     "reason": "요청-처리-응답의 단순 구조. 비동기의 복잡도 없이 빠른 개발 가능",
@@ -4614,6 +4610,10 @@ exports[`getRecommendations snapshots > internal_tool (ko) 1`] = `
   "network.nat_strategy.endpoint": {
     "badge": "💰 NAT GW 제거로 월 $43~100+ 절감",
     "reason": "비용 우선: VPC Endpoint로 S3·DynamoDB 트래픽을 NAT 없이 직접 라우팅. 대용량 서비스에서 큰 절감",
+  },
+  "network.network_firewall.none": {
+    "badge": "✨ 소규모 단일 계정 충분",
+    "reason": "Security Group + NACL로 충분. Network Firewall은 멀티 VPC 환경에서 효과적",
   },
   "network.subnet_tier.2tier": {
     "badge": "⭐ 대부분 서비스 표준",
@@ -4880,10 +4880,6 @@ exports[`getRecommendations snapshots > iot_platform (en) 1`] = `
     "badge": "✨ Batch unnecessary",
     "reason": "Real-time processing alone is sufficient. Add EventBridge Scheduler when settlement/reports are needed later",
   },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ On-premises MQ migration",
-    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
-  },
   "integration.queue_type.kinesis": {
     "badge": "⭐ IoT real-time streaming",
     "reason": "Collect and analyze device data in real-time with Kinesis. Stronger ordering guarantees than SQS / Process tens of thousands of IoT messages/clickstreams per second. Up to 365-day retention for reprocessing",
@@ -4900,10 +4896,6 @@ exports[`getRecommendations snapshots > iot_platform (en) 1`] = `
     "badge": "⭐ Production service standard",
     "reason": "Optimal cost point for 99.9-99.95% availability. AZ failure resilience at the cost of 2 NAT GWs",
   },
-  "network.hybrid.no": {
-    "badge": "✨ Public cloud only",
-    "reason": "No on-premises connection needed. Maintain simple architecture without VPN setup",
-  },
   "network.hybrid.vpn": {
     "badge": "✨ B2B office connectivity",
     "reason": "Connect office to AWS with Site-to-Site VPN. Quick setup, low cost. When high bandwidth isn't needed",
@@ -4915,6 +4907,10 @@ exports[`getRecommendations snapshots > iot_platform (en) 1`] = `
   "network.nat_strategy.shared": {
     "badge": "✨ Cost savings option",
     "reason": "Save $43+/month sharing 1 NAT GW. Single AZ failure affects all outbound traffic",
+  },
+  "network.network_firewall.none": {
+    "badge": "✨ Optional with env separation",
+    "reason": "Account separation per environment may be sufficient. Consider adoption for PCI/HIPAA requirements",
   },
   "network.subnet_tier.2tier": {
     "badge": "⭐ Standard for most services",
@@ -5173,10 +5169,6 @@ exports[`getRecommendations snapshots > iot_platform (ko) 1`] = `
     "badge": "✨ 배치 불필요",
     "reason": "실시간 처리만으로 충분. 추후 정산·리포트 필요 시 EventBridge Scheduler 추가",
   },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ 온프레미스 MQ 마이그레이션",
-    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
-  },
   "integration.queue_type.kinesis": {
     "badge": "⭐ IoT 실시간 스트리밍",
     "reason": "Kinesis로 디바이스 데이터를 실시간 수집·분석하세요. SQS보다 순서 보장이 강합니다 / 초당 수만 IoT 메시지·클릭스트림 처리. 최대 365일 리텐션으로 재처리 가능",
@@ -5193,10 +5185,6 @@ exports[`getRecommendations snapshots > iot_platform (ko) 1`] = `
     "badge": "⭐ 운영 서비스 표준",
     "reason": "99.9~99.95% 가용성 달성의 최적 비용점. NAT GW 2개 비용으로 AZ 장애 대응",
   },
-  "network.hybrid.no": {
-    "badge": "✨ 퍼블릭 클라우드 전용",
-    "reason": "온프레미스 연결 불필요. VPN 설정 없이 단순한 구조 유지",
-  },
   "network.hybrid.vpn": {
     "badge": "✨ B2B 사무실 연결",
     "reason": "Site-to-Site VPN으로 사무실과 AWS 연결. 구성 빠르고 비용 저렴. 고대역폭 불필요 시",
@@ -5208,6 +5196,10 @@ exports[`getRecommendations snapshots > iot_platform (ko) 1`] = `
   "network.nat_strategy.shared": {
     "badge": "✨ 비용 절감 옵션",
     "reason": "NAT GW 1개 공유로 월 $43+ 절감. 단일 AZ 장애 시 전체 아웃바운드 영향",
+  },
+  "network.network_firewall.none": {
+    "badge": "✨ 환경 분리 시 선택적",
+    "reason": "환경별 계정 분리만으로 충분할 수 있음. PCI/HIPAA 요건 시 도입 검토",
   },
   "network.subnet_tier.2tier": {
     "badge": "⭐ 대부분 서비스 표준",
@@ -5370,6 +5362,10 @@ exports[`getRecommendations snapshots > minimal (en) 1`] = `
     "badge": "✨ Ideal for public data services",
     "reason": "HTTPS alone is sufficient. DB encryption can be enabled anytime at no additional cost",
   },
+  "compliance.network_iso.strict": {
+    "badge": "⭐ Production service baseline",
+    "reason": "Isolate DB in private subnets. Blocking direct DB access from the internet is the production baseline",
+  },
   "compute.arch_pattern.container": {
     "badge": "⭐ Standard for most services",
     "reason": "Environment consistency with Docker containers. Zero server management with ECS Fargate. AWS recommended default",
@@ -5429,10 +5425,6 @@ exports[`getRecommendations snapshots > minimal (en) 1`] = `
   "integration.batch_workflow.none": {
     "badge": "✨ Batch unnecessary",
     "reason": "Real-time processing alone is sufficient. Add EventBridge Scheduler when settlement/reports are needed later",
-  },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ On-premises MQ migration",
-    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
   },
   "network.account_structure.envs": {
     "badge": "⭐ Growth-stage standard",
@@ -5595,6 +5587,10 @@ exports[`getRecommendations snapshots > minimal (ko) 1`] = `
     "badge": "✨ 공개 데이터 서비스 적정",
     "reason": "HTTPS만으로 충분. DB 암호화는 비용 추가 없이 언제든 켤 수 있습니다",
   },
+  "compliance.network_iso.strict": {
+    "badge": "⭐ 운영 서비스 기본",
+    "reason": "DB를 프라이빗 서브넷에 격리. 인터넷에서 DB 직접 접근 차단이 운영 환경의 기본입니다",
+  },
   "compute.arch_pattern.container": {
     "badge": "⭐ 대부분 서비스 표준",
     "reason": "Docker 컨테이너로 환경 일관성. ECS Fargate로 서버 관리 제로. AWS 권장 기본",
@@ -5654,10 +5650,6 @@ exports[`getRecommendations snapshots > minimal (ko) 1`] = `
   "integration.batch_workflow.none": {
     "badge": "✨ 배치 불필요",
     "reason": "실시간 처리만으로 충분. 추후 정산·리포트 필요 시 EventBridge Scheduler 추가",
-  },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ 온프레미스 MQ 마이그레이션",
-    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
   },
   "network.account_structure.envs": {
     "badge": "⭐ 성장기 표준",
@@ -5904,10 +5896,6 @@ exports[`getRecommendations snapshots > realtime_chat (en) 1`] = `
     "badge": "✨ Batch unnecessary",
     "reason": "Real-time processing alone is sufficient. Add EventBridge Scheduler when settlement/reports are needed later",
   },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ On-premises MQ migration",
-    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
-  },
   "integration.queue_type.kinesis": {
     "badge": "⭐ Required for streaming",
     "reason": "Process tens of thousands of IoT messages/clickstreams per second. Up to 365-day retention for reprocessing",
@@ -5931,6 +5919,10 @@ exports[`getRecommendations snapshots > realtime_chat (en) 1`] = `
   "network.nat_strategy.shared": {
     "badge": "✨ Cost savings option",
     "reason": "Save $43+/month sharing 1 NAT GW. Single AZ failure affects all outbound traffic",
+  },
+  "network.network_firewall.none": {
+    "badge": "✨ Optional with env separation",
+    "reason": "Account separation per environment may be sufficient. Consider adoption for PCI/HIPAA requirements",
   },
   "network.subnet_tier.2tier": {
     "badge": "⭐ Standard for most services",
@@ -6177,10 +6169,6 @@ exports[`getRecommendations snapshots > realtime_chat (ko) 1`] = `
     "badge": "✨ 배치 불필요",
     "reason": "실시간 처리만으로 충분. 추후 정산·리포트 필요 시 EventBridge Scheduler 추가",
   },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ 온프레미스 MQ 마이그레이션",
-    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
-  },
   "integration.queue_type.kinesis": {
     "badge": "⭐ 스트리밍 필수",
     "reason": "초당 수만 IoT 메시지·클릭스트림 처리. 최대 365일 리텐션으로 재처리 가능",
@@ -6204,6 +6192,10 @@ exports[`getRecommendations snapshots > realtime_chat (ko) 1`] = `
   "network.nat_strategy.shared": {
     "badge": "✨ 비용 절감 옵션",
     "reason": "NAT GW 1개 공유로 월 $43+ 절감. 단일 AZ 장애 시 전체 아웃바운드 영향",
+  },
+  "network.network_firewall.none": {
+    "badge": "✨ 환경 분리 시 선택적",
+    "reason": "환경별 계정 분리만으로 충분할 수 있음. PCI/HIPAA 요건 시 도입 검토",
   },
   "network.subnet_tier.2tier": {
     "badge": "⭐ 대부분 서비스 표준",
@@ -6374,6 +6366,10 @@ exports[`getRecommendations snapshots > serverless (en) 1`] = `
     "badge": "✨ Ideal for public data services",
     "reason": "HTTPS alone is sufficient. DB encryption can be enabled anytime at no additional cost",
   },
+  "compliance.network_iso.strict": {
+    "badge": "⭐ Production service baseline",
+    "reason": "Isolate DB in private subnets. Blocking direct DB access from the internet is the production baseline",
+  },
   "compute.arch_pattern.app_runner": {
     "badge": "⭐ Best for MVP+beginners",
     "reason": "Fastest way to start a container service. No VPC setup needed, auto TLS and scaling",
@@ -6469,10 +6465,6 @@ exports[`getRecommendations snapshots > serverless (en) 1`] = `
   "integration.batch_workflow.none": {
     "badge": "✨ Batch unnecessary",
     "reason": "Real-time processing alone is sufficient. Add EventBridge Scheduler when settlement/reports are needed later",
-  },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ On-premises MQ migration",
-    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
   },
   "network.account_structure.single": {
     "badge": "✨ Ideal for small scale",
@@ -6671,6 +6663,10 @@ exports[`getRecommendations snapshots > serverless (ko) 1`] = `
     "badge": "✨ 공개 데이터 서비스 적정",
     "reason": "HTTPS만으로 충분. DB 암호화는 비용 추가 없이 언제든 켤 수 있습니다",
   },
+  "compliance.network_iso.strict": {
+    "badge": "⭐ 운영 서비스 기본",
+    "reason": "DB를 프라이빗 서브넷에 격리. 인터넷에서 DB 직접 접근 차단이 운영 환경의 기본입니다",
+  },
   "compute.arch_pattern.app_runner": {
     "badge": "⭐ MVP+입문자 최적",
     "reason": "가장 빠르게 컨테이너 서비스 시작. VPC 설정 불필요, 자동 TLS·스케일링",
@@ -6766,10 +6762,6 @@ exports[`getRecommendations snapshots > serverless (ko) 1`] = `
   "integration.batch_workflow.none": {
     "badge": "✨ 배치 불필요",
     "reason": "실시간 처리만으로 충분. 추후 정산·리포트 필요 시 EventBridge Scheduler 추가",
-  },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ 온프레미스 MQ 마이그레이션",
-    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
   },
   "network.account_structure.single": {
     "badge": "✨ 소규모 적정",
@@ -7064,10 +7056,6 @@ exports[`getRecommendations snapshots > ticketing (en) 1`] = `
     "badge": "✨ Batch unnecessary",
     "reason": "Real-time processing alone is sufficient. Add EventBridge Scheduler when settlement/reports are needed later",
   },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ On-premises MQ migration",
-    "reason": "Migrate existing ActiveMQ/RabbitMQ JMS/AMQP code as-is. SQS recommended for new projects",
-  },
   "integration.queue_type.sqs": {
     "badge": "⭐ Standard for order/payment processing",
     "reason": "SQS FIFO: Guaranteed order sequence + exactly-once processing. AWS e-commerce reference standard",
@@ -7095,6 +7083,10 @@ exports[`getRecommendations snapshots > ticketing (en) 1`] = `
   "network.nat_strategy.shared": {
     "badge": "✨ Cost savings option",
     "reason": "Save $43+/month sharing 1 NAT GW. Single AZ failure affects all outbound traffic",
+  },
+  "network.network_firewall.none": {
+    "badge": "✨ Optional with env separation",
+    "reason": "Account separation per environment may be sufficient. Consider adoption for PCI/HIPAA requirements",
   },
   "network.subnet_tier.3tier": {
     "badge": "⭐ Required for compliance",
@@ -7377,10 +7369,6 @@ exports[`getRecommendations snapshots > ticketing (ko) 1`] = `
     "badge": "✨ 배치 불필요",
     "reason": "실시간 처리만으로 충분. 추후 정산·리포트 필요 시 EventBridge Scheduler 추가",
   },
-  "integration.queue_type.amazon_mq": {
-    "badge": "✨ 온프레미스 MQ 마이그레이션",
-    "reason": "기존 ActiveMQ/RabbitMQ JMS/AMQP 코드 그대로 이전. 신규 프로젝트는 SQS 권장",
-  },
   "integration.queue_type.sqs": {
     "badge": "⭐ 주문/결제 처리 표준",
     "reason": "SQS FIFO: 주문 순서 보장 + 정확히 1회 처리 보장. AWS 이커머스 레퍼런스 표준",
@@ -7408,6 +7396,10 @@ exports[`getRecommendations snapshots > ticketing (ko) 1`] = `
   "network.nat_strategy.shared": {
     "badge": "✨ 비용 절감 옵션",
     "reason": "NAT GW 1개 공유로 월 $43+ 절감. 단일 AZ 장애 시 전체 아웃바운드 영향",
+  },
+  "network.network_firewall.none": {
+    "badge": "✨ 환경 분리 시 선택적",
+    "reason": "환경별 계정 분리만으로 충분할 수 있음. PCI/HIPAA 요건 시 도입 검토",
   },
   "network.subnet_tier.3tier": {
     "badge": "⭐ 규정 준수 필수",

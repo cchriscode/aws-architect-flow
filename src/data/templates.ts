@@ -151,7 +151,7 @@ export const TEMPLATES: QuickTemplate[] = [
         arch_pattern: "container",
         orchestration: "eks",
         compute_node: "mixed",
-        scaling: ["ecs_asg", "keda"],
+        scaling: ["hpa", "keda"],
       },
       platform: {
         node_provisioner: "karpenter",
@@ -164,7 +164,7 @@ export const TEMPLATES: QuickTemplate[] = [
         network_policy: "vpc_cni",
         k8s_backup: "velero",
         autoscaling_strategy: "hpa_keda",
-        cluster_strategy: "multi_cluster",
+        cluster_strategy: "single_cluster",
       },
       data: {
         primary_db: ["aurora_pg"],
@@ -176,7 +176,7 @@ export const TEMPLATES: QuickTemplate[] = [
       integration: {
         auth: ["sso"],
         sync_async: "mixed",
-        queue_type: ["sqs", "sns", "eventbridge"],
+        queue_type: ["sqs", "sns"],
         api_type: "alb",
         batch_workflow: ["step_functions", "eventbridge_sch"],
       },
@@ -327,7 +327,7 @@ export const TEMPLATES: QuickTemplate[] = [
         account_structure: "envs",
         az_count: "2az",
         subnet_tier: "3tier",
-        nat_strategy: "per_az",
+        nat_strategy: "shared",
         hybrid: ["no"],
       },
       compute: {
@@ -337,16 +337,16 @@ export const TEMPLATES: QuickTemplate[] = [
         scaling: ["ecs_asg"],
       },
       data: {
-        primary_db: ["aurora_pg", "dynamodb"],
+        primary_db: ["dynamodb"],
         db_ha: "multi_az",
         cache: "redis",
         storage: ["s3"],
-        search: "opensearch",
+        search: "no",
       },
       integration: {
         auth: ["cognito"],
         sync_async: "mixed",
-        queue_type: ["sqs", "sns", "kinesis"],
+        queue_type: ["sqs", "sns"],
         api_type: "alb",
         batch_workflow: ["eventbridge_sch"],
       },
@@ -413,7 +413,7 @@ export const TEMPLATES: QuickTemplate[] = [
       network: {
         account_structure: "envs",
         az_count: "2az",
-        subnet_tier: "3tier",
+        subnet_tier: "2tier",
         nat_strategy: "endpoint",
         hybrid: ["no"],
       },
@@ -422,7 +422,7 @@ export const TEMPLATES: QuickTemplate[] = [
       },
       data: {
         primary_db: ["dynamodb"],
-        db_ha: "multi_az",
+        db_ha: "single_az",
         cache: "no",
         storage: ["s3"],
         search: "opensearch",
@@ -432,7 +432,7 @@ export const TEMPLATES: QuickTemplate[] = [
         sync_async: "async",
         queue_type: ["kinesis", "eventbridge"],
         api_type: "api_gateway",
-        batch_workflow: ["step_functions", "glue", "eventbridge_sch"],
+        batch_workflow: ["glue", "eventbridge_sch"],
       },
       appstack: {
         api_gateway_impl: "aws_apigw",
@@ -496,19 +496,16 @@ export const TEMPLATES: QuickTemplate[] = [
       network: {
         account_structure: "envs",
         az_count: "2az",
-        subnet_tier: "3tier",
-        nat_strategy: "shared",
+        subnet_tier: "2tier",
+        nat_strategy: "endpoint",
         hybrid: ["no"],
       },
       compute: {
-        arch_pattern: "container",
-        orchestration: "ecs",
-        compute_node: "fargate",
-        scaling: ["ecs_asg"],
+        arch_pattern: "serverless",
       },
       data: {
         primary_db: ["rds_pg"],
-        db_ha: "multi_az",
+        db_ha: "single_az",
         cache: "no",
         storage: ["s3"],
         search: "no",
@@ -516,11 +513,11 @@ export const TEMPLATES: QuickTemplate[] = [
       integration: {
         auth: ["cognito"],
         sync_async: "sync_only",
-        api_type: "alb",
+        api_type: "api_gateway",
         batch_workflow: ["none"],
       },
       appstack: {
-        api_gateway_impl: "alb_only",
+        api_gateway_impl: "aws_apigw",
         protocol: "rest",
       },
       edge: {
@@ -669,7 +666,7 @@ export const TEMPLATES: QuickTemplate[] = [
       data: {
         primary_db: ["dynamodb"],
         db_ha: "multi_az",
-        cache: "redis",
+        cache: "no",
         storage: ["s3"],
         search: "opensearch",
       },
@@ -689,18 +686,18 @@ export const TEMPLATES: QuickTemplate[] = [
       integration: {
         auth: ["cognito"],
         sync_async: "async",
-        queue_type: ["kinesis", "sqs", "eventbridge"],
-        api_type: "alb",
+        queue_type: ["kinesis", "eventbridge"],
+        api_type: "api_gateway",
         batch_workflow: ["step_functions", "eventbridge_sch"],
       },
       appstack: {
-        api_gateway_impl: "alb_only",
+        api_gateway_impl: "aws_apigw",
         protocol: "rest",
       },
       edge: {
         cdn: "no",
         dns: "health",
-        waf: "basic",
+        waf: "no",
       },
       cicd: {
         iac: "terraform",
@@ -946,7 +943,7 @@ export const TEMPLATES: QuickTemplate[] = [
       integration: {
         auth: ["cognito"],
         sync_async: "mixed",
-        queue_type: ["sqs", "sns", "eventbridge"],
+        queue_type: ["sqs", "sns"],
         api_type: "alb",
         batch_workflow: ["step_functions", "eventbridge_sch"],
       },
@@ -1021,7 +1018,7 @@ export const TEMPLATES: QuickTemplate[] = [
         arch_pattern: "container",
         orchestration: "eks",
         compute_node: "mixed",
-        scaling: ["ecs_asg", "keda"],
+        scaling: ["hpa", "keda"],
       },
       platform: {
         node_provisioner: "karpenter",
@@ -1031,7 +1028,7 @@ export const TEMPLATES: QuickTemplate[] = [
         k8s_monitoring: "prometheus_grafana",
         k8s_secrets: "external_secrets",
         pod_security: "kyverno",
-        network_policy: "cilium",
+        network_policy: "vpc_cni",
         k8s_backup: "velero",
         autoscaling_strategy: "hpa_keda",
         cluster_strategy: "multi_cluster",
@@ -1112,7 +1109,7 @@ export const TEMPLATES: QuickTemplate[] = [
       },
       network: {
         account_structure: "single",
-        az_count: "1az",
+        az_count: "2az",
         subnet_tier: "2tier",
         nat_strategy: "endpoint",
         hybrid: ["no"],
@@ -1280,6 +1277,23 @@ function applyCostFirst(s: WizardState): string[] {
     changes.push("3 envs → dev/prod only");
   }
 
+  // messaging: trim to max 2 services (keep first 2 by priority)
+  const qt = getArr(s, "integration", "queue_type");
+  if (qt.length > 2) {
+    set(s, "integration", "queue_type", qt.slice(0, 2));
+    changes.push(`Messaging ${qt.length} → 2 services`);
+  }
+
+  // monitoring: remove expensive monitoring (keep cloudwatch only)
+  const mon = getArr(s, "cicd", "monitoring");
+  if (mon.length > 0) {
+    const filtered = mon.filter((m) => m === "cloudwatch");
+    if (filtered.length !== mon.length) {
+      set(s, "cicd", "monitoring", filtered.length ? filtered : ["cloudwatch"]);
+      changes.push("Monitoring → CloudWatch only");
+    }
+  }
+
   // B2B SaaS special: EKS → ECS (skip scale+large — platform layer too critical)
   if (isWorkload(s, "saas") && get(s, "compute", "orchestration") === "eks"
       && get(s, "workload", "growth_stage") !== "scale"
@@ -1375,6 +1389,20 @@ function applyPerfFirst(s: WizardState): string[] {
   if (get(s, "cicd", "env_count") !== "three") {
     set(s, "cicd", "env_count", "three");
     changes.push("+ Staging environment");
+  }
+
+  // search: add opensearch for medium+ scale external services
+  if (!isWorkload(s, "internal") && get(s, "data", "search") !== "opensearch"
+      && ["medium", "large", "xlarge"].includes(get(s, "scale", "dau") as string)) {
+    set(s, "data", "search", "opensearch");
+    changes.push("+ OpenSearch (full-text search)");
+  }
+
+  // monitoring: add xray for distributed tracing
+  const mon = getArr(s, "cicd", "monitoring");
+  if (!mon.includes("xray")) {
+    set(s, "cicd", "monitoring", [...mon, "xray"]);
+    changes.push("+ X-Ray (distributed tracing)");
   }
 
   return changes;

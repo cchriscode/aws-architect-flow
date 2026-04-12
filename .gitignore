@@ -60,3 +60,5 @@ image.png
 Thumbs.db
 
 .vercel
+
+.env*.local

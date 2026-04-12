@@ -186,6 +186,8 @@ exports[`generateArchitecture snapshots > b2b_saas (en) 1`] = `
         "NetworkPolicy: default deny-all namespace policy + per-service allow rules. Allow cross-NS with namespace selector",
         "Multi-cluster: no direct communication between EKS clusters. Share service endpoints via PrivateLink or VPC Peering",
         "Block direct kubectl access: allow only IAM-based permissions via EKS Access Entry",
+        "EKS Pod Identity: new standard replacing IRSA. Directly attach IAM roles to Pods. Much simpler setup than IRSA (no OIDC Provider needed)",
+        "EKS Access Entries: API-based access management replacing aws-auth ConfigMap. API_AND_CONFIG_MAP mode recommended for new clusters",
       ],
       "label": "K8s Ecosystem Platform",
       "services": [
@@ -223,6 +225,13 @@ exports[`generateArchitecture snapshots > b2b_saas (en) 1`] = `
           "name": "Grafana",
           "opt": "Add Grafana Loki for combined log analysis",
           "reason": "Real-time cluster/Pod/node visualization",
+        },
+        {
+          "cost": "Metric samples $0.003/10K + queries $0.01/10K",
+          "detail": "Metric collection and querying without managing Prometheus servers",
+          "name": "Amazon Managed Prometheus (AMP)",
+          "opt": "Collect metrics with ADOT Collector → send to AMP. Connect AMP as data source in Grafana",
+          "reason": "Eliminates Prometheus server management burden, automatic HA",
         },
         {
           "cost": "Free",
@@ -376,7 +385,7 @@ exports[`generateArchitecture snapshots > b2b_saas (en) 1`] = `
         {
           "cost": "cache.r7g.large: ~$100/mo",
           "detail": "Cluster Mode, Multi-AZ",
-          "name": "ElastiCache Redis",
+          "name": "ElastiCache (Valkey/Redis compatible)",
           "opt": "Redis Serverless option: cost savings when inactive. SoT must be stored separately in DB",
           "reason": "Sessions, seat locking (SET NX), Rate Limit, Pub/Sub broadcast",
         },
@@ -883,6 +892,8 @@ exports[`generateArchitecture snapshots > b2b_saas (ko) 1`] = `
         "NetworkPolicy: 기본 deny-all 네임스페이스 정책 + 서비스별 허용 규칙. namespace selector로 Cross-NS 허용",
         "멀티 클러스터: EKS 클러스터 간 직접 통신 불가. PrivateLink 또는 VPC Peering으로 서비스 엔드포인트 공유",
         "kubectl 직접 접근 차단: EKS Access Entry로 IAM 기반 권한만 허용",
+        "EKS Pod Identity: IRSA 대체 신규 표준. IAM 역할을 Pod에 직접 연결. 설정이 IRSA 대비 훨씬 단순 (OIDC Provider 불필요)",
+        "EKS Access Entries: aws-auth ConfigMap 대신 API 기반 접근 관리. 신규 클러스터는 API_AND_CONFIG_MAP 모드 권장",
       ],
       "label": "K8s 생태계 플랫폼",
       "services": [
@@ -920,6 +931,13 @@ exports[`generateArchitecture snapshots > b2b_saas (ko) 1`] = `
           "name": "Grafana",
           "opt": "Grafana Loki 추가 시 로그도 함께 분석 가능",
           "reason": "실시간 클러스터·Pod·노드 시각화",
+        },
+        {
+          "cost": "메트릭 샘플 $0.003/1만 + 쿼리 $0.01/1만",
+          "detail": "Prometheus 서버 관리 없는 메트릭 수집·쿼리",
+          "name": "Amazon Managed Prometheus (AMP)",
+          "opt": "ADOT Collector로 메트릭 수집 → AMP 전송. Grafana에서 AMP를 데이터 소스로 연결",
+          "reason": "Prometheus 서버 직접 운영 부담 제거, HA 자동 보장",
         },
         {
           "cost": "무료",
@@ -1073,7 +1091,7 @@ exports[`generateArchitecture snapshots > b2b_saas (ko) 1`] = `
         {
           "cost": "cache.r7g.large: ~$100/월",
           "detail": "Cluster Mode, Multi-AZ",
-          "name": "ElastiCache Redis",
+          "name": "ElastiCache (Valkey/Redis 호환)",
           "opt": "Redis Serverless 옵션: 비활성 시 비용 절감. 반드시 SoT는 DB에 별도 저장",
           "reason": "세션, 좌석 잠금(SET NX), Rate Limit, Pub/Sub 브로드캐스트",
         },
@@ -1596,6 +1614,7 @@ exports[`generateArchitecture snapshots > compliance (en) 1`] = `
         "Redis is for cache/locking only. SoT must be stored separately in DB",
         "Data-at-rest encryption (KMS CMK) + CloudTrail logging for all queries required",
         "DR strategy: Aurora Global (secondary region read-only) + S3 Cross-Region Replication",
+        "Aurora Limitless Database: horizontal write scaling (auto-sharding). Consider when single Aurora write bottleneck occurs at xlarge scale",
       ],
       "label": "Data Layer",
       "services": [
@@ -1616,7 +1635,7 @@ exports[`generateArchitecture snapshots > compliance (en) 1`] = `
         {
           "cost": "cache.r7g.large: ~$100/mo",
           "detail": "Cluster Mode, Multi-AZ",
-          "name": "ElastiCache Redis",
+          "name": "ElastiCache (Valkey/Redis compatible)",
           "opt": "Redis Serverless option: cost savings when inactive. SoT must be stored separately in DB",
           "reason": "Sessions, seat locking (SET NX), Rate Limit, Pub/Sub broadcast",
         },
@@ -2182,6 +2201,7 @@ exports[`generateArchitecture snapshots > compliance (ko) 1`] = `
         "Redis는 캐시/잠금용. SoT는 반드시 DB에 별도 저장 필수",
         "저장 데이터 암호화(KMS CMK) + 모든 쿼리 CloudTrail 로깅 필수",
         "DR 전략: Aurora Global (보조 리전 읽기 전용) + S3 Cross-Region Replication 설정",
+        "Aurora Limitless Database: 쓰기 수평 확장(자동 샤딩). xlarge 규모에서 단일 Aurora 쓰기 병목 발생 시 검토",
       ],
       "label": "데이터 계층",
       "services": [
@@ -2202,7 +2222,7 @@ exports[`generateArchitecture snapshots > compliance (ko) 1`] = `
         {
           "cost": "cache.r7g.large: ~$100/월",
           "detail": "Cluster Mode, Multi-AZ",
-          "name": "ElastiCache Redis",
+          "name": "ElastiCache (Valkey/Redis 호환)",
           "opt": "Redis Serverless 옵션: 비활성 시 비용 절감. 반드시 SoT는 DB에 별도 저장",
           "reason": "세션, 좌석 잠금(SET NX), Rate Limit, Pub/Sub 브로드캐스트",
         },
@@ -3740,7 +3760,7 @@ exports[`generateArchitecture snapshots > ecommerce_mvp (en) 1`] = `
         {
           "cost": "cache.r7g.large: ~$100/mo",
           "detail": "Cluster Mode",
-          "name": "ElastiCache Redis",
+          "name": "ElastiCache (Valkey/Redis compatible)",
           "opt": "Redis Serverless option: cost savings when inactive. SoT must be stored separately in DB",
           "reason": "Sessions, seat locking (SET NX), Rate Limit, Pub/Sub broadcast",
         },
@@ -4256,7 +4276,7 @@ exports[`generateArchitecture snapshots > ecommerce_mvp (ko) 1`] = `
         {
           "cost": "cache.r7g.large: ~$100/월",
           "detail": "Cluster Mode",
-          "name": "ElastiCache Redis",
+          "name": "ElastiCache (Valkey/Redis 호환)",
           "opt": "Redis Serverless 옵션: 비활성 시 비용 절감. 반드시 SoT는 DB에 별도 저장",
           "reason": "세션, 좌석 잠금(SET NX), Rate Limit, Pub/Sub 브로드캐스트",
         },
@@ -4777,6 +4797,9 @@ exports[`generateArchitecture snapshots > eks_full (en) 1`] = `
         "Kyverno: reject Pod creation on policy violation. Pre-validate with kubectl dry-run in CI pipeline",
         "Cilium: eBPF-based, no iptables. Can replace kube-proxy. Real-time network flow monitoring with Hubble",
         "Block direct kubectl access: allow only IAM-based permissions via EKS Access Entry",
+        "EKS Pod Identity: new standard replacing IRSA. Directly attach IAM roles to Pods. Much simpler setup than IRSA (no OIDC Provider needed)",
+        "EKS Access Entries: API-based access management replacing aws-auth ConfigMap. API_AND_CONFIG_MAP mode recommended for new clusters",
+        "AWS Private CA: automate Istio mTLS cert issuance/renewal. Unified internal TLS management via cert-manager + aws-privateca-issuer",
       ],
       "label": "K8s Ecosystem Platform",
       "services": [
@@ -4821,6 +4844,13 @@ exports[`generateArchitecture snapshots > eks_full (en) 1`] = `
           "name": "CloudWatch + Prometheus hybrid",
           "opt": "Eliminate Prometheus server management with Amazon Managed Prometheus (AMP)",
           "reason": "Best of both tools, standard for large environments",
+        },
+        {
+          "cost": "Metric samples $0.003/10K + queries $0.01/10K",
+          "detail": "Metric collection and querying without managing Prometheus servers",
+          "name": "Amazon Managed Prometheus (AMP)",
+          "opt": "Collect metrics with ADOT Collector → send to AMP. Connect AMP as data source in Grafana",
+          "reason": "Eliminates Prometheus server management burden, automatic HA",
         },
         {
           "cost": "Free",
@@ -4923,6 +4953,7 @@ exports[`generateArchitecture snapshots > eks_full (en) 1`] = `
         "Data-at-rest encryption (KMS CMK) + CloudTrail logging for all queries required",
         "Aurora: continuous S3 backup of transaction logs + PITR required",
         "Active-Active: Aurora Global + DynamoDB Global Tables combo. Cross-region write conflict resolution strategy required",
+        "Aurora Limitless Database: horizontal write scaling (auto-sharding). Consider when single Aurora write bottleneck occurs at xlarge scale",
         "DynamoDB Global Tables: ~1s cross-region replication delay. Design per-region write partitioning or Last-Writer-Wins strategy to prevent conflicts",
       ],
       "label": "Data Layer",
@@ -4979,7 +5010,7 @@ exports[`generateArchitecture snapshots > eks_full (en) 1`] = `
         {
           "cost": "cache.r7g.large: ~$100/mo",
           "detail": "Cluster Mode, Multi-AZ",
-          "name": "ElastiCache Redis",
+          "name": "ElastiCache (Valkey/Redis compatible)",
           "opt": "Redis Serverless option: cost savings when inactive. SoT must be stored separately in DB",
           "reason": "Sessions, seat locking (SET NX), Rate Limit, Pub/Sub broadcast",
         },
@@ -5566,6 +5597,9 @@ exports[`generateArchitecture snapshots > eks_full (ko) 1`] = `
         "Kyverno: 정책 위반 시 Pod 생성 거부. CI 파이프라인에서 kubectl dry-run으로 사전 검증",
         "Cilium: eBPF 기반으로 iptables 없음. kube-proxy 대체 가능. Hubble로 네트워크 흐름 실시간 모니터링",
         "kubectl 직접 접근 차단: EKS Access Entry로 IAM 기반 권한만 허용",
+        "EKS Pod Identity: IRSA 대체 신규 표준. IAM 역할을 Pod에 직접 연결. 설정이 IRSA 대비 훨씬 단순 (OIDC Provider 불필요)",
+        "EKS Access Entries: aws-auth ConfigMap 대신 API 기반 접근 관리. 신규 클러스터는 API_AND_CONFIG_MAP 모드 권장",
+        "AWS Private CA: Istio mTLS 인증서 발급·갱신 자동화. cert-manager + aws-privateca-issuer 연동으로 내부 TLS 통합 관리",
       ],
       "label": "K8s 생태계 플랫폼",
       "services": [
@@ -5610,6 +5644,13 @@ exports[`generateArchitecture snapshots > eks_full (ko) 1`] = `
           "name": "CloudWatch + Prometheus 혼합",
           "opt": "Amazon Managed Prometheus(AMP)로 Prometheus 서버 관리 부담 제거",
           "reason": "각 도구 장점 취합, 대규모 환경 표준",
+        },
+        {
+          "cost": "메트릭 샘플 $0.003/1만 + 쿼리 $0.01/1만",
+          "detail": "Prometheus 서버 관리 없는 메트릭 수집·쿼리",
+          "name": "Amazon Managed Prometheus (AMP)",
+          "opt": "ADOT Collector로 메트릭 수집 → AMP 전송. Grafana에서 AMP를 데이터 소스로 연결",
+          "reason": "Prometheus 서버 직접 운영 부담 제거, HA 자동 보장",
         },
         {
           "cost": "무료",
@@ -5712,6 +5753,7 @@ exports[`generateArchitecture snapshots > eks_full (ko) 1`] = `
         "저장 데이터 암호화(KMS CMK) + 모든 쿼리 CloudTrail 로깅 필수",
         "Aurora: 트랜잭션 로그 S3 연속 백업 + PITR 활성화 필수",
         "Active-Active: Aurora Global + DynamoDB Global Tables 조합. 리전간 쓰기 충돌 해결 전략 필수",
+        "Aurora Limitless Database: 쓰기 수평 확장(자동 샤딩). xlarge 규모에서 단일 Aurora 쓰기 병목 발생 시 검토",
         "DynamoDB Global Tables: 리전간 복제 지연 ~1초. 충돌 방지를 위해 리전별 쓰기 파티셔닝 또는 Last-Writer-Wins 전략 설계 필수",
       ],
       "label": "데이터 계층",
@@ -5768,7 +5810,7 @@ exports[`generateArchitecture snapshots > eks_full (ko) 1`] = `
         {
           "cost": "cache.r7g.large: ~$100/월",
           "detail": "Cluster Mode, Multi-AZ",
-          "name": "ElastiCache Redis",
+          "name": "ElastiCache (Valkey/Redis 호환)",
           "opt": "Redis Serverless 옵션: 비활성 시 비용 절감. 반드시 SoT는 DB에 별도 저장",
           "reason": "세션, 좌석 잠금(SET NX), Rate Limit, Pub/Sub 브로드캐스트",
         },
@@ -8029,7 +8071,7 @@ exports[`generateArchitecture snapshots > iot_platform (en) 1`] = `
         {
           "cost": "cache.r7g.large: ~$100/mo",
           "detail": "Cluster Mode",
-          "name": "ElastiCache Redis",
+          "name": "ElastiCache (Valkey/Redis compatible)",
           "opt": "Redis Serverless option: cost savings when inactive. SoT must be stored separately in DB",
           "reason": "Sessions, seat locking (SET NX), Rate Limit, Pub/Sub broadcast",
         },
@@ -8566,7 +8608,7 @@ exports[`generateArchitecture snapshots > iot_platform (ko) 1`] = `
         {
           "cost": "cache.r7g.large: ~$100/월",
           "detail": "Cluster Mode",
-          "name": "ElastiCache Redis",
+          "name": "ElastiCache (Valkey/Redis 호환)",
           "opt": "Redis Serverless 옵션: 비활성 시 비용 절감. 반드시 SoT는 DB에 별도 저장",
           "reason": "세션, 좌석 잠금(SET NX), Rate Limit, Pub/Sub 브로드캐스트",
         },
@@ -9815,7 +9857,7 @@ exports[`generateArchitecture snapshots > realtime_chat (en) 1`] = `
         {
           "cost": "cache.r7g.large: ~$100/mo",
           "detail": "Cluster Mode",
-          "name": "ElastiCache Redis",
+          "name": "ElastiCache (Valkey/Redis compatible)",
           "opt": "Redis Serverless option: cost savings when inactive. SoT must be stored separately in DB",
           "reason": "Sessions, seat locking (SET NX), Rate Limit, Pub/Sub broadcast",
         },
@@ -10366,7 +10408,7 @@ exports[`generateArchitecture snapshots > realtime_chat (ko) 1`] = `
         {
           "cost": "cache.r7g.large: ~$100/월",
           "detail": "Cluster Mode",
-          "name": "ElastiCache Redis",
+          "name": "ElastiCache (Valkey/Redis 호환)",
           "opt": "Redis Serverless 옵션: 비활성 시 비용 절감. 반드시 SoT는 DB에 별도 저장",
           "reason": "세션, 좌석 잠금(SET NX), Rate Limit, Pub/Sub 브로드캐스트",
         },
@@ -11620,7 +11662,7 @@ exports[`generateArchitecture snapshots > ticketing (en) 1`] = `
         {
           "cost": "cache.r7g.large: ~$100/mo",
           "detail": "Cluster Mode",
-          "name": "ElastiCache Redis",
+          "name": "ElastiCache (Valkey/Redis compatible)",
           "opt": "Redis Serverless option: cost savings when inactive. SoT must be stored separately in DB",
           "reason": "Sessions, seat locking (SET NX), Rate Limit, Pub/Sub broadcast",
         },
@@ -12160,7 +12202,7 @@ exports[`generateArchitecture snapshots > ticketing (ko) 1`] = `
         {
           "cost": "cache.r7g.large: ~$100/월",
           "detail": "Cluster Mode",
-          "name": "ElastiCache Redis",
+          "name": "ElastiCache (Valkey/Redis 호환)",
           "opt": "Redis Serverless 옵션: 비활성 시 비용 절감. 반드시 SoT는 DB에 별도 저장",
           "reason": "세션, 좌석 잠금(SET NX), Rate Limit, Pub/Sub 브로드캐스트",
         },

@@ -35,6 +35,9 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
   const hasCDN = s.edge?.cdn !== "no";
   const hasCache = s.data?.cache !== "no" && s.data?.cache;
   const hasSearch = s.data?.search === "opensearch";
+  const costPri = s.cost?.priority as string | undefined;
+  const isCostFirst = costPri === "cost_first";
+  const isPerfFirst = costPri === "perf_first";
 
   const layers: any[] = [];
 
@@ -165,7 +168,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
 
   // 서버리스
   if(isServerless || s.compute?.arch_pattern === "hybrid") {
-    computeServices.push({ name:"Lambda", detail:`ARM/Graviton2, 512MB~3GB`, reason:t("comp.lambda.reason"), cost:t("comp.lambda.cost"), opt:t("comp.lambda.opt") });
+    computeServices.push({ name:"Lambda", detail:isCostFirst ? `ARM/Graviton2, 128MB, Provisioned 없음` : isPerfFirst ? `ARM/Graviton2, 512MB+, Provisioned Concurrency` : `ARM/Graviton2, 256MB~1GB`, reason:t("comp.lambda.reason"), cost:t("comp.lambda.cost"), opt:isCostFirst ? (lang==="ko"?"128MB로 시작 후 실측 기반 조정. Graviton 20% 절감":"Start 128MB, adjust by measurement. Graviton 20% savings") : t("comp.lambda.opt") });
     const hasRdsDb = primaryDbs.some((db: string) => db !== "dynamodb" && db !== "none");
     if(hasRdsDb) {
       computeServices.push({ name:"RDS Proxy", detail:t("comp.rdsproxy.detail"), reason:t("comp.rdsproxy.reason"), cost:lang==="ko"?"db 비용의 ~3%":"~3% of DB cost", opt:t("comp.rdsproxy.opt") });
@@ -180,7 +183,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
 
   // vm 패턴 → EC2 Auto Scaling
   if(isVM) {
-    computeServices.push({ name:"EC2 Auto Scaling Group", detail:lang==="ko"?`프라이빗 서브넷, ${azNum}AZ, AMI 기반`:`Private subnet, ${azNum}AZ, AMI-based`, reason:t("comp.ec2.reason"), cost:t("comp.ec2.cost"), opt:t("comp.ec2.opt") });
+    computeServices.push({ name:"EC2 Auto Scaling Group", detail:isCostFirst ? (lang==="ko"?`t3.medium, Spot 혼합, ${azNum}AZ`:`t3.medium, Spot mix, ${azNum}AZ`) : isPerfFirst ? (lang==="ko"?`c6i.xlarge, On-Demand + RI, ${azNum}AZ`:`c6i.xlarge, On-Demand + RI, ${azNum}AZ`) : (lang==="ko"?`m6i.large, On-Demand, ${azNum}AZ`:`m6i.large, On-Demand, ${azNum}AZ`), reason:t("comp.ec2.reason"), cost:t("comp.ec2.cost"), opt:t("comp.ec2.opt") });
     computeServices.push({ name:"Systems Manager (SSM)", detail:"Session Manager + Patch Manager", reason:t("comp.ssm.reason"), cost:t("net.vpc.cost"), opt:t("comp.ssm.opt") });
   } else if(!isServerless) {
     if(isK8s) {
@@ -189,7 +192,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
       );
     } else {
       computeServices.push(
-        { name:`ECS Fargate`, detail:lang==="ko"?`프라이빗 서브넷, ${azNum}AZ`:`Private subnet, ${azNum}AZ`, reason:t("comp.ecs.reason"), cost:lang==="ko"?"$0.04048/vCPU·시간":"$0.04048/vCPU-hr", opt:`${s.cost?.spot_usage !== "no" ? t("comp.ecs.spotopt") : t("comp.ecs.spopt")}` }
+        { name:`ECS Fargate`, detail:isCostFirst ? (lang==="ko"?`0.25vCPU/0.5GB, ${azNum}AZ`:`0.25vCPU/0.5GB, ${azNum}AZ`) : isPerfFirst ? (lang==="ko"?`1vCPU/2GB, ${azNum}AZ`:`1vCPU/2GB, ${azNum}AZ`) : (lang==="ko"?`0.5vCPU/1GB, ${azNum}AZ`:`0.5vCPU/1GB, ${azNum}AZ`), reason:t("comp.ecs.reason"), cost:lang==="ko"?"$0.04048/vCPU·시간":"$0.04048/vCPU-hr", opt:`${s.cost?.spot_usage !== "no" ? t("comp.ecs.spotopt") : t("comp.ecs.spopt")}` }
       );
     }
     if(s.compute?.compute_node === "ec2_node" || s.compute?.compute_node === "mixed") {
@@ -530,7 +533,10 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
       reason: primaryDbs.length > 1
         ? (isDynamo ? (lang==="ko"?"세션·상태·실시간 NoSQL (낮은 지연)":"Session/state/real-time NoSQL (low latency)") : (lang==="ko"?"트랜잭션·관계형 데이터 SoT":"Transactional/relational data SoT"))
         : (lang==="ko"?"주요 데이터 SoT (Source of Truth)":"Primary data SoT (Source of Truth)"),
-      cost: isAurora ? (lang==="ko"?"r6g.large: ~$200/월/인스턴스":"r6g.large: ~$200/mo/instance") : isDynamo ? (lang==="ko"?"On-Demand: 요청당 과금":"On-Demand: per-request billing") : (lang==="ko"?"db.t3.medium: 서울 ~$70/월":"db.t3.medium: Seoul ~$70/mo"),
+      cost: isAurora
+        ? (isCostFirst ? (lang==="ko"?"r6g.large 1 writer: ~$200/월":"r6g.large 1 writer: ~$200/mo") : isPerfFirst ? (lang==="ko"?"r6g.xlarge Multi-AZ+Reader: ~$800/월":"r6g.xlarge Multi-AZ+Reader: ~$800/mo") : (lang==="ko"?"r6g.large+Reader: ~$400/월":"r6g.large+Reader: ~$400/mo"))
+        : isDynamo ? (lang==="ko"?"On-Demand: 요청당 과금":"On-Demand: per-request billing")
+        : (isCostFirst ? (lang==="ko"?"db.t3.medium: ~$70/월":"db.t3.medium: ~$70/mo") : isPerfFirst ? (lang==="ko"?"db.r6g.xlarge RI: ~$250/월":"db.r6g.xlarge RI: ~$250/mo") : (lang==="ko"?"db.r6g.large: ~$140/월":"db.r6g.large: ~$140/mo")),
       opt: dbOpt
     });
 
@@ -559,7 +565,7 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
         name: lang==="ko"?"ElastiCache (Valkey/Redis 호환)":"ElastiCache (Valkey/Redis compatible)",
         detail: `${isHighAvail ? "Cluster Mode, Multi-AZ" : "Cluster Mode"}`,
         reason: lang==="ko"?"세션, 좌석 잠금(SET NX), Rate Limit, Pub/Sub 브로드캐스트":"Sessions, seat locking (SET NX), Rate Limit, Pub/Sub broadcast",
-        cost: lang==="ko"?"cache.r7g.large: ~$100/월":"cache.r7g.large: ~$100/mo",
+        cost: isCostFirst ? (lang==="ko"?"cache.t3.micro: ~$15/월":"cache.t3.micro: ~$15/mo") : isPerfFirst ? (lang==="ko"?"cache.r7g.xlarge Multi-AZ: ~$300/월":"cache.r7g.xlarge Multi-AZ: ~$300/mo") : (lang==="ko"?"cache.r7g.large: ~$100/월":"cache.r7g.large: ~$100/mo"),
         opt: lang==="ko"?"Redis Serverless 옵션: 비활성 시 비용 절감. 반드시 SoT는 DB에 별도 저장":"Redis Serverless option: cost savings when inactive. SoT must be stored separately in DB"
       });
     }
@@ -879,9 +885,9 @@ export function generateArchitecture(state: WizardState, lang: "ko" | "en" = "ko
       reason:"", cost:"", opt:""
     })),
     insights:[
-      s.cost?.priority === "cost_first" ? (lang==="ko"?"⚡ 비용 최우선 전략: Aurora 대신 RDS, ECS Fargate 대신 Spot EC2, 환경 수 최소화 권장":"Cost-first strategy: RDS instead of Aurora, Spot EC2 instead of ECS Fargate, minimize environments") :
-        s.cost?.priority === "perf_first" ? (lang==="ko"?"🔒 성능/안정성 최우선: 약정 없이 On-Demand 유지, Multi-AZ 모든 레이어 적용, 예비 용량 확보 권장":"Performance/reliability first: maintain On-Demand without commitments, apply Multi-AZ to all layers, secure spare capacity") :
-        (lang==="ko"?"⚖️ 균형 전략: 안정화 후 1년 RI 전환 + Spot 보조 서비스 적용으로 30~40% 절감":"Balanced strategy: switch to 1yr RI after stabilization + Spot for auxiliary services for 30-40% savings"),
+      isCostFirst ? (lang==="ko"?"⚡ 비용 최우선: t3/Graviton 소형 인스턴스 시작, Spot 혼합 30~70% 절감. VPC Endpoint로 NAT 트래픽 80% 절감. Lambda 128MB 시작 후 실측 조정":"Cost-first: start with t3/Graviton small instances, Spot mix 30-70% savings. VPC Endpoint reduces NAT traffic 80%. Lambda starts at 128MB, adjust by measurement") :
+        isPerfFirst ? (lang==="ko"?"🔒 성능 최우선: 모든 레이어 Multi-AZ + Read Replica. Provisioned Concurrency로 콜드스타트 제거. 3yr RI 시 On-Demand 대비 최대 60% 절감":"Performance-first: Multi-AZ + Read Replica on all layers. Provisioned Concurrency eliminates cold starts. 3yr RI up to 60% savings vs On-Demand") :
+        (lang==="ko"?"⚖️ 균형 전략: m6i/r6g 중형 인스턴스. 안정화 후 1yr RI 전환 + Spot 보조 서비스로 30~40% 절감":"Balanced: m6i/r6g medium instances. Switch to 1yr RI after stabilization + Spot for auxiliary services for 30-40% savings"),
       lang==="ko"?`예상 최적화 가능 절감: ${s.cost?.commitment !== "none" ? "40~72%" : "20~30%"}`:`Estimated optimization savings: ${s.cost?.commitment !== "none" ? "40-72%" : "20-30%"}`,
       lang==="ko"?"Cost Explorer 주 1회 확인 습관화":"Make weekly Cost Explorer review a habit",
       lang==="ko"?"태그(Tag) 전략: 서비스/환경/팀별 비용 분리 추적":"Tag strategy: track costs separately by service/environment/team",

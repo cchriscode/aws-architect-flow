@@ -471,5 +471,7 @@ export interface Dict {
     flowSchedule: string;
     flowDr: string;
     footerDesc: (total: number) => string;
+    vertical: string;
+    horizontal: string;
   };
 }

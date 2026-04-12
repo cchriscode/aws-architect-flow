@@ -272,7 +272,7 @@ exports[`generateSummary snapshots > compliance (en) 1`] = `
     },
     {
       "icon": "🗄️",
-      "name": "Cache Server (Valkey/Redis)",
+      "name": "ElastiCache (Valkey/Redis compatible)",
       "role": "Cluster Mode, Multi-AZ",
     },
     {
@@ -398,7 +398,7 @@ exports[`generateSummary snapshots > compliance (ko) 1`] = `
     },
     {
       "icon": "🗄️",
-      "name": "캐시 서버 (Valkey/Redis)",
+      "name": "ElastiCache (Valkey/Redis 호환)",
       "role": "Cluster Mode, Multi-AZ",
     },
     {
@@ -735,7 +735,7 @@ exports[`generateSummary snapshots > ecommerce_mvp (en) 1`] = `
     },
     {
       "icon": "🗄️",
-      "name": "Cache Server (Valkey/Redis)",
+      "name": "ElastiCache (Valkey/Redis compatible)",
       "role": "Cluster Mode",
     },
     {
@@ -843,7 +843,7 @@ exports[`generateSummary snapshots > ecommerce_mvp (ko) 1`] = `
     },
     {
       "icon": "🗄️",
-      "name": "캐시 서버 (Valkey/Redis)",
+      "name": "ElastiCache (Valkey/Redis 호환)",
       "role": "Cluster Mode",
     },
     {

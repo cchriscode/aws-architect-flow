@@ -8,6 +8,7 @@ import { TEMPLATES, adjustTemplateForBudget } from "@/data/templates";
 import { estimateMonthlyCost } from "@/lib/cost";
 import { generateArchitecture } from "@/lib/architecture";
 import { generateDiagramXml } from "@/lib/diagram-xml";
+import { generateDiagramXmlH } from "@/lib/diagram-xml-horizontal";
 import type { WizardState } from "@/lib/types";
 
 const BUDGET_MODES = ["cost_first", "balanced", "perf_first"] as const;
@@ -36,6 +37,20 @@ describe("All templates × all budget modes: no crash", () => {
         expect(cost.totalMin).toBeGreaterThanOrEqual(0);
         expect(cost.totalMax).toBeGreaterThanOrEqual(cost.totalMin);
         expect(arch.layers.length).toBeGreaterThan(0);
+        expect(xml).toContain("mxGraphModel");
+      });
+    }
+  }
+});
+
+describe("All templates × all budget modes: horizontal no crash", () => {
+  for (const tpl of TEMPLATES) {
+    for (const mode of BUDGET_MODES) {
+      it(`${tpl.id} / ${mode} — horizontal runs without error`, () => {
+        const { state } = adjustTemplateForBudget(tpl.state, mode);
+        const arch = generateArchitecture(state, "ko");
+        const xml = generateDiagramXmlH(arch, state);
+
         expect(xml).toContain("mxGraphModel");
       });
     }

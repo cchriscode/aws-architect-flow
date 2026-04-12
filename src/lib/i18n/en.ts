@@ -580,5 +580,7 @@ export const en: Dict = {
     flowSchedule: "Schedule / Trigger",
     flowDr: "Cross-Region Replication / Failover",
     footerDesc: (total) => `ⓘ All ${total} services selected across all steps are placed in their respective AWS network zones. Arrows (↓) show the main request flow (User→Edge→App→DB). The colored top border on service cards indicates AWS service category. Hover over cards for details, recommendations, and cost.`,
+    vertical: "Vertical",
+    horizontal: "Horizontal",
   },
 };
