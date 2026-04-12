@@ -18,7 +18,7 @@ const asgCountH = (xmlH.match(/Auto Scaling Group/g) || []).length;
 console.log("세로 버전 ASG 수:", asgCountH);
 
 // 가로 버전
-const xmlV = generateDiagramXml(arch, state, "ko");
+const xmlV = generateDiagramXml(arch, state);
 fs.writeFileSync("scripts/ticketing-horizontal.drawio", xmlV);
 console.log("가로 버전 생성: scripts/ticketing-horizontal.drawio");
 

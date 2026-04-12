@@ -1,7 +1,7 @@
 import { TEMPLATES, adjustTemplateForBudget } from "../src/data/templates";
 import { generateArchitecture } from "../src/lib/architecture";
 import { classifyServices, isComputeService } from "../src/lib/diagram-xml-shared";
-import { generateDiagramXmlHorizontal } from "../src/lib/diagram-xml-horizontal";
+import { generateDiagramXmlH } from "../src/lib/diagram-xml-horizontal";
 
 const tpl = TEMPLATES.find(t => t.id === "ticketing")!;
 const { state } = adjustTemplateForBudget(tpl.state, "balanced");
@@ -20,7 +20,7 @@ console.log("App services:");
 classified.app.forEach(item => console.log(" ", item.svc.name));
 
 // Check the generated XML for ASG
-const xml = generateDiagramXmlHorizontal(arch, state, "ko");
+const xml = generateDiagramXmlH(arch, state);
 const asgMatches = xml.match(/Auto Scaling Group/g);
 console.log("\nASG occurrences in XML:", asgMatches?.length ?? 0);
 

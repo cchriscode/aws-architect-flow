@@ -5,7 +5,7 @@ import { generateDiagramXml } from "../src/lib/diagram-xml";
 const tpl = TEMPLATES.find(t => t.id === "ticketing")!;
 const { state } = adjustTemplateForBudget(tpl.state, "balanced");
 const arch = generateArchitecture(state, "ko");
-const xml = generateDiagramXml(arch, state, "ko");
+const xml = generateDiagramXml(arch, state);
 
 const asgCount = (xml.match(/Auto Scaling Group/g) || []).length;
 console.log("[가로 버전] ASG mentions:", asgCount);
