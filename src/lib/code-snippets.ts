@@ -47,6 +47,7 @@ export function generateCodeSnippets(state: WizardState): CodeSnippet[] {
   const isServerless= archP === "serverless";
   const isEks       = orchest === "eks";
   const isEcs       = !isEks && archP === "container";
+  const isVM        = archP === "vm";
   const isLarge     = dau === "large" || dau === "xlarge";
   const hasCritCert = cert.some((c) => ["pci", "hipaa", "sox"].includes(c));
   const hasPersonal = ["sensitive","critical"].includes(state.workload?.data_sensitivity);
@@ -778,6 +779,294 @@ ${nodeP === "karpenter" ? `  # Karpenter가 노드 관리 — 초기 노드만 b
     });
   }
 
+  // ── 7b. Lambda Function (서버리스)
+  if (isServerless) {
+    const hasRdsDb = dbArr.some((db) => db !== "dynamodb" && db !== "none");
+    snippets.push({
+      category: "컴퓨팅",
+      title: "Lambda 함수 + API Gateway 구성",
+      lang,
+      desc: `Graviton(ARM) + ${hasRdsDb ? "VPC 배치 + RDS Proxy" : "VPC 외부"} + 환경변수 Secrets Manager`,
+      code: CDK ? `// AWS CDK — Lambda + API Gateway
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+import * as logs from 'aws-cdk-lib/aws-logs';
+
+const fn = new lambda.Function(this, 'AppFunction', {
+  runtime: lambda.Runtime.NODEJS_20_X,
+  architecture: lambda.Architecture.ARM_64,  // Graviton — 20% 저렴
+  handler: 'index.handler',
+  code: lambda.Code.fromAsset('dist'),
+  memorySize: ${dau === "large" || dau === "xlarge" ? 1024 : dau === "medium" ? 512 : 256},
+  timeout: cdk.Duration.seconds(30),
+  environment: {
+    NODE_ENV: 'production',
+    TABLE_NAME: table.tableName,  // DynamoDB 등
+  },
+  logRetention: logs.RetentionDays.ONE_MONTH,
+  tracing: lambda.Tracing.ACTIVE,  // X-Ray
+${hasRdsDb ? `  vpc,
+  vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+  securityGroups: [lambdaSg],` : ""}
+});
+${hasRdsDb ? `
+// RDS Proxy 연결 (Lambda 커넥션 풀링)
+fn.addEnvironment('DB_HOST', proxy.endpoint);` : ""}
+
+// API Gateway
+const api = new apigateway.RestApi(this, 'AppApi', {
+  restApiName: '\${props.project}-api',
+  deployOptions: { stageName: 'v1', tracingEnabled: true },
+});
+api.root.addProxy({ defaultIntegration: new apigateway.LambdaIntegration(fn) });` : `# Terraform — Lambda + API Gateway
+resource "aws_lambda_function" "app" {
+  function_name = "\${var.project}-\${var.env}"
+  runtime       = "nodejs20.x"
+  architectures = ["arm64"]  # Graviton — 20% cost savings
+  handler       = "index.handler"
+  filename      = "dist/lambda.zip"
+  memory_size   = ${dau === "large" || dau === "xlarge" ? 1024 : dau === "medium" ? 512 : 256}
+  timeout       = 30
+  role          = aws_iam_role.lambda_exec.arn
+
+  environment {
+    variables = {
+      NODE_ENV   = "production"
+      TABLE_NAME = aws_dynamodb_table.app.name
+    }
+  }
+
+  tracing_config { mode = "Active" }  # X-Ray
+${hasRdsDb ? `
+  vpc_config {
+    subnet_ids         = module.vpc.private_subnets
+    security_group_ids = [aws_security_group.lambda_sg.id]
+  }` : ""}
+
+  tags = local.common_tags
+}
+
+resource "aws_cloudwatch_log_group" "lambda" {
+  name              = "/aws/lambda/\${aws_lambda_function.app.function_name}"
+  retention_in_days = 30
+}
+
+# API Gateway
+resource "aws_apigatewayv2_api" "app" {
+  name          = "\${var.project}-api"
+  protocol_type = "HTTP"
+}
+
+resource "aws_apigatewayv2_integration" "lambda" {
+  api_id                 = aws_apigatewayv2_api.app.id
+  integration_type       = "AWS_PROXY"
+  integration_uri        = aws_lambda_function.app.invoke_arn
+  payload_format_version = "2.0"
+}
+
+resource "aws_apigatewayv2_route" "default" {
+  api_id    = aws_apigatewayv2_api.app.id
+  route_key = "\$default"
+  target    = "integrations/\${aws_apigatewayv2_integration.lambda.id}"
+}
+
+resource "aws_apigatewayv2_stage" "v1" {
+  api_id      = aws_apigatewayv2_api.app.id
+  name        = "v1"
+  auto_deploy = true
+}
+
+resource "aws_lambda_permission" "apigw" {
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.app.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "\${aws_apigatewayv2_api.app.execution_arn}/*/*"
+}`,
+    });
+  }
+
+  // ── 7b-2. API Gateway (컨테이너 + API Gateway 조합)
+  if (!isServerless && state.integration?.api_type === "api_gateway") {
+    snippets.push({
+      category: "네트워크",
+      title: "API Gateway + VPC Link (컨테이너 연동)",
+      lang,
+      desc: "API Gateway HTTP API → VPC Link → ALB/NLB → ECS/EKS",
+      code: CDK ? `// AWS CDK — API Gateway + VPC Link
+import * as apigateway from 'aws-cdk-lib/aws-apigatewayv2';
+import * as integrations from 'aws-cdk-lib/aws-apigatewayv2-integrations';
+
+// VPC Link로 프라이빗 ALB 연결
+const vpcLink = new apigateway.VpcLink(this, 'VpcLink', {
+  vpc,
+  subnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+});
+
+const api = new apigateway.HttpApi(this, 'AppApi', {
+  apiName: '\${props.project}-api',
+  corsPreflight: {
+    allowOrigins: ['*'],
+    allowMethods: [apigateway.CorsHttpMethod.ANY],
+  },
+});
+
+api.addRoutes({
+  path: '/{proxy+}',
+  methods: [apigateway.HttpMethod.ANY],
+  integration: new integrations.HttpAlbIntegration('AlbIntegration', listener, {
+    vpcLink,
+  }),
+});` : `# Terraform — API Gateway + VPC Link
+resource "aws_apigatewayv2_api" "app" {
+  name          = "\${var.project}-api"
+  protocol_type = "HTTP"
+
+  cors_configuration {
+    allow_origins = ["*"]
+    allow_methods = ["*"]
+    allow_headers = ["*"]
+  }
+}
+
+resource "aws_apigatewayv2_vpc_link" "app" {
+  name               = "\${var.project}-vpclink"
+  subnet_ids         = module.vpc.private_subnets
+  security_group_ids = [aws_security_group.app_sg.id]
+}
+
+resource "aws_apigatewayv2_integration" "alb" {
+  api_id             = aws_apigatewayv2_api.app.id
+  integration_type   = "HTTP_PROXY"
+  integration_uri    = aws_lb_listener.app.arn
+  integration_method = "ANY"
+  connection_type    = "VPC_LINK"
+  connection_id      = aws_apigatewayv2_vpc_link.app.id
+}
+
+resource "aws_apigatewayv2_route" "default" {
+  api_id    = aws_apigatewayv2_api.app.id
+  route_key = "\$default"
+  target    = "integrations/\${aws_apigatewayv2_integration.alb.id}"
+}
+
+resource "aws_apigatewayv2_stage" "v1" {
+  api_id      = aws_apigatewayv2_api.app.id
+  name        = "v1"
+  auto_deploy = true
+}`,
+    });
+  }
+
+  // ── 7c. EC2 Auto Scaling Group (VM 패턴 또는 mixed compute node)
+  const hasEc2Asg = isVM || (archP === "container" && (state.compute?.compute_node === "ec2_node" || state.compute?.compute_node === "mixed"));
+  if (hasEc2Asg) {
+    snippets.push({
+      category: "컴퓨팅",
+      title: "EC2 Auto Scaling Group + Launch Template",
+      lang,
+      desc: `Graviton(ARM) + ${spot !== "no" ? "Spot 혼합 + " : ""}${azNum}AZ + ALB 연동`,
+      code: CDK ? `// AWS CDK — EC2 Auto Scaling Group
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as autoscaling from 'aws-cdk-lib/aws-autoscaling';
+
+const asg = new autoscaling.AutoScalingGroup(this, 'AppAsg', {
+  vpc,
+  vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+  instanceType: ec2.InstanceType.of(
+    ec2.InstanceClass.${dau === "large" || dau === "xlarge" ? "C6G" : dau === "medium" ? "M6G" : "T4G"},
+    ec2.InstanceSize.${dau === "large" || dau === "xlarge" ? "XLARGE" : dau === "medium" ? "LARGE" : "MEDIUM"},
+  ),
+  machineImage: ec2.MachineImage.latestAmazonLinux2023({ cpuType: ec2.AmazonLinuxCpuType.ARM_64 }),
+  minCapacity: ${azNum},
+  maxCapacity: ${maxNodes},
+  healthCheck: autoscaling.HealthCheck.elb({ grace: cdk.Duration.seconds(120) }),
+  updatePolicy: autoscaling.UpdatePolicy.rollingUpdate(),
+  securityGroup: appSg,
+${spot !== "no" ? `  mixedInstancesPolicy: {
+    instancesDistribution: {
+      onDemandPercentageAboveBaseCapacity: ${spot === "heavy" ? 20 : 50},
+      spotAllocationStrategy: 'capacity-optimized',
+    },
+  },` : ""}
+});
+
+// Target Tracking: CPU 60%
+asg.scaleOnCpuUtilization('CpuScaling', { targetUtilizationPercent: 60 });
+
+// ALB 연동
+asg.attachToApplicationTargetGroup(targetGroup);` : `# Terraform — EC2 Auto Scaling Group
+resource "aws_launch_template" "app" {
+  name_prefix   = "\${var.project}-"
+  image_id      = data.aws_ssm_parameter.al2023_arm.value  # AL2023 ARM64
+  instance_type = "${dau === "large" || dau === "xlarge" ? "c6g.xlarge" : dau === "medium" ? "m6g.large" : "t4g.medium"}"
+
+  network_interfaces {
+    security_groups             = [aws_security_group.app_sg.id]
+    associate_public_ip_address = false
+  }
+
+  iam_instance_profile { arn = aws_iam_instance_profile.app.arn }
+
+  user_data = base64encode(templatefile("user_data.sh", {
+    env = var.env
+  }))
+
+  tag_specifications {
+    resource_type = "instance"
+    tags          = merge(local.common_tags, { Name = "\${var.project}-app" })
+  }
+}
+
+resource "aws_autoscaling_group" "app" {
+  name                = "\${var.project}-\${var.env}"
+  vpc_zone_identifier = module.vpc.private_subnets
+  target_group_arns   = [aws_lb_target_group.app.arn]
+
+  min_size         = ${azNum}
+  max_size         = ${maxNodes}
+  desired_capacity = ${azNum}
+
+  health_check_type         = "ELB"
+  health_check_grace_period = 120
+${spot !== "no" ? `
+  mixed_instances_policy {
+    instances_distribution {
+      on_demand_percentage_above_base_capacity = ${spot === "heavy" ? 20 : 50}
+      spot_allocation_strategy                 = "capacity-optimized"
+    }
+    launch_template {
+      launch_template_specification {
+        launch_template_id = aws_launch_template.app.id
+        version            = "$Latest"
+      }
+    }
+  }` : `
+  launch_template {
+    id      = aws_launch_template.app.id
+    version = "$Latest"
+  }`}
+
+  tag {
+    key                 = "Name"
+    value               = "\${var.project}-app"
+    propagate_at_launch = true
+  }
+}
+
+# Target Tracking — CPU 60%
+resource "aws_autoscaling_policy" "cpu" {
+  name                   = "cpu-target-tracking"
+  autoscaling_group_name = aws_autoscaling_group.app.name
+  policy_type            = "TargetTrackingScaling"
+
+  target_tracking_configuration {
+    predefined_metric_specification { predefined_metric_type = "ASGAverageCPUUtilization" }
+    target_value = 60.0
+  }
+}`,
+    });
+  }
+
   // ── 8. Aurora Serverless v2
   if (hasAurora) {
     const isPgLocal = dbArr.includes("aurora_pg");
@@ -904,6 +1193,102 @@ resource "aws_rds_cluster_instance" "reader" {
   engine             = aws_rds_cluster.app.engine
   engine_version     = aws_rds_cluster.app.engine_version
   promotion_tier     = 1  # 페일오버 우선순위 최고
+}` : ""}`,
+    });
+  }
+
+  // ── 8b. RDS (non-Aurora) MySQL/PostgreSQL
+  if (hasRds && !hasAurora) {
+    const isPgLocal = dbArr.includes("rds_pg");
+    const instClass = dau === "large" || dau === "xlarge" ? "db.r6g.xlarge" : dau === "medium" ? "db.r6g.large" : "db.t4g.medium";
+    snippets.push({
+      category: "데이터베이스",
+      title: `RDS ${isPgLocal ? "PostgreSQL" : "MySQL"} 완전 구성`,
+      lang,
+      desc: `${instClass} + Multi-AZ + 자동 백업 + 삭제 방지`,
+      code: CDK ? `// AWS CDK — RDS ${isPgLocal ? "PostgreSQL" : "MySQL"}
+import * as rds from 'aws-cdk-lib/aws-rds';
+
+const dbSg = new ec2.SecurityGroup(this, 'DbSg', {
+  vpc,
+  description: 'RDS Security Group',
+});
+dbSg.addIngressRule(appSg, ec2.Port.tcp(${isPgLocal ? 5432 : 3306}), 'App → DB');
+
+const dbSecret = new secretsmanager.Secret(this, 'DbSecret', {
+  generateSecretString: {
+    secretStringTemplate: JSON.stringify({ username: 'admin' }),
+    generateStringKey: 'password',
+    excludePunctuation: true,
+  },
+});
+
+const db = new rds.DatabaseInstance(this, 'AppDb', {
+  engine: rds.DatabaseInstanceEngine.${isPgLocal ? "postgres" : "mysql"}({
+    version: rds.${isPgLocal ? "PostgresEngineVersion.VER_16_4" : "MysqlEngineVersion.VER_8_0_39"},
+  }),
+  instanceType: ec2.InstanceType.of(ec2.InstanceClass.${dau === "large" || dau === "xlarge" ? "R6G" : dau === "medium" ? "R6G" : "T4G"}, ec2.InstanceSize.${dau === "large" || dau === "xlarge" ? "XLARGE" : dau === "medium" ? "LARGE" : "MEDIUM"}),
+  vpc,
+  vpcSubnets: { subnetType: ec2.SubnetType.${subnet === "3tier" ? "PRIVATE_ISOLATED" : "PRIVATE_WITH_EGRESS"} },
+  securityGroups: [dbSg],
+  credentials: rds.Credentials.fromSecret(dbSecret),
+  multiAz: ${dbHa !== "single_az"},
+  storageEncrypted: true,
+  allocatedStorage: ${dau === "large" || dau === "xlarge" ? 100 : 20},
+  maxAllocatedStorage: ${dau === "large" || dau === "xlarge" ? 500 : 100},
+  backupRetention: cdk.Duration.days(${isLarge ? 35 : 7}),
+  deletionProtection: true,
+  removalPolicy: cdk.RemovalPolicy.RETAIN,
+${dbHa === "multi_az_read" ? `  // Read Replica
+});
+const reader = new rds.DatabaseInstanceReadReplica(this, 'AppDbReader', {
+  sourceDatabaseInstance: db,
+  instanceType: ec2.InstanceType.of(ec2.InstanceClass.${dau === "large" || dau === "xlarge" ? "R6G" : "T4G"}, ec2.InstanceSize.${dau === "large" || dau === "xlarge" ? "XLARGE" : "MEDIUM"}),
+  vpc,
+});` : "});"}` : `# Terraform — RDS ${isPgLocal ? "PostgreSQL" : "MySQL"}
+resource "aws_db_subnet_group" "app" {
+  name       = "\${var.project}-db"
+  subnet_ids = module.vpc.${subnet === "3tier" ? "database_subnets" : "private_subnets"}
+  tags       = local.common_tags
+}
+
+resource "aws_db_instance" "app" {
+  identifier     = "\${var.project}-\${var.env}"
+  engine         = "${isPgLocal ? "postgres" : "mysql"}"
+  engine_version = "${isPgLocal ? "16.4" : "8.0.39"}"
+  instance_class = "${instClass}"
+
+  allocated_storage     = ${dau === "large" || dau === "xlarge" ? 100 : 20}
+  max_allocated_storage = ${dau === "large" || dau === "xlarge" ? 500 : 100}
+  storage_encrypted     = true
+
+  db_subnet_group_name   = aws_db_subnet_group.app.name
+  vpc_security_group_ids = [aws_security_group.db_sg.id]
+
+  username               = "admin"
+  manage_master_user_password = true  # Secrets Manager 자동 관리
+
+  multi_az             = ${dbHa !== "single_az"}
+  backup_retention_period = ${isLarge ? 35 : 7}
+  backup_window        = "17:00-18:00"
+  maintenance_window   = "sun:18:00-sun:19:00"
+
+  deletion_protection  = true
+  skip_final_snapshot  = false
+  final_snapshot_identifier = "\${var.project}-final"
+
+  performance_insights_enabled = true
+
+  tags = local.common_tags
+}
+${dbHa === "multi_az_read" ? `
+resource "aws_db_instance" "reader" {
+  identifier          = "\${var.project}-reader"
+  replicate_source_db = aws_db_instance.app.identifier
+  instance_class      = "${instClass}"
+
+  performance_insights_enabled = true
+  tags = local.common_tags
 }` : ""}`,
     });
   }
